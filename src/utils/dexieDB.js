@@ -1,8 +1,10 @@
 import Dexie from "dexie";
 
 const db = new Dexie("AtlasXrayDB");
-db.version(3).stores({
+db.version(4).stores({
   projects: "projectKey", // one row per project
+  statusHistory: "projectKey", // one row per project status history
+  projectUpdates: "projectKey", // one row per project updates
   updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]", // one row per update, with indexes
   views: "projectKey", // cached per-project computed views
   meta: "key" // sync info, feature flags, schema version
@@ -16,7 +18,23 @@ export async function getProject(projectKey) {
   return db.projects.get(projectKey);
 }
 
-// Updates store
+// StatusHistory store
+export async function setStatusHistory(projectKey, data) {
+  await db.statusHistory.put({ projectKey, ...data });
+}
+export async function getStatusHistory(projectKey) {
+  return db.statusHistory.get(projectKey);
+}
+
+// ProjectUpdates store
+export async function setProjectUpdates(projectKey, data) {
+  await db.projectUpdates.put({ projectKey, ...data });
+}
+export async function getProjectUpdates(projectKey) {
+  return db.projectUpdates.get(projectKey);
+}
+
+// Updates store (individual updates)
 export async function setUpdate(update) {
   await db.updates.put(update);
 }

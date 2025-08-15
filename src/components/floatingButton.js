@@ -1,6 +1,6 @@
 // src/components/floatingButton.js
 
-import { setItem, getItem, setProject, setUpdate } from "../utils/dexieDB";
+import { setItem, getItem, setProject, setStatusHistory, setProjectUpdates, setUpdate } from "../utils/dexieDB";
 import { apolloClient } from "../services/apolloClient";
 import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
@@ -27,7 +27,7 @@ async function fetchAndLogProjectView(projectId, cloudId) {
       variables
     });
     console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectViewQuery] projectId: ${projectId}`, data);
-    await setProject(projectId, data); // Store the result in IndexedDB
+    await setProject(projectId, data); // Store the result in projects store
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
   }
@@ -39,19 +39,20 @@ async function fetchAndLogProjectView(projectId, cloudId) {
       variables: { projectKey: projectId }
     });
     console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectStatusHistoryQuery] projectId: ${projectId}`, data);
-    await setProject(projectId, data); // Store the result in IndexedDB
+    await setStatusHistory(projectId, data); // Store the result in statusHistory store
   } catch (err) {
-    console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
+    console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
   }
 
   // Fetch ProjectUpdatesQuery
   /*try {
     const { data } = await apolloClient.query({
       query: gql`${PROJECT_UPDATES_QUERY}`,
-      variables: { key: projectId }
+      variables: { key: projectId, isUpdatesTab: true }
     });
-    console.log(`[AtlasXray] Apollo GraphQL fetch successful for ProjectUpdatesQuery: ${projectId}`, data);
-    // Store each update as a row in updates store if possible
+    console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectUpdatesQuery] projectId: ${projectId}`, data);
+    await setProjectUpdates(projectId, data); // Store the result in projectUpdates store
+    // Optionally, store each update as a row in updates store if possible
     if (data && data.project && data.project.updates && data.project.updates.edges) {
       for (const edge of data.project.updates.edges) {
         if (edge.node) {
