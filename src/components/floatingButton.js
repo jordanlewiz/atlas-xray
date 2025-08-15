@@ -1,20 +1,31 @@
 // src/components/floatingButton.js
 
 import { setItem, getItem } from "../utils/dexieDB";
-import { fetchGraphQL } from "../services/graphqlClient";
+import { apolloClient } from "../services/apolloClient";
+import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
 
-// Fetch and log project view GraphQL data for a given projectId
-async function fetchAndLogProjectView(projectId) {
-  const endpoint = "https://home.atlassian.com/gateway/api/townsquare/s/2b2b6771-c929-476f-8b6f-ca6ebcace8a2/graphql";
-  const variables = { key: projectId };
-  const cookie = ""; // TODO: provide the session cookie here
+// Fetch and log project view GraphQL data for a given projectId using Apollo
+async function fetchAndLogProjectView(projectId, cloudId) {
+  const variables = {
+    key: projectId,
+    trackViewEvent: "DIRECT",
+    workspaceId: "V29ya3NwYWNlLU3VtbWFyeTo5MDgx", 
+    onboardingKeyFilter: "PROJECT_SPOTLIGHT", 
+    areMilestonesEnabled: false,
+    cloudId: cloudId || "", // Use extracted cloudId
+    isNavRefreshEnabled: true
+  };
+  console.log(`[AtlasXray] Triggering Apollo GraphQL fetch for projectId: ${projectId}, cloudId: ${cloudId}`);
   try {
-    const data = await fetchGraphQL(endpoint, PROJECT_VIEW_QUERY, variables, cookie);
-    console.log("GraphQL project view data:", data);
+    const { data } = await apolloClient.query({
+      query: gql`${PROJECT_VIEW_QUERY}`,
+      variables
+    });
+    console.log(`[AtlasXray] Apollo GraphQL fetch successful for projectId: ${projectId}`, data);
     // TODO: store the result in IndexedDB or handle as needed
   } catch (err) {
-    console.error("Failed to fetch project view data:", err);
+    console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
   }
 }
 
@@ -37,15 +48,15 @@ async function fetchAndLogProjectView(projectId) {
   button.style.fontFamily = 'inherit';
   document.body.appendChild(button);
 
-  // Regex for /o/{projectId}/s/{sectionId}/project/{ORG-123}
+  // Regex for /o/{cloudId}/s/{sectionId}/project/{ORG-123}
   var projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
 
-  async function saveProjectIdIfNew(projectId) {
+  async function saveProjectIdIfNew(projectId, cloudId) {
     const key = `projectId:${projectId}`;
     const existing = await getItem(key);
     if (!existing) {
       await setItem(key, projectId);
-      fetchAndLogProjectView(projectId);
+      fetchAndLogProjectView(projectId, cloudId);
     }
   }
 
@@ -55,8 +66,9 @@ async function fetchAndLogProjectView(projectId) {
     matches.forEach(link => {
       var match = link.getAttribute('href').match(projectLinkPattern);
       if (match && match[3]) {
+        const cloudId = match[1];
         const projectId = match[3];
-        saveProjectIdIfNew(projectId);
+        saveProjectIdIfNew(projectId, cloudId);
       }
     });
     return matches;

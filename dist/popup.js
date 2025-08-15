@@ -13210,8 +13210,10 @@
 
   // src/utils/dexieDB.js
   var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(1).stores({
-    values: "key,value"
+  db.version(2).stores({
+    values: "key,value",
+    projects: "projectId,data",
+    updates: "projectId,data"
   });
   async function setItem(key, value) {
     await db.values.put({ key, value });
