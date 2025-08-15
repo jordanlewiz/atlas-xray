@@ -1,0 +1,10 @@
+#root {
+  min-width: 300px;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+}
+
+/*# sourceMappingURL=popup.css.map */

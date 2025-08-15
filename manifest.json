@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "Atlas Xray",
+  "version": "0.1.0",
+  "description": "Bare bones Chrome extension using React, IndexedDB, and Sass.",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "permissions": [
+    "storage"
+  ]
+}
