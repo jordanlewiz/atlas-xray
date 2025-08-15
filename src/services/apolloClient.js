@@ -41,7 +41,13 @@ const httpLink = new HttpLink({
   fetch: customFetch
 });
 
-export const apolloClient = new ApolloClient({
+const client = new ApolloClient({
   link: httpLink,
   cache: new InMemoryCache(),
+  connectToDevTools: true,
 });
+
+// Expose the client globally for Apollo DevTools
+window.__APOLLO_CLIENT__ = client;
+
+export const apolloClient = client;

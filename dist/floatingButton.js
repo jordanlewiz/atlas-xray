@@ -17936,11 +17936,11 @@ spurious results.`);
     /** @class */
     (function() {
       function LocalState2(_a2) {
-        var cache = _a2.cache, client = _a2.client, resolvers = _a2.resolvers, fragmentMatcher = _a2.fragmentMatcher;
+        var cache = _a2.cache, client2 = _a2.client, resolvers = _a2.resolvers, fragmentMatcher = _a2.fragmentMatcher;
         this.selectionsToResolveCache = /* @__PURE__ */ new WeakMap();
         this.cache = cache;
-        if (client) {
-          this.client = client;
+        if (client2) {
+          this.client = client2;
         }
         if (resolvers) {
           this.addResolvers(resolvers);
@@ -18053,7 +18053,7 @@ spurious results.`);
       };
       LocalState2.prototype.resolveDocument = function(document_1, rootValue_1) {
         return __awaiter(this, arguments, void 0, function(document2, rootValue, context, variables, fragmentMatcher, onlyRunForcedResolvers) {
-          var mainDefinition, fragments, fragmentMap, selectionsToResolve, definitionOperation, defaultOperationType, _a2, cache, client, execContext, isClientFieldDescendant;
+          var mainDefinition, fragments, fragmentMap, selectionsToResolve, definitionOperation, defaultOperationType, _a2, cache, client2, execContext, isClientFieldDescendant;
           if (context === void 0) {
             context = {};
           }
@@ -18075,10 +18075,10 @@ spurious results.`);
             selectionsToResolve = this.collectSelectionsToResolve(mainDefinition, fragmentMap);
             definitionOperation = mainDefinition.operation;
             defaultOperationType = definitionOperation ? definitionOperation.charAt(0).toUpperCase() + definitionOperation.slice(1) : "Query";
-            _a2 = this, cache = _a2.cache, client = _a2.client;
+            _a2 = this, cache = _a2.cache, client2 = _a2.client;
             execContext = {
               fragmentMap,
-              context: __assign(__assign({}, context), { cache, client }),
+              context: __assign(__assign({}, context), { cache, client: client2 }),
               variables,
               fragmentMatcher,
               defaultOperationType,
@@ -18735,10 +18735,13 @@ spurious results.`);
     uri: "https://home.atlassian.com/gateway/api/townsquare/s/2b2b6771-c929-476f-8b6f-ca6ebcace8a2/graphql",
     fetch: customFetch
   });
-  var apolloClient = new ApolloClient({
+  var client = new ApolloClient({
     link: httpLink,
-    cache: new InMemoryCache()
+    cache: new InMemoryCache(),
+    connectToDevTools: true
   });
+  window.__APOLLO_CLIENT__ = client;
+  var apolloClient = client;
 
   // src/graphql/projectViewQuery.js
   var PROJECT_VIEW_QUERY = `
@@ -19772,7 +19775,6 @@ fragment utils_isUserInList on UserConnection {
       key: projectId,
       trackViewEvent: "DIRECT",
       workspaceId: null,
-      //"d29ya3NwYWNlLTNhZDNmYTE2LTNlYjEtNDc5Mi1hYzhjLWM0YjA2MWQ3MWVkYg==",
       onboardingKeyFilter: "PROJECT_SPOTLIGHT",
       areMilestonesEnabled: false,
       cloudId: cloudId || "",
