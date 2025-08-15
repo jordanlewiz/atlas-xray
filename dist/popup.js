@@ -13210,15 +13210,15 @@
 
   // src/utils/dexieDB.js
   var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(4).stores({
-    projects: "projectKey",
-    // one row per project
-    statusHistory: "projectKey",
-    // one row per project status history
+  db.version(5).stores({
+    projectView: "projectKey",
+    // one row per project view query result
+    projectStatusHistory: "projectKey",
+    // one row per project status history query result
     projectUpdates: "projectKey",
-    // one row per project updates
+    // one row per project updates query result
     updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]",
-    // one row per update, with indexes
+    // one row per individual update (from updates.edges)
     views: "projectKey",
     // cached per-project computed views
     meta: "key"

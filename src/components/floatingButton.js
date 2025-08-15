@@ -1,6 +1,6 @@
 // src/components/floatingButton.js
 
-import { setItem, getItem, setProject, setStatusHistory, setProjectUpdates, setUpdate } from "../utils/dexieDB";
+import { setItem, getItem, setProjectView, setProjectStatusHistory, setProjectUpdates, setUpdate } from "../utils/dexieDB";
 import { apolloClient } from "../services/apolloClient";
 import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
@@ -27,7 +27,7 @@ async function fetchAndLogProjectView(projectId, cloudId) {
       variables
     });
     console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectViewQuery] projectId: ${projectId}`, data);
-    await setProject(projectId, data); // Store the result in projects store
+    await setProjectView(projectId, data); // Store the result in projectView store
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
   }
@@ -39,7 +39,7 @@ async function fetchAndLogProjectView(projectId, cloudId) {
       variables: { projectKey: projectId }
     });
     console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectStatusHistoryQuery] projectId: ${projectId}`, data);
-    await setStatusHistory(projectId, data); // Store the result in statusHistory store
+    await setProjectStatusHistory(projectId, data); // Store the result in projectStatusHistory store
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
   }

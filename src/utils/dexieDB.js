@@ -1,32 +1,32 @@
 import Dexie from "dexie";
 
 const db = new Dexie("AtlasXrayDB");
-db.version(4).stores({
-  projects: "projectKey", // one row per project
-  statusHistory: "projectKey", // one row per project status history
-  projectUpdates: "projectKey", // one row per project updates
-  updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]", // one row per update, with indexes
+db.version(5).stores({
+  projectView: "projectKey", // one row per project view query result
+  projectStatusHistory: "projectKey", // one row per project status history query result
+  projectUpdates: "projectKey", // one row per project updates query result
+  updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]", // one row per individual update (from updates.edges)
   views: "projectKey", // cached per-project computed views
   meta: "key" // sync info, feature flags, schema version
 });
 
-// Projects store
-export async function setProject(projectKey, data) {
-  await db.projects.put({ projectKey, ...data });
+// ProjectView store
+export async function setProjectView(projectKey, data) {
+  await db.projectView.put({ projectKey, ...data });
 }
-export async function getProject(projectKey) {
-  return db.projects.get(projectKey);
-}
-
-// StatusHistory store
-export async function setStatusHistory(projectKey, data) {
-  await db.statusHistory.put({ projectKey, ...data });
-}
-export async function getStatusHistory(projectKey) {
-  return db.statusHistory.get(projectKey);
+export async function getProjectView(projectKey) {
+  return db.projectView.get(projectKey);
 }
 
-// ProjectUpdates store
+// ProjectStatusHistory store
+export async function setProjectStatusHistory(projectKey, data) {
+  await db.projectStatusHistory.put({ projectKey, ...data });
+}
+export async function getProjectStatusHistory(projectKey) {
+  return db.projectStatusHistory.get(projectKey);
+}
+
+// ProjectUpdates store (full updates query result per project)
 export async function setProjectUpdates(projectKey, data) {
   await db.projectUpdates.put({ projectKey, ...data });
 }
@@ -34,7 +34,7 @@ export async function getProjectUpdates(projectKey) {
   return db.projectUpdates.get(projectKey);
 }
 
-// Updates store (individual updates)
+// Updates store (individual update records from updates.edges)
 export async function setUpdate(update) {
   await db.updates.put(update);
 }
