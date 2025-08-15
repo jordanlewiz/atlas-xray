@@ -19783,6 +19783,104 @@ fragment utils_isUserInList on UserConnection {
 }
 `;
 
+  // src/graphql/projectStatusHistoryQuery.js
+  var PROJECT_STATUS_HISTORY_QUERY = `
+  query ProjectStatusHistoryQuery(
+  $projectKey: String!
+) {
+  project: projectByKey(key: $projectKey) {
+    latestUpdateDate
+    ...ProjectHistoryBars
+    id
+  }
+}
+
+fragment ProjectHistoryBars on Project {
+  owner {
+    aaid
+    id
+  }
+  creationDate
+  startDate
+  targetDate
+  state {
+    value
+  }
+  updates {
+    edges {
+      node {
+        id
+        creationDate
+        missedUpdate
+        updateType
+        newState {
+          label
+          localizedLabel {
+            messageId
+          }
+          value
+        }
+        newTargetDate
+        newTargetDateConfidence
+        oldTargetDate
+        oldTargetDateConfidence
+      }
+    }
+  }
+  projectMemberships {
+    edges {
+      node {
+        user {
+          ...UserAvatar
+          aaid
+          id
+        }
+        joined
+      }
+    }
+  }
+  projectTeamLinks {
+    edges {
+      node {
+        team {
+          ...TeamAvatar
+          teamId
+          members {
+            edges {
+              node {
+                aaid
+              }
+            }
+          }
+          id
+        }
+        creationDate
+      }
+    }
+  }
+}
+
+fragment TeamAvatar on Team {
+  id
+  name
+  teamId
+  teamDetails {
+    isVerified
+  }
+  avatarUrl
+}
+
+fragment UserAvatar on User {
+  aaid
+  pii {
+    picture
+    name
+    accountStatus
+    accountId
+  }
+}
+`;
+
   // src/components/floatingButton.js
   async function fetchAndLogProjectView(projectId, cloudId) {
     const variables = {
@@ -19800,7 +19898,17 @@ fragment utils_isUserInList on UserConnection {
         query: gql`${PROJECT_VIEW_QUERY}`,
         variables
       });
-      console.log(`[AtlasXray] Apollo GraphQL fetch successful for projectId: ${projectId}`, data);
+      console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectViewQuery] projectId: ${projectId}`, data);
+      await setProject(projectId, data);
+    } catch (err) {
+      console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
+    }
+    try {
+      const { data } = await apolloClient.query({
+        query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
+        variables: { projectKey: projectId }
+      });
+      console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectStatusHistoryQuery] projectId: ${projectId}`, data);
       await setProject(projectId, data);
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
