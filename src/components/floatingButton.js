@@ -1,5 +1,6 @@
-// Inject a floating button to indicate the extension has loaded
-import { setItem, getItem } from "./dexieDB";
+// src/components/floatingButton.js
+
+import { setItem, getItem } from "../utils/dexieDB";
 (function() {
   // Floating button code
   var button = document.createElement('button');
@@ -28,7 +29,6 @@ import { setItem, getItem } from "./dexieDB";
     const existing = await getItem(key);
     if (!existing) {
       await setItem(key, projectId);
-      console.log('Saved project ID to IndexedDB:', projectId);
     }
   }
 
@@ -39,7 +39,6 @@ import { setItem, getItem } from "./dexieDB";
       var match = link.getAttribute('href').match(projectLinkPattern);
       if (match && match[3]) {
         const projectId = match[3];
-        console.log(projectId); // Only log the project ID (e.g., MYOB-660)
         saveProjectIdIfNew(projectId);
       }
     });

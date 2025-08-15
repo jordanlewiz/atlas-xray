@@ -5997,7 +5997,7 @@
     return entry ? entry.value : null;
   }
 
-  // src/utils/floatingButton.js
+  // src/components/floatingButton.js
   (function() {
     var button = document.createElement("button");
     button.innerText = "Atlas Xray Loaded";
@@ -6021,7 +6021,6 @@
       const existing = await getItem(key);
       if (!existing) {
         await setItem(key, projectId);
-        console.log("Saved project ID to IndexedDB:", projectId);
       }
     }
     function findMatchingProjectLinks() {

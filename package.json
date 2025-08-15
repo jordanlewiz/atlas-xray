@@ -6,7 +6,7 @@
   "scripts": {
     "build:js": "esbuild src/popup.jsx --bundle --outfile=dist/popup.js --format=iife --loader:.js=jsx --define:process.env.NODE_ENV='\"production\"'",
     "build:css": "sass src/assets/styles/popup.scss dist/popup.css --source-map",
-    "build:content": "esbuild src/utils/floatingButton.js --bundle --outfile=dist/floatingButton.js --format=iife",
+    "build:content": "esbuild src/components/floatingButton.js --bundle --outfile=dist/floatingButton.js --format=iife",
     "build": "npm run build:js && npm run build:css && npm run build:content"
   },
   "dependencies": {
