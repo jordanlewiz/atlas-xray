@@ -5,18 +5,23 @@ import { apolloClient } from "../services/apolloClient";
 import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
 
+// Helper to encode workspaceId as base64 of 'workspace-' + cloudId
+function encodeWorkspaceId(cloudId) {
+  return btoa(`workspace-${cloudId}`);
+}
+
 // Fetch and log project view GraphQL data for a given projectId using Apollo
 async function fetchAndLogProjectView(projectId, cloudId) {
   const variables = {
     key: projectId,
     trackViewEvent: "DIRECT",
-    workspaceId: "V29ya3NwYWNlLU3VtbWFyeTo5MDgx", 
-    onboardingKeyFilter: "PROJECT_SPOTLIGHT", 
+    workspaceId: null,
+    onboardingKeyFilter: "PROJECT_SPOTLIGHT",
     areMilestonesEnabled: false,
-    cloudId: cloudId || "", // Use extracted cloudId
+    cloudId: cloudId || "",
     isNavRefreshEnabled: true
   };
-  console.log(`[AtlasXray] Triggering Apollo GraphQL fetch for projectId: ${projectId}, cloudId: ${cloudId}`);
+  console.log(`[AtlasXray] Triggering Apollo GraphQL fetch for projectId: ${projectId}, cloudId: ${cloudId}, workspaceId: ${variables.workspaceId}`);
   try {
     const { data } = await apolloClient.query({
       query: gql`${PROJECT_VIEW_QUERY}`,
@@ -54,6 +59,7 @@ async function fetchAndLogProjectView(projectId, cloudId) {
   async function saveProjectIdIfNew(projectId, cloudId) {
     const key = `projectId:${projectId}`;
     const existing = await getItem(key);
+    console.log(`[AtlasXray] Saving projectId: ${projectId}, cloudId: ${cloudId}, existing: ${existing}`);
     if (!existing) {
       await setItem(key, projectId);
       fetchAndLogProjectView(projectId, cloudId);

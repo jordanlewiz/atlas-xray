@@ -19771,14 +19771,14 @@ fragment utils_isUserInList on UserConnection {
     const variables = {
       key: projectId,
       trackViewEvent: "DIRECT",
-      workspaceId: "V29ya3NwYWNlLU3VtbWFyeTo5MDgx",
+      workspaceId: null,
+      //"d29ya3NwYWNlLTNhZDNmYTE2LTNlYjEtNDc5Mi1hYzhjLWM0YjA2MWQ3MWVkYg==",
       onboardingKeyFilter: "PROJECT_SPOTLIGHT",
       areMilestonesEnabled: false,
-      cloudId: "3ad3fa16-3eb1-4792-ac8c-c4b061d71edb",
-      // Use extracted cloudId
+      cloudId: cloudId || "",
       isNavRefreshEnabled: true
     };
-    console.log(`[AtlasXray] Triggering Apollo GraphQL fetch for projectId: ${projectId}, cloudId: ${cloudId}`);
+    console.log(`[AtlasXray] Triggering Apollo GraphQL fetch for projectId: ${projectId}, cloudId: ${cloudId}, workspaceId: ${variables.workspaceId}`);
     try {
       const { data } = await apolloClient.query({
         query: gql`${PROJECT_VIEW_QUERY}`,
@@ -19810,6 +19810,7 @@ fragment utils_isUserInList on UserConnection {
     async function saveProjectIdIfNew(projectId, cloudId) {
       const key = `projectId:${projectId}`;
       const existing = await getItem(key);
+      console.log(`[AtlasXray] Saving projectId: ${projectId}, cloudId: ${cloudId}, existing: ${existing}`);
       if (!existing) {
         await setItem(key, projectId);
         fetchAndLogProjectView(projectId, cloudId);
