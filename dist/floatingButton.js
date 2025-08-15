@@ -6030,7 +6030,6 @@
         var match = link.getAttribute("href").match(projectLinkPattern);
         if (match && match[3]) {
           const projectId = match[3];
-          console.log(projectId);
           saveProjectIdIfNew(projectId);
         }
       });
