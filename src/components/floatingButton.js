@@ -45,28 +45,16 @@ async function fetchAndLogProjectView(projectId, cloudId) {
   }
 
   // Fetch ProjectUpdatesQuery
-  /*try {
+  try {
     const { data } = await apolloClient.query({
       query: gql`${PROJECT_UPDATES_QUERY}`,
       variables: { key: projectId, isUpdatesTab: true }
     });
     console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectUpdatesQuery] projectId: ${projectId}`, data);
     await setProjectUpdates(projectId, data); // Store the result in projectUpdates store
-    // Optionally, store each update as a row in updates store if possible
-    if (data && data.project && data.project.updates && data.project.updates.edges) {
-      for (const edge of data.project.updates.edges) {
-        if (edge.node) {
-          await setUpdate({
-            ...edge.node,
-            projectKey: projectId,
-            updatedAt: edge.node.creationDate || new Date().toISOString()
-          });
-        }
-      }
-    }
   } catch (err) {
-    console.error(`[AtlasXray] Failed to fetch project updates for projectId: ${projectId}`, err);
-  }*/
+    console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
+  }
 }
 
 (function() {
