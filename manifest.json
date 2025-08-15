@@ -11,5 +11,14 @@
   },
   "permissions": [
     "storage"
+  ],
+  "host_permissions": [
+    "https://home.atlassian.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["https://home.atlassian.com/*"],
+      "js": ["popup.js"]
+    }
   ]
 }
