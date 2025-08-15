@@ -4,10 +4,10 @@
   "version": "0.1.0",
   "description": "Bare bones Chrome extension using React, IndexedDB, and Sass.",
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "dist/popup.html"
   },
   "background": {
-    "service_worker": "background.js"
+    "service_worker": "dist/background.js"
   },
   "permissions": [
     "storage"
@@ -18,7 +18,7 @@
   "content_scripts": [
     {
       "matches": ["https://home.atlassian.com/*"],
-      "js": ["popup.js"]
+      "js": ["dist/popup.js", "dist/floatingButton.js"]
     }
   ]
 }
