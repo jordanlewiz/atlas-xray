@@ -5986,17 +5986,31 @@
 
   // src/utils/dexieDB.js
   var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(2).stores({
-    values: "key,value",
-    projects: "projectId,data",
-    updates: "projectId,data"
+  db.version(3).stores({
+    projects: "projectKey",
+    // one row per project
+    updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]",
+    // one row per update, with indexes
+    views: "projectKey",
+    // cached per-project computed views
+    meta: "key"
+    // sync info, feature flags, schema version
   });
+  async function setProject(projectKey, data) {
+    await db.projects.put({ projectKey, ...data });
+  }
+  async function setMeta(key, value) {
+    await db.meta.put({ key, value });
+  }
+  async function getMeta(key) {
+    const entry = await db.meta.get(key);
+    return entry ? entry.value : null;
+  }
   async function setItem(key, value) {
-    await db.values.put({ key, value });
+    await setMeta(key, value);
   }
   async function getItem(key) {
-    const entry = await db.values.get(key);
-    return entry ? entry.value : null;
+    return getMeta(key);
   }
 
   // node_modules/tslib/tslib.es6.mjs
@@ -19787,6 +19801,7 @@ fragment utils_isUserInList on UserConnection {
         variables
       });
       console.log(`[AtlasXray] Apollo GraphQL fetch successful for projectId: ${projectId}`, data);
+      await setProject(projectId, data);
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
     }
@@ -19812,7 +19827,6 @@ fragment utils_isUserInList on UserConnection {
     async function saveProjectIdIfNew(projectId, cloudId) {
       const key = `projectId:${projectId}`;
       const existing = await getItem(key);
-      console.log(`[AtlasXray] Saving projectId: ${projectId}, cloudId: ${cloudId}, existing: ${existing}`);
       if (!existing) {
         await setItem(key, projectId);
         fetchAndLogProjectView(projectId, cloudId);

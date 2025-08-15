@@ -13210,17 +13210,28 @@
 
   // src/utils/dexieDB.js
   var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(2).stores({
-    values: "key,value",
-    projects: "projectId,data",
-    updates: "projectId,data"
+  db.version(3).stores({
+    projects: "projectKey",
+    // one row per project
+    updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]",
+    // one row per update, with indexes
+    views: "projectKey",
+    // cached per-project computed views
+    meta: "key"
+    // sync info, feature flags, schema version
   });
+  async function setMeta(key, value) {
+    await db.meta.put({ key, value });
+  }
+  async function getMeta(key) {
+    const entry = await db.meta.get(key);
+    return entry ? entry.value : null;
+  }
   async function setItem(key, value) {
-    await db.values.put({ key, value });
+    await setMeta(key, value);
   }
   async function getItem(key) {
-    const entry = await db.values.get(key);
-    return entry ? entry.value : null;
+    return getMeta(key);
   }
 
   // src/PopupApp.jsx

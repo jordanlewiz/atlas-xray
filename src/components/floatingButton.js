@@ -1,14 +1,9 @@
 // src/components/floatingButton.js
 
-import { setItem, getItem } from "../utils/dexieDB";
+import { setItem, getItem, setProject } from "../utils/dexieDB";
 import { apolloClient } from "../services/apolloClient";
 import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
-
-// Helper to encode workspaceId as base64 of 'workspace-' + cloudId
-function encodeWorkspaceId(cloudId) {
-  return btoa(`workspace-${cloudId}`);
-}
 
 // Fetch and log project view GraphQL data for a given projectId using Apollo
 async function fetchAndLogProjectView(projectId, cloudId) {
@@ -28,7 +23,7 @@ async function fetchAndLogProjectView(projectId, cloudId) {
       variables
     });
     console.log(`[AtlasXray] Apollo GraphQL fetch successful for projectId: ${projectId}`, data);
-    // TODO: store the result in IndexedDB or handle as needed
+    await setProject(projectId, data); // Store the result in IndexedDB
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
   }
@@ -59,7 +54,6 @@ async function fetchAndLogProjectView(projectId, cloudId) {
   async function saveProjectIdIfNew(projectId, cloudId) {
     const key = `projectId:${projectId}`;
     const existing = await getItem(key);
-    console.log(`[AtlasXray] Saving projectId: ${projectId}, cloudId: ${cloudId}, existing: ${existing}`);
     if (!existing) {
       await setItem(key, projectId);
       fetchAndLogProjectView(projectId, cloudId);

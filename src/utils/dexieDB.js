@@ -1,38 +1,50 @@
 import Dexie from "dexie";
 
 const db = new Dexie("AtlasXrayDB");
-db.version(2).stores({
-  values: "key,value",
-  projects: "projectId,data",
-  updates: "projectId,data"
+db.version(3).stores({
+  projects: "projectKey", // one row per project
+  updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]", // one row per update, with indexes
+  views: "projectKey", // cached per-project computed views
+  meta: "key" // sync info, feature flags, schema version
 });
 
-// Generic key-value store
-export async function setItem(key, value) {
-  await db.values.put({ key, value });
+// Projects store
+export async function setProject(projectKey, data) {
+  await db.projects.put({ projectKey, ...data });
+}
+export async function getProject(projectKey) {
+  return db.projects.get(projectKey);
 }
 
-export async function getItem(key) {
-  const entry = await db.values.get(key);
+// Updates store
+export async function setUpdate(update) {
+  await db.updates.put(update);
+}
+export async function getUpdatesByProject(projectKey) {
+  return db.updates.where("projectKey").equals(projectKey).toArray();
+}
+
+// Views store
+export async function setView(projectKey, data) {
+  await db.views.put({ projectKey, ...data });
+}
+export async function getView(projectKey) {
+  return db.views.get(projectKey);
+}
+
+// Meta store
+export async function setMeta(key, value) {
+  await db.meta.put({ key, value });
+}
+export async function getMeta(key) {
+  const entry = await db.meta.get(key);
   return entry ? entry.value : null;
 }
 
-// Project data store
-export async function setProjectData(projectId, data) {
-  await db.projects.put({ projectId, data });
+// Generic key-value helpers (backward compatibility, use meta store)
+export async function setItem(key, value) {
+  await setMeta(key, value);
 }
-
-export async function getProjectData(projectId) {
-  const entry = await db.projects.get(projectId);
-  return entry ? entry.data : null;
-}
-
-// Updates data store
-export async function setProjectUpdates(projectId, data) {
-  await db.updates.put({ projectId, data });
-}
-
-export async function getProjectUpdates(projectId) {
-  const entry = await db.updates.get(projectId);
-  return entry ? entry.data : null;
+export async function getItem(key) {
+  return getMeta(key);
 }
