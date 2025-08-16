@@ -54,4 +54,21 @@ export async function getProjectViewCount() {
   return db.projectView.count();
 }
 
-export { db };
+/**
+ * Upsert normalized project updates into the DB.
+ * @param {any[]} nodes
+ * @returns {Promise}
+ */
+function upsertProjectUpdates(nodes) {
+  const rows = nodes.map((n) => ({
+    id: n.id ?? n.uuid,
+    projectKey: n.project?.key,
+    creationDate: n.creationDate,
+    state: n.newState?.value,
+    missedUpdate: !!n.missedUpdate,
+    raw: n,
+  }));
+  return db.projectUpdates.bulkPut(rows);
+}
+
+export { db, upsertProjectUpdates };

@@ -1,4 +1,4 @@
-import { getItem, setItem, setProjectView, setProjectStatusHistory, setProjectUpdates } from "../utils/database";
+import { getItem, setItem, setProjectView, setProjectStatusHistory, upsertProjectUpdates } from "../utils/database";
 import { apolloClient } from "../services/apolloClient";
 import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
@@ -56,13 +56,17 @@ async function fetchAndStoreProjectData(projectId, cloudId) {
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
   }
-  // ProjectUpdates
+  // ProjectUpdates (normalize and store flat rows)
   try {
     const { data } = await apolloClient.query({
       query: gql`${PROJECT_UPDATES_QUERY}`,
       variables: { key: projectId, isUpdatesTab: true }
     });
-    await setProjectUpdates(projectId, data);
+    // Normalize: extract all .node from edges
+    const nodes = data?.project?.updates?.edges?.map(edge => edge.node).filter(Boolean) || [];
+    if (nodes.length > 0) {
+      await upsertProjectUpdates(nodes);
+    }
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
   }
