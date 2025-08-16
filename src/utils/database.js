@@ -1,9 +1,9 @@
 import Dexie from "dexie";
 
 const db = new Dexie("AtlasXrayDB");
-db.version(7).stores({
+db.version(8).stores({
   projectView: "projectKey",
-  projectStatusHistory: "projectKey",
+  projectStatusHistory: "id,projectKey",
   projectUpdates: "id,projectKey",
   meta: "key"
 });
@@ -72,4 +72,19 @@ function upsertProjectUpdates(nodes) {
   return db.projectUpdates.bulkPut(rows);
 }
 
-export { db, upsertProjectUpdates };
+/**
+ * Upsert normalized project status history into the DB.
+ * @param {any[]} nodes
+ * @returns {Promise}
+ */
+function upsertProjectStatusHistory(nodes) {
+  console.log('[AtlasXray] upsertProjectStatusHistory', nodes);
+  const rows = nodes.map((n) => ({
+    id: n.id ?? n.uuid,
+    projectKey: n.project?.key,
+    raw: n,
+  }));
+  return db.projectStatusHistory.bulkPut(rows);
+}
+
+export { db, upsertProjectUpdates, upsertProjectStatusHistory };

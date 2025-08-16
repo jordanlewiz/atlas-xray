@@ -7955,9 +7955,9 @@
 
   // src/utils/database.js
   var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(7).stores({
+  db.version(8).stores({
     projectView: "projectKey",
-    projectStatusHistory: "projectKey",
+    projectStatusHistory: "id,projectKey",
     projectUpdates: "id,projectKey",
     meta: "key"
   });
@@ -7978,8 +7978,12 @@
       () => db.projectUpdates.where("projectKey").equals(project.projectKey).toArray(),
       [project.projectKey]
     );
+    const statusHistory = useLiveQuery(
+      () => db.projectStatusHistory.where("projectKey").equals(project.projectKey).toArray(),
+      [project.projectKey]
+    );
     const showBool = (val) => val ? "Yes" : "No";
-    return /* @__PURE__ */ import_react2.default.createElement("li", { className: "atlas-xray-modal-list-item" }, project.projectKey, " ", project.name ? `- ${project.name}` : "", updates && updates.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list" }, updates.map((update, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: update.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(update.creationDate), update.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "State:"), " ", update.state), typeof update.missedUpdate !== "undefined" && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Missed:"), " ", showBool(update.missedUpdate)), update.targetDate && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Target Date:"), " ", formatDate(update.targetDate)), typeof update.hasChangedStatus !== "undefined" && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Status Changed:"), " ", showBool(update.hasChangedStatus))))));
+    return /* @__PURE__ */ import_react2.default.createElement("li", { className: "atlas-xray-modal-list-item" }, project.projectKey, " ", project.name ? `- ${project.name}` : "", updates && updates.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list" }, updates.map((update, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: update.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(update.creationDate), update.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "State:"), " ", update.state), typeof update.missedUpdate !== "undefined" && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Missed:"), " ", showBool(update.missedUpdate)), update.targetDate && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Target Date:"), " ", formatDate(update.targetDate))))), statusHistory && statusHistory.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list", style: { marginTop: 8 } }, /* @__PURE__ */ import_react2.default.createElement("li", null, /* @__PURE__ */ import_react2.default.createElement("b", null, "Status History:")), statusHistory.map((entry, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: entry.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(entry.date), entry.status && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Status:"), " ", entry.status), entry.author && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "By:"), " ", entry.author.displayName)))));
   }
   function ProjectList({ projects }) {
     if (!projects || projects.length === 0) return /* @__PURE__ */ import_react2.default.createElement("li", null, "No projects found.");

@@ -29629,17 +29629,14 @@
 
   // src/utils/database.js
   var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(7).stores({
+  db.version(8).stores({
     projectView: "projectKey",
-    projectStatusHistory: "projectKey",
+    projectStatusHistory: "id,projectKey",
     projectUpdates: "id,projectKey",
     meta: "key"
   });
   async function setProjectView(projectKey, data) {
     await db.projectView.put({ projectKey, ...data });
-  }
-  async function setProjectStatusHistory(projectKey, data) {
-    await db.projectStatusHistory.put({ projectKey, ...data });
   }
   async function setMeta(key, value) {
     await db.meta.put({ key, value });
@@ -29661,13 +29658,20 @@
       projectKey: n.project?.key,
       creationDate: n.creationDate,
       state: n.newState?.value,
-      oldState: n.oldState?.value,
       missedUpdate: !!n.missedUpdate,
       targetDate: n.newTargetDate,
-      oldTargetDate: n.oldDueDate ? n.oldDueDate.tooltip : void 0,
       raw: n
     }));
     return db.projectUpdates.bulkPut(rows);
+  }
+  function upsertProjectStatusHistory(nodes) {
+    console.log("[AtlasXray] upsertProjectStatusHistory", nodes);
+    const rows = nodes.map((n) => ({
+      id: n.id ?? n.uuid,
+      projectKey: n.project?.key,
+      raw: n
+    }));
+    return db.projectStatusHistory.bulkPut(rows);
   }
 
   // src/components/ProjectList.jsx
@@ -29686,8 +29690,12 @@
       () => db.projectUpdates.where("projectKey").equals(project.projectKey).toArray(),
       [project.projectKey]
     );
+    const statusHistory = useLiveQuery(
+      () => db.projectStatusHistory.where("projectKey").equals(project.projectKey).toArray(),
+      [project.projectKey]
+    );
     const showBool = (val) => val ? "Yes" : "No";
-    return /* @__PURE__ */ import_react2.default.createElement("li", { className: "atlas-xray-modal-list-item" }, project.projectKey, " ", project.name ? `- ${project.name}` : "", updates && updates.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list" }, updates.map((update, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: update.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(update.creationDate), update.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "State:"), " ", update.state), typeof update.missedUpdate !== "undefined" && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Missed:"), " ", showBool(update.missedUpdate)), update.targetDate && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Target Date:"), " ", formatDate(update.targetDate)), typeof update.hasChangedStatus !== "undefined" && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Status Changed:"), " ", showBool(update.hasChangedStatus))))));
+    return /* @__PURE__ */ import_react2.default.createElement("li", { className: "atlas-xray-modal-list-item" }, project.projectKey, " ", project.name ? `- ${project.name}` : "", updates && updates.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list" }, updates.map((update, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: update.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(update.creationDate), update.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "State:"), " ", update.state), typeof update.missedUpdate !== "undefined" && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Missed:"), " ", showBool(update.missedUpdate)), update.targetDate && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Target Date:"), " ", formatDate(update.targetDate))))), statusHistory && statusHistory.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list", style: { marginTop: 8 } }, /* @__PURE__ */ import_react2.default.createElement("li", null, /* @__PURE__ */ import_react2.default.createElement("b", null, "Status History:")), statusHistory.map((entry, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: entry.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(entry.date), entry.status && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Status:"), " ", entry.status), entry.author && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "By:"), " ", entry.author.displayName)))));
   }
   function ProjectList({ projects }) {
     if (!projects || projects.length === 0) return /* @__PURE__ */ import_react2.default.createElement("li", null, "No projects found.");
@@ -44183,7 +44191,12 @@ fragment UserAvatar on User {
         query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
         variables: { projectKey: projectId }
       });
-      await setProjectStatusHistory(projectId, data);
+      console.log("[AtlasXray] Status history API response for", projectId, data);
+      const nodes = data?.project?.updates?.edges?.map((edge) => edge.node).filter(Boolean) || [];
+      console.log("[AtlasXray] Normalized status history nodes for", projectId, nodes);
+      if (nodes.length > 0) {
+        await upsertProjectStatusHistory(nodes, projectId);
+      }
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
     }

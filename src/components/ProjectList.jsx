@@ -9,6 +9,11 @@ function ProjectListItem({ project }) {
     () => db.projectUpdates.where("projectKey").equals(project.projectKey).toArray(),
     [project.projectKey]
   );
+  // Fetch all status history rows for this projectKey
+  const statusHistory = useLiveQuery(
+    () => db.projectStatusHistory.where("projectKey").equals(project.projectKey).toArray(),
+    [project.projectKey]
+  );
   const showBool = (val) => val ? "Yes" : "No";
 
   return (
@@ -26,9 +31,18 @@ function ProjectListItem({ project }) {
               {update.targetDate && (
                 <span> | <b>Target Date:</b> {formatDate(update.targetDate)}</span>
               )}
-              {typeof update.hasChangedStatus !== 'undefined' && (
-                <span> | <b>Status Changed:</b> {showBool(update.hasChangedStatus)}</span>
-              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {statusHistory && statusHistory.length > 0 && (
+        <ul className="atlas-xray-update-list" style={{ marginTop: 8 }}>
+          <li><b>Status History:</b></li>
+          {statusHistory.map((entry, i) => (
+            <li key={entry.id || i}>
+              <b>Date:</b> {formatDate(entry.date)}
+              {entry.status && <span> | <b>Status:</b> {entry.status}</span>}
+              {entry.author && <span> | <b>By:</b> {entry.author.displayName}</span>}
             </li>
           ))}
         </ul>

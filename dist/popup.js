@@ -13210,9 +13210,9 @@
 
   // src/utils/database.js
   var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(7).stores({
+  db.version(8).stores({
     projectView: "projectKey",
-    projectStatusHistory: "projectKey",
+    projectStatusHistory: "id,projectKey",
     projectUpdates: "id,projectKey",
     meta: "key"
   });
