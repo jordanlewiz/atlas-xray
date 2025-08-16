@@ -6,7 +6,7 @@ import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
 import { PROJECT_STATUS_HISTORY_QUERY } from "../graphql/projectStatusHistoryQuery";
 import { PROJECT_UPDATES_QUERY } from "../graphql/projectUpdatesQuery";
-import { findMatchingProjectLinksFromHrefs } from "../utils/projectLinkUtils";
+import { scanAndStoreProjectIds, findMatchingProjectLinksFromHrefs } from "../utils/projectIdScanner";
 
 // Fetch and log project view GraphQL data for a given projectId using Apollo
 async function fetchAndLogProjectView(projectId, cloudId) {
@@ -89,14 +89,9 @@ async function fetchAndLogProjectView(projectId, cloudId) {
     }
   }
 
-  function findMatchingProjectLinks() {
-    var links = Array.from(document.querySelectorAll('a[href]'));
-    var hrefs = links.map(link => link.getAttribute('href'));
-    const matches = findMatchingProjectLinksFromHrefs(hrefs);
-    matches.forEach(({ projectId, cloudId }) => {
-      saveProjectIdIfNew(projectId, cloudId);
-    });
-    return matches;
+  // Replace findMatchingProjectLinks with scanAndStoreProjectIds
+  async function findMatchingProjectLinks() {
+    return await scanAndStoreProjectIds();
   }
 
   // Initial scan

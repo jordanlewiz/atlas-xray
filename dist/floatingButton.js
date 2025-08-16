@@ -20435,7 +20435,7 @@ fragment UserAvatar on User {
   }
 `;
 
-  // src/utils/projectLinkUtils.js
+  // src/utils/projectIdScanner.js
   var projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
   function findMatchingProjectLinksFromHrefs(hrefs) {
     const seen = /* @__PURE__ */ new Set();
@@ -20453,6 +20453,19 @@ fragment UserAvatar on User {
       }
     });
     return results;
+  }
+  async function scanAndStoreProjectIds() {
+    const links = Array.from(document.querySelectorAll("a[href]"));
+    const hrefs = links.map((link) => link.getAttribute("href"));
+    const matches = findMatchingProjectLinksFromHrefs(hrefs);
+    for (const { projectId, cloudId } of matches) {
+      const key = `projectId:${projectId}`;
+      const existing = await getItem(key);
+      if (!existing) {
+        await setItem(key, projectId);
+      }
+    }
+    return matches;
   }
 
   // src/components/floatingButton.js
@@ -20524,14 +20537,8 @@ fragment UserAvatar on User {
         fetchAndLogProjectView(projectId, cloudId);
       }
     }
-    function findMatchingProjectLinks() {
-      var links = Array.from(document.querySelectorAll("a[href]"));
-      var hrefs = links.map((link) => link.getAttribute("href"));
-      const matches = findMatchingProjectLinksFromHrefs(hrefs);
-      matches.forEach(({ projectId, cloudId }) => {
-        saveProjectIdIfNew(projectId, cloudId);
-      });
-      return matches;
+    async function findMatchingProjectLinks() {
+      return await scanAndStoreProjectIds();
     }
     findMatchingProjectLinks();
     var observer = new MutationObserver(() => {
