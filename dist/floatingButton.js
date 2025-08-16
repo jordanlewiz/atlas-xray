@@ -7849,8 +7849,8 @@
     }
   });
 
-  // src/components/floatingButton.js
-  var import_react2 = __toESM(require_react());
+  // src/components/FloatingButton.jsx
+  var import_react4 = __toESM(require_react());
 
   // node_modules/dexie/import-wrapper.mjs
   var import_dexie = __toESM(require_dexie(), 1);
@@ -7962,7 +7962,29 @@
     meta: "key"
   });
 
-  // src/components/floatingButton.js
+  // src/components/ProjectList.jsx
+  var import_react2 = __toESM(require_react());
+  function formatDate(dateStr) {
+    if (!dateStr) return "No date";
+    const d = new Date(dateStr);
+    return isNaN(d) ? dateStr : d.toLocaleString();
+  }
+  function ProjectListItem({ project }) {
+    return /* @__PURE__ */ import_react2.default.createElement("li", { className: "atlas-xray-modal-list-item" }, project.projectKey, " ", project.name ? `- ${project.name}` : "", project.updateDates.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list" }, project.updateDates.map((date, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: i }, formatDate(date)))));
+  }
+  function ProjectList({ projects }) {
+    if (!projects || projects.length === 0) return /* @__PURE__ */ import_react2.default.createElement("li", null, "No projects found.");
+    return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, projects.map((p, i) => /* @__PURE__ */ import_react2.default.createElement(ProjectListItem, { key: p.projectKey || i, project: p })));
+  }
+
+  // src/components/Modal.jsx
+  var import_react3 = __toESM(require_react());
+  function Modal({ open, onClose, children }) {
+    if (!open) return null;
+    return /* @__PURE__ */ import_react3.default.createElement("div", { className: "atlas-xray-modal" }, /* @__PURE__ */ import_react3.default.createElement("button", { className: "atlas-xray-modal-close", onClick: onClose }, "\xD7"), /* @__PURE__ */ import_react3.default.createElement("h2", null, "Projects"), children);
+  }
+
+  // src/components/FloatingButton.jsx
   var FloatingButton = () => {
     const projectCount = useLiveQuery(() => db.projectView.count(), []);
     const projects = useLiveQuery(() => db.projectView.toArray(), []);
@@ -7979,17 +8001,15 @@
       },
       []
     );
-    const [modalOpen, setModalOpen] = (0, import_react2.useState)(false);
-    let projectListItems = null;
-    if (projects && projects.length > 0) {
-      projectListItems = projects.map((proj, idx) => {
-        const updates = updatesByProject && updatesByProject[proj.projectKey] ? updatesByProject[proj.projectKey] : [];
-        return /* @__PURE__ */ import_react2.default.createElement("li", { key: proj.projectKey || idx, style: { marginBottom: 12 } }, proj.projectKey, " ", proj.project?.name ? `- ${proj.project.name}` : "", updates.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { style: { marginTop: 8, marginLeft: 24, fontSize: 16 } }, updates.map((date, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: i }, date))));
-      });
-    }
-    return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: () => setModalOpen(true) }, "Atlas Xray", projectCount !== void 0 ? ` (${projectCount})` : ""), modalOpen && /* @__PURE__ */ import_react2.default.createElement("div", { className: "atlas-xray-modal" }, /* @__PURE__ */ import_react2.default.createElement("button", { className: "atlas-xray-modal-close", onClick: () => setModalOpen(false) }, "\xD7"), /* @__PURE__ */ import_react2.default.createElement("h2", null, "Projects"), /* @__PURE__ */ import_react2.default.createElement("ol", { className: "atlas-xray-modal-list" }, projectListItems && projectListItems.length > 0 ? projectListItems : /* @__PURE__ */ import_react2.default.createElement("li", null, "No projects found."))));
+    const [modalOpen, setModalOpen] = (0, import_react4.useState)(false);
+    const projectViewModel = (projects || []).map((proj) => ({
+      projectKey: proj.projectKey,
+      name: proj.project?.name || "",
+      updateDates: updatesByProject && updatesByProject[proj.projectKey] ? updatesByProject[proj.projectKey] : []
+    }));
+    return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: () => setModalOpen(true) }, "Atlas Xray", projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react4.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, /* @__PURE__ */ import_react4.default.createElement("ol", { className: "atlas-xray-modal-list" }, /* @__PURE__ */ import_react4.default.createElement(ProjectList, { projects: projectViewModel }))));
   };
-  var floatingButton_default = FloatingButton;
+  var FloatingButton_default = FloatingButton;
 })();
 /*! Bundled license information:
 
