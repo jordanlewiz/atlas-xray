@@ -7,4 +7,20 @@
   background: #f8f9fa;
 }
 
+.atlas-xray-floating-btn {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+  padding: 10px 18px;
+  background: #0052cc;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  font-size: 16px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
 /*# sourceMappingURL=popup.css.map */

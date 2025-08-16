@@ -13214,11 +13214,7 @@
     projectView: "projectKey",
     projectStatusHistory: "projectKey",
     projectUpdates: "projectKey",
-    updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]",
-    views: "projectKey",
-    meta: "key",
-    projectIds: "projectId"
-    // new table for project IDs
+    meta: "key"
   });
   async function getMeta(key) {
     const entry = await db.meta.get(key);

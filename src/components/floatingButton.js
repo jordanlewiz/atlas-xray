@@ -1,10 +1,5 @@
 // src/components/floatingButton.js
 
-import { apolloClient } from "../services/apolloClient";
-import { gql } from "@apollo/client";
-import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
-import { PROJECT_STATUS_HISTORY_QUERY } from "../graphql/projectStatusHistoryQuery";
-import { PROJECT_UPDATES_QUERY } from "../graphql/projectUpdatesQuery";
 import { downloadProjectData } from "../utils/projectIdScanner";
 
 // Remove fetchAndLogProjectView and any references to it.
