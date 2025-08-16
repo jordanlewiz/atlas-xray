@@ -77,11 +77,18 @@ function upsertProjectUpdates(nodes) {
  * @param {any[]} nodes
  * @returns {Promise}
  */
-function upsertProjectStatusHistory(nodes) {
-  console.log('[AtlasXray] upsertProjectStatusHistory', nodes);
+function upsertProjectStatusHistory(nodes, projectKey) {
+  if (!projectKey) {
+    console.warn('[AtlasXray] upsertProjectStatusHistory called with undefined projectKey. Skipping.');
+    return Promise.resolve();
+  }
+  console.log('[AtlasXray] upsertProjectStatusHistory', nodes, projectKey);
   const rows = nodes.map((n) => ({
     id: n.id ?? n.uuid,
-    projectKey: n.project?.key,
+    projectKey: projectKey,
+    creationDate: n.creationDate,
+    startDate: n.startDate,
+    targetDate: n.targetDate,
     raw: n,
   }));
   return db.projectStatusHistory.bulkPut(rows);

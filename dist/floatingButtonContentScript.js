@@ -29635,8 +29635,8 @@
     projectUpdates: "id,projectKey",
     meta: "key"
   });
-  async function setProjectView(projectKey, data) {
-    await db.projectView.put({ projectKey, ...data });
+  async function setProjectView(projectKey2, data) {
+    await db.projectView.put({ projectKey: projectKey2, ...data });
   }
   async function setMeta(key, value) {
     await db.meta.put({ key, value });
@@ -29664,11 +29664,18 @@
     }));
     return db.projectUpdates.bulkPut(rows);
   }
-  function upsertProjectStatusHistory(nodes) {
-    console.log("[AtlasXray] upsertProjectStatusHistory", nodes);
+  function upsertProjectStatusHistory(nodes, projectKey2) {
+    if (!projectKey2) {
+      console.warn("[AtlasXray] upsertProjectStatusHistory called with undefined projectKey. Skipping.");
+      return Promise.resolve();
+    }
+    console.log("[AtlasXray] upsertProjectStatusHistory", nodes, projectKey2);
     const rows = nodes.map((n) => ({
       id: n.id ?? n.uuid,
-      projectKey: n.project?.key,
+      projectKey: projectKey2,
+      creationDate: n.creationDate,
+      startDate: n.startDate,
+      targetDate: n.targetDate,
       raw: n
     }));
     return db.projectStatusHistory.bulkPut(rows);
@@ -44192,10 +44199,13 @@ fragment UserAvatar on User {
         variables: { projectKey: projectId }
       });
       console.log("[AtlasXray] Status history API response for", projectId, data);
+      if (!projectId) {
+        console.error("[AtlasXray] projectId is undefined when saving status history!");
+      }
       const nodes = data?.project?.updates?.edges?.map((edge) => edge.node).filter(Boolean) || [];
-      console.log("[AtlasXray] Normalized status history nodes for", projectId, nodes);
+      console.log("[AtlasXray] Calling upsertProjectStatusHistory with projectId:", projectId, nodes);
       if (nodes.length > 0) {
-        await upsertProjectStatusHistory(nodes, projectId);
+        await upsertProjectStatusHistory(nodes);
       }
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
@@ -44207,7 +44217,7 @@ fragment UserAvatar on User {
       });
       const nodes = data?.project?.updates?.edges?.map((edge) => edge.node).filter(Boolean) || [];
       if (nodes.length > 0) {
-        await upsertProjectUpdates(nodes);
+        await upsertProjectUpdates(nodes, projectKey);
       }
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
