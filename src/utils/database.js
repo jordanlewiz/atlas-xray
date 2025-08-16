@@ -1,10 +1,10 @@
 import Dexie from "dexie";
 
 const db = new Dexie("AtlasXrayDB");
-db.version(6).stores({
+db.version(7).stores({
   projectView: "projectKey",
   projectStatusHistory: "projectKey",
-  projectUpdates: "projectKey",
+  projectUpdates: "id,projectKey",
   meta: "key"
 });
 
