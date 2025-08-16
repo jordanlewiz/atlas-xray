@@ -1,4 +1,4 @@
-import { getItem, setItem } from "../utils/dexieDB";
+import { getItem, setItem } from "../utils/database";
 
 // Regex for /o/{cloudId}/s/{sectionId}/project/{ORG-123}
 const projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;

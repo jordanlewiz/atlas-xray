@@ -77,9 +77,6 @@ async function fetchAndLogProjectView(projectId, cloudId) {
   button.style.fontFamily = 'inherit';
   document.body.appendChild(button);
 
-  // Regex for /o/{cloudId}/s/{sectionId}/project/{ORG-123}
-  var projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
-
   async function saveProjectIdIfNew(projectId, cloudId) {
     const key = `projectId:${projectId}`;
     const existing = await getItem(key);

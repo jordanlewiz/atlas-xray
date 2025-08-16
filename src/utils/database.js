@@ -1,13 +1,14 @@
 import Dexie from "dexie";
 
 const db = new Dexie("AtlasXrayDB");
-db.version(5).stores({
-  projectView: "projectKey", // one row per project view query result
-  projectStatusHistory: "projectKey", // one row per project status history query result
-  projectUpdates: "projectKey", // one row per project updates query result
-  updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]", // one row per individual update (from updates.edges)
-  views: "projectKey", // cached per-project computed views
-  meta: "key" // sync info, feature flags, schema version
+db.version(6).stores({
+  projectView: "projectKey",
+  projectStatusHistory: "projectKey",
+  projectUpdates: "projectKey",
+  updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]",
+  views: "projectKey",
+  meta: "key",
+  projectIds: "projectId" // new table for project IDs
 });
 
 // ProjectView store
@@ -64,5 +65,14 @@ export async function setItem(key, value) {
   await setMeta(key, value);
 }
 export async function getItem(key) {
+  console.log('[AtlasXray] getItem', key);
   return getMeta(key);
+}
+
+// ProjectIds table
+export async function addProjectId(projectId) {
+  await db.projectIds.put({ projectId });
+}
+export async function getAllProjectIds() {
+  return db.projectIds.toArray();
 }
