@@ -13322,7 +13322,6 @@
     const handleResetDB = async () => {
     };
     const handleRefreshUpdates = async () => {
-      setRefreshMsg("Refreshing...");
       setRefreshMsg(`Project count refreshed! >> ${projectCount} <<`);
       setTimeout(() => setRefreshMsg(""), 1500);
     };
