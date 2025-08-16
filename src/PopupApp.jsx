@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getItem } from "./utils/dexieDB";
+import { getItem } from "./utils/database";
 import Dexie from "dexie";
 
 const STORAGE_KEY = "demoValue";

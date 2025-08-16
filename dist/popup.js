@@ -13208,27 +13208,24 @@
   } = Dexie;
   var import_wrapper_default = Dexie;
 
-  // src/utils/dexieDB.js
+  // src/utils/database.js
   var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(5).stores({
+  db.version(6).stores({
     projectView: "projectKey",
-    // one row per project view query result
     projectStatusHistory: "projectKey",
-    // one row per project status history query result
     projectUpdates: "projectKey",
-    // one row per project updates query result
     updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]",
-    // one row per individual update (from updates.edges)
     views: "projectKey",
-    // cached per-project computed views
-    meta: "key"
-    // sync info, feature flags, schema version
+    meta: "key",
+    projectIds: "projectId"
+    // new table for project IDs
   });
   async function getMeta(key) {
     const entry = await db.meta.get(key);
     return entry ? entry.value : null;
   }
   async function getItem(key) {
+    console.log("[AtlasXray] getItem", key);
     return getMeta(key);
   }
 

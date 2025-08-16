@@ -1,6 +1,5 @@
 // src/components/floatingButton.js
 
-import { setItem, getItem, setProjectView, setProjectStatusHistory, setProjectUpdates, setUpdate } from "../utils/dexieDB";
 import { apolloClient } from "../services/apolloClient";
 import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
