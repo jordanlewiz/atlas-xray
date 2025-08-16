@@ -5,57 +5,9 @@ import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
 import { PROJECT_STATUS_HISTORY_QUERY } from "../graphql/projectStatusHistoryQuery";
 import { PROJECT_UPDATES_QUERY } from "../graphql/projectUpdatesQuery";
-import { scanAndStoreProjectIds, findMatchingProjectLinksFromHrefs } from "../utils/projectIdScanner";
+import { scanAndStoreProjectIds } from "../utils/projectIdScanner";
 
-// Fetch and log project view GraphQL data for a given projectId using Apollo
-async function fetchAndLogProjectView(projectId, cloudId) {
-  const variables = {
-    key: projectId,
-    trackViewEvent: "DIRECT",
-    workspaceId: null,
-    onboardingKeyFilter: "PROJECT_SPOTLIGHT",
-    areMilestonesEnabled: false,
-    cloudId: cloudId || "",
-    isNavRefreshEnabled: true
-  };
-  console.log(`[AtlasXray] Triggering Apollo GraphQL fetch for projectId: ${projectId}, cloudId: ${cloudId}, workspaceId: ${variables.workspaceId}`);
-  
-  // Fetch ProjectViewQuery
-  try {
-    const { data } = await apolloClient.query({
-      query: gql`${PROJECT_VIEW_QUERY}`,
-      variables
-    });
-    console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectViewQuery] projectId: ${projectId}`, data);
-    await setProjectView(projectId, data); // Store the result in projectView store
-  } catch (err) {
-    console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
-  }
-
-  // Fetch ProjectStatusHistoryQuery
-  try {
-    const { data } = await apolloClient.query({
-      query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
-      variables: { projectKey: projectId }
-    });
-    console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectStatusHistoryQuery] projectId: ${projectId}`, data);
-    await setProjectStatusHistory(projectId, data); // Store the result in projectStatusHistory store
-  } catch (err) {
-    console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
-  }
-
-  // Fetch ProjectUpdatesQuery
-  try {
-    const { data } = await apolloClient.query({
-      query: gql`${PROJECT_UPDATES_QUERY}`,
-      variables: { key: projectId, isUpdatesTab: true }
-    });
-    console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectUpdatesQuery] projectId: ${projectId}`, data);
-    await setProjectUpdates(projectId, data); // Store the result in projectUpdates store
-  } catch (err) {
-    console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
-  }
-}
+// Remove fetchAndLogProjectView and any references to it.
 
 (function() {
   // Floating button code
@@ -81,11 +33,12 @@ async function fetchAndLogProjectView(projectId, cloudId) {
     const existing = await getItem(key);
     if (!existing) {
       await setItem(key, projectId);
-      fetchAndLogProjectView(projectId, cloudId);
+      // fetchAndLogProjectView(projectId, cloudId); // This line is removed
     }
   }
 
-  // Replace findMatchingProjectLinks with scanAndStoreProjectIds
+  // Remove any old project link scanning, extraction, and storage logic.
+  // Only use scanAndStoreProjectIds for this purpose.
   async function findMatchingProjectLinks() {
     return await scanAndStoreProjectIds();
   }

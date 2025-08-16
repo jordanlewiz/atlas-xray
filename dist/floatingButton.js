@@ -20408,13 +20408,13 @@ fragment UserAvatar on User {
     projectIds: "projectId"
     // new table for project IDs
   });
-  async function setProjectView2(projectKey, data) {
+  async function setProjectView(projectKey, data) {
     await db.projectView.put({ projectKey, ...data });
   }
-  async function setProjectStatusHistory2(projectKey, data) {
+  async function setProjectStatusHistory(projectKey, data) {
     await db.projectStatusHistory.put({ projectKey, ...data });
   }
-  async function setProjectUpdates2(projectKey, data) {
+  async function setProjectUpdates(projectKey, data) {
     await db.projectUpdates.put({ projectKey, ...data });
   }
   async function setMeta(key, value) {
@@ -20466,7 +20466,7 @@ fragment UserAvatar on User {
         query: gql`${PROJECT_VIEW_QUERY}`,
         variables
       });
-      await setProjectView2(projectId, data);
+      await setProjectView(projectId, data);
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
     }
@@ -20475,7 +20475,7 @@ fragment UserAvatar on User {
         query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
         variables: { projectKey: projectId }
       });
-      await setProjectStatusHistory2(projectId, data);
+      await setProjectStatusHistory(projectId, data);
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
     }
@@ -20484,7 +20484,7 @@ fragment UserAvatar on User {
         query: gql`${PROJECT_UPDATES_QUERY}`,
         variables: { key: projectId, isUpdatesTab: true }
       });
-      await setProjectUpdates2(projectId, data);
+      await setProjectUpdates(projectId, data);
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
     }
@@ -20505,48 +20505,6 @@ fragment UserAvatar on User {
   }
 
   // src/components/floatingButton.js
-  async function fetchAndLogProjectView(projectId, cloudId) {
-    const variables = {
-      key: projectId,
-      trackViewEvent: "DIRECT",
-      workspaceId: null,
-      onboardingKeyFilter: "PROJECT_SPOTLIGHT",
-      areMilestonesEnabled: false,
-      cloudId: cloudId || "",
-      isNavRefreshEnabled: true
-    };
-    console.log(`[AtlasXray] Triggering Apollo GraphQL fetch for projectId: ${projectId}, cloudId: ${cloudId}, workspaceId: ${variables.workspaceId}`);
-    try {
-      const { data } = await apolloClient.query({
-        query: gql`${PROJECT_VIEW_QUERY}`,
-        variables
-      });
-      console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectViewQuery] projectId: ${projectId}`, data);
-      await setProjectView(projectId, data);
-    } catch (err) {
-      console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
-    }
-    try {
-      const { data } = await apolloClient.query({
-        query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
-        variables: { projectKey: projectId }
-      });
-      console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectStatusHistoryQuery] projectId: ${projectId}`, data);
-      await setProjectStatusHistory(projectId, data);
-    } catch (err) {
-      console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
-    }
-    try {
-      const { data } = await apolloClient.query({
-        query: gql`${PROJECT_UPDATES_QUERY}`,
-        variables: { key: projectId, isUpdatesTab: true }
-      });
-      console.log(`[AtlasXray] Apollo GraphQL fetch successful for [ProjectUpdatesQuery] projectId: ${projectId}`, data);
-      await setProjectUpdates(projectId, data);
-    } catch (err) {
-      console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
-    }
-  }
   (function() {
     var button = document.createElement("button");
     button.innerText = "Atlas Xray Loaded";
@@ -20569,7 +20527,6 @@ fragment UserAvatar on User {
       const existing = await getItem(key);
       if (!existing) {
         await setItem(key, projectId);
-        fetchAndLogProjectView(projectId, cloudId);
       }
     }
     async function findMatchingProjectLinks() {
