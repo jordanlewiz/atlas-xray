@@ -13208,57 +13208,66 @@
   } = Dexie;
   var import_wrapper_default = Dexie;
 
-  // src/utils/dexieDB.js
+  // src/utils/database.js
   var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(3).stores({
-    projects: "projectKey",
-    // one row per project
+  db.version(6).stores({
+    projectView: "projectKey",
+    projectStatusHistory: "projectKey",
+    projectUpdates: "projectKey",
     updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]",
-    // one row per update, with indexes
     views: "projectKey",
-    // cached per-project computed views
-    meta: "key"
-    // sync info, feature flags, schema version
+    meta: "key",
+    projectIds: "projectId"
+    // new table for project IDs
   });
-  async function setMeta(key, value) {
-    await db.meta.put({ key, value });
-  }
   async function getMeta(key) {
     const entry = await db.meta.get(key);
     return entry ? entry.value : null;
   }
-  async function setItem(key, value) {
-    await setMeta(key, value);
-  }
   async function getItem(key) {
+    console.log("[AtlasXray] getItem", key);
     return getMeta(key);
   }
 
   // src/PopupApp.jsx
   var STORAGE_KEY = "demoValue";
   var Popup = () => {
-    const [value, setValue] = (0, import_react.useState)("");
+    console.log("PopupApp");
     const [stored, setStored] = (0, import_react.useState)("");
+    const [resetMsg, setResetMsg] = (0, import_react.useState)("");
+    const [projectCount, setProjectCount] = (0, import_react.useState)(0);
+    const [refreshMsg, setRefreshMsg] = (0, import_react.useState)("");
+    const loadProjectCount = async () => {
+      console.log("loading project count");
+      const db2 = new import_wrapper_default("AtlasXrayDB");
+      await db2.open();
+      const count = await db2.table("projectView").count();
+      console.log("projectView count", count);
+      setProjectCount(count);
+    };
     (0, import_react.useEffect)(() => {
       getItem(STORAGE_KEY).then((val) => {
         if (val) setStored(val);
       });
+      loadProjectCount();
     }, []);
-    const handleSave = async () => {
-      await setItem(STORAGE_KEY, value);
-      setStored(value);
-      setValue("");
-    };
-    return /* @__PURE__ */ import_react.default.createElement("div", { style: { width: 250 } }, /* @__PURE__ */ import_react.default.createElement("div", null, "Stored value: ", /* @__PURE__ */ import_react.default.createElement("b", null, stored || "(none)")), /* @__PURE__ */ import_react.default.createElement(
-      "input",
-      {
-        type: "text",
-        value,
-        onChange: (e) => setValue(e.target.value),
-        placeholder: "Type something...",
-        style: { width: "100%", marginTop: 8 }
+    const handleResetDB = async () => {
+      if (window.confirm("Are you sure you want to clear all AtlasXrayDB data?")) {
+        const db2 = new import_wrapper_default("AtlasXrayDB");
+        await db2.open();
+        await Promise.all(db2.tables.map((table) => table.clear()));
+        setResetMsg("All data cleared from AtlasXrayDB!");
+        setProjectCount(0);
       }
-    ), /* @__PURE__ */ import_react.default.createElement("button", { onClick: handleSave, style: { marginTop: 8, width: "100%" } }, "Save to IndexedDB"));
+    };
+    const handleRefreshUpdates = async () => {
+      console.log("refreshing project count");
+      setRefreshMsg("Refreshing...");
+      await loadProjectCount();
+      setRefreshMsg("Project count refreshed!");
+      setTimeout(() => setRefreshMsg(""), 1500);
+    };
+    return /* @__PURE__ */ import_react.default.createElement("div", { style: { width: 250 } }, /* @__PURE__ */ import_react.default.createElement("div", { style: { marginTop: 8 } }, "Projects in DB: ", /* @__PURE__ */ import_react.default.createElement("b", null, projectCount)), /* @__PURE__ */ import_react.default.createElement("button", { onClick: handleResetDB, style: { marginTop: 8, width: "100%", background: "#e74c3c", color: "#fff" } }, "Clear All AtlasXrayDB Data"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: handleRefreshUpdates, style: { marginTop: 8, width: "100%", background: "#2980b9", color: "#fff" } }, "Refresh Project Count"), resetMsg && /* @__PURE__ */ import_react.default.createElement("div", { style: { color: "#27ae60", marginTop: 8 } }, resetMsg), refreshMsg && /* @__PURE__ */ import_react.default.createElement("div", { style: { color: "#2980b9", marginTop: 8 } }, refreshMsg));
   };
   var PopupApp_default = Popup;
 

@@ -541,13 +541,4 @@ export const PROJECT_UPDATES_QUERY = `
       accountStatus
     }
   }
-
-  fragment utils_isUserInList on UserConnection {
-    edges {
-      node {
-        aaid
-        id
-      }
-    }
-  }
 `; 
