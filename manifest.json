@@ -17,8 +17,9 @@
   ],
   "content_scripts": [
     {
-      "matches": ["https://home.atlassian.com/*"],
-      "js": ["dist/popup.js", "dist/floatingButton.js"]
+      "matches": ["<all_urls>"],
+      "js": ["dist/floatingButtonContentScript.js"],
+      "css": ["dist/popup.css"]
     }
   ]
 }

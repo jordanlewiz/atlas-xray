@@ -1,26 +1,16 @@
 // src/components/floatingButton.js
 
-import { downloadProjectData } from "../utils/projectIdScanner";
+import React from "react";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "../utils/database";
 
-(function() {
-  // Floating button code
-  var button = document.createElement('button');
-  button.innerText = 'Atlas Xray Loaded';
-  button.className = 'atlas-xray-floating-btn';
-  document.body.appendChild(button);
+const FloatingButton = () => {
+  const projectCount = useLiveQuery(() => db.projectView.count(), []);
+  return (
+    <button className="atlas-xray-floating-btn">
+      Atlas Xray{projectCount !== undefined ? ` (${projectCount})` : ""}
+    </button>
+  );
+};
 
-  // Remove any old project link scanning, extraction, and storage logic.
-  // Only use scanAndStoreProjectIds for this purpose.
-  async function triggerPageProjectScan() {
-    return await downloadProjectData();
-  }
-
-  // Initial scan
-  triggerPageProjectScan();
-
-  // Watch for page changes (SPA navigation)
-  var observer = new MutationObserver(() => {
-    triggerPageProjectScan();
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
-})();
+export default FloatingButton;
