@@ -1,10 +1,5 @@
 import React from "react";
-
-function formatDate(dateStr) {
-  if (!dateStr) return "No date";
-  const d = new Date(dateStr);
-  return isNaN(d) ? dateStr : d.toLocaleString();
-}
+import formatDate from "../utils/formatDate";
 
 function ProjectListItem({ project }) {
   return (
