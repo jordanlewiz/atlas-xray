@@ -13224,9 +13224,6 @@
     console.log("[AtlasXray] getItem", key);
     return getMeta(key);
   }
-  async function getProjectViewCount() {
-    return db.projectView.count();
-  }
 
   // node_modules/dexie-react-hooks/dist/dexie-react-hooks.mjs
   var import_react = __toESM(require_react(), 1);
@@ -13316,39 +13313,20 @@
     const [resetMsg, setResetMsg] = (0, import_react2.useState)("");
     const projectCount = useLiveQuery(() => db.projectView.count(), []);
     const [refreshMsg, setRefreshMsg] = (0, import_react2.useState)("");
-    const loadProjectCount = async () => {
-      const count = await getProjectViewCount();
-      console.log("projectView count - 1 -", count);
-      setProjectCount(count);
-      console.log("projectView count - 2 -", projectCount);
-      return count;
-    };
-    (0, import_react2.useEffect)(() => {
+    console.log("projectCount", projectCount);
+    import_react2.default.useEffect(() => {
       getItem(STORAGE_KEY).then((val) => {
         if (val) setStored(val);
       });
-      loadProjectCount();
     }, []);
-    (0, import_react2.useEffect)(() => {
-      console.log("projectCount updated:", projectCount);
-    }, [projectCount]);
     const handleResetDB = async () => {
-      if (window.confirm("Are you sure you want to clear all AtlasXrayDB data?")) {
-        const db2 = new import_wrapper_default("AtlasXrayDB");
-        await db2.open();
-        await Promise.all(db2.tables.map((table) => table.clear()));
-        setResetMsg("All data cleared from AtlasXrayDB!");
-        setProjectCount(0);
-      }
     };
     const handleRefreshUpdates = async () => {
-      console.log("refreshing project count");
       setRefreshMsg("Refreshing...");
-      const count = await loadProjectCount();
-      setRefreshMsg(`Project count refreshed! >> ${count} <<`);
+      setRefreshMsg(`Project count refreshed! >> ${projectCount} <<`);
       setTimeout(() => setRefreshMsg(""), 1500);
     };
-    return /* @__PURE__ */ import_react2.default.createElement("div", { style: { width: 250 } }, /* @__PURE__ */ import_react2.default.createElement("div", { style: { marginTop: 8 } }, "Projects in DB: ", /* @__PURE__ */ import_react2.default.createElement("b", null, projectCount)), /* @__PURE__ */ import_react2.default.createElement("button", { onClick: handleResetDB, style: { marginTop: 8, width: "100%", background: "#e74c3c", color: "#fff" } }, "Clear All AtlasXrayDB Data"), /* @__PURE__ */ import_react2.default.createElement("button", { onClick: handleRefreshUpdates, style: { marginTop: 8, width: "100%", background: "#2980b9", color: "#fff" } }, "Refresh Project Count"), resetMsg && /* @__PURE__ */ import_react2.default.createElement("div", { style: { color: "#27ae60", marginTop: 8 } }, resetMsg), refreshMsg && /* @__PURE__ */ import_react2.default.createElement("div", { style: { color: "#2980b9", marginTop: 8 } }, refreshMsg));
+    return /* @__PURE__ */ import_react2.default.createElement("div", { style: { width: 250 } }, /* @__PURE__ */ import_react2.default.createElement("div", { style: { marginTop: 8 } }, "Projects in DB: ", /* @__PURE__ */ import_react2.default.createElement("b", null, projectCount === void 0 ? "Loading..." : projectCount)), /* @__PURE__ */ import_react2.default.createElement("button", { onClick: handleResetDB, style: { marginTop: 8, width: "100%", background: "#e74c3c", color: "#fff" } }, "Clear All AtlasXrayDB Data"), /* @__PURE__ */ import_react2.default.createElement("button", { onClick: handleRefreshUpdates, style: { marginTop: 8, width: "100%", background: "#2980b9", color: "#fff" } }, "Refresh Project Count"), resetMsg && /* @__PURE__ */ import_react2.default.createElement("div", { style: { color: "#27ae60", marginTop: 8 } }, resetMsg), refreshMsg && /* @__PURE__ */ import_react2.default.createElement("div", { style: { color: "#2980b9", marginTop: 8 } }, refreshMsg));
   };
   var PopupApp_default = Popup;
 

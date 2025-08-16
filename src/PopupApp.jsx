@@ -12,6 +12,7 @@ const Popup = () => {
   const projectCount = useLiveQuery(() => db.projectView.count(), []);
   const [refreshMsg, setRefreshMsg] = useState("");
 
+  console.log("projectCount", projectCount);
   React.useEffect(() => {
     getItem(STORAGE_KEY).then((val) => {
       if (val) setStored(val);
@@ -19,10 +20,10 @@ const Popup = () => {
   }, []);
 
   const handleResetDB = async () => {
-    if (window.confirm("Are you sure you want to clear all AtlasXrayDB data?")) {
+    /*if (window.confirm("Are you sure you want to clear all AtlasXrayDB data?")) {
       await Promise.all(db.tables.map(table => table.clear()));
       setResetMsg("All data cleared from AtlasXrayDB!");
-    }
+    }*/
   };
 
   const handleRefreshUpdates = async () => {
@@ -33,7 +34,7 @@ const Popup = () => {
 
   return (
     <div style={{ width: 250 }}>
-      <div style={{ marginTop: 8 }}>Projects in DB: <b>{projectCount}</b></div>
+      <div style={{ marginTop: 8 }}>Projects in DB: <b>{projectCount === undefined ? "Loading..." : projectCount}</b></div>
       <button onClick={handleResetDB} style={{ marginTop: 8, width: "100%", background: '#e74c3c', color: '#fff' }}>
         Clear All AtlasXrayDB Data
       </button>
