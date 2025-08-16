@@ -26,7 +26,7 @@ export function findMatchingProjectLinksFromHrefs(hrefs) {
   return results;
 }
 
-async function fetchAndStoreAllProjectData(projectId, cloudId) {
+async function fetchAndStoreProjectData(projectId, cloudId) {
   const variables = {
     key: projectId,
     trackViewEvent: "DIRECT",
@@ -68,7 +68,7 @@ async function fetchAndStoreAllProjectData(projectId, cloudId) {
   }
 }
 
-export async function scanAndStoreProjectIds() {
+export async function downloadProjectData() {
   const links = Array.from(document.querySelectorAll('a[href]'));
   const hrefs = links.map(link => link.getAttribute('href'));
   const matches = findMatchingProjectLinksFromHrefs(hrefs);
@@ -77,7 +77,7 @@ export async function scanAndStoreProjectIds() {
     const existing = await getItem(key);
     if (!existing) {
       await setItem(key, projectId);
-      await fetchAndStoreAllProjectData(projectId, cloudId);
+      await fetchAndStoreProjectData(projectId, cloudId);
     }
   }
   return matches;

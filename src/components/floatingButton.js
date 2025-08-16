@@ -5,7 +5,7 @@ import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
 import { PROJECT_STATUS_HISTORY_QUERY } from "../graphql/projectStatusHistoryQuery";
 import { PROJECT_UPDATES_QUERY } from "../graphql/projectUpdatesQuery";
-import { scanAndStoreProjectIds } from "../utils/projectIdScanner";
+import { downloadProjectData } from "../utils/projectIdScanner";
 
 // Remove fetchAndLogProjectView and any references to it.
 
@@ -39,16 +39,16 @@ import { scanAndStoreProjectIds } from "../utils/projectIdScanner";
 
   // Remove any old project link scanning, extraction, and storage logic.
   // Only use scanAndStoreProjectIds for this purpose.
-  async function findMatchingProjectLinks() {
-    return await scanAndStoreProjectIds();
+  async function triggerPageProjectScan() {
+    return await downloadProjectData();
   }
 
   // Initial scan
-  findMatchingProjectLinks();
+  triggerPageProjectScan();
 
   // Watch for page changes (SPA navigation)
   var observer = new MutationObserver(() => {
-    findMatchingProjectLinks();
+    triggerPageProjectScan();
   });
   observer.observe(document.body, { childList: true, subtree: true });
 })();
