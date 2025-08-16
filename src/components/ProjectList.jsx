@@ -9,6 +9,7 @@ function ProjectListItem({ project }) {
     () => db.projectUpdates.where("projectKey").equals(project.projectKey).toArray(),
     [project.projectKey]
   );
+  const showBool = (val) => val ? "Yes" : "No";
 
   return (
     <li className="atlas-xray-modal-list-item">
@@ -20,7 +21,13 @@ function ProjectListItem({ project }) {
               <b>Date:</b> {formatDate(update.creationDate)}
               {update.state && <span> | <b>State:</b> {update.state}</span>}
               {typeof update.missedUpdate !== 'undefined' && (
-                <span> | <b>Missed:</b> {update.missedUpdate ? "Yes" : "No"}</span>
+                <span> | <b>Missed:</b> {showBool(update.missedUpdate)}</span>
+              )}
+              {update.targetDate && (
+                <span> | <b>Target Date:</b> {formatDate(update.targetDate)}</span>
+              )}
+              {typeof update.hasChangedStatus !== 'undefined' && (
+                <span> | <b>Status Changed:</b> {showBool(update.hasChangedStatus)}</span>
               )}
             </li>
           ))}

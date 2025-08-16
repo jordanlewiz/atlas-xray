@@ -29661,7 +29661,10 @@
       projectKey: n.project?.key,
       creationDate: n.creationDate,
       state: n.newState?.value,
+      oldState: n.oldState?.value,
       missedUpdate: !!n.missedUpdate,
+      targetDate: n.newTargetDate,
+      oldTargetDate: n.oldDueDate ? n.oldDueDate.tooltip : void 0,
       raw: n
     }));
     return db.projectUpdates.bulkPut(rows);
@@ -29683,7 +29686,8 @@
       () => db.projectUpdates.where("projectKey").equals(project.projectKey).toArray(),
       [project.projectKey]
     );
-    return /* @__PURE__ */ import_react2.default.createElement("li", { className: "atlas-xray-modal-list-item" }, project.projectKey, " ", project.name ? `- ${project.name}` : "", updates && updates.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list" }, updates.map((update, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: update.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(update.creationDate), update.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "State:"), " ", update.state), typeof update.missedUpdate !== "undefined" && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Missed:"), " ", update.missedUpdate ? "Yes" : "No")))));
+    const showBool = (val) => val ? "Yes" : "No";
+    return /* @__PURE__ */ import_react2.default.createElement("li", { className: "atlas-xray-modal-list-item" }, project.projectKey, " ", project.name ? `- ${project.name}` : "", updates && updates.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list" }, updates.map((update, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: update.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(update.creationDate), update.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "State:"), " ", update.state), typeof update.missedUpdate !== "undefined" && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Missed:"), " ", showBool(update.missedUpdate)), update.targetDate && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Target Date:"), " ", formatDate(update.targetDate)), typeof update.hasChangedStatus !== "undefined" && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Status Changed:"), " ", showBool(update.hasChangedStatus))))));
   }
   function ProjectList({ projects }) {
     if (!projects || projects.length === 0) return /* @__PURE__ */ import_react2.default.createElement("li", null, "No projects found.");
