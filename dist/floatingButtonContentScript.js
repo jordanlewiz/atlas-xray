@@ -1084,7 +1084,7 @@
             }
             return dispatcher.useContext(Context);
           }
-          function useState(initialState) {
+          function useState2(initialState) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useState(initialState);
           }
@@ -1887,7 +1887,7 @@
           exports.useMemo = useMemo;
           exports.useReducer = useReducer;
           exports.useRef = useRef;
-          exports.useState = useState;
+          exports.useState = useState2;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
           exports.version = ReactVersion;
@@ -29662,7 +29662,9 @@
   // src/components/floatingButton.js
   var FloatingButton = () => {
     const projectCount = useLiveQuery(() => db.projectView.count(), []);
-    return /* @__PURE__ */ import_react2.default.createElement("button", { className: "atlas-xray-floating-btn" }, "Atlas Xray", projectCount !== void 0 ? ` (${projectCount})` : "");
+    const projects = useLiveQuery(() => db.projectView.toArray(), []);
+    const [modalOpen, setModalOpen] = (0, import_react2.useState)(false);
+    return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, /* @__PURE__ */ import_react2.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: () => setModalOpen(true) }, "Atlas Xray", projectCount !== void 0 ? ` (${projectCount})` : ""), modalOpen && /* @__PURE__ */ import_react2.default.createElement("div", { className: "atlas-xray-modal" }, /* @__PURE__ */ import_react2.default.createElement("button", { className: "atlas-xray-modal-close", onClick: () => setModalOpen(false) }, "\xD7"), /* @__PURE__ */ import_react2.default.createElement("h2", null, "Projects"), /* @__PURE__ */ import_react2.default.createElement("ol", { className: "atlas-xray-modal-list" }, projects && projects.length > 0 ? projects.map((proj, idx) => /* @__PURE__ */ import_react2.default.createElement("li", { key: proj.projectKey || idx, style: { marginBottom: 12 } }, proj.projectKey, " ", proj.project?.name ? `- ${proj.project.name}` : "")) : /* @__PURE__ */ import_react2.default.createElement("li", null, "No projects found."))));
   };
   var floatingButton_default = FloatingButton;
 
