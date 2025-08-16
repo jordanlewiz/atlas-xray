@@ -9,15 +9,20 @@ function ProjectListItem({ project }) {
     () => db.projectUpdates.where("projectKey").equals(project.projectKey).toArray(),
     [project.projectKey]
   );
-  const updateDates = updates ? updates.map(u => u.creationDate).filter(Boolean) : [];
 
   return (
     <li className="atlas-xray-modal-list-item">
       {project.projectKey} {project.name ? `- ${project.name}` : ""}
-      {updateDates.length > 0 && (
+      {updates && updates.length > 0 && (
         <ul className="atlas-xray-update-list">
-          {updateDates.map((date, i) => (
-            <li key={i}>{formatDate(date)}</li>
+          {updates.map((update, i) => (
+            <li key={update.id || i}>
+              <b>Date:</b> {formatDate(update.creationDate)}
+              {update.state && <span> | <b>State:</b> {update.state}</span>}
+              {typeof update.missedUpdate !== 'undefined' && (
+                <span> | <b>Missed:</b> {update.missedUpdate ? "Yes" : "No"}</span>
+              )}
+            </li>
           ))}
         </ul>
       )}
