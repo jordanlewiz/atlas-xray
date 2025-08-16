@@ -20408,6 +20408,15 @@ fragment UserAvatar on User {
     projectIds: "projectId"
     // new table for project IDs
   });
+  async function setProjectView2(projectKey, data) {
+    await db.projectView.put({ projectKey, ...data });
+  }
+  async function setProjectStatusHistory2(projectKey, data) {
+    await db.projectStatusHistory.put({ projectKey, ...data });
+  }
+  async function setProjectUpdates2(projectKey, data) {
+    await db.projectUpdates.put({ projectKey, ...data });
+  }
   async function setMeta(key, value) {
     await db.meta.put({ key, value });
   }
@@ -20442,6 +20451,44 @@ fragment UserAvatar on User {
     });
     return results;
   }
+  async function fetchAndStoreAllProjectData(projectId, cloudId) {
+    const variables = {
+      key: projectId,
+      trackViewEvent: "DIRECT",
+      workspaceId: null,
+      onboardingKeyFilter: "PROJECT_SPOTLIGHT",
+      areMilestonesEnabled: false,
+      cloudId: cloudId || "",
+      isNavRefreshEnabled: true
+    };
+    try {
+      const { data } = await apolloClient.query({
+        query: gql`${PROJECT_VIEW_QUERY}`,
+        variables
+      });
+      await setProjectView2(projectId, data);
+    } catch (err) {
+      console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
+    }
+    try {
+      const { data } = await apolloClient.query({
+        query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
+        variables: { projectKey: projectId }
+      });
+      await setProjectStatusHistory2(projectId, data);
+    } catch (err) {
+      console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
+    }
+    try {
+      const { data } = await apolloClient.query({
+        query: gql`${PROJECT_UPDATES_QUERY}`,
+        variables: { key: projectId, isUpdatesTab: true }
+      });
+      await setProjectUpdates2(projectId, data);
+    } catch (err) {
+      console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
+    }
+  }
   async function scanAndStoreProjectIds() {
     const links = Array.from(document.querySelectorAll("a[href]"));
     const hrefs = links.map((link) => link.getAttribute("href"));
@@ -20451,6 +20498,7 @@ fragment UserAvatar on User {
       const existing = await getItem2(key);
       if (!existing) {
         await setItem2(key, projectId);
+        await fetchAndStoreAllProjectData(projectId, cloudId);
       }
     }
     return matches;

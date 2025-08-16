@@ -1,13 +1,13 @@
-import { getItem, setItem } from "../utils/database";
+import { getItem, setItem, setProjectView, setProjectStatusHistory, setProjectUpdates } from "../utils/database";
+import { apolloClient } from "../services/apolloClient";
+import { gql } from "@apollo/client";
+import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
+import { PROJECT_STATUS_HISTORY_QUERY } from "../graphql/projectStatusHistoryQuery";
+import { PROJECT_UPDATES_QUERY } from "../graphql/projectUpdatesQuery";
 
 // Regex for /o/{cloudId}/s/{sectionId}/project/{ORG-123}
 const projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
 
-/**
- * Given an array of href strings, extract unique {projectId, cloudId} pairs.
- * @param {string[]} hrefs
- * @returns {Array<{projectId: string, cloudId: string}>}
- */
 export function findMatchingProjectLinksFromHrefs(hrefs) {
   const seen = new Set();
   const results = [];
@@ -26,10 +26,48 @@ export function findMatchingProjectLinksFromHrefs(hrefs) {
   return results;
 }
 
-/**
- * Scans the page for project links, extracts unique projectId/cloudId pairs, and stores them in the DB.
- * Returns the list of found projects.
- */
+async function fetchAndStoreAllProjectData(projectId, cloudId) {
+  const variables = {
+    key: projectId,
+    trackViewEvent: "DIRECT",
+    workspaceId: null,
+    onboardingKeyFilter: "PROJECT_SPOTLIGHT",
+    areMilestonesEnabled: false,
+    cloudId: cloudId || "",
+    isNavRefreshEnabled: true
+  };
+  // ProjectView
+  try {
+    const { data } = await apolloClient.query({
+      query: gql`${PROJECT_VIEW_QUERY}`,
+      variables
+    });
+    await setProjectView(projectId, data);
+  } catch (err) {
+    console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
+  }
+  // ProjectStatusHistory
+  try {
+    const { data } = await apolloClient.query({
+      query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
+      variables: { projectKey: projectId }
+    });
+    await setProjectStatusHistory(projectId, data);
+  } catch (err) {
+    console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
+  }
+  // ProjectUpdates
+  try {
+    const { data } = await apolloClient.query({
+      query: gql`${PROJECT_UPDATES_QUERY}`,
+      variables: { key: projectId, isUpdatesTab: true }
+    });
+    await setProjectUpdates(projectId, data);
+  } catch (err) {
+    console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
+  }
+}
+
 export async function scanAndStoreProjectIds() {
   const links = Array.from(document.querySelectorAll('a[href]'));
   const hrefs = links.map(link => link.getAttribute('href'));
@@ -39,6 +77,7 @@ export async function scanAndStoreProjectIds() {
     const existing = await getItem(key);
     if (!existing) {
       await setItem(key, projectId);
+      await fetchAndStoreAllProjectData(projectId, cloudId);
     }
   }
   return matches;
