@@ -13181,11 +13181,11 @@
   });
 
   // src/popup.jsx
-  var import_react2 = __toESM(require_react());
+  var import_react3 = __toESM(require_react());
   var import_client = __toESM(require_client());
 
   // src/PopupApp.jsx
-  var import_react = __toESM(require_react());
+  var import_react2 = __toESM(require_react());
 
   // node_modules/dexie/import-wrapper.mjs
   var import_dexie = __toESM(require_dexie(), 1);
@@ -13224,29 +13224,114 @@
     console.log("[AtlasXray] getItem", key);
     return getMeta(key);
   }
+  async function getProjectViewCount() {
+    return db.projectView.count();
+  }
+
+  // node_modules/dexie-react-hooks/dist/dexie-react-hooks.mjs
+  var import_react = __toESM(require_react(), 1);
+  function useObservable(observableFactory, arg2, arg3) {
+    var deps;
+    var defaultResult;
+    if (typeof observableFactory === "function") {
+      deps = arg2 || [];
+      defaultResult = arg3;
+    } else {
+      deps = [];
+      defaultResult = arg2;
+    }
+    var monitor = import_react.default.useRef({
+      hasResult: false,
+      result: defaultResult,
+      error: null
+    });
+    var _a = import_react.default.useReducer(function(x) {
+      return x + 1;
+    }, 0);
+    _a[0];
+    var triggerUpdate = _a[1];
+    var observable = import_react.default.useMemo(function() {
+      var observable2 = typeof observableFactory === "function" ? observableFactory() : observableFactory;
+      if (!observable2 || typeof observable2.subscribe !== "function") {
+        if (observableFactory === observable2) {
+          throw new TypeError("Given argument to useObservable() was neither a valid observable nor a function.");
+        } else {
+          throw new TypeError("Observable factory given to useObservable() did not return a valid observable.");
+        }
+      }
+      if (!monitor.current.hasResult && typeof window !== "undefined") {
+        if (typeof observable2.hasValue !== "function" || observable2.hasValue()) {
+          if (typeof observable2.getValue === "function") {
+            monitor.current.result = observable2.getValue();
+            monitor.current.hasResult = true;
+          } else {
+            var subscription = observable2.subscribe(function(val) {
+              monitor.current.result = val;
+              monitor.current.hasResult = true;
+            });
+            if (typeof subscription === "function") {
+              subscription();
+            } else {
+              subscription.unsubscribe();
+            }
+          }
+        }
+      }
+      return observable2;
+    }, deps);
+    import_react.default.useDebugValue(monitor.current.result);
+    import_react.default.useEffect(function() {
+      var subscription = observable.subscribe(function(val) {
+        var current = monitor.current;
+        if (current.error !== null || current.result !== val) {
+          current.error = null;
+          current.result = val;
+          current.hasResult = true;
+          triggerUpdate();
+        }
+      }, function(err) {
+        var current = monitor.current;
+        if (current.error !== err) {
+          current.error = err;
+          triggerUpdate();
+        }
+      });
+      return typeof subscription === "function" ? subscription : subscription.unsubscribe.bind(subscription);
+    }, deps);
+    if (monitor.current.error)
+      throw monitor.current.error;
+    return monitor.current.result;
+  }
+  function useLiveQuery(querier, deps, defaultResult) {
+    return useObservable(function() {
+      return liveQuery(querier);
+    }, deps || [], defaultResult);
+  }
 
   // src/PopupApp.jsx
   var STORAGE_KEY = "demoValue";
   var Popup = () => {
     console.log("PopupApp");
-    const [stored, setStored] = (0, import_react.useState)("");
-    const [resetMsg, setResetMsg] = (0, import_react.useState)("");
-    const [projectCount, setProjectCount] = (0, import_react.useState)(0);
-    const [refreshMsg, setRefreshMsg] = (0, import_react.useState)("");
+    const [stored, setStored] = (0, import_react2.useState)("");
+    const [resetMsg, setResetMsg] = (0, import_react2.useState)("");
+    const projectCount = useLiveQuery(() => db.projectView.count(), []);
+    const [refreshMsg, setRefreshMsg] = (0, import_react2.useState)("");
     const loadProjectCount = async () => {
-      console.log("loading project count");
-      const db2 = new import_wrapper_default("AtlasXrayDB");
-      await db2.open();
-      const count = await db2.table("projectView").count();
-      console.log("projectView count", count);
+      const count = await getProjectViewCount();
+      console.log("projectView count - 1 -", count);
       setProjectCount(count);
+      console.log("projectView count - 2 -", projectCount);
+      return count;
     };
-    (0, import_react.useEffect)(() => {
+    (0, import_react2.useEffect)(() => {
       getItem(STORAGE_KEY).then((val) => {
         if (val) setStored(val);
       });
       loadProjectCount();
     }, []);
+    (0, import_react2.useEffect)(() => {
+      console.log("projectCount updated:", projectCount);
+    }, [projectCount]);
     const handleResetDB = async () => {
       if (window.confirm("Are you sure you want to clear all AtlasXrayDB data?")) {
         const db2 = new import_wrapper_default("AtlasXrayDB");
@@ -13259,17 +13344,17 @@
     const handleRefreshUpdates = async () => {
       console.log("refreshing project count");
       setRefreshMsg("Refreshing...");
-      await loadProjectCount();
-      setRefreshMsg("Project count refreshed!");
+      const count = await loadProjectCount();
+      setRefreshMsg(`Project count refreshed! >> ${count} <<`);
       setTimeout(() => setRefreshMsg(""), 1500);
     };
-    return /* @__PURE__ */ import_react.default.createElement("div", { style: { width: 250 } }, /* @__PURE__ */ import_react.default.createElement("div", { style: { marginTop: 8 } }, "Projects in DB: ", /* @__PURE__ */ import_react.default.createElement("b", null, projectCount)), /* @__PURE__ */ import_react.default.createElement("button", { onClick: handleResetDB, style: { marginTop: 8, width: "100%", background: "#e74c3c", color: "#fff" } }, "Clear All AtlasXrayDB Data"), /* @__PURE__ */ import_react.default.createElement("button", { onClick: handleRefreshUpdates, style: { marginTop: 8, width: "100%", background: "#2980b9", color: "#fff" } }, "Refresh Project Count"), resetMsg && /* @__PURE__ */ import_react.default.createElement("div", { style: { color: "#27ae60", marginTop: 8 } }, resetMsg), refreshMsg && /* @__PURE__ */ import_react.default.createElement("div", { style: { color: "#2980b9", marginTop: 8 } }, refreshMsg));
+    return /* @__PURE__ */ import_react2.default.createElement("div", { style: { width: 250 } }, /* @__PURE__ */ import_react2.default.createElement("div", { style: { marginTop: 8 } }, "Projects in DB: ", /* @__PURE__ */ import_react2.default.createElement("b", null, projectCount)), /* @__PURE__ */ import_react2.default.createElement("button", { onClick: handleResetDB, style: { marginTop: 8, width: "100%", background: "#e74c3c", color: "#fff" } }, "Clear All AtlasXrayDB Data"), /* @__PURE__ */ import_react2.default.createElement("button", { onClick: handleRefreshUpdates, style: { marginTop: 8, width: "100%", background: "#2980b9", color: "#fff" } }, "Refresh Project Count"), resetMsg && /* @__PURE__ */ import_react2.default.createElement("div", { style: { color: "#27ae60", marginTop: 8 } }, resetMsg), refreshMsg && /* @__PURE__ */ import_react2.default.createElement("div", { style: { color: "#2980b9", marginTop: 8 } }, refreshMsg));
   };
   var PopupApp_default = Popup;
 
   // src/popup.jsx
   var root = (0, import_client.createRoot)(document.getElementById("root"));
-  root.render(/* @__PURE__ */ import_react2.default.createElement(PopupApp_default, null));
+  root.render(/* @__PURE__ */ import_react3.default.createElement(PopupApp_default, null));
 })();
 /*! Bundled license information:
 

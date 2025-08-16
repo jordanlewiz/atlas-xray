@@ -5963,6 +5963,59 @@
     }
   });
 
+  // node_modules/dexie/import-wrapper.mjs
+  var import_dexie = __toESM(require_dexie(), 1);
+  var DexieSymbol = Symbol.for("Dexie");
+  var Dexie = globalThis[DexieSymbol] || (globalThis[DexieSymbol] = import_dexie.default);
+  if (import_dexie.default.semVer !== Dexie.semVer) {
+    throw new Error(`Two different versions of Dexie loaded in the same app: ${import_dexie.default.semVer} and ${Dexie.semVer}`);
+  }
+  var {
+    liveQuery,
+    mergeRanges,
+    rangesOverlap,
+    RangeSet,
+    cmp,
+    Entity,
+    PropModification,
+    replacePrefix,
+    add,
+    remove
+  } = Dexie;
+  var import_wrapper_default = Dexie;
+
+  // src/utils/database.js
+  var db = new import_wrapper_default("AtlasXrayDB");
+  db.version(6).stores({
+    projectView: "projectKey",
+    projectStatusHistory: "projectKey",
+    projectUpdates: "projectKey",
+    meta: "key"
+  });
+  async function setProjectView(projectKey, data) {
+    await db.projectView.put({ projectKey, ...data });
+  }
+  async function setProjectStatusHistory(projectKey, data) {
+    await db.projectStatusHistory.put({ projectKey, ...data });
+  }
+  async function setProjectUpdates(projectKey, data) {
+    await db.projectUpdates.put({ projectKey, ...data });
+  }
+  async function setMeta(key, value) {
+    await db.meta.put({ key, value });
+  }
+  async function getMeta(key) {
+    const entry = await db.meta.get(key);
+    return entry ? entry.value : null;
+  }
+  async function setItem(key, value) {
+    await setMeta(key, value);
+  }
+  async function getItem(key) {
+    console.log("[AtlasXray] getItem", key);
+    return getMeta(key);
+  }
+
   // node_modules/tslib/tslib.es6.mjs
   var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf || { __proto__: [] } instanceof Array && function(d2, b2) {
@@ -20375,59 +20428,6 @@ fragment UserAvatar on User {
   }
 `;
 
-  // node_modules/dexie/import-wrapper.mjs
-  var import_dexie = __toESM(require_dexie(), 1);
-  var DexieSymbol = Symbol.for("Dexie");
-  var Dexie = globalThis[DexieSymbol] || (globalThis[DexieSymbol] = import_dexie.default);
-  if (import_dexie.default.semVer !== Dexie.semVer) {
-    throw new Error(`Two different versions of Dexie loaded in the same app: ${import_dexie.default.semVer} and ${Dexie.semVer}`);
-  }
-  var {
-    liveQuery,
-    mergeRanges,
-    rangesOverlap,
-    RangeSet,
-    cmp,
-    Entity,
-    PropModification,
-    replacePrefix,
-    add,
-    remove
-  } = Dexie;
-  var import_wrapper_default = Dexie;
-
-  // src/utils/database.js
-  var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(6).stores({
-    projectView: "projectKey",
-    projectStatusHistory: "projectKey",
-    projectUpdates: "projectKey",
-    meta: "key"
-  });
-  async function setProjectView(projectKey, data) {
-    await db.projectView.put({ projectKey, ...data });
-  }
-  async function setProjectStatusHistory(projectKey, data) {
-    await db.projectStatusHistory.put({ projectKey, ...data });
-  }
-  async function setProjectUpdates(projectKey, data) {
-    await db.projectUpdates.put({ projectKey, ...data });
-  }
-  async function setMeta(key, value) {
-    await db.meta.put({ key, value });
-  }
-  async function getMeta(key) {
-    const entry = await db.meta.get(key);
-    return entry ? entry.value : null;
-  }
-  async function setItem2(key, value) {
-    await setMeta(key, value);
-  }
-  async function getItem2(key) {
-    console.log("[AtlasXray] getItem", key);
-    return getMeta(key);
-  }
-
   // src/utils/projectIdScanner.js
   var projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
   function findMatchingProjectLinksFromHrefs(hrefs) {
@@ -20491,9 +20491,9 @@ fragment UserAvatar on User {
     const matches = findMatchingProjectLinksFromHrefs(hrefs);
     for (const { projectId, cloudId } of matches) {
       const key = `projectId:${projectId}`;
-      const existing = await getItem2(key);
+      const existing = await getItem(key);
       if (!existing) {
-        await setItem2(key, projectId);
+        await setItem(key, projectId);
         await fetchAndStoreProjectData(projectId, cloudId);
       }
     }
@@ -20506,13 +20506,6 @@ fragment UserAvatar on User {
     button.innerText = "Atlas Xray Loaded";
     button.className = "atlas-xray-floating-btn";
     document.body.appendChild(button);
-    async function saveProjectIdIfNew(projectId, cloudId) {
-      const key = `projectId:${projectId}`;
-      const existing = await getItem(key);
-      if (!existing) {
-        await setItem(key, projectId);
-      }
-    }
     async function triggerPageProjectScan() {
       return await downloadProjectData();
     }

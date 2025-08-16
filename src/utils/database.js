@@ -49,3 +49,9 @@ export async function getItem(key) {
   console.log('[AtlasXray] getItem', key);
   return getMeta(key);
 }
+
+export async function getProjectViewCount() {
+  return db.projectView.count();
+}
+
+export { db };

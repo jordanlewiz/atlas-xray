@@ -13,6 +13,7 @@
   "dependencies": {
     "@apollo/client": "^3.13.9",
     "dexie": "^4.0.11",
+    "dexie-react-hooks": "^1.1.7",
     "graphql": "^16.11.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"

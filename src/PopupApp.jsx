@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { getItem } from "./utils/database";
-import Dexie from "dexie";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "./utils/database";
 
 const STORAGE_KEY = "demoValue";
 
@@ -8,40 +9,25 @@ const Popup = () => {
   console.log("PopupApp");
   const [stored, setStored] = useState("");
   const [resetMsg, setResetMsg] = useState("");
-  const [projectCount, setProjectCount] = useState(0);
+  const projectCount = useLiveQuery(() => db.projectView.count(), []);
   const [refreshMsg, setRefreshMsg] = useState("");
 
-  const loadProjectCount = async () => {
-    console.log("loading project count");
-    const db = new Dexie("AtlasXrayDB");
-    await db.open();
-    const count = await db.table("projectView").count();
-    console.log("projectView count", count);
-    setProjectCount(count);
-  };
-
-  useEffect(() => {
+  React.useEffect(() => {
     getItem(STORAGE_KEY).then((val) => {
       if (val) setStored(val);
     });
-    loadProjectCount();
   }, []);
 
   const handleResetDB = async () => {
     if (window.confirm("Are you sure you want to clear all AtlasXrayDB data?")) {
-      const db = new Dexie("AtlasXrayDB");
-      await db.open();
       await Promise.all(db.tables.map(table => table.clear()));
       setResetMsg("All data cleared from AtlasXrayDB!");
-      setProjectCount(0);
     }
   };
 
   const handleRefreshUpdates = async () => {
-    console.log("refreshing project count");
     setRefreshMsg("Refreshing...");
-    await loadProjectCount();
-    setRefreshMsg("Project count refreshed!");
+    setRefreshMsg(`Project count refreshed! >> ${projectCount} <<`);
     setTimeout(() => setRefreshMsg(""), 1500);
   };
 
