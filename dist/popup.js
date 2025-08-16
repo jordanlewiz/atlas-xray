@@ -13265,7 +13265,6 @@
     };
     const handleRefreshUpdates = async () => {
       console.log("refreshing project count");
-      setProjectCount(11);
       setRefreshMsg("Refreshing...");
       await loadProjectCount();
       setRefreshMsg("Project count refreshed!");
