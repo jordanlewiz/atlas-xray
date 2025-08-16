@@ -20435,6 +20435,26 @@ fragment UserAvatar on User {
   }
 `;
 
+  // src/utils/projectLinkUtils.js
+  var projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
+  function findMatchingProjectLinksFromHrefs(hrefs) {
+    const seen = /* @__PURE__ */ new Set();
+    const results = [];
+    hrefs.forEach((href) => {
+      const match = href.match(projectLinkPattern);
+      if (match && match[3]) {
+        const cloudId = match[1];
+        const projectId = match[3];
+        const key = `${cloudId}:${projectId}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          results.push({ projectId, cloudId });
+        }
+      }
+    });
+    return results;
+  }
+
   // src/components/floatingButton.js
   async function fetchAndLogProjectView(projectId, cloudId) {
     const variables = {
@@ -20495,7 +20515,7 @@ fragment UserAvatar on User {
     button.style.cursor = "pointer";
     button.style.fontFamily = "inherit";
     document.body.appendChild(button);
-    var projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
+    var projectLinkPattern2 = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
     async function saveProjectIdIfNew(projectId, cloudId) {
       const key = `projectId:${projectId}`;
       const existing = await getItem(key);
@@ -20506,14 +20526,10 @@ fragment UserAvatar on User {
     }
     function findMatchingProjectLinks() {
       var links = Array.from(document.querySelectorAll("a[href]"));
-      var matches = links.filter((link) => projectLinkPattern.test(link.getAttribute("href")));
-      matches.forEach((link) => {
-        var match = link.getAttribute("href").match(projectLinkPattern);
-        if (match && match[3]) {
-          const cloudId = match[1];
-          const projectId = match[3];
-          saveProjectIdIfNew(projectId, cloudId);
-        }
+      var hrefs = links.map((link) => link.getAttribute("href"));
+      const matches = findMatchingProjectLinksFromHrefs(hrefs);
+      matches.forEach(({ projectId, cloudId }) => {
+        saveProjectIdIfNew(projectId, cloudId);
       });
       return matches;
     }
