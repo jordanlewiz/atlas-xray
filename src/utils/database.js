@@ -5,10 +5,7 @@ db.version(6).stores({
   projectView: "projectKey",
   projectStatusHistory: "projectKey",
   projectUpdates: "projectKey",
-  updates: "updateId, projectKey, updatedAt, [projectKey+updatedAt]",
-  views: "projectKey",
-  meta: "key",
-  projectIds: "projectId" // new table for project IDs
+  meta: "key"
 });
 
 // ProjectView store
@@ -35,22 +32,6 @@ export async function getProjectUpdates(projectKey) {
   return db.projectUpdates.get(projectKey);
 }
 
-// Updates store (individual update records from updates.edges)
-export async function setUpdate(update) {
-  await db.updates.put(update);
-}
-export async function getUpdatesByProject(projectKey) {
-  return db.updates.where("projectKey").equals(projectKey).toArray();
-}
-
-// Views store
-export async function setView(projectKey, data) {
-  await db.views.put({ projectKey, ...data });
-}
-export async function getView(projectKey) {
-  return db.views.get(projectKey);
-}
-
 // Meta store
 export async function setMeta(key, value) {
   await db.meta.put({ key, value });
@@ -67,12 +48,4 @@ export async function setItem(key, value) {
 export async function getItem(key) {
   console.log('[AtlasXray] getItem', key);
   return getMeta(key);
-}
-
-// ProjectIds table
-export async function addProjectId(projectId) {
-  await db.projectIds.put({ projectId });
-}
-export async function getAllProjectIds() {
-  return db.projectIds.toArray();
 }
