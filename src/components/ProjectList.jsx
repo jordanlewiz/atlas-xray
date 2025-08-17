@@ -31,22 +31,20 @@ function ProjectListItem({ project }) {
               {update.targetDate && (
                 <span> | <b>Target Date:</b> {formatDate(update.targetDate)}</span>
               )}
+              {update.raw?.oldDueDate && (
+                <span style={{ color: "red" }}> | <b>Old Due Date:</b> {typeof update.raw.oldDueDate === 'object'
+                  ? (update.raw.oldDueDate.label || JSON.stringify(update.raw.oldDueDate))
+                  : formatDate(update.raw.oldDueDate)}
+                </span>
+              )}
+              {update.raw?.creator?.displayName && (
+                <span> | <b>By:</b> {update.raw.creator.displayName}</span>
+              )}
             </li>
           ))}
         </ul>
       )}
-      {statusHistory && statusHistory.length > 0 && (
-        <ul className="atlas-xray-update-list" style={{ marginTop: 8 }}>
-          <li><b>Status History:</b></li>
-          {statusHistory.map((entry, i) => (
-            <li key={entry.id || i}>
-              <b>Date:</b> {formatDate(entry.raw.creationDate)}
-              {entry.raw && entry.raw.status && <span> | <b>Status:</b> {entry.raw.status}</span>}
-              {entry.raw && entry.raw.author && <span> | <b>By:</b> {entry.raw.author.displayName}</span>}
-            </li>
-          ))}
-        </ul>
-      )}
+      
     </li>
   );
 }
