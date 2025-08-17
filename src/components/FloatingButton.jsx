@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../utils/database";
 import ProjectList from "./ProjectList.jsx";
@@ -23,13 +23,26 @@ const FloatingButton = () => {
   );
   const [modalOpen, setModalOpen] = useState(false);
   const [visibleProjectKeys, setVisibleProjectKeys] = useState([]);
+  const observerRef = useRef(null);
 
-  // When modal opens, determine visible project(s)
-  const handleOpenModal = async () => {
+  // Function to update visible projects
+  const updateVisibleProjects = async () => {
     const matches = await downloadProjectData();
     setVisibleProjectKeys(matches.map(m => m.projectId));
-    setModalOpen(true);
   };
+
+  // Set up MutationObserver to update visible projects on DOM changes
+  useEffect(() => {
+    updateVisibleProjects(); // Initial run
+    const observer = new window.MutationObserver(() => {
+      updateVisibleProjects();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    observerRef.current = observer;
+    return () => {
+      if (observerRef.current) observerRef.current.disconnect();
+    };
+  }, []);
 
   // Compute the view-model: array of { projectKey, name, updateDates }
   const projectViewModel = (projects || []).map(proj => ({
@@ -42,6 +55,9 @@ const FloatingButton = () => {
   const filteredProjects = visibleProjectKeys.length > 0
     ? projectViewModel.filter(p => visibleProjectKeys.includes(p.projectKey))
     : projectViewModel;
+
+  // Modal open handler (no longer needs to update visible projects)
+  const handleOpenModal = () => setModalOpen(true);
 
   return (
     <>

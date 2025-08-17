@@ -1092,11 +1092,11 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useReducer(reducer, initialArg, init);
           }
-          function useRef(initialValue) {
+          function useRef2(initialValue) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect(create, deps) {
+          function useEffect2(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1879,14 +1879,14 @@
           exports.useContext = useContext;
           exports.useDebugValue = useDebugValue;
           exports.useDeferredValue = useDeferredValue;
-          exports.useEffect = useEffect;
+          exports.useEffect = useEffect2;
           exports.useId = useId;
           exports.useImperativeHandle = useImperativeHandle;
           exports.useInsertionEffect = useInsertionEffect;
           exports.useLayoutEffect = useLayoutEffect;
           exports.useMemo = useMemo;
           exports.useReducer = useReducer;
-          exports.useRef = useRef;
+          exports.useRef = useRef2;
           exports.useState = useState2;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
@@ -44234,17 +44234,29 @@ fragment UserAvatar on User {
     );
     const [modalOpen, setModalOpen] = (0, import_react4.useState)(false);
     const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react4.useState)([]);
-    const handleOpenModal = async () => {
+    const observerRef = (0, import_react4.useRef)(null);
+    const updateVisibleProjects = async () => {
       const matches = await downloadProjectData();
       setVisibleProjectKeys(matches.map((m) => m.projectId));
-      setModalOpen(true);
     };
+    (0, import_react4.useEffect)(() => {
+      updateVisibleProjects();
+      const observer2 = new window.MutationObserver(() => {
+        updateVisibleProjects();
+      });
+      observer2.observe(document.body, { childList: true, subtree: true });
+      observerRef.current = observer2;
+      return () => {
+        if (observerRef.current) observerRef.current.disconnect();
+      };
+    }, []);
     const projectViewModel = (projects || []).map((proj) => ({
       projectKey: proj.projectKey,
       name: proj.project?.name || "",
       updateDates: updatesByProject && updatesByProject[proj.projectKey] ? updatesByProject[proj.projectKey] : []
     }));
     const filteredProjects = visibleProjectKeys.length > 0 ? projectViewModel.filter((p) => visibleProjectKeys.includes(p.projectKey)) : projectViewModel;
+    const handleOpenModal = () => setModalOpen(true);
     return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal }, "Atlas Xray", visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react4.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, /* @__PURE__ */ import_react4.default.createElement("ol", { className: "atlas-xray-modal-list" }, /* @__PURE__ */ import_react4.default.createElement(ProjectList, { projects: filteredProjects }))));
   };
   var FloatingButton_default = FloatingButton;
