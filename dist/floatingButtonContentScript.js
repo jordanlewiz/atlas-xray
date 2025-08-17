@@ -1084,7 +1084,7 @@
             }
             return dispatcher.useContext(Context);
           }
-          function useState(initialState) {
+          function useState2(initialState) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useState(initialState);
           }
@@ -1887,7 +1887,7 @@
           exports.useMemo = useMemo;
           exports.useReducer = useReducer;
           exports.useRef = useRef;
-          exports.useState = useState;
+          exports.useState = useState2;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
           exports.version = ReactVersion;
@@ -2383,9 +2383,9 @@
           if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function") {
             __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
           }
-          var React4 = require_react();
+          var React6 = require_react();
           var Scheduler = require_scheduler();
-          var ReactSharedInternals = React4.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+          var ReactSharedInternals = React6.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
           var suppressWarning = false;
           function setSuppressWarning(newSuppressWarning) {
             {
@@ -3992,7 +3992,7 @@
             {
               if (props.value == null) {
                 if (typeof props.children === "object" && props.children !== null) {
-                  React4.Children.forEach(props.children, function(child) {
+                  React6.Children.forEach(props.children, function(child) {
                     if (child == null) {
                       return;
                     }
@@ -29520,11 +29520,11 @@
   });
 
   // src/floatingButtonContentScript.js
-  var import_react3 = __toESM(require_react());
+  var import_react5 = __toESM(require_react());
   var import_client3 = __toESM(require_client());
 
-  // src/components/floatingButton.js
-  var import_react2 = __toESM(require_react());
+  // src/components/FloatingButton.jsx
+  var import_react4 = __toESM(require_react());
 
   // node_modules/dexie/import-wrapper.mjs
   var import_dexie = __toESM(require_dexie(), 1);
@@ -29629,20 +29629,14 @@
 
   // src/utils/database.js
   var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(6).stores({
+  db.version(8).stores({
     projectView: "projectKey",
-    projectStatusHistory: "projectKey",
-    projectUpdates: "projectKey",
+    projectStatusHistory: "id,projectKey",
+    projectUpdates: "id,projectKey",
     meta: "key"
   });
   async function setProjectView(projectKey, data) {
     await db.projectView.put({ projectKey, ...data });
-  }
-  async function setProjectStatusHistory(projectKey, data) {
-    await db.projectStatusHistory.put({ projectKey, ...data });
-  }
-  async function setProjectUpdates(projectKey, data) {
-    await db.projectUpdates.put({ projectKey, ...data });
   }
   async function setMeta(key, value) {
     await db.meta.put({ key, value });
@@ -29658,13 +29652,100 @@
     console.log("[AtlasXray] getItem", key);
     return getMeta(key);
   }
+  function upsertProjectUpdates(nodes) {
+    const rows = nodes.map((n) => ({
+      id: n.id ?? n.uuid,
+      projectKey: n.project?.key,
+      creationDate: n.creationDate,
+      state: n.newState?.value,
+      missedUpdate: !!n.missedUpdate,
+      targetDate: n.newTargetDate,
+      newDueDate: n.newDueDate?.label,
+      oldDueDate: n.oldDueDate?.label,
+      oldState: n.oldState?.label,
+      summary: n.summary,
+      raw: n
+    }));
+    return db.projectUpdates.bulkPut(rows);
+  }
+  function upsertProjectStatusHistory(nodes, projectKey) {
+    if (!projectKey) {
+      console.warn("[AtlasXray] upsertProjectStatusHistory called with undefined projectKey. Skipping.");
+      return Promise.resolve();
+    }
+    console.log("[AtlasXray] upsertProjectStatusHistory", nodes, projectKey);
+    const rows = nodes.map((n) => ({
+      id: n.id ?? n.uuid,
+      projectKey,
+      creationDate: n.creationDate,
+      startDate: n.startDate,
+      targetDate: n.targetDate,
+      raw: n
+    }));
+    return db.projectStatusHistory.bulkPut(rows);
+  }
 
-  // src/components/floatingButton.js
+  // src/components/ProjectList.jsx
+  var import_react2 = __toESM(require_react());
+
+  // src/utils/formatDate.js
+  function formatDate(dateStr) {
+    if (!dateStr) return "No date";
+    const d = new Date(dateStr);
+    return isNaN(d) ? dateStr : d.toLocaleString();
+  }
+
+  // src/components/ProjectList.jsx
+  function ProjectListItem({ project }) {
+    const updates = useLiveQuery(
+      () => db.projectUpdates.where("projectKey").equals(project.projectKey).toArray(),
+      [project.projectKey]
+    );
+    const statusHistory = useLiveQuery(
+      () => db.projectStatusHistory.where("projectKey").equals(project.projectKey).toArray(),
+      [project.projectKey]
+    );
+    const showBool = (val) => val ? "Yes" : "No";
+    return /* @__PURE__ */ import_react2.default.createElement("li", { className: "atlas-xray-modal-list-item" }, project.projectKey, " ", project.name ? `- ${project.name}` : "", updates && updates.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list" }, updates.map((update, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: update.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(update.creationDate), update.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "State:"), " ", update.state), typeof update.missedUpdate !== "undefined" && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Missed:"), " ", showBool(update.missedUpdate)), /* @__PURE__ */ import_react2.default.createElement("span", null, "| ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Target Date:"), update.oldDueDate && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, " ", /* @__PURE__ */ import_react2.default.createElement("del", { style: { color: "red" } }, update.oldDueDate), " "), update.targetDate && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, " ", formatDate(update.targetDate), " "), update.newDueDate && /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, " | ", formatDate(update.newDueDate), " ")), update.oldState && /* @__PURE__ */ import_react2.default.createElement("span", { style: { color: "orange" } }, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Old State:"), " ", update.oldState), update.raw?.creator?.displayName && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "By:"), " ", update.raw.creator.displayName)))));
+  }
+  function ProjectList({ projects }) {
+    if (!projects || projects.length === 0) return /* @__PURE__ */ import_react2.default.createElement("li", null, "No projects found.");
+    return /* @__PURE__ */ import_react2.default.createElement(import_react2.default.Fragment, null, projects.map((p, i) => /* @__PURE__ */ import_react2.default.createElement(ProjectListItem, { key: p.projectKey || i, project: p })));
+  }
+
+  // src/components/Modal.jsx
+  var import_react3 = __toESM(require_react());
+  function Modal({ open, onClose, children }) {
+    if (!open) return null;
+    return /* @__PURE__ */ import_react3.default.createElement("div", { className: "atlas-xray-modal" }, /* @__PURE__ */ import_react3.default.createElement("button", { className: "atlas-xray-modal-close", onClick: onClose }, "\xD7"), /* @__PURE__ */ import_react3.default.createElement("h2", null, "Projects"), children);
+  }
+
+  // src/components/FloatingButton.jsx
   var FloatingButton = () => {
     const projectCount = useLiveQuery(() => db.projectView.count(), []);
-    return /* @__PURE__ */ import_react2.default.createElement("button", { className: "atlas-xray-floating-btn" }, "Atlas Xray", projectCount !== void 0 ? ` (${projectCount})` : "");
+    const projects = useLiveQuery(() => db.projectView.toArray(), []);
+    const updatesByProject = useLiveQuery(
+      async () => {
+        const updates = {};
+        const allUpdates = await db.projectUpdates.toArray();
+        for (const update of allUpdates) {
+          const key = update.projectKey;
+          const edges = update?.projectUpdates?.edges || [];
+          updates[key] = edges.map((e) => e.node?.creationDate).filter(Boolean);
+        }
+        return updates;
+      },
+      []
+    );
+    const [modalOpen, setModalOpen] = (0, import_react4.useState)(false);
+    const projectViewModel = (projects || []).map((proj) => ({
+      projectKey: proj.projectKey,
+      name: proj.project?.name || "",
+      updateDates: updatesByProject && updatesByProject[proj.projectKey] ? updatesByProject[proj.projectKey] : []
+    }));
+    return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: () => setModalOpen(true) }, "Atlas Xray", projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react4.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, /* @__PURE__ */ import_react4.default.createElement("ol", { className: "atlas-xray-modal-list" }, /* @__PURE__ */ import_react4.default.createElement(ProjectList, { projects: projectViewModel }))));
   };
-  var floatingButton_default = FloatingButton;
+  var FloatingButton_default = FloatingButton;
 
   // node_modules/tslib/tslib.es6.mjs
   var extendStatics = function(d, b) {
@@ -44121,7 +44202,15 @@ fragment UserAvatar on User {
         query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
         variables: { projectKey: projectId }
       });
-      await setProjectStatusHistory(projectId, data);
+      console.log("[AtlasXray] Status history API response for", projectId, data);
+      if (!projectId) {
+        console.error("[AtlasXray] projectId is undefined when saving status history!");
+      }
+      const nodes = data?.project?.updates?.edges?.map((edge) => edge.node).filter(Boolean) || [];
+      console.log("[AtlasXray] Calling upsertProjectStatusHistory with projectId:", projectId, nodes);
+      if (nodes.length > 0) {
+        await upsertProjectStatusHistory(nodes, projectId);
+      }
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
     }
@@ -44130,7 +44219,10 @@ fragment UserAvatar on User {
         query: gql`${PROJECT_UPDATES_QUERY}`,
         variables: { key: projectId, isUpdatesTab: true }
       });
-      await setProjectUpdates(projectId, data);
+      const nodes = data?.project?.updates?.edges?.map((edge) => edge.node).filter(Boolean) || [];
+      if (nodes.length > 0) {
+        await upsertProjectUpdates(nodes, projectId);
+      }
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
     }
@@ -44153,7 +44245,7 @@ fragment UserAvatar on User {
   // src/floatingButtonContentScript.js
   var container = document.createElement("div");
   document.body.appendChild(container);
-  (0, import_client3.createRoot)(container).render(/* @__PURE__ */ import_react3.default.createElement(floatingButton_default, null));
+  (0, import_client3.createRoot)(container).render(/* @__PURE__ */ import_react5.default.createElement(FloatingButton_default, null));
   downloadProjectData();
   var observer = new MutationObserver(() => {
     downloadProjectData();

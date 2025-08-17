@@ -1,10 +1,10 @@
 import Dexie from "dexie";
 
 const db = new Dexie("AtlasXrayDB");
-db.version(6).stores({
+db.version(8).stores({
   projectView: "projectKey",
-  projectStatusHistory: "projectKey",
-  projectUpdates: "projectKey",
+  projectStatusHistory: "id,projectKey",
+  projectUpdates: "id,projectKey",
   meta: "key"
 });
 
@@ -54,4 +54,48 @@ export async function getProjectViewCount() {
   return db.projectView.count();
 }
 
-export { db };
+/**
+ * Upsert normalized project updates into the DB.
+ * @param {any[]} nodes
+ * @returns {Promise}
+ */
+function upsertProjectUpdates(nodes) {
+  const rows = nodes.map((n) => ({
+    id: n.id ?? n.uuid,
+    projectKey: n.project?.key,
+    creationDate: n.creationDate,
+    state: n.newState?.value,
+    missedUpdate: !!n.missedUpdate,
+    targetDate: n.newTargetDate,
+    newDueDate: n.newDueDate?.label,
+    oldDueDate: n.oldDueDate?.label,
+    oldState: n.oldState?.label,
+    summary: n.summary,
+    raw: n,
+  }));
+  return db.projectUpdates.bulkPut(rows);
+}
+
+/**
+ * Upsert normalized project status history into the DB.
+ * @param {any[]} nodes
+ * @returns {Promise}
+ */
+function upsertProjectStatusHistory(nodes, projectKey) {
+  if (!projectKey) {
+    console.warn('[AtlasXray] upsertProjectStatusHistory called with undefined projectKey. Skipping.');
+    return Promise.resolve();
+  }
+  console.log('[AtlasXray] upsertProjectStatusHistory', nodes, projectKey);
+  const rows = nodes.map((n) => ({
+    id: n.id ?? n.uuid,
+    projectKey: projectKey,
+    creationDate: n.creationDate,
+    startDate: n.startDate,
+    targetDate: n.targetDate,
+    raw: n,
+  }));
+  return db.projectStatusHistory.bulkPut(rows);
+}
+
+export { db, upsertProjectUpdates, upsertProjectStatusHistory };

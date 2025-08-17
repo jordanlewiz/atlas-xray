@@ -1,4 +1,4 @@
-import { getItem, setItem, setProjectView, setProjectStatusHistory, setProjectUpdates } from "../utils/database";
+import { getItem, setItem, setProjectView, upsertProjectStatusHistory, upsertProjectUpdates } from "../utils/database";
 import { apolloClient } from "../services/apolloClient";
 import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
@@ -36,6 +36,7 @@ async function fetchAndStoreProjectData(projectId, cloudId) {
     cloudId: cloudId || "",
     isNavRefreshEnabled: true
   };
+  
   // ProjectView
   try {
     const { data } = await apolloClient.query({
@@ -46,23 +47,43 @@ async function fetchAndStoreProjectData(projectId, cloudId) {
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
   }
-  // ProjectStatusHistory
+
+
+
+  // ProjectStatusHistory (normalize and store one row per status change)
   try {
     const { data } = await apolloClient.query({
       query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
       variables: { projectKey: projectId }
     });
-    await setProjectStatusHistory(projectId, data);
+    console.log("[AtlasXray] Status history API response for", projectId, data);
+    // Normalize: extract all .node from edges
+    if (!projectId) {
+      console.error('[AtlasXray] projectId is undefined when saving status history!');
+    }
+    const nodes = data?.project?.updates?.edges?.map(edge => edge.node).filter(Boolean) || [];
+    console.log('[AtlasXray] Calling upsertProjectStatusHistory with projectId:', projectId, nodes);
+    if (nodes.length > 0) {
+      await upsertProjectStatusHistory(nodes, projectId);
+    }
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
   }
-  // ProjectUpdates
+
+
+
+
+  // ProjectUpdates (normalize and store flat rows)
   try {
     const { data } = await apolloClient.query({
       query: gql`${PROJECT_UPDATES_QUERY}`,
       variables: { key: projectId, isUpdatesTab: true }
     });
-    await setProjectUpdates(projectId, data);
+    // Normalize: extract all .node from edges
+    const nodes = data?.project?.updates?.edges?.map(edge => edge.node).filter(Boolean) || [];
+    if (nodes.length > 0) {
+      await upsertProjectUpdates(nodes, projectId);
+    }
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
   }
