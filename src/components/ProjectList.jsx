@@ -31,10 +31,8 @@ function ProjectListItem({ project }) {
               {update.targetDate && (
                 <span> | <b>Target Date:</b> {formatDate(update.targetDate)}</span>
               )}
-              {update.raw?.oldDueDate && (
-                <span style={{ color: "red" }}> | <b>Old Due Date:</b> {typeof update.raw.oldDueDate === 'object'
-                  ? (update.raw.oldDueDate.label || JSON.stringify(update.raw.oldDueDate))
-                  : formatDate(update.raw.oldDueDate)}
+              {update.oldDueDate && (
+                <span style={{ color: "red" }}> | <b>Old Due Date:</b> {update.oldDueDate}
                 </span>
               )}
               {update.raw?.creator?.displayName && (
