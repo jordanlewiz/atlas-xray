@@ -34,9 +34,6 @@ function ProjectListItem({ project }) {
                 {update.oldDueDate && (
                   <> <del style={{ color: "red" }}>{update.oldDueDate}</del> </>
                 )}
-                {update.targetDate && (
-                  <> {formatDate(update.targetDate)} </>
-                )}
                 {update.newDueDate && (
                   <> | {formatDate(update.newDueDate)} </>
                 )}
