@@ -40,9 +40,9 @@ function ProjectListItem({ project }) {
           <li><b>Status History:</b></li>
           {statusHistory.map((entry, i) => (
             <li key={entry.id || i}>
-              <b>Date:</b> {formatDate(entry.date)}
-              {entry.status && <span> | <b>Status:</b> {entry.status}</span>}
-              {entry.author && <span> | <b>By:</b> {entry.author.displayName}</span>}
+              <b>Date:</b> {formatDate(entry.raw.creationDate)}
+              {entry.raw && entry.raw.status && <span> | <b>Status:</b> {entry.raw.status}</span>}
+              {entry.raw && entry.raw.author && <span> | <b>By:</b> {entry.raw.author.displayName}</span>}
             </li>
           ))}
         </ul>

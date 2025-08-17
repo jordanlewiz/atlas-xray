@@ -64,7 +64,7 @@ async function fetchAndStoreProjectData(projectId, cloudId) {
     const nodes = data?.project?.updates?.edges?.map(edge => edge.node).filter(Boolean) || [];
     console.log('[AtlasXray] Calling upsertProjectStatusHistory with projectId:', projectId, nodes);
     if (nodes.length > 0) {
-      await upsertProjectStatusHistory(nodes);
+      await upsertProjectStatusHistory(nodes, projectId);
     }
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
@@ -82,7 +82,7 @@ async function fetchAndStoreProjectData(projectId, cloudId) {
     // Normalize: extract all .node from edges
     const nodes = data?.project?.updates?.edges?.map(edge => edge.node).filter(Boolean) || [];
     if (nodes.length > 0) {
-      await upsertProjectUpdates(nodes, projectKey);
+      await upsertProjectUpdates(nodes, projectId);
     }
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);

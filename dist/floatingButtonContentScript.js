@@ -29635,8 +29635,8 @@
     projectUpdates: "id,projectKey",
     meta: "key"
   });
-  async function setProjectView(projectKey2, data) {
-    await db.projectView.put({ projectKey: projectKey2, ...data });
+  async function setProjectView(projectKey, data) {
+    await db.projectView.put({ projectKey, ...data });
   }
   async function setMeta(key, value) {
     await db.meta.put({ key, value });
@@ -29664,15 +29664,15 @@
     }));
     return db.projectUpdates.bulkPut(rows);
   }
-  function upsertProjectStatusHistory(nodes, projectKey2) {
-    if (!projectKey2) {
+  function upsertProjectStatusHistory(nodes, projectKey) {
+    if (!projectKey) {
       console.warn("[AtlasXray] upsertProjectStatusHistory called with undefined projectKey. Skipping.");
       return Promise.resolve();
     }
-    console.log("[AtlasXray] upsertProjectStatusHistory", nodes, projectKey2);
+    console.log("[AtlasXray] upsertProjectStatusHistory", nodes, projectKey);
     const rows = nodes.map((n) => ({
       id: n.id ?? n.uuid,
-      projectKey: projectKey2,
+      projectKey,
       creationDate: n.creationDate,
       startDate: n.startDate,
       targetDate: n.targetDate,
@@ -29702,7 +29702,7 @@
       [project.projectKey]
     );
     const showBool = (val) => val ? "Yes" : "No";
-    return /* @__PURE__ */ import_react2.default.createElement("li", { className: "atlas-xray-modal-list-item" }, project.projectKey, " ", project.name ? `- ${project.name}` : "", updates && updates.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list" }, updates.map((update, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: update.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(update.creationDate), update.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "State:"), " ", update.state), typeof update.missedUpdate !== "undefined" && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Missed:"), " ", showBool(update.missedUpdate)), update.targetDate && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Target Date:"), " ", formatDate(update.targetDate))))), statusHistory && statusHistory.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list", style: { marginTop: 8 } }, /* @__PURE__ */ import_react2.default.createElement("li", null, /* @__PURE__ */ import_react2.default.createElement("b", null, "Status History:")), statusHistory.map((entry, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: entry.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(entry.date), entry.status && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Status:"), " ", entry.status), entry.author && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "By:"), " ", entry.author.displayName)))));
+    return /* @__PURE__ */ import_react2.default.createElement("li", { className: "atlas-xray-modal-list-item" }, project.projectKey, " ", project.name ? `- ${project.name}` : "", updates && updates.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list" }, updates.map((update, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: update.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(update.creationDate), update.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "State:"), " ", update.state), typeof update.missedUpdate !== "undefined" && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Missed:"), " ", showBool(update.missedUpdate)), update.targetDate && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Target Date:"), " ", formatDate(update.targetDate))))), statusHistory && statusHistory.length > 0 && /* @__PURE__ */ import_react2.default.createElement("ul", { className: "atlas-xray-update-list", style: { marginTop: 8 } }, /* @__PURE__ */ import_react2.default.createElement("li", null, /* @__PURE__ */ import_react2.default.createElement("b", null, "Status History:")), statusHistory.map((entry, i) => /* @__PURE__ */ import_react2.default.createElement("li", { key: entry.id || i }, /* @__PURE__ */ import_react2.default.createElement("b", null, "Date:"), " ", formatDate(entry.raw.creationDate), entry.raw && entry.raw.status && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "Status:"), " ", entry.raw.status), entry.raw && entry.raw.author && /* @__PURE__ */ import_react2.default.createElement("span", null, " | ", /* @__PURE__ */ import_react2.default.createElement("b", null, "By:"), " ", entry.raw.author.displayName)))));
   }
   function ProjectList({ projects }) {
     if (!projects || projects.length === 0) return /* @__PURE__ */ import_react2.default.createElement("li", null, "No projects found.");
@@ -44205,7 +44205,7 @@ fragment UserAvatar on User {
       const nodes = data?.project?.updates?.edges?.map((edge) => edge.node).filter(Boolean) || [];
       console.log("[AtlasXray] Calling upsertProjectStatusHistory with projectId:", projectId, nodes);
       if (nodes.length > 0) {
-        await upsertProjectStatusHistory(nodes);
+        await upsertProjectStatusHistory(nodes, projectId);
       }
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
@@ -44217,7 +44217,7 @@ fragment UserAvatar on User {
       });
       const nodes = data?.project?.updates?.edges?.map((edge) => edge.node).filter(Boolean) || [];
       if (nodes.length > 0) {
-        await upsertProjectUpdates(nodes, projectKey);
+        await upsertProjectUpdates(nodes, projectId);
       }
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
