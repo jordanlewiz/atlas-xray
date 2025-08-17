@@ -28,11 +28,22 @@ function ProjectListItem({ project }) {
               {typeof update.missedUpdate !== 'undefined' && (
                 <span> | <b>Missed:</b> {showBool(update.missedUpdate)}</span>
               )}
-              {update.targetDate && (
-                <span> | <b>Target Date:</b> {formatDate(update.targetDate)}</span>
-              )}
-              {update.oldDueDate && (
-                <span style={{ color: "red" }}> | <b>Old Due Date:</b> {update.oldDueDate}
+
+              <span>
+                | <b>Target Date:</b>
+                {update.oldDueDate && (
+                  <> <del style={{ color: "red" }}>{update.oldDueDate}</del> </>
+                )}
+                {update.targetDate && (
+                  <> {formatDate(update.targetDate)} </>
+                )}
+                {update.newDueDate && (
+                  <> | {formatDate(update.newDueDate)} </>
+                )}
+              </span>
+
+              {update.oldState && (
+                <span style={{ color: "orange" }}> | <b>Old State:</b> {update.oldState}
                 </span>
               )}
               {update.raw?.creator?.displayName && (

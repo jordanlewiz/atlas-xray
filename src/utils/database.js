@@ -67,7 +67,10 @@ function upsertProjectUpdates(nodes) {
     state: n.newState?.value,
     missedUpdate: !!n.missedUpdate,
     targetDate: n.newTargetDate,
+    newDueDate: n.newDueDate?.label,
     oldDueDate: n.oldDueDate?.label,
+    oldState: n.oldState?.label,
+    summary: n.summary,
     raw: n,
   }));
   return db.projectUpdates.bulkPut(rows);
