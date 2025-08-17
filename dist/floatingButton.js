@@ -9836,7 +9836,8 @@
     });
     return { minDate, maxDate };
   }
-  var ProjectTimeline = ({ projects, updatesByProject }) => {
+  var ProjectTimeline = ({ viewModel }) => {
+    const { projects, updatesByProject } = viewModel;
     const { minDate, maxDate } = getAllProjectDates(projects, updatesByProject);
     if (!minDate || !maxDate) return null;
     const weekRanges = getWeekRanges(minDate, maxDate);
@@ -9861,35 +9862,43 @@
   }
 
   // src/components/ProjectListItem.jsx
-  var ProjectListItem = ({ project }) => {
-    const updates = useLiveQuery(
-      () => db.projectUpdates.where("projectKey").equals(project.projectKey).toArray(),
-      [project.projectKey]
-    );
-    const statusHistory = useLiveQuery(
-      () => db.projectStatusHistory.where("projectKey").equals(project.projectKey).toArray(),
-      [project.projectKey]
-    );
+  var ProjectListItem = ({ viewModel }) => {
+    const { projectKey, name, updates, statusHistory } = viewModel;
     const showBool = (val) => val ? "Yes" : "No";
-    return /* @__PURE__ */ import_react3.default.createElement("li", { className: "atlas-xray-modal-list-item" }, project.projectKey, " ", project.name ? `- ${project.name}` : "", updates && updates.length > 0 && /* @__PURE__ */ import_react3.default.createElement("ul", { className: "atlas-xray-update-list" }, updates.map((update, i) => /* @__PURE__ */ import_react3.default.createElement("li", { key: update.id || i }, /* @__PURE__ */ import_react3.default.createElement("b", null, "Date:"), " ", formatDate(update.creationDate), update.state && /* @__PURE__ */ import_react3.default.createElement("span", null, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "State:"), " ", update.state), typeof update.missedUpdate !== "undefined" && /* @__PURE__ */ import_react3.default.createElement("span", null, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "Missed:"), " ", showBool(update.missedUpdate)), /* @__PURE__ */ import_react3.default.createElement("span", null, "| ", /* @__PURE__ */ import_react3.default.createElement("b", null, "Target Date:"), update.oldDueDate && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, " ", /* @__PURE__ */ import_react3.default.createElement("del", { style: { color: "red" } }, update.oldDueDate), " "), update.newDueDate && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, " | ", formatDate(update.newDueDate), " ")), update.oldState && /* @__PURE__ */ import_react3.default.createElement("span", { style: { color: "orange" } }, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "Old State:"), " ", update.oldState), update.raw?.creator?.displayName && /* @__PURE__ */ import_react3.default.createElement("span", null, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "By:"), " ", update.raw.creator.displayName)))), statusHistory && statusHistory.length > 0 && /* @__PURE__ */ import_react3.default.createElement("ul", { className: "atlas-xray-update-list", style: { marginTop: 8 } }, /* @__PURE__ */ import_react3.default.createElement("li", null, /* @__PURE__ */ import_react3.default.createElement("b", null, "Status History:")), statusHistory.map((entry, i) => /* @__PURE__ */ import_react3.default.createElement("li", { key: entry.id || i }, /* @__PURE__ */ import_react3.default.createElement("b", null, "Date:"), " ", formatDate(entry.raw?.creationDate), entry.raw?.oldTargetDate && /* @__PURE__ */ import_react3.default.createElement("span", null, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "Old Target Date:"), " ", typeof entry.raw.oldTargetDate === "object" ? entry.raw.oldTargetDate.label || JSON.stringify(entry.raw.oldTargetDate) : formatDate(entry.raw.oldTargetDate))))));
+    return /* @__PURE__ */ import_react3.default.createElement("li", { className: "atlas-xray-modal-list-item" }, projectKey, " ", name ? `- ${name}` : "", updates && updates.length > 0 && /* @__PURE__ */ import_react3.default.createElement("ul", { className: "atlas-xray-update-list" }, updates.map((update, i) => /* @__PURE__ */ import_react3.default.createElement("li", { key: update.id || i }, /* @__PURE__ */ import_react3.default.createElement("b", null, "Date:"), " ", formatDate(update.creationDate), update.state && /* @__PURE__ */ import_react3.default.createElement("span", null, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "State:"), " ", update.state), typeof update.missedUpdate !== "undefined" && /* @__PURE__ */ import_react3.default.createElement("span", null, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "Missed:"), " ", showBool(update.missedUpdate)), /* @__PURE__ */ import_react3.default.createElement("span", null, "| ", /* @__PURE__ */ import_react3.default.createElement("b", null, "Target Date:"), update.oldDueDate && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, " ", /* @__PURE__ */ import_react3.default.createElement("del", { style: { color: "red" } }, update.oldDueDate), " "), update.newDueDate && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, " | ", formatDate(update.newDueDate), " ")), update.oldState && /* @__PURE__ */ import_react3.default.createElement("span", { style: { color: "orange" } }, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "Old State:"), " ", update.oldState), update.raw?.creator?.displayName && /* @__PURE__ */ import_react3.default.createElement("span", null, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "By:"), " ", update.raw.creator.displayName)))), statusHistory && statusHistory.length > 0 && /* @__PURE__ */ import_react3.default.createElement("ul", { className: "atlas-xray-update-list", style: { marginTop: 8 } }, /* @__PURE__ */ import_react3.default.createElement("li", null, /* @__PURE__ */ import_react3.default.createElement("b", null, "Status History:")), statusHistory.map((entry, i) => /* @__PURE__ */ import_react3.default.createElement("li", { key: entry.id || i }, /* @__PURE__ */ import_react3.default.createElement("b", null, "Date:"), " ", formatDate(entry.raw?.creationDate), entry.raw?.oldTargetDate && /* @__PURE__ */ import_react3.default.createElement("span", null, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "Old Target Date:"), " ", typeof entry.raw.oldTargetDate === "object" ? entry.raw.oldTargetDate.label || JSON.stringify(entry.raw.oldTargetDate) : formatDate(entry.raw.oldTargetDate))))));
   };
   var ProjectListItem_default = ProjectListItem;
 
   // src/components/ProjectList.jsx
+  function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
+    const projectViewModels = (projects || []).map((proj) => {
+      const updates = (allUpdates || []).filter((u) => u.projectKey === proj.projectKey);
+      const statusHistory = (allStatusHistory || []).filter((s) => s.projectKey === proj.projectKey);
+      return {
+        projectKey: proj.projectKey,
+        name: proj.name,
+        updates,
+        statusHistory
+      };
+    });
+    const updatesByProject = {};
+    projectViewModels.forEach((vm) => {
+      updatesByProject[vm.projectKey] = vm.updates.map((u) => u.creationDate).filter(Boolean);
+    });
+    const timelineViewModel = {
+      projects: projectViewModels.map((vm) => ({ projectKey: vm.projectKey, name: vm.name })),
+      updatesByProject
+    };
+    return { projectViewModels, timelineViewModel };
+  }
   function ProjectList({ projects }) {
     const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []);
-    const updatesByProject = (0, import_react4.useMemo)(() => {
-      const map = {};
-      if (allUpdates) {
-        allUpdates.forEach((update) => {
-          if (!update.projectKey) return;
-          if (!map[update.projectKey]) map[update.projectKey] = [];
-          if (update.creationDate) map[update.projectKey].push(update.creationDate);
-        });
-      }
-      return map;
-    }, [allUpdates]);
-    return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement(ProjectTimeline_default, { projects, updatesByProject }), !projects || projects.length === 0 ? /* @__PURE__ */ import_react4.default.createElement("li", null, "No projects found.") : projects.map((p, i) => /* @__PURE__ */ import_react4.default.createElement(ProjectListItem_default, { key: p.projectKey || i, project: p })));
+    const allStatusHistory = useLiveQuery(() => db.projectStatusHistory.toArray(), []);
+    const { projectViewModels, timelineViewModel } = (0, import_react4.useMemo)(
+      () => createProjectListViewModel(projects, allUpdates, allStatusHistory),
+      [projects, allUpdates, allStatusHistory]
+    );
+    return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement(ProjectTimeline_default, { viewModel: timelineViewModel }), projectViewModels.length === 0 ? /* @__PURE__ */ import_react4.default.createElement("li", null, "No projects found.") : projectViewModels.map((vm, i) => /* @__PURE__ */ import_react4.default.createElement(ProjectListItem_default, { key: vm.projectKey || i, viewModel: vm })));
   }
 
   // src/components/Modal.jsx

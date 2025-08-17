@@ -1,22 +1,17 @@
 import React from "react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../utils/database";
 import formatDate from "../utils/formatDate";
 
-const ProjectListItem = ({ project }) => {
-  const updates = useLiveQuery(
-    () => db.projectUpdates.where("projectKey").equals(project.projectKey).toArray(),
-    [project.projectKey]
-  );
-  const statusHistory = useLiveQuery(
-    () => db.projectStatusHistory.where("projectKey").equals(project.projectKey).toArray(),
-    [project.projectKey]
-  );
+/**
+ * ProjectListItem view model is passed as the viewModel prop.
+ * Contains: { projectKey, name, updates, statusHistory }
+ */
+const ProjectListItem = ({ viewModel }) => {
+  const { projectKey, name, updates, statusHistory } = viewModel;
   const showBool = (val) => val ? "Yes" : "No";
 
   return (
     <li className="atlas-xray-modal-list-item">
-      {project.projectKey} {project.name ? `- ${project.name}` : ""}
+      {projectKey} {name ? `- ${name}` : ""}
       {updates && updates.length > 0 && (
         <ul className="atlas-xray-update-list">
           {updates.map((update, i) => (

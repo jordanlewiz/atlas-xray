@@ -1,6 +1,9 @@
 import React from "react";
 import { format, isAfter, isBefore, isSameWeek, parseISO, startOfWeek, addWeeks, isValid } from "date-fns";
 
+/**
+ * Safely parses a date string, supporting ISO and non-ISO formats.
+ */
 function safeParseDate(dateStr) {
   let d = null;
   try {
@@ -12,6 +15,9 @@ function safeParseDate(dateStr) {
   return d;
 }
 
+/**
+ * Generates week ranges (Monday-Sunday) between two dates.
+ */
 function getWeekRanges(startDate, endDate) {
   const weeks = [];
   let current = startOfWeek(startDate, { weekStartsOn: 1 }); // Monday
@@ -28,6 +34,9 @@ function getWeekRanges(startDate, endDate) {
   return weeks;
 }
 
+/**
+ * Finds the global min/max dates for all projects for timeline alignment.
+ */
 function getAllProjectDates(projects, updatesByProject) {
   let minDate = null;
   let maxDate = null;
@@ -42,7 +51,12 @@ function getAllProjectDates(projects, updatesByProject) {
   return { minDate, maxDate };
 }
 
-const ProjectTimeline = ({ projects, updatesByProject }) => {
+/**
+ * ProjectTimeline view model is passed as the viewModel prop.
+ * Contains: { projects, updatesByProject }
+ */
+const ProjectTimeline = ({ viewModel }) => {
+  const { projects, updatesByProject } = viewModel;
   const { minDate, maxDate } = getAllProjectDates(projects, updatesByProject);
   if (!minDate || !maxDate) return null;
   const weekRanges = getWeekRanges(minDate, maxDate);

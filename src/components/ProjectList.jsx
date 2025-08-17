@@ -4,29 +4,52 @@ import { db } from "../utils/database";
 import ProjectTimeline from "./ProjectTimeline.jsx";
 import ProjectListItem from "./ProjectListItem.jsx";
 
-export default function ProjectList({ projects }) {
-  // Fetch all updates for all projects
-  const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []);
+/**
+ * Builds the view model for the project list, including per-project view models and timeline data.
+ * @param {Array} projects - Raw project data
+ * @param {Array} allUpdates - All updates from DB
+ * @param {Array} allStatusHistory - All status history from DB
+ * @returns {Object} { projectViewModels, timelineViewModel }
+ */
+function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
+  const projectViewModels = (projects || []).map(proj => {
+    const updates = (allUpdates || []).filter(u => u.projectKey === proj.projectKey);
+    const statusHistory = (allStatusHistory || []).filter(s => s.projectKey === proj.projectKey);
+    return {
+      projectKey: proj.projectKey,
+      name: proj.name,
+      updates,
+      statusHistory
+    };
+  });
+  const updatesByProject = {};
+  projectViewModels.forEach(vm => {
+    updatesByProject[vm.projectKey] = vm.updates.map(u => u.creationDate).filter(Boolean);
+  });
+  const timelineViewModel = {
+    projects: projectViewModels.map(vm => ({ projectKey: vm.projectKey, name: vm.name })),
+    updatesByProject
+  };
+  return { projectViewModels, timelineViewModel };
+}
 
-  // Compute updatesByProject: { [projectKey]: [dateStr, ...] }
-  const updatesByProject = useMemo(() => {
-    const map = {};
-    if (allUpdates) {
-      allUpdates.forEach(update => {
-        if (!update.projectKey) return;
-        if (!map[update.projectKey]) map[update.projectKey] = [];
-        if (update.creationDate) map[update.projectKey].push(update.creationDate);
-      });
-    }
-    return map;
-  }, [allUpdates]);
+export default function ProjectList({ projects }) {
+  // Fetch all updates and status history for all projects
+  const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []);
+  const allStatusHistory = useLiveQuery(() => db.projectStatusHistory.toArray(), []);
+
+  // Build the view model for the list and timeline
+  const { projectViewModels, timelineViewModel } = useMemo(
+    () => createProjectListViewModel(projects, allUpdates, allStatusHistory),
+    [projects, allUpdates, allStatusHistory]
+  );
 
   return (
     <>
-      <ProjectTimeline projects={projects} updatesByProject={updatesByProject} />
-      {(!projects || projects.length === 0)
+      <ProjectTimeline viewModel={timelineViewModel} />
+      {projectViewModels.length === 0
         ? <li>No projects found.</li>
-        : projects.map((p, i) => <ProjectListItem key={p.projectKey || i} project={p} />)}
+        : projectViewModels.map((vm, i) => <ProjectListItem key={vm.projectKey || i} viewModel={vm} />)}
     </>
   );
 }
