@@ -41441,9 +41441,9 @@
     const { minDate, maxDate } = getAllProjectDates(projects, updatesByProject);
     if (!minDate || !maxDate) return null;
     const weekRanges = getWeekRanges(minDate, maxDate);
-    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-label project-label" }), weekRanges.map((w, i) => /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: "timeline-label" }, w.label))), projects.map((proj, idx) => {
+    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w, i) => /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: "timeline-x-label" }, w.label))), projects.map((proj, idx) => {
       const updates = updatesByProject[proj.projectKey] || [];
-      return /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row", key: proj.projectKey || idx }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-label project-label" }, proj.name || proj.projectKey), weekRanges.map((w, i) => {
+      return /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row", key: proj.projectKey || idx }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }, proj.name || proj.projectKey), weekRanges.map((w, i) => {
         const update = updates.find((dateStr) => isSameWeek(safeParseDate(dateStr), w.start, { weekStartsOn: 1 }));
         return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${update ? " has-update" : ""}` }, update ? format(safeParseDate(update), "d MMM") : "");
       }));
@@ -41453,21 +41453,6 @@
 
   // src/components/ProjectListItem.jsx
   var import_react3 = __toESM(require_react());
-
-  // src/utils/formatDate.js
-  function formatDate(dateStr) {
-    if (!dateStr) return "No date";
-    const d = new Date(dateStr);
-    return isNaN(d) ? dateStr : d.toLocaleString();
-  }
-
-  // src/components/ProjectListItem.jsx
-  var ProjectListItem = ({ viewModel }) => {
-    const { projectKey, name, updates, statusHistory } = viewModel;
-    const showBool = (val) => val ? "Yes" : "No";
-    return /* @__PURE__ */ import_react3.default.createElement("li", { className: "atlas-xray-modal-list-item" }, projectKey, " ", name ? `- ${name}` : "", updates && updates.length > 0 && /* @__PURE__ */ import_react3.default.createElement("ul", { className: "atlas-xray-update-list" }, updates.map((update, i) => /* @__PURE__ */ import_react3.default.createElement("li", { key: update.id || i }, /* @__PURE__ */ import_react3.default.createElement("b", null, "Date:"), " ", formatDate(update.creationDate), update.state && /* @__PURE__ */ import_react3.default.createElement("span", null, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "State:"), " ", update.state), typeof update.missedUpdate !== "undefined" && /* @__PURE__ */ import_react3.default.createElement("span", null, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "Missed:"), " ", showBool(update.missedUpdate)), /* @__PURE__ */ import_react3.default.createElement("span", null, "| ", /* @__PURE__ */ import_react3.default.createElement("b", null, "Target Date:"), update.oldDueDate && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, " ", /* @__PURE__ */ import_react3.default.createElement("del", { style: { color: "red" } }, update.oldDueDate), " "), update.newDueDate && /* @__PURE__ */ import_react3.default.createElement(import_react3.default.Fragment, null, " | ", formatDate(update.newDueDate), " ")), update.oldState && /* @__PURE__ */ import_react3.default.createElement("span", { style: { color: "orange" } }, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "Old State:"), " ", update.oldState), update.raw?.creator?.displayName && /* @__PURE__ */ import_react3.default.createElement("span", null, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "By:"), " ", update.raw.creator.displayName)))), statusHistory && statusHistory.length > 0 && /* @__PURE__ */ import_react3.default.createElement("ul", { className: "atlas-xray-update-list", style: { marginTop: 8 } }, /* @__PURE__ */ import_react3.default.createElement("li", null, /* @__PURE__ */ import_react3.default.createElement("b", null, "Status History:")), statusHistory.map((entry, i) => /* @__PURE__ */ import_react3.default.createElement("li", { key: entry.id || i }, /* @__PURE__ */ import_react3.default.createElement("b", null, "Date:"), " ", formatDate(entry.raw?.creationDate), entry.raw?.oldTargetDate && /* @__PURE__ */ import_react3.default.createElement("span", null, " | ", /* @__PURE__ */ import_react3.default.createElement("b", null, "Old Target Date:"), " ", typeof entry.raw.oldTargetDate === "object" ? entry.raw.oldTargetDate.label || JSON.stringify(entry.raw.oldTargetDate) : formatDate(entry.raw.oldTargetDate))))));
-  };
-  var ProjectListItem_default = ProjectListItem;
 
   // src/components/ProjectList.jsx
   function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
@@ -41498,7 +41483,7 @@
       () => createProjectListViewModel(projects, allUpdates, allStatusHistory),
       [projects, allUpdates, allStatusHistory]
     );
-    return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement(ProjectTimeline_default, { viewModel: timelineViewModel }), projectViewModels.length === 0 ? /* @__PURE__ */ import_react4.default.createElement("li", null, "No projects found.") : projectViewModels.map((vm, i) => /* @__PURE__ */ import_react4.default.createElement(ProjectListItem_default, { key: vm.projectKey || i, viewModel: vm })));
+    return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement(ProjectTimeline_default, { viewModel: timelineViewModel }));
   }
 
   // src/components/Modal.jsx
@@ -46984,8 +46969,8 @@
       ModalWrapper,
       {
         onClose,
-        heading: "Projects",
-        width: "full",
+        heading: "Atlas-Xray Project History Timeine",
+        width: "x-large",
         shouldScrollInViewport: true,
         actions: [
           { text: "Close", onClick: onClose, appearance: "subtle" }
@@ -61387,7 +61372,7 @@ fragment UserAvatar on User {
     }));
     const filteredProjects = visibleProjectKeys.length > 0 ? projectViewModel.filter((p) => visibleProjectKeys.includes(p.projectKey)) : projectViewModel;
     const handleOpenModal = () => setModalOpen(true);
-    return /* @__PURE__ */ import_react49.default.createElement(import_react49.default.Fragment, null, /* @__PURE__ */ import_react49.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal }, "Atlas Xray", visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react49.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, /* @__PURE__ */ import_react49.default.createElement("ol", { className: "atlas-xray-modal-list" }, /* @__PURE__ */ import_react49.default.createElement(ProjectList, { projects: filteredProjects }))));
+    return /* @__PURE__ */ import_react49.default.createElement(import_react49.default.Fragment, null, /* @__PURE__ */ import_react49.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal }, "Atlas Xray", visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react49.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, /* @__PURE__ */ import_react49.default.createElement(ProjectList, { projects: filteredProjects })));
   };
   var FloatingButton_default = FloatingButton;
 

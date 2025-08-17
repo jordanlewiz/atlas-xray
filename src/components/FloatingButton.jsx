@@ -69,10 +69,9 @@ const FloatingButton = () => {
             ? ` (${projectCount})`
             : ""}
       </button>
+      
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <ol className="atlas-xray-modal-list">
-          <ProjectList projects={filteredProjects} />
-        </ol>
+        <ProjectList projects={filteredProjects} />
       </Modal>
     </>
   );

@@ -64,16 +64,16 @@ const ProjectTimeline = ({ viewModel }) => {
   return (
     <div className="project-timeline">
       <div className="timeline-row timeline-labels">
-        <div className="timeline-label project-label" />
+        <div className="timeline-y-label" />
         {weekRanges.map((w, i) => (
-          <div key={i} className="timeline-label">{w.label}</div>
+          <div key={i} className="timeline-x-label">{w.label}</div>
         ))}
       </div>
       {projects.map((proj, idx) => {
         const updates = updatesByProject[proj.projectKey] || [];
         return (
           <div className="timeline-row" key={proj.projectKey || idx}>
-            <div className="timeline-label project-label">{proj.name || proj.projectKey}</div>
+            <div className="timeline-y-label">{proj.name || proj.projectKey}</div>
             {weekRanges.map((w, i) => {
               const update = updates.find(dateStr => isSameWeek(safeParseDate(dateStr), w.start, { weekStartsOn: 1 }));
               return (

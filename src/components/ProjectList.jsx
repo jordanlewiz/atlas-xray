@@ -47,9 +47,6 @@ export default function ProjectList({ projects }) {
   return (
     <>
       <ProjectTimeline viewModel={timelineViewModel} />
-      {projectViewModels.length === 0
-        ? <li>No projects found.</li>
-        : projectViewModels.map((vm, i) => <ProjectListItem key={vm.projectKey || i} viewModel={vm} />)}
     </>
   );
 }
