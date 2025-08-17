@@ -41428,17 +41428,15 @@
     const weekRanges = getWeekRanges(minDate, maxDate);
     return /* @__PURE__ */ import_react2.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w, i) => /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: "timeline-x-label" }, w.label))), projects.map((proj, idx) => {
       const updates = updatesByProject[proj.projectKey] || [];
+      const validUpdates = updates.filter((u) => u && typeof u.creationDate === "string");
       return /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row", key: proj.projectKey || idx }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }, proj.name || proj.projectKey), weekRanges.map((w, i) => {
-        console.log("w", w);
         const weekStart = w.start;
         const weekEnd = w.end;
-        const weekUpdates = updates.filter((u) => {
-          console.log("u", u);
-          const d = safeParseDate(u);
-          console.log("d", d);
-          return d >= weekStart && d < weekEnd;
+        const weekUpdates = validUpdates.filter((u) => {
+          const d = safeParseDate(u.creationDate);
+          return d && d >= weekStart && d < weekEnd;
         });
-        return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${weekUpdates.length > 0 ? " has-update" : ""}` }, weekUpdates.map((u, idx2) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx2 }, format(safeParseDate(u), "d MMM"))));
+        return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${weekUpdates.length > 0 ? " has-update" : ""}` }, weekUpdates.map((u, idx2) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx2 }, format(safeParseDate(u.creationDate), "d MMM"), u.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | State: ", u.state), u.oldState && /* @__PURE__ */ import_react2.default.createElement("span", null, " | Old State: ", u.oldState))));
       }));
     }));
   };
@@ -41461,7 +41459,7 @@
     });
     const updatesByProject = {};
     projectViewModels.forEach((vm) => {
-      updatesByProject[vm.projectKey] = vm.updates.map((u) => u.creationDate).filter(Boolean);
+      updatesByProject[vm.projectKey] = vm.updates;
     });
     const timelineViewModel = {
       projects: projectViewModels.map((vm) => {

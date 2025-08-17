@@ -68,23 +68,26 @@ const ProjectTimeline = ({ viewModel }) => {
       {projects.map((proj, idx) => {
         // updates is an array of update objects
         const updates = updatesByProject[proj.projectKey] || [];
+        // Only use updates with a valid string creationDate
+        const validUpdates = updates.filter(u => u && typeof u.creationDate === 'string');
         return (
           <div className="timeline-row" key={proj.projectKey || idx}>
             <div className="timeline-y-label">{proj.name || proj.projectKey}</div>
             {weekRanges.map((w, i) => {
-              console.log("w", w);
               const weekStart = w.start;
               const weekEnd = w.end;
-              const weekUpdates = updates.filter(u => {
-                console.log("u", u);
-                const d = safeParseDate(u);
-                console.log("d", d);
-                return d >= weekStart && d < weekEnd;
+              const weekUpdates = validUpdates.filter(u => {
+                const d = safeParseDate(u.creationDate);
+                return d && d >= weekStart && d < weekEnd;
               });
               return (
                 <div key={i} className={`timeline-cell${weekUpdates.length > 0 ? ' has-update' : ''}`}>
                   {weekUpdates.map((u, idx) => (
-                    <div key={idx}>{format(safeParseDate(u), 'd MMM')}</div>
+                    <div key={idx}>
+                      {format(safeParseDate(u.creationDate), 'd MMM')}
+                      {u.state && <span> | State: {u.state}</span>}
+                      {u.oldState && <span> | Old State: {u.oldState}</span>}
+                    </div>
                   ))}
                 </div>
               );

@@ -24,7 +24,7 @@ function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
   });
   const updatesByProject = {};
   projectViewModels.forEach(vm => {
-    updatesByProject[vm.projectKey] = vm.updates.map(u => u.creationDate).filter(Boolean);
+    updatesByProject[vm.projectKey] = vm.updates; // Use full update objects
   });
   const timelineViewModel = {
     projects: projectViewModels.map(vm => {
