@@ -2386,9 +2386,9 @@
           if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function") {
             __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
           }
-          var React31 = require_react();
+          var React32 = require_react();
           var Scheduler = require_scheduler();
-          var ReactSharedInternals = React31.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+          var ReactSharedInternals = React32.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
           var suppressWarning = false;
           function setSuppressWarning(newSuppressWarning) {
             {
@@ -3995,7 +3995,7 @@
             {
               if (props.value == null) {
                 if (typeof props.children === "object" && props.children !== null) {
-                  React31.Children.forEach(props.children, function(child) {
+                  React32.Children.forEach(props.children, function(child) {
                     if (child == null) {
                       return;
                     }
@@ -39446,11 +39446,11 @@
   });
 
   // src/floatingButtonContentScript.js
-  var import_react50 = __toESM(require_react());
+  var import_react51 = __toESM(require_react());
   var import_client3 = __toESM(require_client());
 
   // src/components/FloatingButton.jsx
-  var import_react49 = __toESM(require_react());
+  var import_react50 = __toESM(require_react());
 
   // node_modules/dexie/import-wrapper.mjs
   var import_dexie = __toESM(require_dexie(), 1);
@@ -39611,10 +39611,10 @@
   }
 
   // src/components/ProjectList.jsx
-  var import_react4 = __toESM(require_react());
+  var import_react5 = __toESM(require_react());
 
   // src/components/ProjectTimeline.jsx
-  var import_react2 = __toESM(require_react());
+  var import_react3 = __toESM(require_react());
 
   // node_modules/date-fns/constants.js
   var daysInYear = 365.2425;
@@ -41386,7 +41386,7 @@
     return minutes >= 0 && minutes <= 59;
   }
 
-  // src/components/ProjectTimeline.jsx
+  // src/utils/timelineUtils.js
   function safeParseDate(dateStr) {
     if (!dateStr) return /* @__PURE__ */ new Date("Invalid Date");
     let d = parseISO(dateStr);
@@ -41413,37 +41413,52 @@
     let maxDate = null;
     (projects || []).forEach((proj) => {
       const updates = updatesByProject[proj.projectKey] || [];
-      updates.forEach((dateStr) => {
-        const date = safeParseDate(dateStr);
+      updates.forEach((u) => {
+        const date = safeParseDate(u.creationDate);
         if (!minDate || isBefore(date, minDate)) minDate = date;
         if (!maxDate || isAfter(date, maxDate)) maxDate = date;
       });
     });
     return { minDate, maxDate };
   }
+
+  // src/components/ProjectTimelineRow.jsx
+  var import_react2 = __toESM(require_react());
+  function ProjectTimelineRow({ project, weekRanges, updates }) {
+    const validUpdates = updates.filter((u) => u && typeof u.creationDate === "string");
+    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }, project.name || project.projectKey), weekRanges.map((w, i) => {
+      const weekStart = w.start;
+      const weekEnd = w.end;
+      const weekUpdates = validUpdates.filter((u) => {
+        const d = safeParseDate(u.creationDate);
+        return d && d >= weekStart && d < weekEnd;
+      });
+      const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : void 0;
+      const stateClass = lastUpdate ? lastUpdate.missedUpdate ? "state-missed-update" : lastUpdate.state ? `state-${lastUpdate.state.replace(/_/g, "-").toLowerCase()}` : "state-pending" : "state-pending";
+      return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${weekUpdates.length > 0 ? " has-update" : ""} ${stateClass}` }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx }, format(safeParseDate(u.creationDate), "d MMM"), u.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | State: ", u.state), u.oldState && /* @__PURE__ */ import_react2.default.createElement("span", null, " | Old State: ", u.oldState))));
+    }));
+  }
+
+  // src/components/ProjectTimeline.jsx
   var ProjectTimeline = ({ viewModel }) => {
     const { projects, updatesByProject } = viewModel;
     const { minDate, maxDate } = getAllProjectDates(projects, updatesByProject);
     if (!minDate || !maxDate) return null;
     const weekRanges = getWeekRanges(minDate, maxDate);
-    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w, i) => /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: "timeline-x-label" }, w.label))), projects.map((proj, idx) => {
-      const updates = updatesByProject[proj.projectKey] || [];
-      const validUpdates = updates.filter((u) => u && typeof u.creationDate === "string");
-      return /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row", key: proj.projectKey || idx }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }, proj.name || proj.projectKey), weekRanges.map((w, i) => {
-        const weekStart = w.start;
-        const weekEnd = w.end;
-        const weekUpdates = validUpdates.filter((u) => {
-          const d = safeParseDate(u.creationDate);
-          return d && d >= weekStart && d < weekEnd;
-        });
-        return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${weekUpdates.length > 0 ? " has-update" : ""}` }, weekUpdates.map((u, idx2) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx2 }, format(safeParseDate(u.creationDate), "d MMM"), u.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | State: ", u.state), u.oldState && /* @__PURE__ */ import_react2.default.createElement("span", null, " | Old State: ", u.oldState))));
-      }));
-    }));
+    return /* @__PURE__ */ import_react3.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react3.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w, i) => /* @__PURE__ */ import_react3.default.createElement("div", { key: i, className: "timeline-x-label" }, w.label))), projects.map((proj, idx) => /* @__PURE__ */ import_react3.default.createElement(
+      ProjectTimelineRow,
+      {
+        key: proj.projectKey || idx,
+        project: proj,
+        weekRanges,
+        updates: updatesByProject[proj.projectKey] || []
+      }
+    )));
   };
   var ProjectTimeline_default = ProjectTimeline;
 
   // src/components/ProjectListItem.jsx
-  var import_react3 = __toESM(require_react());
+  var import_react4 = __toESM(require_react());
 
   // src/components/ProjectList.jsx
   function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
@@ -41481,15 +41496,15 @@
   function ProjectList({ projects }) {
     const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []);
     const allStatusHistory = useLiveQuery(() => db.projectStatusHistory.toArray(), []);
-    const { projectViewModels, timelineViewModel } = (0, import_react4.useMemo)(
+    const { projectViewModels, timelineViewModel } = (0, import_react5.useMemo)(
       () => createProjectListViewModel(projects, allUpdates, allStatusHistory),
       [projects, allUpdates, allStatusHistory]
     );
-    return /* @__PURE__ */ import_react4.default.createElement(import_react4.default.Fragment, null, /* @__PURE__ */ import_react4.default.createElement(ProjectTimeline_default, { viewModel: timelineViewModel }));
+    return /* @__PURE__ */ import_react5.default.createElement(import_react5.default.Fragment, null, /* @__PURE__ */ import_react5.default.createElement(ProjectTimeline_default, { viewModel: timelineViewModel }));
   }
 
   // src/components/Modal.jsx
-  var import_react48 = __toESM(require_react());
+  var import_react49 = __toESM(require_react());
 
   // node_modules/@babel/runtime/helpers/esm/extends.js
   function _extends() {
@@ -41503,10 +41518,10 @@
   }
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/modal-dialog.js
-  var import_react46 = __toESM(require_react());
+  var import_react47 = __toESM(require_react());
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/components/modal-wrapper.js
-  var React25 = __toESM(require_react());
+  var React26 = __toESM(require_react());
 
   // node_modules/@compiled/react/dist/esm/runtime/ax.js
   var ATOMIC_GROUP_LENGTH = 5;
@@ -41554,7 +41569,7 @@
   }
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/components/modal-wrapper.js
-  var import_react45 = __toESM(require_react());
+  var import_react46 = __toESM(require_react());
 
   // node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js
   function _objectWithoutPropertiesLoose(r, e) {
@@ -41568,10 +41583,10 @@
   }
 
   // node_modules/react-focus-lock/dist/es2015/Combination.js
-  var import_react11 = __toESM(require_react());
+  var import_react12 = __toESM(require_react());
 
   // node_modules/react-focus-lock/dist/es2015/Lock.js
-  var import_react8 = __toESM(require_react());
+  var import_react9 = __toESM(require_react());
   var import_prop_types2 = __toESM(require_prop_types());
 
   // node_modules/focus-lock/dist/es2015/constants.js
@@ -41592,9 +41607,9 @@
   }
 
   // node_modules/use-callback-ref/dist/es2015/useRef.js
-  var import_react5 = __toESM(require_react());
+  var import_react6 = __toESM(require_react());
   function useCallbackRef(initialValue, callback) {
-    var ref = (0, import_react5.useState)(function() {
+    var ref = (0, import_react6.useState)(function() {
       return {
         // value
         value: initialValue,
@@ -41620,8 +41635,8 @@
   }
 
   // node_modules/use-callback-ref/dist/es2015/useMergeRef.js
-  var React5 = __toESM(require_react());
-  var useIsomorphicLayoutEffect = typeof window !== "undefined" ? React5.useLayoutEffect : React5.useEffect;
+  var React6 = __toESM(require_react());
+  var useIsomorphicLayoutEffect = typeof window !== "undefined" ? React6.useLayoutEffect : React6.useEffect;
   var currentValues = /* @__PURE__ */ new WeakMap();
   function useMergeRefs(refs, defaultValue) {
     var callbackRef = useCallbackRef(defaultValue || null, function(newValue) {
@@ -41652,7 +41667,7 @@
   }
 
   // node_modules/react-focus-lock/dist/es2015/FocusGuard.js
-  var import_react6 = __toESM(require_react());
+  var import_react7 = __toESM(require_react());
   var import_prop_types = __toESM(require_prop_types());
   var hiddenGuard = {
     width: "1px",
@@ -41665,12 +41680,12 @@
   };
   var InFocusGuard = function InFocusGuard2(_ref2) {
     var _ref$children = _ref2.children, children = _ref$children === void 0 ? null : _ref$children;
-    return /* @__PURE__ */ import_react6.default.createElement(import_react6.Fragment, null, /* @__PURE__ */ import_react6.default.createElement("div", {
+    return /* @__PURE__ */ import_react7.default.createElement(import_react7.Fragment, null, /* @__PURE__ */ import_react7.default.createElement("div", {
       key: "guard-first",
       "data-focus-guard": true,
       "data-focus-auto-guard": true,
       style: hiddenGuard
-    }), children, children && /* @__PURE__ */ import_react6.default.createElement("div", {
+    }), children, children && /* @__PURE__ */ import_react7.default.createElement("div", {
       key: "guard-last",
       "data-focus-guard": true,
       "data-focus-auto-guard": true,
@@ -41934,21 +41949,21 @@
   });
 
   // node_modules/react-focus-lock/dist/es2015/scope.js
-  var import_react7 = __toESM(require_react());
-  var focusScope = /* @__PURE__ */ (0, import_react7.createContext)(void 0);
+  var import_react8 = __toESM(require_react());
+  var focusScope = /* @__PURE__ */ (0, import_react8.createContext)(void 0);
 
   // node_modules/react-focus-lock/dist/es2015/Lock.js
   var emptyArray = [];
-  var FocusLock = /* @__PURE__ */ (0, import_react8.forwardRef)(function FocusLockUI(props, parentRef) {
+  var FocusLock = /* @__PURE__ */ (0, import_react9.forwardRef)(function FocusLockUI(props, parentRef) {
     var _extends2;
-    var _useState = (0, import_react8.useState)(), realObserved = _useState[0], setObserved = _useState[1];
-    var observed = (0, import_react8.useRef)();
-    var isActive = (0, import_react8.useRef)(false);
-    var originalFocusedElement = (0, import_react8.useRef)(null);
-    var _useState2 = (0, import_react8.useState)({}), update = _useState2[1];
+    var _useState = (0, import_react9.useState)(), realObserved = _useState[0], setObserved = _useState[1];
+    var observed = (0, import_react9.useRef)();
+    var isActive = (0, import_react9.useRef)(false);
+    var originalFocusedElement = (0, import_react9.useRef)(null);
+    var _useState2 = (0, import_react9.useState)({}), update = _useState2[1];
     var children = props.children, _props$disabled = props.disabled, disabled = _props$disabled === void 0 ? false : _props$disabled, _props$noFocusGuards = props.noFocusGuards, noFocusGuards = _props$noFocusGuards === void 0 ? false : _props$noFocusGuards, _props$persistentFocu = props.persistentFocus, persistentFocus = _props$persistentFocu === void 0 ? false : _props$persistentFocu, _props$crossFrame = props.crossFrame, crossFrame = _props$crossFrame === void 0 ? true : _props$crossFrame, _props$autoFocus = props.autoFocus, autoFocus = _props$autoFocus === void 0 ? true : _props$autoFocus, allowTextSelection = props.allowTextSelection, group = props.group, className = props.className, whiteList = props.whiteList, hasPositiveIndices = props.hasPositiveIndices, _props$shards = props.shards, shards = _props$shards === void 0 ? emptyArray : _props$shards, _props$as = props.as, Container = _props$as === void 0 ? "div" : _props$as, _props$lockProps = props.lockProps, containerProps = _props$lockProps === void 0 ? {} : _props$lockProps, SideCar = props.sideCar, _props$returnFocus = props.returnFocus, shouldReturnFocus = _props$returnFocus === void 0 ? false : _props$returnFocus, focusOptions = props.focusOptions, onActivationCallback = props.onActivation, onDeactivationCallback = props.onDeactivation;
-    var _useState3 = (0, import_react8.useState)({}), id = _useState3[0];
-    var onActivation = (0, import_react8.useCallback)(function(_ref2) {
+    var _useState3 = (0, import_react9.useState)({}), id = _useState3[0];
+    var onActivation = (0, import_react9.useCallback)(function(_ref2) {
       var captureFocusRestore2 = _ref2.captureFocusRestore;
       if (!originalFocusedElement.current) {
         var _document;
@@ -41964,14 +41979,14 @@
       isActive.current = true;
       update();
     }, [onActivationCallback]);
-    var onDeactivation = (0, import_react8.useCallback)(function() {
+    var onDeactivation = (0, import_react9.useCallback)(function() {
       isActive.current = false;
       if (onDeactivationCallback) {
         onDeactivationCallback(observed.current);
       }
       update();
     }, [onDeactivationCallback]);
-    var returnFocus = (0, import_react8.useCallback)(function(allowDefer) {
+    var returnFocus = (0, import_react9.useCallback)(function(allowDefer) {
       var focusRestore = originalFocusedElement.current;
       if (focusRestore) {
         var returnFocusTo = (typeof focusRestore === "function" ? focusRestore() : focusRestore) || document.body;
@@ -41989,13 +42004,13 @@
         }
       }
     }, [shouldReturnFocus]);
-    var onFocus3 = (0, import_react8.useCallback)(function(event) {
+    var onFocus3 = (0, import_react9.useCallback)(function(event) {
       if (isActive.current) {
         mediumFocus.useMedium(event);
       }
     }, []);
     var onBlur3 = mediumBlur.useMedium;
-    var setObserveNode = (0, import_react8.useCallback)(function(newObserved) {
+    var setObserveNode = (0, import_react9.useCallback)(function(newObserved) {
       if (observed.current !== newObserved) {
         observed.current = newObserved;
         setObserved(newObserved);
@@ -42005,7 +42020,7 @@
       if (typeof allowTextSelection !== "undefined") {
         console.warn("React-Focus-Lock: allowTextSelection is deprecated and enabled by default");
       }
-      (0, import_react8.useEffect)(function() {
+      (0, import_react9.useEffect)(function() {
         if (!observed.current && typeof Container !== "string") {
           console.error("FocusLock: could not obtain ref to internal node");
         }
@@ -42015,7 +42030,7 @@
     var hasLeadingGuards = noFocusGuards !== true;
     var hasTailingGuards = hasLeadingGuards && noFocusGuards !== "tail";
     var mergedRef = useMergeRefs([parentRef, setObserveNode]);
-    var focusScopeValue = (0, import_react8.useMemo)(function() {
+    var focusScopeValue = (0, import_react9.useMemo)(function() {
       return {
         observed,
         shards,
@@ -42023,20 +42038,20 @@
         active: isActive.current
       };
     }, [disabled, isActive.current, shards, realObserved]);
-    return /* @__PURE__ */ import_react8.default.createElement(import_react8.Fragment, null, hasLeadingGuards && [
-      /* @__PURE__ */ import_react8.default.createElement("div", {
+    return /* @__PURE__ */ import_react9.default.createElement(import_react9.Fragment, null, hasLeadingGuards && [
+      /* @__PURE__ */ import_react9.default.createElement("div", {
         key: "guard-first",
         "data-focus-guard": true,
         tabIndex: disabled ? -1 : 0,
         style: hiddenGuard
       }),
-      hasPositiveIndices ? /* @__PURE__ */ import_react8.default.createElement("div", {
+      hasPositiveIndices ? /* @__PURE__ */ import_react9.default.createElement("div", {
         key: "guard-nearest",
         "data-focus-guard": true,
         tabIndex: disabled ? -1 : 1,
         style: hiddenGuard
       }) : null
-    ], !disabled && /* @__PURE__ */ import_react8.default.createElement(SideCar, {
+    ], !disabled && /* @__PURE__ */ import_react9.default.createElement(SideCar, {
       id,
       sideCar: mediumSidecar,
       observed: realObserved,
@@ -42051,15 +42066,15 @@
       returnFocus,
       focusOptions,
       noFocusGuards
-    }), /* @__PURE__ */ import_react8.default.createElement(Container, _extends({
+    }), /* @__PURE__ */ import_react9.default.createElement(Container, _extends({
       ref: mergedRef
     }, lockProps, {
       className,
       onBlur: onBlur3,
       onFocus: onFocus3
-    }), /* @__PURE__ */ import_react8.default.createElement(focusScope.Provider, {
+    }), /* @__PURE__ */ import_react9.default.createElement(focusScope.Provider, {
       value: focusScopeValue
-    }, children)), hasTailingGuards && /* @__PURE__ */ import_react8.default.createElement("div", {
+    }, children)), hasTailingGuards && /* @__PURE__ */ import_react9.default.createElement("div", {
       "data-focus-guard": true,
       tabIndex: disabled ? -1 : 0,
       style: hiddenGuard
@@ -42089,7 +42104,7 @@
   var Lock_default = FocusLock;
 
   // node_modules/react-focus-lock/dist/es2015/Trap.js
-  var import_react10 = __toESM(require_react());
+  var import_react11 = __toESM(require_react());
   var import_prop_types3 = __toESM(require_prop_types());
 
   // node_modules/@babel/runtime/helpers/esm/setPrototypeOf.js
@@ -42106,7 +42121,7 @@
 
   // node_modules/react-clientside-effect/lib/index.es.js
   init_defineProperty();
-  var import_react9 = __toESM(require_react());
+  var import_react10 = __toESM(require_react());
   function withSideEffect(reducePropsToState2, handleStateChangeOnClient2) {
     if (true) {
       if (typeof reducePropsToState2 !== "function") {
@@ -42155,10 +42170,10 @@
           emitChange();
         };
         _proto.render = function render() {
-          return /* @__PURE__ */ import_react9.default.createElement(WrappedComponent, this.props);
+          return /* @__PURE__ */ import_react10.default.createElement(WrappedComponent, this.props);
         };
         return SideEffect2;
-      })(import_react9.PureComponent);
+      })(import_react10.PureComponent);
       _defineProperty(SideEffect, "displayName", "SideEffect(" + getDisplayName(WrappedComponent) + ")");
       return SideEffect;
     };
@@ -43142,7 +43157,7 @@
   };
   var FocusTrap = function FocusTrap2(_ref5) {
     var children = _ref5.children;
-    return /* @__PURE__ */ import_react10.default.createElement("div", {
+    return /* @__PURE__ */ import_react11.default.createElement("div", {
       onBlur,
       onFocus
     }, children);
@@ -43224,8 +43239,8 @@
   var Trap_default = index_es_default(reducePropsToState, handleStateChangeOnClient)(FocusWatcher);
 
   // node_modules/react-focus-lock/dist/es2015/Combination.js
-  var FocusLockCombination = /* @__PURE__ */ (0, import_react11.forwardRef)(function FocusLockUICombination(props, ref) {
-    return /* @__PURE__ */ import_react11.default.createElement(Lock_default, _extends({
+  var FocusLockCombination = /* @__PURE__ */ (0, import_react12.forwardRef)(function FocusLockUICombination(props, ref) {
+    return /* @__PURE__ */ import_react12.default.createElement(Lock_default, _extends({
       sideCar: Trap_default,
       ref
     }, props));
@@ -43430,8 +43445,8 @@
   })(AnalyticsEvent);
 
   // node_modules/@atlaskit/analytics-next-stable-react-context/dist/esm/context.js
-  var import_react12 = __toESM(require_react());
-  var AnalyticsNextContext = (0, import_react12.createContext)({
+  var import_react13 = __toESM(require_react());
+  var AnalyticsNextContext = (0, import_react13.createContext)({
     getAtlaskitAnalyticsContext: function() {
       return [];
     },
@@ -43445,21 +43460,21 @@
   var esm_default = context_default;
 
   // node_modules/@atlaskit/analytics-next/dist/esm/hooks/useAnalyticsContext.js
-  var import_react13 = __toESM(require_react());
+  var import_react14 = __toESM(require_react());
   var useAnalyticsContext = function useAnalyticsContext2() {
-    return (0, import_react13.useContext)(esm_default);
+    return (0, import_react14.useContext)(esm_default);
   };
 
   // node_modules/@atlaskit/analytics-next/dist/esm/hooks/useTrackedRef.js
-  var import_react14 = __toESM(require_react());
+  var import_react15 = __toESM(require_react());
   var useTrackedRef = function useTrackedRef2(value) {
-    var ref = (0, import_react14.useRef)(value);
+    var ref = (0, import_react15.useRef)(value);
     ref.current = value;
     return ref;
   };
 
   // node_modules/use-memo-one/dist/use-memo-one.esm.js
-  var import_react15 = __toESM(require_react());
+  var import_react16 = __toESM(require_react());
   function areInputsEqual(newInputs, lastInputs) {
     if (newInputs.length !== lastInputs.length) {
       return false;
@@ -43472,20 +43487,20 @@
     return true;
   }
   function useMemoOne(getResult, inputs) {
-    var initial = (0, import_react15.useState)(function() {
+    var initial = (0, import_react16.useState)(function() {
       return {
         inputs,
         result: getResult()
       };
     })[0];
-    var isFirstRun = (0, import_react15.useRef)(true);
-    var committed = (0, import_react15.useRef)(initial);
+    var isFirstRun = (0, import_react16.useRef)(true);
+    var committed = (0, import_react16.useRef)(initial);
     var useCache = isFirstRun.current || Boolean(inputs && committed.current.inputs && areInputsEqual(inputs, committed.current.inputs));
     var cache = useCache ? committed.current : {
       inputs,
       result: getResult()
     };
-    (0, import_react15.useEffect)(function() {
+    (0, import_react16.useEffect)(function() {
       isFirstRun.current = false;
       committed.current = cache;
     }, [cache]);
@@ -43514,7 +43529,7 @@
 
   // node_modules/@atlaskit/analytics-next/dist/esm/hooks/usePlatformLeafEventHandler.js
   init_defineProperty();
-  var import_react16 = __toESM(require_react());
+  var import_react17 = __toESM(require_react());
   function ownKeys2(e, r) {
     var t = Object.keys(e);
     if (Object.getOwnPropertySymbols) {
@@ -43541,7 +43556,7 @@
     var _useAnalyticsEvents = useAnalyticsEvents(), createAnalyticsEvent = _useAnalyticsEvents.createAnalyticsEvent;
     var dataRef = useTrackedRef(analyticsData);
     var fnRef = useTrackedRef(fn);
-    var handler = (0, import_react16.useCallback)(function(value) {
+    var handler = (0, import_react17.useCallback)(function(value) {
       var analyticsEvent = createAnalyticsEvent({
         action,
         actionSubject: actionSubject || componentName,
@@ -43580,8 +43595,8 @@
 
   // node_modules/@atlaskit/blanket/dist/esm/blanket.js
   init_defineProperty();
-  var React11 = __toESM(require_react());
-  var import_react17 = __toESM(require_react());
+  var React12 = __toESM(require_react());
+  var import_react18 = __toESM(require_react());
 
   // node_modules/@atlaskit/ds-lib/dist/esm/utils/noop.js
   function noop() {
@@ -43650,22 +43665,22 @@
     packageName,
     packageVersion
   };
-  var Blanket = /* @__PURE__ */ (0, import_react17.memo)(/* @__PURE__ */ (0, import_react17.forwardRef)(function Blanket2(_ref2, ref) {
+  var Blanket = /* @__PURE__ */ (0, import_react18.memo)(/* @__PURE__ */ (0, import_react18.forwardRef)(function Blanket2(_ref2, ref) {
     var _ref$shouldAllowClick = _ref2.shouldAllowClickThrough, shouldAllowClickThrough = _ref$shouldAllowClick === void 0 ? false : _ref$shouldAllowClick, _ref$isTinted = _ref2.isTinted, isTinted = _ref$isTinted === void 0 ? false : _ref$isTinted, _ref$onBlanketClicked = _ref2.onBlanketClicked, onBlanketClicked = _ref$onBlanketClicked === void 0 ? noop : _ref$onBlanketClicked, testId = _ref2.testId, children = _ref2.children, analyticsContext = _ref2.analyticsContext;
-    var mouseDownTarget = (0, import_react17.useRef)(null);
+    var mouseDownTarget = (0, import_react18.useRef)(null);
     var onBlanketClickedWithAnalytics = usePlatformLeafEventHandler(_objectSpread3({
       fn: onBlanketClicked,
       action: "clicked",
       analyticsData: analyticsContext
     }, analyticsAttributes));
-    var blanketClickOutsideChildren = (0, import_react17.useCallback)(function(e) {
+    var blanketClickOutsideChildren = (0, import_react18.useCallback)(function(e) {
       return e.currentTarget === e.target && mouseDownTarget.current === e.target ? onBlanketClickedWithAnalytics(e) : void 0;
     }, [onBlanketClickedWithAnalytics]);
     var onClick = shouldAllowClickThrough ? void 0 : blanketClickOutsideChildren;
-    var onMouseDown = (0, import_react17.useCallback)(function(e) {
+    var onMouseDown = (0, import_react18.useCallback)(function(e) {
       mouseDownTarget.current = e.target;
     }, []);
-    return /* @__PURE__ */ React11.createElement("div", {
+    return /* @__PURE__ */ React12.createElement("div", {
       role: "presentation",
       onClick,
       onMouseDown,
@@ -43681,15 +43696,15 @@
   var blanket_default = Blanket;
 
   // node_modules/@atlaskit/layering/dist/esm/components/layering-context.js
-  var import_react19 = __toESM(require_react());
+  var import_react20 = __toESM(require_react());
 
   // node_modules/@atlaskit/platform-feature-flags-react/dist/esm/utils/component-with-condition/index.js
-  var import_react18 = __toESM(require_react());
+  var import_react19 = __toESM(require_react());
   function componentWithCondition(condition, ComponentTrue, ComponentFalse) {
-    var ComponentWithCondition = /* @__PURE__ */ (0, import_react18.forwardRef)(function(props, ref) {
-      return condition() ? /* @__PURE__ */ import_react18.default.createElement(ComponentTrue, _extends({}, props, {
+    var ComponentWithCondition = /* @__PURE__ */ (0, import_react19.forwardRef)(function(props, ref) {
+      return condition() ? /* @__PURE__ */ import_react19.default.createElement(ComponentTrue, _extends({}, props, {
         ref
-      })) : /* @__PURE__ */ import_react18.default.createElement(ComponentFalse, _extends({}, props, {
+      })) : /* @__PURE__ */ import_react19.default.createElement(ComponentFalse, _extends({}, props, {
         ref
       }));
     });
@@ -43752,14 +43767,14 @@
   })();
 
   // node_modules/@atlaskit/layering/dist/esm/components/layering-context.js
-  var LevelContext = /* @__PURE__ */ (0, import_react19.createContext)(0);
-  var LevelNodeContext = /* @__PURE__ */ (0, import_react19.createContext)({
+  var LevelContext = /* @__PURE__ */ (0, import_react20.createContext)(0);
+  var LevelNodeContext = /* @__PURE__ */ (0, import_react20.createContext)({
     current: null
   });
-  var RootNodeContext = /* @__PURE__ */ (0, import_react19.createContext)({
+  var RootNodeContext = /* @__PURE__ */ (0, import_react20.createContext)({
     current: null
   });
-  var TopLevelContext = /* @__PURE__ */ (0, import_react19.createContext)({
+  var TopLevelContext = /* @__PURE__ */ (0, import_react20.createContext)({
     topLevelRef: {
       current: null
     },
@@ -43770,7 +43785,7 @@
   });
   var LevelProvider = function LevelProvider2(_ref2) {
     var children = _ref2.children, currentLevel = _ref2.currentLevel, levelNode = _ref2.node;
-    (0, import_react19.useEffect)(function() {
+    (0, import_react20.useEffect)(function() {
       var levelNodeSafe = levelNode.current;
       var parentNode = levelNodeSafe.parent;
       parentNode === null || parentNode === void 0 || parentNode.addChild(levelNodeSafe);
@@ -43778,17 +43793,17 @@
         parentNode === null || parentNode === void 0 || parentNode.removeChild(levelNodeSafe);
       };
     }, [levelNode]);
-    return /* @__PURE__ */ import_react19.default.createElement(LevelContext.Provider, {
+    return /* @__PURE__ */ import_react20.default.createElement(LevelContext.Provider, {
       value: currentLevel
-    }, /* @__PURE__ */ import_react19.default.createElement(LevelNodeContext.Provider, {
+    }, /* @__PURE__ */ import_react20.default.createElement(LevelNodeContext.Provider, {
       value: levelNode
     }, children));
   };
   var LevelProviderOld = function LevelProviderOld2(_ref2) {
     var children = _ref2.children, currentLevel = _ref2.currentLevel;
-    var _useContext = (0, import_react19.useContext)(TopLevelContext), layerList = _useContext.layerList;
-    var id = (0, import_react19.useRef)(Math.random().toString(36));
-    (0, import_react19.useEffect)(function() {
+    var _useContext = (0, import_react20.useContext)(TopLevelContext), layerList = _useContext.layerList;
+    var id = (0, import_react20.useRef)(Math.random().toString(36));
+    (0, import_react20.useEffect)(function() {
       var safeLayerList = layerList === null || layerList === void 0 ? void 0 : layerList.current;
       var safeId = id.current;
       if (!safeLayerList) {
@@ -43802,15 +43817,15 @@
         }
       };
     }, [layerList, id]);
-    return /* @__PURE__ */ import_react19.default.createElement(LevelContext.Provider, {
+    return /* @__PURE__ */ import_react20.default.createElement(LevelContext.Provider, {
       value: currentLevel
     }, children);
   };
   var LayeringProvider = function LayeringProvider2(_ref3) {
     var children = _ref3.children;
-    var topLevelRef = (0, import_react19.useRef)(0);
-    var layerList = (0, import_react19.useRef)([]);
-    var value = (0, import_react19.useMemo)(function() {
+    var topLevelRef = (0, import_react20.useRef)(0);
+    var layerList = (0, import_react20.useRef)([]);
+    var value = (0, import_react20.useMemo)(function() {
       return {
         topLevelRef,
         setTopLevel: function setTopLevel(level) {
@@ -43819,51 +43834,51 @@
         layerList
       };
     }, [topLevelRef, layerList]);
-    return /* @__PURE__ */ import_react19.default.createElement(TopLevelContext.Provider, {
+    return /* @__PURE__ */ import_react20.default.createElement(TopLevelContext.Provider, {
       value
     }, children);
   };
   var LayeringOld = function LayeringOld2(_ref4) {
     var children = _ref4.children, _ref4$isDisabled = _ref4.isDisabled, isDisabled = _ref4$isDisabled === void 0 ? true : _ref4$isDisabled;
-    var currentLevel = (0, import_react19.useContext)(LevelContext);
+    var currentLevel = (0, import_react20.useContext)(LevelContext);
     if (isDisabled) {
-      return /* @__PURE__ */ import_react19.default.createElement(import_react19.default.Fragment, null, children);
+      return /* @__PURE__ */ import_react20.default.createElement(import_react20.default.Fragment, null, children);
     }
     var isNested = currentLevel > 0;
-    var content = /* @__PURE__ */ import_react19.default.createElement(LevelProviderOld, {
+    var content = /* @__PURE__ */ import_react20.default.createElement(LevelProviderOld, {
       currentLevel: currentLevel + 1
     }, children);
-    return isNested ? content : /* @__PURE__ */ import_react19.default.createElement(LayeringProvider, null, content);
+    return isNested ? content : /* @__PURE__ */ import_react20.default.createElement(LayeringProvider, null, content);
   };
   var LayeringNew = function LayeringNew2(_ref5) {
     var children = _ref5.children, _ref5$isDisabled = _ref5.isDisabled, isDisabled = _ref5$isDisabled === void 0 ? true : _ref5$isDisabled;
-    var currentLevel = (0, import_react19.useContext)(LevelContext);
-    var parentNode = (0, import_react19.useContext)(LevelNodeContext);
-    var newNode = (0, import_react19.useRef)(new LayerNode(Math.random().toString(36), parentNode.current));
+    var currentLevel = (0, import_react20.useContext)(LevelContext);
+    var parentNode = (0, import_react20.useContext)(LevelNodeContext);
+    var newNode = (0, import_react20.useRef)(new LayerNode(Math.random().toString(36), parentNode.current));
     if (isDisabled) {
-      return /* @__PURE__ */ import_react19.default.createElement(import_react19.default.Fragment, null, children);
+      return /* @__PURE__ */ import_react20.default.createElement(import_react20.default.Fragment, null, children);
     }
     var isNested = currentLevel > 0;
-    var content = /* @__PURE__ */ import_react19.default.createElement(LevelProvider, {
+    var content = /* @__PURE__ */ import_react20.default.createElement(LevelProvider, {
       currentLevel: currentLevel + 1,
       node: newNode
     }, children);
-    return isNested ? content : /* @__PURE__ */ import_react19.default.createElement(RootNodeContext.Provider, {
+    return isNested ? content : /* @__PURE__ */ import_react20.default.createElement(RootNodeContext.Provider, {
       value: newNode
     }, content);
   };
   var Layering = componentWithFG("layering-tree-graph", LayeringNew, LayeringOld);
 
   // node_modules/@atlaskit/layering/dist/esm/hooks/index.js
-  var import_react20 = __toESM(require_react());
+  var import_react21 = __toESM(require_react());
   var import_bind_event_listener = __toESM(require_dist2());
   var import_platform_feature_flags2 = __toESM(require_cjs3());
   var ESCAPE = "Escape";
   function useCloseOnEscapePress(_ref2) {
     var onClose = _ref2.onClose, isDisabled = _ref2.isDisabled;
-    var escapePressed = (0, import_react20.useRef)(false);
+    var escapePressed = (0, import_react21.useRef)(false);
     var _useLayering = useLayering(), isLayerDisabled = _useLayering.isLayerDisabled;
-    var onKeyDown = (0, import_react20.useCallback)(function(e) {
+    var onKeyDown = (0, import_react21.useCallback)(function(e) {
       var isDisabledLayer = isLayerDisabled();
       if (isDisabled || escapePressed.current || e.key !== ESCAPE || isDisabledLayer) {
         return;
@@ -43871,10 +43886,10 @@
       escapePressed.current = true;
       onClose(e);
     }, [onClose, isDisabled, isLayerDisabled]);
-    var onKeyUp = (0, import_react20.useCallback)(function() {
+    var onKeyUp = (0, import_react21.useCallback)(function() {
       escapePressed.current = false;
     }, []);
-    (0, import_react20.useEffect)(function() {
+    (0, import_react21.useEffect)(function() {
       return (0, import_bind_event_listener.bindAll)(window, [{
         type: "keydown",
         listener: onKeyDown
@@ -43887,15 +43902,15 @@
     }, [onKeyDown, onKeyUp]);
   }
   function useLayering() {
-    var currentLevel = (0, import_react20.useContext)(LevelContext);
-    var _useContext = (0, import_react20.useContext)(TopLevelContext), topLevelRef = _useContext.topLevelRef, layerList = _useContext.layerList;
+    var currentLevel = (0, import_react21.useContext)(LevelContext);
+    var _useContext = (0, import_react21.useContext)(TopLevelContext), topLevelRef = _useContext.topLevelRef, layerList = _useContext.layerList;
     var layerNode;
     var rootNode;
     if ((0, import_platform_feature_flags2.fg)("layering-tree-graph")) {
-      layerNode = (0, import_react20.useContext)(LevelNodeContext);
-      rootNode = (0, import_react20.useContext)(RootNodeContext);
+      layerNode = (0, import_react21.useContext)(LevelNodeContext);
+      rootNode = (0, import_react21.useContext)(RootNodeContext);
     }
-    var isLayerDisabled = (0, import_react20.useCallback)(function() {
+    var isLayerDisabled = (0, import_react21.useCallback)(function() {
       var _layerList$current$le, _layerList$current;
       if ((0, import_platform_feature_flags2.fg)("layering-tree-graph")) {
         var _layerNode, _rootNode;
@@ -43906,7 +43921,7 @@
       }
       return ((_layerList$current$le = layerList === null || layerList === void 0 || (_layerList$current = layerList.current) === null || _layerList$current === void 0 ? void 0 : _layerList$current.length) !== null && _layerList$current$le !== void 0 ? _layerList$current$le : 0) !== currentLevel;
     }, [currentLevel, layerList, layerNode, rootNode]);
-    var getTopLevel = (0, import_react20.useCallback)(function() {
+    var getTopLevel = (0, import_react21.useCallback)(function() {
       var _rootNode2;
       return (_rootNode2 = rootNode) !== null && _rootNode2 !== void 0 && _rootNode2.current ? rootNode.current.getHeight() : null;
     }, [rootNode]);
@@ -43923,15 +43938,15 @@
   }
 
   // node_modules/@atlaskit/motion/dist/esm/entering/fade-in.js
-  var import_react27 = __toESM(require_react());
+  var import_react28 = __toESM(require_react());
 
   // node_modules/@atlaskit/motion/dist/esm/entering/keyframes-motion.js
   init_slicedToArray();
-  var import_react26 = __toESM(require_react());
+  var import_react27 = __toESM(require_react());
 
   // node_modules/@atlaskit/motion/dist/esm/utils/accessibility.js
   init_slicedToArray();
-  var import_react21 = __toESM(require_react());
+  var import_react22 = __toESM(require_react());
   var isMatchMediaAvailable = function isMatchMediaAvailable2() {
     return typeof window !== "undefined" && "matchMedia" in window;
   };
@@ -43959,7 +43974,7 @@
   };
 
   // node_modules/@atlaskit/motion/dist/esm/utils/timer-hooks.js
-  var import_react22 = __toESM(require_react());
+  var import_react23 = __toESM(require_react());
   var getHookDeps = function getHookDeps2(opts) {
     switch (opts.cleanup) {
       case "next-effect":
@@ -43973,8 +43988,8 @@
     var opts = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {
       cleanup: "unmount"
     };
-    var timeouts = (0, import_react22.useRef)([]);
-    (0, import_react22.useEffect)(function() {
+    var timeouts = (0, import_react23.useRef)([]);
+    (0, import_react23.useEffect)(function() {
       return function() {
         if (timeouts.current.length) {
           timeouts.current.forEach(function(id) {
@@ -43984,7 +43999,7 @@
         }
       };
     }, getHookDeps(opts));
-    return (0, import_react22.useCallback)(function(handler, timeout) {
+    return (0, import_react23.useCallback)(function(handler, timeout) {
       for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
         args[_key - 2] = arguments[_key];
       }
@@ -44000,23 +44015,23 @@
 
   // node_modules/@atlaskit/motion/dist/esm/entering/exiting-persistence.js
   init_slicedToArray();
-  var import_react23 = __toESM(require_react());
+  var import_react24 = __toESM(require_react());
   var emptyContext = {
     // Motions will always appear if not inside a exiting persistence component.
     appear: true,
     isExiting: false
   };
-  var ExitingContext = /* @__PURE__ */ (0, import_react23.createContext)(emptyContext);
+  var ExitingContext = /* @__PURE__ */ (0, import_react24.createContext)(emptyContext);
   var wrapChildWithContextProvider = function wrapChildWithContextProvider2(child) {
     var value = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : emptyContext;
-    return /* @__PURE__ */ import_react23.default.createElement(ExitingContext.Provider, {
+    return /* @__PURE__ */ import_react24.default.createElement(ExitingContext.Provider, {
       key: "".concat(child.key, "-provider"),
       value
     }, child);
   };
   var childrenToArray = function childrenToArray2(children) {
     var childrenAsArray = [];
-    import_react23.Children.toArray(children).forEach(function(child) {
+    import_react24.Children.toArray(children).forEach(function(child) {
       if (typeof child !== "boolean" && Boolean(child)) {
         childrenAsArray.push(child);
       }
@@ -44055,17 +44070,17 @@
     }
     return missing;
   };
-  var ExitingPersistence = /* @__PURE__ */ (0, import_react23.memo)(function(_ref2) {
+  var ExitingPersistence = /* @__PURE__ */ (0, import_react24.memo)(function(_ref2) {
     var _ref$appear = _ref2.appear, appear = _ref$appear === void 0 ? false : _ref$appear, children = _ref2.children, exitThenEnter = _ref2.exitThenEnter;
-    var _useState = (0, import_react23.useState)([null, children]), _useState2 = _slicedToArray(_useState, 2), stateChildren = _useState2[0], setChildren = _useState2[1];
-    var _useState3 = (0, import_react23.useState)([]), _useState4 = _slicedToArray(_useState3, 2), exitingChildren = _useState4[0], setExitingChildren = _useState4[1];
-    var _useState5 = (0, import_react23.useState)(function() {
+    var _useState = (0, import_react24.useState)([null, children]), _useState2 = _slicedToArray(_useState, 2), stateChildren = _useState2[0], setChildren = _useState2[1];
+    var _useState3 = (0, import_react24.useState)([]), _useState4 = _slicedToArray(_useState3, 2), exitingChildren = _useState4[0], setExitingChildren = _useState4[1];
+    var _useState5 = (0, import_react24.useState)(function() {
       return {
         appear,
         isExiting: false
       };
     }), _useState6 = _slicedToArray(_useState5, 2), defaultContext = _useState6[0], setDefaultContext = _useState6[1];
-    (0, import_react23.useEffect)(function() {
+    (0, import_react24.useEffect)(function() {
       if (!defaultContext.appear) {
         setDefaultContext({
           appear: true,
@@ -44123,19 +44138,19 @@
     return visibleChildren;
   });
   var useExitingPersistence = function useExitingPersistence2() {
-    return (0, import_react23.useContext)(ExitingContext);
+    return (0, import_react24.useContext)(ExitingContext);
   };
   ExitingPersistence.displayName = "ExitingPersistence";
   var exiting_persistence_default = ExitingPersistence;
 
   // node_modules/@atlaskit/motion/dist/esm/entering/staggered-entrance.js
   init_slicedToArray();
-  var import_react25 = __toESM(require_react());
+  var import_react26 = __toESM(require_react());
 
   // node_modules/@atlaskit/motion/dist/esm/utils/use-unique-id.js
-  var import_react24 = __toESM(require_react());
+  var import_react25 = __toESM(require_react());
   function useUniqueId() {
-    var identifier = (0, import_react24.useRef)("");
+    var identifier = (0, import_react25.useRef)("");
     if (!identifier.current) {
       identifier.current = "_" + (Number(String(Math.random()).slice(2)) + Date.now() + Math.round(performance.now())).toString(36);
     }
@@ -44143,7 +44158,7 @@
   }
 
   // node_modules/@atlaskit/motion/dist/esm/entering/staggered-entrance.js
-  var StaggeredEntranceContext = /* @__PURE__ */ (0, import_react25.createContext)(function() {
+  var StaggeredEntranceContext = /* @__PURE__ */ (0, import_react26.createContext)(function() {
     return {
       isReady: true,
       delay: 0,
@@ -44152,7 +44167,7 @@
   });
   var useStaggeredEntrance = function useStaggeredEntrance2() {
     var indentifier = useUniqueId();
-    var context = (0, import_react25.useContext)(StaggeredEntranceContext);
+    var context = (0, import_react26.useContext)(StaggeredEntranceContext);
     return context(indentifier);
   };
 
@@ -44165,8 +44180,8 @@
     var paused = isPaused || !staggered.isReady;
     var delay = isExiting ? 0 : staggered.delay;
     var state = isExiting ? "exiting" : "entering";
-    var _useState = (0, import_react26.useState)(appear), _useState2 = _slicedToArray(_useState, 2), hasAnimationStyles = _useState2[0], setHasAnimationStyles = _useState2[1];
-    (0, import_react26.useEffect)(function() {
+    var _useState = (0, import_react27.useState)(appear), _useState2 = _slicedToArray(_useState, 2), hasAnimationStyles = _useState2[0], setHasAnimationStyles = _useState2[1];
+    (0, import_react27.useEffect)(function() {
       var isCancelled = false;
       if (paused) {
         return;
@@ -44216,7 +44231,7 @@
     var children = _ref2.children, _ref$duration = _ref2.duration, duration = _ref$duration === void 0 ? "large" : _ref$duration, entranceDirection = _ref2.entranceDirection, exitDirection = _ref2.exitDirection, _ref$distance = _ref2.distance, distance = _ref$distance === void 0 ? "proportional" : _ref$distance, onFinish = _ref2.onFinish, isPaused = _ref2.isPaused;
     var invertedEntranceDirection = entranceDirection !== void 0 ? invertedDirection[entranceDirection] : void 0;
     var isExitDirect = Boolean(exitDirection || invertedEntranceDirection) ? "fade-out-from-".concat(exitDirection || invertedEntranceDirection).concat(distance === "proportional" ? "" : "-constant") : "fade-out";
-    return /* @__PURE__ */ import_react27.default.createElement(keyframes_motion_default, {
+    return /* @__PURE__ */ import_react28.default.createElement(keyframes_motion_default, {
       duration,
       enteringAnimation: entranceDirection ? "fade-in-from-".concat(entranceDirection).concat(distance === "proportional" ? "" : "-constant") : "fade-in",
       exitingAnimation: isExitDirect,
@@ -44228,11 +44243,11 @@
   var fade_in_default = FadeIn;
 
   // node_modules/@atlaskit/portal/dist/esm/portal.js
-  var import_react33 = __toESM(require_react());
+  var import_react34 = __toESM(require_react());
   var import_platform_feature_flags3 = __toESM(require_cjs3());
 
   // node_modules/@atlaskit/portal/dist/esm/internal/components/internal-portal.js
-  var import_react28 = __toESM(require_react());
+  var import_react29 = __toESM(require_react());
   var import_react_dom = __toESM(require_react_dom());
 
   // node_modules/@atlaskit/portal/dist/esm/internal/constants.js
@@ -44299,11 +44314,11 @@
   // node_modules/@atlaskit/portal/dist/esm/internal/components/internal-portal.js
   function InternalPortal(props) {
     var zIndex = props.zIndex, children = props.children;
-    var container2 = (0, import_react28.useMemo)(function() {
+    var container2 = (0, import_react29.useMemo)(function() {
       return createContainer(zIndex);
     }, [zIndex]);
     appendPortalContainerIfNotAppended(container2);
-    (0, import_react28.useEffect)(function() {
+    (0, import_react29.useEffect)(function() {
       return function() {
         removePortalContainer(container2);
       };
@@ -44313,17 +44328,17 @@
 
   // node_modules/@atlaskit/portal/dist/esm/internal/components/internal-portal-new.js
   init_slicedToArray();
-  var import_react30 = __toESM(require_react());
+  var import_react31 = __toESM(require_react());
   var import_react_dom2 = __toESM(require_react_dom());
 
   // node_modules/@atlaskit/portal/dist/esm/internal/hooks/use-isomorphic-layout-effect.js
-  var import_react29 = __toESM(require_react());
-  var useIsomorphicLayoutEffect2 = typeof window !== "undefined" ? import_react29.useLayoutEffect : import_react29.useEffect;
+  var import_react30 = __toESM(require_react());
+  var useIsomorphicLayoutEffect2 = typeof window !== "undefined" ? import_react30.useLayoutEffect : import_react30.useEffect;
 
   // node_modules/@atlaskit/portal/dist/esm/internal/components/internal-portal-new.js
   function InternalPortalNew(props) {
     var zIndex = props.zIndex, children = props.children;
-    var _useState = (0, import_react30.useState)(null), _useState2 = _slicedToArray(_useState, 2), atlaskitPortal = _useState2[0], setAtlaskitPortal = _useState2[1];
+    var _useState = (0, import_react31.useState)(null), _useState2 = _slicedToArray(_useState, 2), atlaskitPortal = _useState2[0], setAtlaskitPortal = _useState2[1];
     useIsomorphicLayoutEffect2(function() {
       var tempPortalContainer = createAtlaskitPortal(zIndex);
       setAtlaskitPortal(tempPortalContainer);
@@ -44339,7 +44354,7 @@
         setAtlaskitPortal(null);
       };
     }, [zIndex]);
-    var suspendedChildren = /* @__PURE__ */ import_react30.default.createElement(import_react30.Suspense, {
+    var suspendedChildren = /* @__PURE__ */ import_react31.default.createElement(import_react31.Suspense, {
       fallback: null
     }, children);
     return atlaskitPortal ? /* @__PURE__ */ (0, import_react_dom2.createPortal)(suspendedChildren, atlaskitPortal) : null;
@@ -44347,11 +44362,11 @@
 
   // node_modules/@atlaskit/portal/dist/esm/internal/hooks/use-is-subsequent-render.js
   init_slicedToArray();
-  var import_react31 = __toESM(require_react());
+  var import_react32 = __toESM(require_react());
   var useIsSubsequentRender = function useIsSubsequentRender2(mountStrategy) {
-    var _useState = (0, import_react31.useState)(false), _useState2 = _slicedToArray(_useState, 2), isSubsequentRender = _useState2[0], setIsSubsequentRender = _useState2[1];
-    var _useState3 = (0, import_react31.useState)(function() {
-      return mountStrategy === "layoutEffect" ? useIsomorphicLayoutEffect2 : import_react31.useEffect;
+    var _useState = (0, import_react32.useState)(false), _useState2 = _slicedToArray(_useState, 2), isSubsequentRender = _useState2[0], setIsSubsequentRender = _useState2[1];
+    var _useState3 = (0, import_react32.useState)(function() {
+      return mountStrategy === "layoutEffect" ? useIsomorphicLayoutEffect2 : import_react32.useEffect;
     }), _useState4 = _slicedToArray(_useState3, 1), useMountEffect = _useState4[0];
     useMountEffect(function() {
       setIsSubsequentRender(true);
@@ -44361,7 +44376,7 @@
   var use_is_subsequent_render_default = useIsSubsequentRender;
 
   // node_modules/@atlaskit/portal/dist/esm/internal/hooks/use-portal-event.js
-  var import_react32 = __toESM(require_react());
+  var import_react33 = __toESM(require_react());
 
   // node_modules/@atlaskit/portal/dist/esm/constants.js
   var PORTAL_MOUNT_EVENT = "akPortalMount";
@@ -44399,7 +44414,7 @@
   // node_modules/@atlaskit/portal/dist/esm/internal/hooks/use-portal-event.js
   var useFirePortalEvent = function useFirePortalEvent2(zIndex) {
     var zIndexNumber = Number(zIndex);
-    (0, import_react32.useEffect)(function() {
+    (0, import_react33.useEffect)(function() {
       firePortalEvent(PORTAL_MOUNT_EVENT, zIndexNumber);
       return function() {
         firePortalEvent(PORTAL_UNMOUNT_EVENT, zIndexNumber);
@@ -44413,22 +44428,22 @@
     var _ref$zIndex = _ref2.zIndex, zIndex = _ref$zIndex === void 0 ? 0 : _ref$zIndex, children = _ref2.children, _ref$mountStrategy = _ref2.mountStrategy, mountStrategy = _ref$mountStrategy === void 0 ? "effect" : _ref$mountStrategy;
     var isSubsequentRender = use_is_subsequent_render_default(mountStrategy);
     use_portal_event_default(zIndex);
-    return !(0, import_platform_feature_flags3.fg)("platform_design_system_team_portal_logic_r18_fix") ? isSubsequentRender ? /* @__PURE__ */ import_react33.default.createElement(InternalPortal, {
+    return !(0, import_platform_feature_flags3.fg)("platform_design_system_team_portal_logic_r18_fix") ? isSubsequentRender ? /* @__PURE__ */ import_react34.default.createElement(InternalPortal, {
       zIndex
-    }, children) : null : /* @__PURE__ */ import_react33.default.createElement(InternalPortalNew, {
+    }, children) : null : /* @__PURE__ */ import_react34.default.createElement(InternalPortalNew, {
       zIndex
     }, children);
   }
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/hooks/use-modal-stack.js
   init_slicedToArray();
-  var import_react37 = __toESM(require_react());
+  var import_react38 = __toESM(require_react());
 
   // node_modules/@atlaskit/ds-lib/dist/esm/hooks/use-lazy-ref.js
-  var import_react34 = __toESM(require_react());
+  var import_react35 = __toESM(require_react());
   var uniqueReferencedValue = {};
   function useLazyRef(initializer) {
-    var ref = (0, import_react34.useRef)(uniqueReferencedValue);
+    var ref = (0, import_react35.useRef)(uniqueReferencedValue);
     if (ref.current === uniqueReferencedValue) {
       ref.current = initializer();
     }
@@ -44444,10 +44459,10 @@
   }
 
   // node_modules/@atlaskit/ds-lib/dist/esm/hooks/use-previous-value.js
-  var import_react35 = __toESM(require_react());
+  var import_react36 = __toESM(require_react());
   function usePreviousValue(value) {
-    var ref = (0, import_react35.useRef)();
-    (0, import_react35.useEffect)(function() {
+    var ref = (0, import_react36.useRef)();
+    (0, import_react36.useEffect)(function() {
       ref.current = value;
     }, [value]);
     return ref.current;
@@ -44455,10 +44470,10 @@
 
   // node_modules/@atlaskit/ds-lib/dist/esm/hooks/use-state-ref.js
   init_slicedToArray();
-  var import_react36 = __toESM(require_react());
+  var import_react37 = __toESM(require_react());
   function useStateRef(initialState) {
-    var _useState = (0, import_react36.useState)(initialState), _useState2 = _slicedToArray(_useState, 2), value = _useState2[0], setValue = _useState2[1];
-    var valueRef = (0, import_react36.useRef)(value);
+    var _useState = (0, import_react37.useState)(initialState), _useState2 = _slicedToArray(_useState, 2), value = _useState2[0], setValue = _useState2[1];
+    var valueRef = (0, import_react37.useRef)(value);
     valueRef.current = value;
     return [valueRef, setValue];
   }
@@ -44478,7 +44493,7 @@
         stackIndexRef.current = newStackIndex;
       }
     });
-    (0, import_react37.useEffect)(function() {
+    (0, import_react38.useEffect)(function() {
       var currentStackIndex2 = modalStackRegister.indexOf(updateStack);
       if (!isExiting && currentStackIndex2 === -1) {
         modalStackRegister.unshift(updateStack);
@@ -44490,7 +44505,7 @@
         return cb();
       });
     }, [updateStack, isExiting]);
-    (0, import_react37.useEffect)(function() {
+    (0, import_react38.useEffect)(function() {
       return function() {
         var currentStackIndex2 = modalStackRegister.indexOf(updateStack);
         if (currentStackIndex2 !== -1) {
@@ -44501,7 +44516,7 @@
         }
       };
     }, [updateStack]);
-    (0, import_react37.useEffect)(function() {
+    (0, import_react38.useEffect)(function() {
       if (previousStackIndex === void 0) {
         return;
       }
@@ -44514,23 +44529,23 @@
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/hooks/use-prevent-programmatic-scroll.js
   init_slicedToArray();
-  var import_react38 = __toESM(require_react());
+  var import_react39 = __toESM(require_react());
   var import_bind_event_listener2 = __toESM(require_dist2());
   function getScrollDistance() {
     var _document$documentEle, _document$body;
     return window.pageYOffset || ((_document$documentEle = document.documentElement) === null || _document$documentEle === void 0 ? void 0 : _document$documentEle.scrollTop) || ((_document$body = document.body) === null || _document$body === void 0 ? void 0 : _document$body.scrollTop) || 0;
   }
   function usePreventProgrammaticScroll() {
-    var _useState = (0, import_react38.useState)(0), _useState2 = _slicedToArray(_useState, 2), scrollTopOffset = _useState2[0], setScrollTopOffset = _useState2[1];
-    (0, import_react38.useLayoutEffect)(function() {
+    var _useState = (0, import_react39.useState)(0), _useState2 = _slicedToArray(_useState, 2), scrollTopOffset = _useState2[0], setScrollTopOffset = _useState2[1];
+    (0, import_react39.useLayoutEffect)(function() {
       setScrollTopOffset(getScrollDistance());
     }, []);
-    var onWindowScroll = (0, import_react38.useCallback)(function() {
+    var onWindowScroll = (0, import_react39.useCallback)(function() {
       if (getScrollDistance() !== scrollTopOffset) {
         window.scrollTo(window.pageXOffset, scrollTopOffset);
       }
     }, [scrollTopOffset]);
-    (0, import_react38.useEffect)(function() {
+    (0, import_react39.useEffect)(function() {
       return (0, import_bind_event_listener2.bind)(window, {
         type: "scroll",
         listener: onWindowScroll
@@ -44542,8 +44557,8 @@
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/components/modal-dialog.js
   init_slicedToArray();
   init_typeof();
-  var React24 = __toESM(require_react());
-  var import_react44 = __toESM(require_react());
+  var React25 = __toESM(require_react());
+  var import_react45 = __toESM(require_react());
 
   // node_modules/@atlaskit/ds-lib/dist/esm/utils/merge-refs.js
   function mergeRefs(refs) {
@@ -44559,10 +44574,10 @@
   }
 
   // node_modules/@atlaskit/ds-lib/dist/esm/hooks/use-auto-focus.js
-  var import_react39 = __toESM(require_react());
+  var import_react40 = __toESM(require_react());
   function useAutoFocus(ref, autoFocus) {
-    var initialMount = (0, import_react39.useRef)(true);
-    (0, import_react39.useEffect)(function() {
+    var initialMount = (0, import_react40.useRef)(true);
+    (0, import_react40.useEffect)(function() {
       if (ref && initialMount.current && autoFocus && ref.current) {
         ref.current.focus();
       }
@@ -44572,10 +44587,10 @@
 
   // node_modules/@atlaskit/ds-lib/dist/esm/utils/use-id.js
   init_typeof();
-  var import_react41 = __toESM(require_react());
+  var import_react42 = __toESM(require_react());
 
   // node_modules/react-uid/dist/es2015/context.js
-  var React20 = __toESM(require_react());
+  var React21 = __toESM(require_react());
 
   // node_modules/react-uid/dist/es2015/uid.js
   var generateUID = function() {
@@ -44607,7 +44622,7 @@
     };
   };
   var counter = createSource();
-  var source = React20.createContext(createSource());
+  var source = React21.createContext(createSource());
   var getId = function(source2) {
     return source2.value++;
   };
@@ -44616,8 +44631,8 @@
   };
 
   // node_modules/react-uid/dist/es2015/hooks.js
-  var React21 = __toESM(require_react());
-  var import_react40 = __toESM(require_react());
+  var React22 = __toESM(require_react());
+  var import_react41 = __toESM(require_react());
   var generateUID2 = function(context) {
     var quartz = context || counter;
     var prefix = getPrefix(quartz);
@@ -44630,12 +44645,12 @@
   };
   var useUIDState = function() {
     if (true) {
-      if (!("useContext" in React21)) {
+      if (!("useContext" in React22)) {
         throw new Error("Hooks API requires React 16.8+");
       }
     }
-    var context = (0, import_react40.useContext)(source);
-    var uid2 = (0, import_react40.useState)(function() {
+    var context = (0, import_react41.useContext)(source);
+    var uid2 = (0, import_react41.useState)(function() {
       return generateUID2(context);
     })[0];
     return uid2;
@@ -44648,7 +44663,7 @@
   // node_modules/@atlaskit/ds-lib/dist/esm/utils/use-id.js
   var import_platform_feature_flags4 = __toESM(require_cjs3());
   var _React$useId;
-  var react18UseId = (_React$useId = import_react41.default.useId) !== null && _React$useId !== void 0 ? _React$useId : void 0;
+  var react18UseId = (_React$useId = import_react42.default.useId) !== null && _React$useId !== void 0 ? _React$useId : void 0;
   function useId() {
     if (react18UseId && (0, import_platform_feature_flags4.fg)("platform-dst-react-18-use-id")) {
       return react18UseId();
@@ -44669,16 +44684,16 @@
   }
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/context.js
-  var import_react42 = __toESM(require_react());
-  var ModalContext = /* @__PURE__ */ (0, import_react42.createContext)(null);
-  var ScrollContext = /* @__PURE__ */ (0, import_react42.createContext)(null);
+  var import_react43 = __toESM(require_react());
+  var ModalContext = /* @__PURE__ */ (0, import_react43.createContext)(null);
+  var ScrollContext = /* @__PURE__ */ (0, import_react43.createContext)(null);
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/hooks/use-on-motion-finish.js
-  var import_react43 = __toESM(require_react());
+  var import_react44 = __toESM(require_react());
   function useOnMotionFinish(_ref2) {
     var onOpenComplete = _ref2.onOpenComplete, onCloseComplete = _ref2.onCloseComplete;
-    var motionRef = (0, import_react43.useRef)(null);
-    var onMotionFinish = (0, import_react43.useCallback)(function(state) {
+    var motionRef = (0, import_react44.useRef)(null);
+    var onMotionFinish = (0, import_react44.useCallback)(function(state) {
       if (state === "entering" && onOpenComplete) {
         onOpenComplete(motionRef.current, true);
       }
@@ -46739,7 +46754,7 @@
   };
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/components/positioner.js
-  var React23 = __toESM(require_react());
+  var React24 = __toESM(require_react());
 
   // node_modules/@atlaskit/motion/dist/esm/utils/curves.js
   var easeInOut = "cubic-bezier(0.15,1,0.3,1)";
@@ -46769,7 +46784,7 @@
       isFullScreen,
       shouldScrollInViewport
     });
-    return /* @__PURE__ */ React23.createElement("div", {
+    return /* @__PURE__ */ React24.createElement("div", {
       style: {
         "--modal-dialog-translate-y": "calc(".concat(stackIndex, "px * ", "var(--ds-space-100, 8px)", ")"),
         // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
@@ -46793,7 +46808,7 @@
     var id = useId();
     var titleId = "modal-dialog-title-".concat(id);
     var defaultTestId = testId || "modal-dialog";
-    (0, import_react44.useEffect)(function() {
+    (0, import_react45.useEffect)(function() {
       return combine(disableDraggingToCrossOriginIFramesForElement(), disableDraggingToCrossOriginIFramesForTextSelection(), disableDraggingToCrossOriginIFramesForExternal());
     }, []);
     useAutoFocus(
@@ -46805,7 +46820,7 @@
       onOpenComplete,
       onCloseComplete
     }), _useOnMotionFinish2 = _slicedToArray(_useOnMotionFinish, 2), motionRef = _useOnMotionFinish2[0], onMotionFinish = _useOnMotionFinish2[1];
-    var modalDialogContext = (0, import_react44.useMemo)(function() {
+    var modalDialogContext = (0, import_react45.useMemo)(function() {
       return {
         testId: defaultTestId,
         titleId,
@@ -46819,23 +46834,23 @@
       isDisabled: !shouldCloseOnEscapePress
     });
     var _useLayering = useLayering(), currentLevel = _useLayering.currentLevel;
-    return /* @__PURE__ */ React24.createElement(positioner_default, {
+    return /* @__PURE__ */ React25.createElement(positioner_default, {
       stackIndex,
       shouldScrollInViewport,
       testId: defaultTestId,
       isFullScreen
-    }, /* @__PURE__ */ React24.createElement(ModalContext.Provider, {
+    }, /* @__PURE__ */ React25.createElement(ModalContext.Provider, {
       value: modalDialogContext
-    }, /* @__PURE__ */ React24.createElement(ScrollContext.Provider, {
+    }, /* @__PURE__ */ React25.createElement(ScrollContext.Provider, {
       value: shouldScrollInViewport
-    }, /* @__PURE__ */ React24.createElement(
+    }, /* @__PURE__ */ React25.createElement(
       fade_in_default,
       {
         entranceDirection: isFullScreen ? void 0 : "bottom",
         onFinish: onMotionFinish
       },
       function(bottomFadeInProps) {
-        return /* @__PURE__ */ React24.createElement("section", _extends({}, bottomFadeInProps, {
+        return /* @__PURE__ */ React25.createElement("section", _extends({}, bottomFadeInProps, {
           "aria-label": label,
           ref: mergeRefs([bottomFadeInProps.ref, motionRef]),
           style: {
@@ -46884,20 +46899,20 @@
       packageName: "@atlaskit/modal-dialog",
       packageVersion: "14.3.3"
     });
-    var onBlanketClicked = (0, import_react45.useCallback)(function(e) {
+    var onBlanketClicked = (0, import_react46.useCallback)(function(e) {
       if (shouldCloseOnOverlayClick) {
         onCloseHandler(e);
       }
     }, [shouldCloseOnOverlayClick, onCloseHandler]);
-    var allowListCallback = (0, import_react45.useCallback)(function(element) {
+    var allowListCallback = (0, import_react46.useCallback)(function(element) {
       return allowlistElements(element, focusLockAllowlist);
     }, [focusLockAllowlist]);
     usePreventProgrammaticScroll();
-    var modalDialogWithBlanket = /* @__PURE__ */ React25.createElement(blanket_default, {
+    var modalDialogWithBlanket = /* @__PURE__ */ React26.createElement(blanket_default, {
       isTinted: !isBlanketHidden,
       onBlanketClicked,
       testId: testId && "".concat(testId, "--blanket")
-    }, /* @__PURE__ */ React25.createElement(modal_dialog_default, {
+    }, /* @__PURE__ */ React26.createElement(modal_dialog_default, {
       testId,
       label,
       autoFocus,
@@ -46924,37 +46939,37 @@
         }, 0);
       };
     }
-    return /* @__PURE__ */ React25.createElement(Layering, {
+    return /* @__PURE__ */ React26.createElement(Layering, {
       isDisabled: false
-    }, /* @__PURE__ */ React25.createElement(Portal, {
+    }, /* @__PURE__ */ React26.createElement(Portal, {
       zIndex: layers.modal()
-    }, /* @__PURE__ */ React25.createElement(fade_in_default, null, function(fadeInProps) {
-      return /* @__PURE__ */ React25.createElement("div", _extends({}, fadeInProps, {
+    }, /* @__PURE__ */ React26.createElement(fade_in_default, null, function(fadeInProps) {
+      return /* @__PURE__ */ React26.createElement("div", _extends({}, fadeInProps, {
         // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
         className: ax(["_1bsbauwl _4t3i1kxc _kqsw1n9t _152tze3t _1e02ze3t _18m91wug _8am5i4x0", fadeInProps.className]),
         "aria-hidden": !isForeground
-      }), /* @__PURE__ */ React25.createElement(es2015_default, {
+      }), /* @__PURE__ */ React26.createElement(es2015_default, {
         autoFocus: autoFocusLock,
         returnFocus,
         onDeactivation,
         whiteList: allowListCallback
-      }, /* @__PURE__ */ React25.createElement(import_react_scrolllock.default, null), shouldScrollInViewport ? /* @__PURE__ */ React25.createElement(import_react_scrolllock.TouchScrollable, null, modalDialogWithBlanket) : modalDialogWithBlanket));
+      }, /* @__PURE__ */ React26.createElement(import_react_scrolllock.default, null), shouldScrollInViewport ? /* @__PURE__ */ React26.createElement(import_react_scrolllock.TouchScrollable, null, modalDialogWithBlanket) : modalDialogWithBlanket));
     })));
   };
   var modal_wrapper_default = InternalModalWrapper;
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/modal-dialog.js
   function ModalWrapper(props) {
-    return /* @__PURE__ */ import_react46.default.createElement(modal_wrapper_default, _extends({}, props, {
+    return /* @__PURE__ */ import_react47.default.createElement(modal_wrapper_default, _extends({}, props, {
       isFullScreen: false
     }));
   }
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/modal-transition.js
-  var import_react47 = __toESM(require_react());
+  var import_react48 = __toESM(require_react());
   var ModalTransition = function ModalTransition2(props) {
     var _props$children;
-    return /* @__PURE__ */ import_react47.default.createElement(
+    return /* @__PURE__ */ import_react48.default.createElement(
       exiting_persistence_default,
       {
         appear: true
@@ -46967,7 +46982,7 @@
 
   // src/components/Modal.jsx
   function Modal({ open, onClose, children }) {
-    return /* @__PURE__ */ import_react48.default.createElement(modal_transition_default, null, open && /* @__PURE__ */ import_react48.default.createElement(
+    return /* @__PURE__ */ import_react49.default.createElement(modal_transition_default, null, open && /* @__PURE__ */ import_react49.default.createElement(
       ModalWrapper,
       {
         onClose,
@@ -61349,14 +61364,14 @@ fragment UserAvatar on User {
       },
       []
     );
-    const [modalOpen, setModalOpen] = (0, import_react49.useState)(false);
-    const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react49.useState)([]);
-    const observerRef = (0, import_react49.useRef)(null);
+    const [modalOpen, setModalOpen] = (0, import_react50.useState)(false);
+    const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react50.useState)([]);
+    const observerRef = (0, import_react50.useRef)(null);
     const updateVisibleProjects = async () => {
       const matches = await downloadProjectData();
       setVisibleProjectKeys(matches.map((m) => m.projectId));
     };
-    (0, import_react49.useEffect)(() => {
+    (0, import_react50.useEffect)(() => {
       updateVisibleProjects();
       const observer2 = new window.MutationObserver(() => {
         updateVisibleProjects();
@@ -61374,14 +61389,14 @@ fragment UserAvatar on User {
     }));
     const filteredProjects = visibleProjectKeys.length > 0 ? projectViewModel.filter((p) => visibleProjectKeys.includes(p.projectKey)) : projectViewModel;
     const handleOpenModal = () => setModalOpen(true);
-    return /* @__PURE__ */ import_react49.default.createElement(import_react49.default.Fragment, null, /* @__PURE__ */ import_react49.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal }, "Atlas Xray", visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react49.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, /* @__PURE__ */ import_react49.default.createElement(ProjectList, { projects: filteredProjects })));
+    return /* @__PURE__ */ import_react50.default.createElement(import_react50.default.Fragment, null, /* @__PURE__ */ import_react50.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal }, "Atlas Xray", visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react50.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, /* @__PURE__ */ import_react50.default.createElement(ProjectList, { projects: filteredProjects })));
   };
   var FloatingButton_default = FloatingButton;
 
   // src/floatingButtonContentScript.js
   var container = document.createElement("div");
   document.body.appendChild(container);
-  (0, import_client3.createRoot)(container).render(/* @__PURE__ */ import_react50.default.createElement(FloatingButton_default, null));
+  (0, import_client3.createRoot)(container).render(/* @__PURE__ */ import_react51.default.createElement(FloatingButton_default, null));
   downloadProjectData();
   var observer = new MutationObserver(() => {
     downloadProjectData();

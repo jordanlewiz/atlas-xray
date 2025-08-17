@@ -147,8 +147,8 @@
   color: #fff;
 }
 .timeline-cell.state-missed-update {
-  background: #9c27b0;
-  color: #fff;
+  background: #fff;
+  color: #000;
 }
 
 .timeline-labels {
