@@ -41211,16 +41211,6 @@
     return +toDate(date) < +toDate(dateToCompare);
   }
 
-  // node_modules/date-fns/isSameWeek.js
-  function isSameWeek(laterDate, earlierDate, options) {
-    const [laterDate_, earlierDate_] = normalizeDates(
-      options?.in,
-      laterDate,
-      earlierDate
-    );
-    return +startOfWeek(laterDate_, options) === +startOfWeek(earlierDate_, options);
-  }
-
   // node_modules/date-fns/parseISO.js
   function parseISO(argument, options) {
     const invalidDate = () => constructFrom(options?.in, NaN);
@@ -41398,12 +41388,8 @@
 
   // src/components/ProjectTimeline.jsx
   function safeParseDate(dateStr) {
-    let d = null;
-    try {
-      d = parseISO(dateStr);
-    } catch (e) {
-      d = new Date(dateStr);
-    }
+    if (!dateStr) return /* @__PURE__ */ new Date("Invalid Date");
+    let d = parseISO(dateStr);
     if (!isValid(d)) d = new Date(dateStr);
     return d;
   }
@@ -41440,13 +41426,19 @@
     const { minDate, maxDate } = getAllProjectDates(projects, updatesByProject);
     if (!minDate || !maxDate) return null;
     const weekRanges = getWeekRanges(minDate, maxDate);
-    return console.log("updatesByProject", projects), /* @__PURE__ */ import_react2.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w, i) => /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: "timeline-x-label" }, w.label))), projects.map((proj, idx) => {
+    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w, i) => /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: "timeline-x-label" }, w.label))), projects.map((proj, idx) => {
       const updates = updatesByProject[proj.projectKey] || [];
       return /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row", key: proj.projectKey || idx }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }, proj.name || proj.projectKey), weekRanges.map((w, i) => {
-        const update = updates.find(
-          (u) => isSameWeek(safeParseDate(u.creationDate), w.start, { weekStartsOn: 1 })
-        );
-        return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${update ? " has-update" : ""}` }, update ? format(safeParseDate(update.creationDate), "d MMM") : "");
+        console.log("w", w);
+        const weekStart = w.start;
+        const weekEnd = w.end;
+        const weekUpdates = updates.filter((u) => {
+          console.log("u", u);
+          const d = safeParseDate(u);
+          console.log("d", d);
+          return d >= weekStart && d < weekEnd;
+        });
+        return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${weekUpdates.length > 0 ? " has-update" : ""}` }, weekUpdates.map((u, idx2) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx2 }, format(safeParseDate(u), "d MMM"))));
       }));
     }));
   };

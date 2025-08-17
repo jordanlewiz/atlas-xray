@@ -5,12 +5,8 @@ import { format, isAfter, isBefore, isSameWeek, parseISO, startOfWeek, addWeeks,
  * Safely parses a date string, supporting ISO and non-ISO formats.
  */
 function safeParseDate(dateStr) {
-  let d = null;
-  try {
-    d = parseISO(dateStr);
-  } catch (e) {
-    d = new Date(dateStr);
-  }
+  if (!dateStr) return new Date('Invalid Date');
+  let d = parseISO(dateStr);
   if (!isValid(d)) d = new Date(dateStr);
   return d;
 }
@@ -62,7 +58,6 @@ const ProjectTimeline = ({ viewModel }) => {
   const weekRanges = getWeekRanges(minDate, maxDate);
 
   return (
-    console.log("updatesByProject", projects),
     <div className="project-timeline">
       <div className="timeline-row timeline-labels">
         <div className="timeline-y-label" />
@@ -77,13 +72,20 @@ const ProjectTimeline = ({ viewModel }) => {
           <div className="timeline-row" key={proj.projectKey || idx}>
             <div className="timeline-y-label">{proj.name || proj.projectKey}</div>
             {weekRanges.map((w, i) => {
-              // Find the first update object for this week
-              const update = updates.find(u =>
-                isSameWeek(safeParseDate(u.creationDate), w.start, { weekStartsOn: 1 })
-              );
+              console.log("w", w);
+              const weekStart = w.start;
+              const weekEnd = w.end;
+              const weekUpdates = updates.filter(u => {
+                console.log("u", u);
+                const d = safeParseDate(u);
+                console.log("d", d);
+                return d >= weekStart && d < weekEnd;
+              });
               return (
-                <div key={i} className={`timeline-cell${update ? ' has-update' : ''}`}>
-                  {update ? format(safeParseDate(update.creationDate), 'd MMM') : ''}
+                <div key={i} className={`timeline-cell${weekUpdates.length > 0 ? ' has-update' : ''}`}>
+                  {weekUpdates.map((u, idx) => (
+                    <div key={idx}>{format(safeParseDate(u), 'd MMM')}</div>
+                  ))}
                 </div>
               );
             })}

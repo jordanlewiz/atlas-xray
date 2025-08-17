@@ -122,11 +122,33 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.timeline-cell.has-update {
+.timeline-cell.state-on-track {
   background: #4caf50;
   color: #fff;
-  font-weight: bold;
+}
+.timeline-cell.state-off-track {
+  background: #e53935;
+  color: #fff;
+}
+.timeline-cell.state-at-risk {
+  background: orange;
+  color: #fff;
+}
+.timeline-cell.state-pending {
+  background: #e0e0e0;
+  color: #333;
+}
+.timeline-cell.state-cancelled {
+  background: #424242;
+  color: #fff;
+}
+.timeline-cell.state-completed {
+  background: #006400;
+  color: #fff;
+}
+.timeline-cell.state-missed-update {
+  background: #9c27b0;
+  color: #fff;
 }
 
 .timeline-labels {
