@@ -1,12 +1,22 @@
 import React from "react";
+import ModalDialog, { ModalTransition } from "@atlaskit/modal-dialog";
 
 export default function Modal({ open, onClose, children }) {
-  if (!open) return null;
   return (
-    <div className="atlas-xray-modal">
-      <button className="atlas-xray-modal-close" onClick={onClose}>&times;</button>
-      <h2>Projects</h2>
-      {children}
-    </div>
+    <ModalTransition>
+      {open && (
+        <ModalDialog
+          onClose={onClose}
+          heading="Projects"
+          width="full"
+          shouldScrollInViewport
+          actions={[
+            { text: 'Close', onClick: onClose, appearance: 'subtle' }
+          ]}
+        >
+          {children}
+        </ModalDialog>
+      )}
+    </ModalTransition>
   );
 }
