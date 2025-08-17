@@ -46,7 +46,7 @@ export async function setItem(key, value) {
   await setMeta(key, value);
 }
 export async function getItem(key) {
-  console.log('[AtlasXray] getItem', key);
+  /*console.log('[AtlasXray] getItem', key);*/
   return getMeta(key);
 }
 
@@ -69,7 +69,7 @@ function upsertProjectUpdates(nodes) {
     targetDate: n.newTargetDate,
     newDueDate: n.newDueDate?.label,
     oldDueDate: n.oldDueDate?.label,
-    oldState: n.oldState?.label,
+    oldState: n.oldState?.value,
     summary: n.summary,
     raw: n,
   }));

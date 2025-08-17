@@ -39540,7 +39540,6 @@
     await setMeta(key, value);
   }
   async function getItem(key) {
-    console.log("[AtlasXray] getItem", key);
     return getMeta(key);
   }
   function upsertProjectUpdates(nodes) {
@@ -39553,7 +39552,7 @@
       targetDate: n.newTargetDate,
       newDueDate: n.newDueDate?.label,
       oldDueDate: n.oldDueDate?.label,
-      oldState: n.oldState?.label,
+      oldState: n.oldState?.value,
       summary: n.summary,
       raw: n
     }));
@@ -41406,11 +41405,13 @@
     const { minDate, maxDate } = getAllProjectDates(projects, updatesByProject);
     if (!minDate || !maxDate) return null;
     const weekRanges = getWeekRanges(minDate, maxDate);
-    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w, i) => /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: "timeline-x-label" }, w.label))), projects.map((proj, idx) => {
+    return console.log("updatesByProject", projects), /* @__PURE__ */ import_react2.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w, i) => /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: "timeline-x-label" }, w.label))), projects.map((proj, idx) => {
       const updates = updatesByProject[proj.projectKey] || [];
       return /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row", key: proj.projectKey || idx }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }, proj.name || proj.projectKey), weekRanges.map((w, i) => {
-        const update = updates.find((dateStr) => isSameWeek(safeParseDate(dateStr), w.start, { weekStartsOn: 1 }));
-        return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${update ? " has-update" : ""}` }, update ? format(safeParseDate(update), "d MMM") : "");
+        const update = updates.find(
+          (u) => isSameWeek(safeParseDate(u.creationDate), w.start, { weekStartsOn: 1 })
+        );
+        return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${update ? " has-update" : ""}` }, update ? format(safeParseDate(update.creationDate), "d MMM") : "");
       }));
     }));
   };
@@ -41436,7 +41437,18 @@
       updatesByProject[vm.projectKey] = vm.updates.map((u) => u.creationDate).filter(Boolean);
     });
     const timelineViewModel = {
-      projects: projectViewModels.map((vm) => ({ projectKey: vm.projectKey, name: vm.name })),
+      projects: projectViewModels.map((vm) => {
+        const latestUpdate = vm.updates.length > 0 ? vm.updates[vm.updates.length - 1] : {};
+        return {
+          projectKey: vm.projectKey,
+          name: vm.name,
+          state: latestUpdate.state,
+          oldState: latestUpdate.oldState,
+          newDueDate: latestUpdate.newDueDate,
+          oldDueDate: latestUpdate.oldDueDate,
+          missedUpdate: latestUpdate.missedUpdate
+        };
+      }),
       updatesByProject
     };
     return { projectViewModels, timelineViewModel };

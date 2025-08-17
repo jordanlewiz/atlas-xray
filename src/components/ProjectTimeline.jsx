@@ -62,6 +62,7 @@ const ProjectTimeline = ({ viewModel }) => {
   const weekRanges = getWeekRanges(minDate, maxDate);
 
   return (
+    console.log("updatesByProject", projects),
     <div className="project-timeline">
       <div className="timeline-row timeline-labels">
         <div className="timeline-y-label" />
@@ -70,14 +71,20 @@ const ProjectTimeline = ({ viewModel }) => {
         ))}
       </div>
       {projects.map((proj, idx) => {
+        // updates is an array of update objects
         const updates = updatesByProject[proj.projectKey] || [];
         return (
           <div className="timeline-row" key={proj.projectKey || idx}>
             <div className="timeline-y-label">{proj.name || proj.projectKey}</div>
             {weekRanges.map((w, i) => {
-              const update = updates.find(dateStr => isSameWeek(safeParseDate(dateStr), w.start, { weekStartsOn: 1 }));
+              // Find the first update object for this week
+              const update = updates.find(u =>
+                isSameWeek(safeParseDate(u.creationDate), w.start, { weekStartsOn: 1 })
+              );
               return (
-                <div key={i} className={`timeline-cell${update ? ' has-update' : ''}`}>{update ? format(safeParseDate(update), 'd MMM') : ''}</div>
+                <div key={i} className={`timeline-cell${update ? ' has-update' : ''}`}>
+                  {update ? format(safeParseDate(update.creationDate), 'd MMM') : ''}
+                </div>
               );
             })}
           </div>
