@@ -27,10 +27,9 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
         return (
           <div key={i} className={`timeline-cell${weekUpdates.length > 0 ? ' has-update' : ''} ${stateClass}`}>
             {weekUpdates.map((u, idx) => (
-              <div key={idx}>
-                {format(safeParseDate(u.creationDate), 'd MMM')}
-                {u.state && <span> | State: {u.state}</span>}
-                {u.oldState && <span> | Old State: {u.oldState}</span>}
+              <div key={idx} className={u.oldDueDate ? 'has-old-due-date' : ''}>
+                <del>{u.oldDueDate ? u.oldDueDate : ''}</del>
+                {u.oldDueDate ? u.oldDueDate : ''}
               </div>
             ))}
           </div>

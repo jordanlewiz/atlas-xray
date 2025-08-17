@@ -150,6 +150,10 @@
   background: #fff;
   color: #000;
 }
+.timeline-cell .has-old-due-date {
+  border: 4px solid #ff0080;
+  font-size: 10px;
+}
 
 .timeline-labels {
   font-size: 13px;

@@ -41400,7 +41400,7 @@
       });
       const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : void 0;
       const stateClass = lastUpdate ? lastUpdate.missedUpdate ? "state-missed-update" : lastUpdate.state ? `state-${lastUpdate.state.replace(/_/g, "-").toLowerCase()}` : "state-pending" : "state-pending";
-      return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${weekUpdates.length > 0 ? " has-update" : ""} ${stateClass}` }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx }, format(safeParseDate(u.creationDate), "d MMM"), u.state && /* @__PURE__ */ import_react2.default.createElement("span", null, " | State: ", u.state), u.oldState && /* @__PURE__ */ import_react2.default.createElement("span", null, " | Old State: ", u.oldState))));
+      return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${weekUpdates.length > 0 ? " has-update" : ""} ${stateClass}` }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, /* @__PURE__ */ import_react2.default.createElement("del", null, u.oldDueDate ? u.oldDueDate : ""), u.oldDueDate ? u.oldDueDate : "")));
     }));
   }
 
