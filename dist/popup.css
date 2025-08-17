@@ -68,4 +68,56 @@
   font-size: 16px;
 }
 
+.project-timeline {
+  margin-bottom: 24px;
+  overflow-x: auto;
+  width: 1000px;
+}
+
+.timeline-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.timeline-label {
+  min-width: 90px;
+  text-align: center;
+  font-size: 14px;
+  color: #bbb;
+  padding: 2px 4px;
+}
+
+.project-label {
+  font-weight: bold;
+  color: #fff;
+  min-width: 120px;
+  text-align: left;
+}
+
+.timeline-cell {
+  min-width: 90px;
+  height: 28px;
+  background: #333;
+  border: 1px solid #444;
+  margin-right: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+}
+
+.timeline-cell.has-update {
+  background: #4caf50;
+  color: #fff;
+  font-weight: bold;
+}
+
+.timeline-labels {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: 6px;
+}
+
 /*# sourceMappingURL=popup.css.map */

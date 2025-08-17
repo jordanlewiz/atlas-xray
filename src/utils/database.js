@@ -63,7 +63,7 @@ function upsertProjectUpdates(nodes) {
   const rows = nodes.map((n) => ({
     id: n.id ?? n.uuid,
     projectKey: n.project?.key,
-    creationDate: n.creationDate,
+    creationDate: n.creationDate ? new Date(n.creationDate).toISOString() : undefined,
     state: n.newState?.value,
     missedUpdate: !!n.missedUpdate,
     targetDate: n.newTargetDate,
