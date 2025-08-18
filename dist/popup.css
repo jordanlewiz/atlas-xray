@@ -90,8 +90,6 @@
   flex: 1 1 0;
   min-width: 0;
   height: 28px;
-  background: #333;
-  border: 1px solid #444;
   margin-right: 2px;
   display: flex;
   align-items: center;
@@ -132,7 +130,7 @@
   color: #fff;
   border: none;
 }
-.timeline-cell.state-completed {
+.timeline-cell.state-done {
   background: #006400;
   color: #fff;
   border: none;
