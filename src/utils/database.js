@@ -62,16 +62,17 @@ export async function getProjectViewCount() {
  * @returns {Promise}
  */
 function upsertProjectUpdates(nodes) {
+  console.log("nodes", nodes);
   const rows = nodes.map((n) => ({
     id: n.id ?? n.uuid,
     projectKey: n.project?.key,
     creationDate: n.creationDate ? new Date(n.creationDate).toISOString() : undefined,
-    state: n.newState?.value,
+    state: n.newState?.projectStateValue,
     missedUpdate: !!n.missedUpdate,
     targetDate: n.newTargetDate,
     newDueDate: n.newDueDate?.label,
     oldDueDate: n.oldDueDate?.label,
-    oldState: n.oldState?.value,
+    oldState: n.oldState?.projectStateValue,
     summary: n.summary,
     raw: n,
   }));
@@ -88,7 +89,7 @@ function upsertProjectStatusHistory(nodes, projectKey) {
     console.warn('[AtlasXray] upsertProjectStatusHistory called with undefined projectKey. Skipping.');
     return Promise.resolve();
   }
-  console.log('[AtlasXray] upsertProjectStatusHistory', nodes, projectKey);
+
   const rows = nodes.map((n) => ({
     id: n.id ?? n.uuid,
     projectKey: projectKey,

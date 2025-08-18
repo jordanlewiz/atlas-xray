@@ -31,15 +31,29 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
         });
         // Get the last update for the week (if any)
         const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : undefined;
-        const stateClass = lastUpdate
-          ? lastUpdate.missedUpdate
-            ? 'state-missed-update'
-            : lastUpdate.state
-              ? `state-${lastUpdate.state.replace(/_/g, '-').toLowerCase()}`
-              : 'state-pending'
-          : 'state-none';
+        // Determine the state class for the cell
+        let stateClass = 'state-none';
+        if (lastUpdate) {
+          if (lastUpdate.missedUpdate) {
+            stateClass = 'state-missed-update';
+          } else if (lastUpdate.state) {
+            stateClass = `state-${lastUpdate.state.replace(/_/g, '-').toLowerCase()}`;
+          }
+        }
+        // Determine the oldState class for the cell
+        let oldStateClass = '';
+        if (lastUpdate && lastUpdate.oldState) {
+          oldStateClass = `old-state-${lastUpdate.oldState.replace(/_/g, '-').toLowerCase()}`;
+        }
+        // Compose the full class string
+        const cellClass = [
+          'timeline-cell',
+          weekUpdates.length > 0 ? 'has-update' : '',
+          stateClass,
+          oldStateClass
+        ].filter(Boolean).join(' ');
         return (
-          <div key={i} className={`timeline-cell${weekUpdates.length > 0 ? ' has-update' : ''} ${stateClass}`}>
+          <div key={i} className={cellClass}>
             {weekUpdates.map((u, idx) => (
               <div key={idx} className={u.oldDueDate ? 'has-old-due-date' : ''}>
                 {u.oldDueDate && u.newDueDate && (

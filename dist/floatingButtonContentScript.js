@@ -39592,16 +39592,17 @@
     return getMeta(key);
   }
   function upsertProjectUpdates(nodes) {
+    console.log("nodes", nodes);
     const rows = nodes.map((n) => ({
       id: n.id ?? n.uuid,
       projectKey: n.project?.key,
       creationDate: n.creationDate ? new Date(n.creationDate).toISOString() : void 0,
-      state: n.newState?.value,
+      state: n.newState?.projectStateValue,
       missedUpdate: !!n.missedUpdate,
       targetDate: n.newTargetDate,
       newDueDate: n.newDueDate?.label,
       oldDueDate: n.oldDueDate?.label,
-      oldState: n.oldState?.value,
+      oldState: n.oldState?.projectStateValue,
       summary: n.summary,
       raw: n
     }));
@@ -39612,7 +39613,6 @@
       console.warn("[AtlasXray] upsertProjectStatusHistory called with undefined projectKey. Skipping.");
       return Promise.resolve();
     }
-    console.log("[AtlasXray] upsertProjectStatusHistory", nodes, projectKey);
     const rows = nodes.map((n) => ({
       id: n.id ?? n.uuid,
       projectKey,
@@ -43230,8 +43230,25 @@
         return d && d >= weekStart && d < weekEnd;
       });
       const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : void 0;
-      const stateClass = lastUpdate ? lastUpdate.missedUpdate ? "state-missed-update" : lastUpdate.state ? `state-${lastUpdate.state.replace(/_/g, "-").toLowerCase()}` : "state-pending" : "state-none";
-      return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${weekUpdates.length > 0 ? " has-update" : ""} ${stateClass}` }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react2.default.createElement("span", null, daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate)))));
+      let stateClass = "state-none";
+      if (lastUpdate) {
+        if (lastUpdate.missedUpdate) {
+          stateClass = "state-missed-update";
+        } else if (lastUpdate.state) {
+          stateClass = `state-${lastUpdate.state.replace(/_/g, "-").toLowerCase()}`;
+        }
+      }
+      let oldStateClass = "";
+      if (lastUpdate && lastUpdate.oldState) {
+        oldStateClass = `old-state-${lastUpdate.oldState.replace(/_/g, "-").toLowerCase()}`;
+      }
+      const cellClass = [
+        "timeline-cell",
+        weekUpdates.length > 0 ? "has-update" : "",
+        stateClass,
+        oldStateClass
+      ].filter(Boolean).join(" ");
+      return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: cellClass }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react2.default.createElement("span", null, daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate)))));
     }));
   }
 
