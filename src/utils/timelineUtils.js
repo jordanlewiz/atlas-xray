@@ -1,6 +1,11 @@
 import * as chrono from "chrono-node";
-import { parse, differenceInCalendarDays, isValid, parseISO, isAfter, isBefore, startOfWeek, addWeeks, format, isSameWeek, subWeeks, subDays } from "date-fns";
+import { parse, differenceInCalendarDays, isValid, parseISO, isAfter, isBefore, startOfWeek, addWeeks, format, isSameWeek, subWeeks, subDays, lastDayOfMonth } from "date-fns";
 import { getGlobalCloudId, getGlobalSectionId } from "./globalState";
+
+const MONTHS = [
+  'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+  'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
+];
 
 export function safeParseDate(dateStr) {
   if (!dateStr) return new Date('Invalid Date');
@@ -74,12 +79,21 @@ export function buildProjectUrlFromKey(projectKey) {
 }
 
 // Flexible date parser for ranges and month names using chrono-node
-function parseFlexibleDateChrono(dateStr, year = new Date().getFullYear()) {
+export function parseFlexibleDateChrono(dateStr, year = new Date().getFullYear(), isEnd = false) {
   if (!dateStr) return null;
   // If it's a range, use the end of the range
   if (dateStr.includes('-')) {
     const [start, end] = dateStr.split('-').map(s => s.trim());
-    return parseFlexibleDateChrono(end, year);
+    return parseFlexibleDateChrono(end, year, true);
+  }
+  // If it's a month name, parse as the first or last of the month
+  const monthIdx = MONTHS.findIndex(m => dateStr.toLowerCase().startsWith(m));
+  if (monthIdx !== -1) {
+    if (isEnd) {
+      return lastDayOfMonth(new Date(year, monthIdx, 1));
+    } else {
+      return new Date(year, monthIdx, 1);
+    }
   }
   // Use chrono-node to parse, always providing a reference date in the current year
   const refDate = new Date(`${year}-01-01`);
@@ -91,9 +105,9 @@ function parseFlexibleDateChrono(dateStr, year = new Date().getFullYear()) {
   return null;
 }
 
-export function daysBetweenFlexibleDates(dateStr1, dateStr2) {
-  const d1 = parseFlexibleDateChrono(dateStr1);
-  const d2 = parseFlexibleDateChrono(dateStr2);
+export function daysBetweenFlexibleDates(dateStr1, dateStr2, year) {
+  const d1 = parseFlexibleDateChrono(dateStr1, year, false);
+  const d2 = parseFlexibleDateChrono(dateStr2, year, true);
   if (!d1 || !d2) return null;
-  return differenceInCalendarDays(d2, d1);
+  return differenceInCalendarDays(d2, d1) + 1;
 }
