@@ -29,6 +29,7 @@ function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
   const timelineViewModel = {
     projects: projectViewModels.map(vm => {
       const latestUpdate = vm.updates.length > 0 ? vm.updates[vm.updates.length - 1] : {};
+      console.log("latestUpdate", latestUpdate);
       return {
         projectKey: vm.projectKey,
         name: vm.name,
@@ -37,6 +38,7 @@ function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
         newDueDate: latestUpdate.newDueDate,
         oldDueDate: latestUpdate.oldDueDate,
         missedUpdate: latestUpdate.missedUpdate,
+        summary: latestUpdate.summary,
       };
     }),
     updatesByProject
