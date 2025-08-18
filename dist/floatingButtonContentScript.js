@@ -45879,10 +45879,12 @@
   function getWeekRanges(startDate, endDate) {
     const weeks = [];
     let current = startOfWeek(startDate, { weekStartsOn: 1 });
-    const last = startOfWeek(endDate, { weekStartsOn: 1 });
+    let last = startOfWeek(endDate, { weekStartsOn: 1 });
     const now2 = /* @__PURE__ */ new Date();
     const thisWeek = startOfWeek(now2, { weekStartsOn: 1 });
-    const lastWeek = startOfWeek(subWeeks(now2, 1), { weekStartsOn: 1 });
+    if (isAfter(thisWeek, last)) {
+      last = thisWeek;
+    }
     while (!isAfter(current, last)) {
       const weekStart = current;
       const weekEnd = addWeeks(weekStart, 1);
@@ -45890,7 +45892,7 @@
       let label;
       if (isSameWeek(weekStart, now2, { weekStartsOn: 1 })) {
         label = "This week";
-      } else if (isSameWeek(weekStart, lastWeek, { weekStartsOn: 1 })) {
+      } else if (isSameWeek(weekStart, startOfWeek(subWeeks(now2, 1), { weekStartsOn: 1 }), { weekStartsOn: 1 })) {
         label = "Last week";
       } else {
         const startDay = format(weekStart, "d");

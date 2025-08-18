@@ -12,10 +12,15 @@ export function safeParseDate(dateStr) {
 export function getWeekRanges(startDate, endDate) {
   const weeks = [];
   let current = startOfWeek(startDate, { weekStartsOn: 1 }); // Monday
-  const last = startOfWeek(endDate, { weekStartsOn: 1 });
+  let last = startOfWeek(endDate, { weekStartsOn: 1 });
   const now = new Date();
   const thisWeek = startOfWeek(now, { weekStartsOn: 1 });
-  const lastWeek = startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
+
+  // Ensure the range always includes 'This week'
+  if (isAfter(thisWeek, last)) {
+    last = thisWeek;
+  }
+
   while (!isAfter(current, last)) {
     const weekStart = current;
     const weekEnd = addWeeks(weekStart, 1); // exclusive end
@@ -23,7 +28,7 @@ export function getWeekRanges(startDate, endDate) {
     let label;
     if (isSameWeek(weekStart, now, { weekStartsOn: 1 })) {
       label = "This week";
-    } else if (isSameWeek(weekStart, lastWeek, { weekStartsOn: 1 })) {
+    } else if (isSameWeek(weekStart, startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 }), { weekStartsOn: 1 })) {
       label = "Last week";
     } else {
       // If week spans two months, show both months
