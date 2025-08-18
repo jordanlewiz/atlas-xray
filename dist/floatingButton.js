@@ -45629,6 +45629,15 @@
     return matched[1].replace(doubleQuoteRegExp, "'");
   }
 
+  // node_modules/date-fns/lastDayOfMonth.js
+  function lastDayOfMonth(date, options2) {
+    const _date = toDate(date, options2?.in);
+    const month = _date.getMonth();
+    _date.setFullYear(_date.getFullYear(), month + 1, 0);
+    _date.setHours(0, 0, 0, 0);
+    return toDate(_date, options2?.in);
+  }
+
   // node_modules/date-fns/isAfter.js
   function isAfter(date, dateToCompare) {
     return +toDate(date) > +toDate(dateToCompare);
@@ -45835,6 +45844,20 @@
   }
 
   // src/utils/timelineUtils.js
+  var MONTHS = [
+    "jan",
+    "feb",
+    "mar",
+    "apr",
+    "may",
+    "jun",
+    "jul",
+    "aug",
+    "sep",
+    "oct",
+    "nov",
+    "dec"
+  ];
   function safeParseDate(dateStr) {
     if (!dateStr) return /* @__PURE__ */ new Date("Invalid Date");
     let d = parseISO(dateStr);
@@ -45892,11 +45915,28 @@
     });
     return { minDate, maxDate };
   }
-  function parseFlexibleDateChrono(dateStr, year = (/* @__PURE__ */ new Date()).getFullYear()) {
+  function parseFlexibleDateChrono(dateStr, year = (/* @__PURE__ */ new Date()).getFullYear(), isEnd = false) {
     if (!dateStr) return null;
     if (dateStr.includes("-")) {
       const [start3, end2] = dateStr.split("-").map((s) => s.trim());
-      return parseFlexibleDateChrono(end2, year);
+      return parseFlexibleDateChrono(end2, year, true);
+    }
+    const monthIdx = MONTHS.findIndex((m) => dateStr.toLowerCase().startsWith(m));
+    if (monthIdx !== -1) {
+      if (isEnd) {
+        return lastDayOfMonth(new Date(year, monthIdx, 1));
+      } else {
+        return new Date(year, monthIdx, 1);
+      }
+    }
+    const dayMonthMatch = dateStr.match(/^(\d{1,2})\s+([A-Za-z]{3,})$/);
+    if (dayMonthMatch) {
+      const day = parseInt(dayMonthMatch[1], 10);
+      const monthStr = dayMonthMatch[2].toLowerCase();
+      const idx = MONTHS.findIndex((m) => monthStr.startsWith(m));
+      if (idx !== -1) {
+        return new Date(year, idx, day);
+      }
     }
     const refDate = /* @__PURE__ */ new Date(`${year}-01-01`);
     const results = parse(dateStr, refDate);
@@ -45905,11 +45945,13 @@
     }
     return null;
   }
-  function daysBetweenFlexibleDates(dateStr1, dateStr2) {
-    const d1 = parseFlexibleDateChrono(dateStr1);
-    const d2 = parseFlexibleDateChrono(dateStr2);
+  function daysBetweenFlexibleDates(dateStr1, dateStr2, year) {
+    const d1 = parseFlexibleDateChrono(dateStr1, year, dateStr1.includes("-") ? true : false);
+    const d2 = parseFlexibleDateChrono(dateStr2, year, true);
     if (!d1 || !d2) return null;
-    return differenceInCalendarDays(d2, d1);
+    const diff = differenceInCalendarDays(d2, d1);
+    if (diff === 0) return 1;
+    return diff > 0 ? diff + 1 : diff - 1;
   }
 
   // src/components/ProjectTimelineRow.jsx

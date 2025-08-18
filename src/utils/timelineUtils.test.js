@@ -29,4 +29,10 @@ describe("daysBetweenFlexibleDates", () => {
     const result = daysBetweenFlexibleDates('Apr', 'Apr', 2025);
     expect(result).toBe(30);
   });
+
+  it("should return -17 for 'Oct-Dec' to '15 Dec' in 2025", () => {
+    const result = daysBetweenFlexibleDates('Oct-Dec', '15 Dec', 2025);
+    // Dec 15 is 17 days before Dec 31 (inclusive)
+    expect(result).toBe(-17);
+  });
 });

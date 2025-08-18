@@ -81,7 +81,7 @@ export function buildProjectUrlFromKey(projectKey) {
 // Flexible date parser for ranges and month names using chrono-node
 export function parseFlexibleDateChrono(dateStr, year = new Date().getFullYear(), isEnd = false) {
   if (!dateStr) return null;
-  // If it's a range, use the end of the range
+  // If it's a range, always use the end of the range
   if (dateStr.includes('-')) {
     const [start, end] = dateStr.split('-').map(s => s.trim());
     return parseFlexibleDateChrono(end, year, true);
@@ -95,6 +95,16 @@ export function parseFlexibleDateChrono(dateStr, year = new Date().getFullYear()
       return new Date(year, monthIdx, 1);
     }
   }
+  // If it's a day and month (e.g., '15 Dec'), parse explicitly
+  const dayMonthMatch = dateStr.match(/^(\d{1,2})\s+([A-Za-z]{3,})$/);
+  if (dayMonthMatch) {
+    const day = parseInt(dayMonthMatch[1], 10);
+    const monthStr = dayMonthMatch[2].toLowerCase();
+    const idx = MONTHS.findIndex(m => monthStr.startsWith(m));
+    if (idx !== -1) {
+      return new Date(year, idx, day);
+    }
+  }
   // Use chrono-node to parse, always providing a reference date in the current year
   const refDate = new Date(`${year}-01-01`);
   const results = chrono.parse(dateStr, refDate);
@@ -106,8 +116,11 @@ export function parseFlexibleDateChrono(dateStr, year = new Date().getFullYear()
 }
 
 export function daysBetweenFlexibleDates(dateStr1, dateStr2, year) {
-  const d1 = parseFlexibleDateChrono(dateStr1, year, false);
+  // Always use isEnd=true for the first argument if it's a range
+  const d1 = parseFlexibleDateChrono(dateStr1, year, dateStr1.includes('-') ? true : false);
   const d2 = parseFlexibleDateChrono(dateStr2, year, true);
   if (!d1 || !d2) return null;
-  return differenceInCalendarDays(d2, d1) + 1;
+  const diff = differenceInCalendarDays(d2, d1);
+  if (diff === 0) return 1;
+  return diff > 0 ? diff + 1 : diff - 1;
 }
