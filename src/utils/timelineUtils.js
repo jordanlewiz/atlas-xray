@@ -1,3 +1,4 @@
+import * as chrono from "chrono-node";
 import { parse, differenceInCalendarDays, isValid, parseISO, isAfter, isBefore, startOfWeek, addWeeks, format } from "date-fns";
 import { getGlobalCloudId, getGlobalSectionId } from "./globalState";
 
@@ -45,31 +46,25 @@ export function buildProjectUrlFromKey(projectKey) {
   return `https://home.atlassian.com/o/${cloudId}/s/${sectionId}/project/${projectKey}/updates`;
 }
 
-// Flexible date parser for ranges and month names
-function parseFlexibleDate(dateStr, year = new Date().getFullYear()) {
+// Flexible date parser for ranges and month names using chrono-node
+function parseFlexibleDateChrono(dateStr, year = new Date().getFullYear()) {
   if (!dateStr) return null;
-  // Handle range: "Apr-Jun"
+  // If it's a range, use the end of the range
   if (dateStr.includes('-')) {
     const [start, end] = dateStr.split('-').map(s => s.trim());
-    // Use the end of the range for difference calculation
-    return parseFlexibleDate(end, year);
+    return parseFlexibleDateChrono(end, year);
   }
-  // Handle month only: "August"
-  if (/^[A-Za-z]+$/.test(dateStr)) {
-    return parse(`1 ${dateStr} ${year}`, 'd MMMM yyyy', new Date());
+  // Use chrono-node to parse
+  const results = chrono.parse(dateStr, new Date(`${year}-01-01`));
+  if (results.length > 0) {
+    return results[0].start.date();
   }
-  // Handle day and month: "26 Feb"
-  if (/^\d{1,2} [A-Za-z]+$/.test(dateStr)) {
-    return parse(`${dateStr} ${year}`, 'd MMM yyyy', new Date());
-  }
-  // Fallback: try to parse as ISO or other formats
-  const d = new Date(dateStr);
-  return isValid(d) ? d : null;
+  return null;
 }
 
 export function daysBetweenFlexibleDates(dateStr1, dateStr2) {
-  const d1 = parseFlexibleDate(dateStr1);
-  const d2 = parseFlexibleDate(dateStr2);
+  const d1 = parseFlexibleDateChrono(dateStr1);
+  const d2 = parseFlexibleDateChrono(dateStr2);
   if (!d1 || !d2) return null;
   return differenceInCalendarDays(d2, d1);
 }

@@ -2,6 +2,7 @@ import React from "react";
 import { format } from "date-fns";
 import { safeParseDate } from "../utils/timelineUtils";
 import { buildProjectUrlFromKey } from "../utils/linkUtils";
+import Tooltip from "@atlaskit/tooltip";
 import { daysBetweenFlexibleDates } from "../utils/timelineUtils";
 
 export default function ProjectTimelineRow({ project, weekRanges, updates }) {
@@ -57,7 +58,9 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
             {weekUpdates.map((u, idx) => (
               <div key={idx} className={u.oldDueDate ? 'has-old-due-date' : ''}>
                 {u.oldDueDate && u.newDueDate && (
-                  <span>{daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate)}</span>
+                  <Tooltip content={`${u.oldDueDate} → ${u.newDueDate}`}>
+                    <span>{daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate)}</span>
+                  </Tooltip>
                 )}
               </div>
             ))}
