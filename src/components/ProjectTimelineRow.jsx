@@ -2,12 +2,24 @@ import React from "react";
 import { format } from "date-fns";
 import { safeParseDate } from "../utils/timelineUtils";
 
-export default function ProjectTimelineRow({ project, weekRanges, updates }) {
+export default function ProjectTimelineRow({ projectUpdate, weekRanges, updates }) {
   // Only use updates with a valid string creationDate
   const validUpdates = updates.filter(u => u && typeof u.creationDate === 'string');
+  console.log("projectUpdate", projectUpdate);
   return (
     <div className="timeline-row">
-      <div className="timeline-y-label">{project.name} <br /><small>{project.projectKey}</small></div>
+      <div className="timeline-y-label">
+        <a
+          href={projectUpdate.projectUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: 'inherit', textDecoration: 'underline' }}
+        >
+          {projectUpdate.name}
+        </a>
+        <br />
+        <small>{projectUpdate.projectKey}</small>
+      </div>
       {weekRanges.map((w, i) => {
         const weekStart = w.start;
         const weekEnd = w.end;
@@ -28,8 +40,7 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
           <div key={i} className={`timeline-cell${weekUpdates.length > 0 ? ' has-update' : ''} ${stateClass}`}>
             {weekUpdates.map((u, idx) => (
               <div key={idx} className={u.oldDueDate ? 'has-old-due-date' : ''}>
-                <del>{u.oldDueDate ? u.oldDueDate : ''}</del>
-                {u.newDueDate ? u.newDueDate : ''}
+                {u.oldDueDate ? u.oldDueDate : ''}
               </div>
             ))}
           </div>
