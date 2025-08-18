@@ -130,6 +130,11 @@
   background: #e53935;
   color: #fff;
 }
+.timeline-cell.state-none {
+  background: #fff;
+  border: 1px solid #eee;
+  color: #000000;
+}
 .timeline-cell.state-at-risk {
   background: orange;
   color: #fff;
@@ -147,7 +152,7 @@
   color: #fff;
 }
 .timeline-cell.state-missed-update {
-  background: #fff;
+  background: #d3d3d3;
   color: #000;
 }
 .timeline-cell .has-old-due-date {

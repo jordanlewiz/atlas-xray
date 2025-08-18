@@ -7,7 +7,7 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
   const validUpdates = updates.filter(u => u && typeof u.creationDate === 'string');
   return (
     <div className="timeline-row">
-      <div className="timeline-y-label">{project.name || project.projectKey}</div>
+      <div className="timeline-y-label">{project.name} <br /><small>{project.projectKey}</small></div>
       {weekRanges.map((w, i) => {
         const weekStart = w.start;
         const weekEnd = w.end;
@@ -23,7 +23,7 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
             : lastUpdate.state
               ? `state-${lastUpdate.state.replace(/_/g, '-').toLowerCase()}`
               : 'state-pending'
-          : 'state-pending';
+          : 'state-none';
         return (
           <div key={i} className={`timeline-cell${weekUpdates.length > 0 ? ' has-update' : ''} ${stateClass}`}>
             {weekUpdates.map((u, idx) => (
