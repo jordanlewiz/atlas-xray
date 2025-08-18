@@ -39518,6 +39518,20 @@
     }, deps || [], defaultResult);
   }
 
+  // src/utils/globalState.js
+  var cloudId = null;
+  var sectionId = null;
+  function setGlobalCloudAndSection({ newCloudId, newSectionId }) {
+    cloudId = newCloudId;
+    sectionId = newSectionId;
+  }
+  function getGlobalCloudId() {
+    return cloudId;
+  }
+  function getGlobalSectionId() {
+    return sectionId;
+  }
+
   // src/utils/database.js
   var db = new import_wrapper_default("AtlasXrayDB");
   db.version(8).stores({
@@ -39526,8 +39540,20 @@
     projectUpdates: "id,projectKey",
     meta: "key"
   });
+  function buildProjectUrl({ cloudId: cloudId2, sectionId: sectionId2, projectKey }) {
+    const cid = cloudId2 || getGlobalCloudId();
+    const sid = sectionId2 || getGlobalSectionId();
+    if (!cid || !sid || !projectKey) return void 0;
+    return `https://home.atlassian.com/o/${cid}/s/${sid}/project/${projectKey}/updates`;
+  }
   async function setProjectView(projectKey, data) {
-    await db.projectView.put({ projectKey, ...data });
+    console.log("data", data);
+    const projectUrl = buildProjectUrl({
+      cloudId: data.cloudId,
+      sectionId: data.sectionId,
+      projectKey
+    });
+    await db.projectView.put({ projectKey, ...data, projectUrl });
   }
   async function setMeta(key, value) {
     await db.meta.put({ key, value });
@@ -41400,7 +41426,7 @@
       });
       const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : void 0;
       const stateClass = lastUpdate ? lastUpdate.missedUpdate ? "state-missed-update" : lastUpdate.state ? `state-${lastUpdate.state.replace(/_/g, "-").toLowerCase()}` : "state-pending" : "state-none";
-      return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${weekUpdates.length > 0 ? " has-update" : ""} ${stateClass}` }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, /* @__PURE__ */ import_react2.default.createElement("del", null, u.oldDueDate ? u.oldDueDate : ""), u.oldDueDate ? u.oldDueDate : "")));
+      return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${weekUpdates.length > 0 ? " has-update" : ""} ${stateClass}` }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, /* @__PURE__ */ import_react2.default.createElement("del", null, u.oldDueDate ? u.oldDueDate : ""), u.newDueDate ? u.newDueDate : "")));
     }));
   }
 
@@ -61237,25 +61263,27 @@ fragment UserAvatar on User {
     hrefs.forEach((href) => {
       const match2 = href.match(projectLinkPattern);
       if (match2 && match2[3]) {
-        const cloudId = match2[1];
+        const cloudId2 = match2[1];
+        const sectionId2 = match2[2];
         const projectId = match2[3];
-        const key = `${cloudId}:${projectId}`;
+        const key = `${cloudId2}:${projectId}`;
         if (!seen.has(key)) {
           seen.add(key);
-          results.push({ projectId, cloudId });
+          setGlobalCloudAndSection({ newCloudId: cloudId2, newSectionId: sectionId2 });
+          results.push({ projectId, cloudId: cloudId2, sectionId: sectionId2 });
         }
       }
     });
     return results;
   }
-  async function fetchAndStoreProjectData(projectId, cloudId) {
+  async function fetchAndStoreProjectData(projectId, cloudId2) {
     const variables = {
       key: projectId,
       trackViewEvent: "DIRECT",
       workspaceId: null,
       onboardingKeyFilter: "PROJECT_SPOTLIGHT",
       areMilestonesEnabled: false,
-      cloudId: cloudId || "",
+      cloudId: cloudId2 || "",
       isNavRefreshEnabled: true
     };
     try {
@@ -61301,12 +61329,12 @@ fragment UserAvatar on User {
     const links = Array.from(document.querySelectorAll("a[href]"));
     const hrefs = links.map((link) => link.getAttribute("href"));
     const matches = findMatchingProjectLinksFromHrefs(hrefs);
-    for (const { projectId, cloudId } of matches) {
+    for (const { projectId, cloudId: cloudId2 } of matches) {
       const key = `projectId:${projectId}`;
       const existing = await getItem(key);
       if (!existing) {
         await setItem(key, projectId);
-        await fetchAndStoreProjectData(projectId, cloudId);
+        await fetchAndStoreProjectData(projectId, cloudId2);
       }
     }
     return matches;

@@ -29,7 +29,7 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
             {weekUpdates.map((u, idx) => (
               <div key={idx} className={u.oldDueDate ? 'has-old-due-date' : ''}>
                 <del>{u.oldDueDate ? u.oldDueDate : ''}</del>
-                {u.oldDueDate ? u.oldDueDate : ''}
+                {u.newDueDate ? u.newDueDate : ''}
               </div>
             ))}
           </div>
