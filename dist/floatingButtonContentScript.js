@@ -61201,7 +61201,7 @@ fragment UserAvatar on User {
   }
 
   fragment ProjectUpdates on Project {
-    updates(first: 10) {
+    updates(first: 100) {
       edges {
         node {
           uuid
