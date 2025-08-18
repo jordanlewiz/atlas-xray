@@ -45649,6 +45649,11 @@
     return +startOfWeek(laterDate_, options2) === +startOfWeek(earlierDate_, options2);
   }
 
+  // node_modules/date-fns/subDays.js
+  function subDays(date, amount, options2) {
+    return addDays(date, -amount, options2);
+  }
+
   // node_modules/date-fns/parseISO.js
   function parseISO(argument, options2) {
     const invalidDate = () => constructFrom(options2?.in, NaN);
@@ -45846,6 +45851,7 @@
     while (!isAfter(current, last)) {
       const weekStart = current;
       const weekEnd = addWeeks(weekStart, 1);
+      const weekEndLabel = subDays(weekEnd, 1);
       let label;
       if (isSameWeek(weekStart, now2, { weekStartsOn: 1 })) {
         label = "This week";
@@ -45854,8 +45860,8 @@
       } else {
         const startDay = format(weekStart, "d");
         const startMonth = format(weekStart, "MMM");
-        const endDay = format(subWeeks(weekEnd, 0), "d");
-        const endMonth = format(subWeeks(weekEnd, 0), "MMM");
+        const endDay = format(weekEndLabel, "d");
+        const endMonth = format(weekEndLabel, "MMM");
         if (startMonth === endMonth) {
           label = `${startDay}-${endDay} ${startMonth}`;
         } else {
