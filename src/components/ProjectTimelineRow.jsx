@@ -1,24 +1,24 @@
 import React from "react";
 import { format } from "date-fns";
 import { safeParseDate } from "../utils/timelineUtils";
+import { buildProjectUrlFromKey } from "../utils/linkUtils";
 
-export default function ProjectTimelineRow({ projectUpdate, weekRanges, updates }) {
+export default function ProjectTimelineRow({ project, weekRanges, updates }) {
   // Only use updates with a valid string creationDate
   const validUpdates = updates.filter(u => u && typeof u.creationDate === 'string');
-  console.log("projectUpdate", projectUpdate);
   return (
     <div className="timeline-row">
       <div className="timeline-y-label">
         <a
-          href={projectUpdate.projectUrl}
+          href={buildProjectUrlFromKey(project.projectKey)}
           target="_blank"
           rel="noopener noreferrer"
           style={{ color: 'inherit', textDecoration: 'underline' }}
         >
-          {projectUpdate.name}
+          {project.name}
         </a>
         <br />
-        <small>{projectUpdate.projectKey}</small>
+        <small>{project.projectKey}</small>
       </div>
       {weekRanges.map((w, i) => {
         const weekStart = w.start;

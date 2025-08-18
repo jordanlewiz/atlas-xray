@@ -41450,9 +41450,29 @@
 
   // src/components/ProjectTimelineRow.jsx
   var import_react2 = __toESM(require_react());
+
+  // src/utils/linkUtils.js
+  function buildProjectUrlFromKey(projectKey) {
+    const cloudId2 = getGlobalCloudId();
+    const sectionId2 = getGlobalSectionId();
+    if (!cloudId2 || !sectionId2 || !projectKey) return void 0;
+    return `https://home.atlassian.com/o/${cloudId2}/s/${sectionId2}/project/${projectKey}/updates`;
+  }
+
+  // src/components/ProjectTimelineRow.jsx
   function ProjectTimelineRow({ project, weekRanges, updates }) {
     const validUpdates = updates.filter((u) => u && typeof u.creationDate === "string");
-    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }, project.name, " ", /* @__PURE__ */ import_react2.default.createElement("br", null), /* @__PURE__ */ import_react2.default.createElement("small", null, project.projectKey)), weekRanges.map((w, i) => {
+    console.log("project", project);
+    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react2.default.createElement(
+      "a",
+      {
+        href: buildProjectUrlFromKey(project.projectKey),
+        target: "_blank",
+        rel: "noopener noreferrer",
+        style: { color: "inherit", textDecoration: "underline" }
+      },
+      project.name
+    ), /* @__PURE__ */ import_react2.default.createElement("br", null), /* @__PURE__ */ import_react2.default.createElement("small", null, project.projectKey)), weekRanges.map((w, i) => {
       const weekStart = w.start;
       const weekEnd = w.end;
       const weekUpdates = validUpdates.filter((u) => {
@@ -41461,7 +41481,7 @@
       });
       const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : void 0;
       const stateClass = lastUpdate ? lastUpdate.missedUpdate ? "state-missed-update" : lastUpdate.state ? `state-${lastUpdate.state.replace(/_/g, "-").toLowerCase()}` : "state-pending" : "state-none";
-      return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${weekUpdates.length > 0 ? " has-update" : ""} ${stateClass}` }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, /* @__PURE__ */ import_react2.default.createElement("del", null, u.oldDueDate ? u.oldDueDate : ""), u.newDueDate ? u.newDueDate : "")));
+      return /* @__PURE__ */ import_react2.default.createElement("div", { key: i, className: `timeline-cell${weekUpdates.length > 0 ? " has-update" : ""} ${stateClass}` }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react2.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, u.oldDueDate ? u.oldDueDate : "")));
     }));
   }
 
