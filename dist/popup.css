@@ -1,3 +1,4 @@
+@charset "UTF-8";
 #root {
   min-width: 300px;
   min-height: 200px;
@@ -76,14 +77,18 @@
   padding-left: 8px;
   padding-right: 20px;
 }
-
-.timeline-y-label a,
-.timeline-y-label span {
+.timeline-y-label h3 {
+  font-size: 14px;
+  cursor: pointer;
+}
+.timeline-y-label a {
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
+  color: #aaa;
+  font-size: 10px;
 }
 
 .timeline-cell {
@@ -95,6 +100,7 @@
   align-items: center;
   justify-content: center;
   color: #fff;
+  border: 1px solid #000000;
   font-size: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -102,11 +108,13 @@
 }
 .timeline-cell.state-on-track {
   background: #4caf50;
+  border-color: #4caf50;
   color: #fff;
   border: none;
 }
 .timeline-cell.state-off-track {
   background: #e53935;
+  border-color: #e53935;
   color: #fff;
   border: none;
 }
@@ -117,21 +125,34 @@
 }
 .timeline-cell.state-at-risk {
   background: orange;
+  border-color: orange;
   color: #fff;
   border: none;
 }
 .timeline-cell.state-pending {
   background: #85b8ff;
+  border-color: #85b8ff;
   color: #333;
   border: none;
 }
+.timeline-cell.state-paused {
+  background: #7f7f7f;
+  border-color: #7f7f7f;
+  color: #333;
+  border: none;
+}
+.timeline-cell.state-paused:after {
+  content: "⏸️";
+}
 .timeline-cell.state-cancelled {
   background: #424242;
+  border-color: #424242;
   color: #fff;
   border: none;
 }
 .timeline-cell.state-done {
   background: #006400;
+  border-color: #006400;
   color: #fff;
   border: none;
 }
@@ -142,12 +163,22 @@
 }
 .timeline-cell .has-old-due-date {
   font-size: 10px;
+  cursor: pointer;
 }
 
 .timeline-labels {
   font-size: 13px;
   color: #aaa;
   margin-bottom: -30px;
+}
+
+.project-title-ellipsis {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: top;
 }
 
 /*# sourceMappingURL=popup.css.map */

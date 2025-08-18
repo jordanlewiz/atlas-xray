@@ -78,15 +78,19 @@
   white-space: nowrap;
   padding-left: 8px;
   padding-right: 20px;
-}
-
-.timeline-y-label a,
-.timeline-y-label span {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  width: 100%;
+  h3 {
+    font-size: 14px;
+    cursor: default;
+  }
+  a {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    color: #aaa;
+    font-size: 10px;
+   }
 }
 
 .timeline-cell {
@@ -98,17 +102,20 @@
   align-items: center;
   justify-content: center;
   color: #fff;
+  border: 1px solid #000000;
   font-size: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   &.state-on-track {
     background: #4caf50; // green
+    border-color: #4caf50;
     color: #fff;
     border: none;
   }
   &.state-off-track {
     background: #e53935; // red
+    border-color: #e53935;
     color: #fff;
     border: none;
   }
@@ -119,21 +126,34 @@
   }
   &.state-at-risk {
     background: orange;
+    border-color: orange;
     color: #fff;
     border: none;
   }
   &.state-pending {
     background: #85b8ff;
+    border-color: #85b8ff;
     color: #333;
     border: none;
   }
+  &.state-paused {
+    background: #7f7f7f;
+    border-color: #7f7f7f;
+    color: #333;
+    border: none;
+    &:after{
+      content: "⏸️";
+    }
+  }
   &.state-cancelled {
     background: #424242; // dark grey
+    border-color: #424242;
     color: #fff;
     border: none;
   }
   &.state-done {
     background: #006400; // dark green
+    border-color: #006400;
     color: #fff;
     border: none;
   }
@@ -157,4 +177,13 @@
   font-size: 13px;
   color: #aaa;
   margin-bottom: -30px;
+}
+
+.project-title-ellipsis {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: top;
 }

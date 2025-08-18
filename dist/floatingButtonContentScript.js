@@ -49967,16 +49967,15 @@
       return null;
     }
     const validUpdates = updates.filter((u) => u && typeof u.creationDate === "string");
-    return console.log("project", projectUpdate), /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: projectUpdate.name, position: "bottom-start" }, /* @__PURE__ */ import_react39.default.createElement(
+    return console.log("project", projectUpdate), /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: projectUpdate.name, position: "bottom-start" }, /* @__PURE__ */ import_react39.default.createElement("h3", { className: "project-title-ellipsis" }, projectUpdate.name)), /* @__PURE__ */ import_react39.default.createElement(
       "a",
       {
         href: buildProjectUrlFromKey(projectUpdate.projectKey),
         target: "_blank",
-        rel: "noopener noreferrer",
-        style: { color: "inherit", textDecoration: "underline" }
+        rel: "noopener noreferrer"
       },
-      projectUpdate.name
-    )), /* @__PURE__ */ import_react39.default.createElement("small", null, projectUpdate.projectKey)), weekRanges.map((w2, i) => {
+      projectUpdate.projectKey
+    )), weekRanges.map((w2, i) => {
       const weekStart = w2.start;
       const weekEnd = w2.end;
       const weekUpdates = validUpdates.filter((u) => {
