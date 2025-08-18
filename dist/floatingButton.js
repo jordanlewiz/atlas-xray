@@ -45639,6 +45639,16 @@
     return +toDate(date) < +toDate(dateToCompare);
   }
 
+  // node_modules/date-fns/isSameWeek.js
+  function isSameWeek(laterDate, earlierDate, options2) {
+    const [laterDate_, earlierDate_] = normalizeDates(
+      options2?.in,
+      laterDate,
+      earlierDate
+    );
+    return +startOfWeek(laterDate_, options2) === +startOfWeek(earlierDate_, options2);
+  }
+
   // node_modules/date-fns/parseISO.js
   function parseISO(argument, options2) {
     const invalidDate = () => constructFrom(options2?.in, NaN);
@@ -45814,6 +45824,11 @@
     return minutes >= 0 && minutes <= 59;
   }
 
+  // node_modules/date-fns/subWeeks.js
+  function subWeeks(date, amount, options2) {
+    return addWeeks(date, -amount, options2);
+  }
+
   // src/utils/timelineUtils.js
   function safeParseDate(dateStr) {
     if (!dateStr) return /* @__PURE__ */ new Date("Invalid Date");
@@ -45825,12 +45840,32 @@
     const weeks = [];
     let current = startOfWeek(startDate, { weekStartsOn: 1 });
     const last = startOfWeek(endDate, { weekStartsOn: 1 });
+    const now2 = /* @__PURE__ */ new Date();
+    const thisWeek = startOfWeek(now2, { weekStartsOn: 1 });
+    const lastWeek = startOfWeek(subWeeks(now2, 1), { weekStartsOn: 1 });
     while (!isAfter(current, last)) {
       const weekStart = current;
+      const weekEnd = addWeeks(weekStart, 1);
+      let label;
+      if (isSameWeek(weekStart, now2, { weekStartsOn: 1 })) {
+        label = "This week";
+      } else if (isSameWeek(weekStart, lastWeek, { weekStartsOn: 1 })) {
+        label = "Last week";
+      } else {
+        const startDay = format(weekStart, "d");
+        const startMonth = format(weekStart, "MMM");
+        const endDay = format(subWeeks(weekEnd, 0), "d");
+        const endMonth = format(subWeeks(weekEnd, 0), "MMM");
+        if (startMonth === endMonth) {
+          label = `${startDay}-${endDay} ${startMonth}`;
+        } else {
+          label = `${startDay} ${startMonth}-${endDay} ${endMonth}`;
+        }
+      }
       weeks.push({
-        label: `${format(weekStart, "d MMM")}-${format(addWeeks(weekStart, 1), "d MMM")}`,
+        label,
         start: weekStart,
-        end: addWeeks(weekStart, 1)
+        end: weekEnd
       });
       current = addWeeks(current, 1);
     }

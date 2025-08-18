@@ -1,5 +1,5 @@
 import * as chrono from "chrono-node";
-import { parse, differenceInCalendarDays, isValid, parseISO, isAfter, isBefore, startOfWeek, addWeeks, format } from "date-fns";
+import { parse, differenceInCalendarDays, isValid, parseISO, isAfter, isBefore, startOfWeek, addWeeks, format, isSameWeek, subWeeks } from "date-fns";
 import { getGlobalCloudId, getGlobalSectionId } from "./globalState";
 
 export function safeParseDate(dateStr) {
@@ -13,12 +13,33 @@ export function getWeekRanges(startDate, endDate) {
   const weeks = [];
   let current = startOfWeek(startDate, { weekStartsOn: 1 }); // Monday
   const last = startOfWeek(endDate, { weekStartsOn: 1 });
+  const now = new Date();
+  const thisWeek = startOfWeek(now, { weekStartsOn: 1 });
+  const lastWeek = startOfWeek(subWeeks(now, 1), { weekStartsOn: 1 });
   while (!isAfter(current, last)) {
     const weekStart = current;
+    const weekEnd = addWeeks(weekStart, 1);
+    let label;
+    if (isSameWeek(weekStart, now, { weekStartsOn: 1 })) {
+      label = "This week";
+    } else if (isSameWeek(weekStart, lastWeek, { weekStartsOn: 1 })) {
+      label = "Last week";
+    } else {
+      // If week spans two months, show both months
+      const startDay = format(weekStart, "d");
+      const startMonth = format(weekStart, "MMM");
+      const endDay = format(subWeeks(weekEnd, 0), "d");
+      const endMonth = format(subWeeks(weekEnd, 0), "MMM");
+      if (startMonth === endMonth) {
+        label = `${startDay}-${endDay} ${startMonth}`;
+      } else {
+        label = `${startDay} ${startMonth}-${endDay} ${endMonth}`;
+      }
+    }
     weeks.push({
-      label: `${format(weekStart, 'd MMM')}-${format(addWeeks(weekStart, 1), 'd MMM')}`,
+      label,
       start: weekStart,
-      end: addWeeks(weekStart, 1)
+      end: weekEnd
     });
     current = addWeeks(current, 1);
   }
