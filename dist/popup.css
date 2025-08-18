@@ -105,10 +105,12 @@
 .timeline-cell.state-on-track {
   background: #4caf50;
   color: #fff;
+  border: none;
 }
 .timeline-cell.state-off-track {
   background: #e53935;
   color: #fff;
+  border: none;
 }
 .timeline-cell.state-none {
   background: #fff;
@@ -118,22 +120,27 @@
 .timeline-cell.state-at-risk {
   background: orange;
   color: #fff;
+  border: none;
 }
 .timeline-cell.state-pending {
-  background: #e0e0e0;
+  background: #85b8ff;
   color: #333;
+  border: none;
 }
 .timeline-cell.state-cancelled {
   background: #424242;
   color: #fff;
+  border: none;
 }
 .timeline-cell.state-completed {
   background: #006400;
   color: #fff;
+  border: none;
 }
 .timeline-cell.state-missed-update {
-  background: #d3d3d3;
+  background: #dadada;
   color: #000;
+  border: none;
 }
 .timeline-cell .has-old-due-date {
   font-size: 10px;

@@ -107,10 +107,12 @@
   &.state-on-track {
     background: #4caf50; // green
     color: #fff;
+    border: none;
   }
   &.state-off-track {
     background: #e53935; // red
     color: #fff;
+    border: none;
   }
   &.state-none {
     background: #fff;
@@ -120,28 +122,38 @@
   &.state-at-risk {
     background: orange;
     color: #fff;
+    border: none;
   }
   &.state-pending {
-    background: #e0e0e0; // light grey
+    background: #85b8ff;
     color: #333;
+    border: none;
   }
   &.state-cancelled {
     background: #424242; // dark grey
     color: #fff;
+    border: none;
   }
   &.state-completed {
     background: #006400; // dark green
     color: #fff;
+    border: none;
   }
   &.state-missed-update {
-    background: #d3d3d3; // purple
+    background: #dadada; 
     color: #000;
+    border: none;
     }
 
   .has-old-due-date {
     font-size: 10px;
   }
 }
+
+[class*="old-state-"] {
+  // outline: 1px solid magenta !important;
+}
+
 .timeline-labels {
   font-size: 13px;
   color: #aaa;
