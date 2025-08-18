@@ -54,9 +54,11 @@ function parseFlexibleDateChrono(dateStr, year = new Date().getFullYear()) {
     const [start, end] = dateStr.split('-').map(s => s.trim());
     return parseFlexibleDateChrono(end, year);
   }
-  // Use chrono-node to parse
-  const results = chrono.parse(dateStr, new Date(`${year}-01-01`));
+  // Use chrono-node to parse, always providing a reference date in the current year
+  const refDate = new Date(`${year}-01-01`);
+  const results = chrono.parse(dateStr, refDate);
   if (results.length > 0) {
+    // If the parsed result has no year, chrono will use the reference year
     return results[0].start.date();
   }
   return null;

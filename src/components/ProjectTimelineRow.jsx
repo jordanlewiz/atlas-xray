@@ -12,16 +12,17 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
     console.log("project", project),
     <div className="timeline-row">
       <div className="timeline-y-label">
-      {project.name}<br />
-        <a
-          href={buildProjectUrlFromKey(project.projectKey)}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: 'inherit', textDecoration: 'underline' }}
-        >
-          <small>{project.projectKey}</small>
-        </a>
-        
+        <Tooltip content={project.name} position="bottom-start">
+          <a
+            href={buildProjectUrlFromKey(project.projectKey)}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: 'inherit', textDecoration: 'underline' }}
+          >
+            {project.name}
+          </a>
+        </Tooltip>
+        <small>{project.projectKey}</small>
       </div>
       {weekRanges.map((w, i) => {
         const weekStart = w.start;

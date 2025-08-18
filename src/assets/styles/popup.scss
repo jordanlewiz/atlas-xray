@@ -79,6 +79,10 @@
   width: 100%;
   align-items: center;
   margin-bottom: 4px;
+
+  &.timeline-labels{
+    height: 130px;
+  }
 }
 
 .timeline-x-label {
@@ -88,10 +92,21 @@
   font-size: 14px;
   color: #bbb;
   padding: 2px 4px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  position: relative;
+  
+  div {
+    width: 120px;
+    text-align: left;
+    transform: rotate(-45deg);
+    bottom: -20px;
+    left: 20px;
+    transform-origin: bottom left;
+    position: relative;
+    display: block;
+    border: blue 1px solid;
+  }
 }
+
 
 .timeline-y-label {
   flex: 0 0 20%;

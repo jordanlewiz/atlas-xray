@@ -1,6 +1,7 @@
 import React from "react";
 import { getWeekRanges, getAllProjectDates } from "../utils/timelineUtils";
 import ProjectTimelineRow from "./ProjectTimelineRow.jsx";
+import Tooltip from "@atlaskit/tooltip";
 
 /**
  * ProjectTimeline view model is passed as the viewModel prop.
@@ -17,7 +18,9 @@ const ProjectTimeline = ({ viewModel }) => {
       <div className="timeline-row timeline-labels">
         <div className="timeline-y-label" />
         {weekRanges.map((w, i) => (
-          <div key={i} className="timeline-x-label">{w.label}</div>
+          <div key={i} className="timeline-x-label">
+            <Tooltip content={w.label}>{w.label}</Tooltip>
+          </div>
         ))}
       </div>
       {projects.map((proj, idx) => (

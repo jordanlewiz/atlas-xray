@@ -44724,7 +44724,8 @@
       const [start3, end2] = dateStr.split("-").map((s) => s.trim());
       return parseFlexibleDateChrono(end2, year);
     }
-    const results = parse(dateStr, /* @__PURE__ */ new Date(`${year}-01-01`));
+    const refDate = /* @__PURE__ */ new Date(`${year}-01-01`);
+    const results = parse(dateStr, refDate);
     if (results.length > 0) {
       return results[0].start.date();
     }
@@ -48431,7 +48432,7 @@
   // src/components/ProjectTimelineRow.jsx
   function ProjectTimelineRow({ project, weekRanges, updates }) {
     const validUpdates = updates.filter((u) => u && typeof u.creationDate === "string");
-    return console.log("project", project), /* @__PURE__ */ import_react33.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react33.default.createElement("div", { className: "timeline-y-label" }, project.name, /* @__PURE__ */ import_react33.default.createElement("br", null), /* @__PURE__ */ import_react33.default.createElement(
+    return console.log("project", project), /* @__PURE__ */ import_react33.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react33.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react33.default.createElement(tooltip_default, { content: project.name, position: "bottom-start" }, /* @__PURE__ */ import_react33.default.createElement(
       "a",
       {
         href: buildProjectUrlFromKey(project.projectKey),
@@ -48439,8 +48440,8 @@
         rel: "noopener noreferrer",
         style: { color: "inherit", textDecoration: "underline" }
       },
-      /* @__PURE__ */ import_react33.default.createElement("small", null, project.projectKey)
-    )), weekRanges.map((w, i) => {
+      project.name
+    )), /* @__PURE__ */ import_react33.default.createElement("small", null, project.projectKey)), weekRanges.map((w, i) => {
       const weekStart = w.start;
       const weekEnd = w.end;
       const weekUpdates = validUpdates.filter((u) => {
@@ -48476,7 +48477,7 @@
     const { minDate, maxDate } = getAllProjectDates(projects, updatesByProject);
     if (!minDate || !maxDate) return null;
     const weekRanges = getWeekRanges(minDate, maxDate);
-    return /* @__PURE__ */ import_react34.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w, i) => /* @__PURE__ */ import_react34.default.createElement("div", { key: i, className: "timeline-x-label" }, w.label))), projects.map((proj, idx) => /* @__PURE__ */ import_react34.default.createElement(
+    return /* @__PURE__ */ import_react34.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w, i) => /* @__PURE__ */ import_react34.default.createElement("div", { key: i, className: "timeline-x-label" }, /* @__PURE__ */ import_react34.default.createElement(tooltip_default, { content: w.label }, w.label)))), projects.map((proj, idx) => /* @__PURE__ */ import_react34.default.createElement(
       ProjectTimelineRow,
       {
         key: proj.projectKey || idx,
