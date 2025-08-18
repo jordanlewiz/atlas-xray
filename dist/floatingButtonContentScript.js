@@ -39575,20 +39575,8 @@
     projectUpdates: "id,projectKey",
     meta: "key"
   });
-  function buildProjectUrl({ cloudId: cloudId2, sectionId: sectionId2, projectKey }) {
-    const cid = cloudId2 || getGlobalCloudId();
-    const sid = sectionId2 || getGlobalSectionId();
-    if (!cid || !sid || !projectKey) return void 0;
-    return `https://home.atlassian.com/o/${cid}/s/${sid}/project/${projectKey}/updates`;
-  }
   async function setProjectView(projectKey, data) {
-    console.log("data", data);
-    const projectUrl = buildProjectUrl({
-      cloudId: data.cloudId,
-      sectionId: data.sectionId,
-      projectKey
-    });
-    await db.projectView.put({ projectKey, ...data, projectUrl });
+    await db.projectView.put({ projectKey, ...data });
   }
   async function setMeta(key, value) {
     await db.meta.put({ key, value });

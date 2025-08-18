@@ -9,23 +9,10 @@ db.version(8).stores({
   meta: "key"
 });
 
-function buildProjectUrl({ cloudId, sectionId, projectKey }) {
-  const cid = cloudId || getGlobalCloudId();
-  const sid = sectionId || getGlobalSectionId();
-  if (!cid || !sid || !projectKey) return undefined;
-  return `https://home.atlassian.com/o/${cid}/s/${sid}/project/${projectKey}/updates`;
-}
-
 // ProjectView store
 export async function setProjectView(projectKey, data) {
-  // Assume data contains cloudId and sectionId
-  console.log("data", data);
-  const projectUrl = buildProjectUrl({
-    cloudId: data.cloudId,
-    sectionId: data.sectionId,
-    projectKey
-  });
-  await db.projectView.put({ projectKey, ...data, projectUrl });
+  // No longer store projectUrl
+  await db.projectView.put({ projectKey, ...data });
 }
 export async function getProjectView(projectKey) {
   return db.projectView.get(projectKey);
