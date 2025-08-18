@@ -241,20 +241,20 @@
           {
             Object.freeze(emptyObject);
           }
-          function Component(props, context, updater) {
+          function Component3(props, context, updater) {
             this.props = props;
             this.context = context;
             this.refs = emptyObject;
             this.updater = updater || ReactNoopUpdateQueue;
           }
-          Component.prototype.isReactComponent = {};
-          Component.prototype.setState = function(partialState, callback) {
+          Component3.prototype.isReactComponent = {};
+          Component3.prototype.setState = function(partialState, callback) {
             if (typeof partialState !== "object" && typeof partialState !== "function" && partialState != null) {
               throw new Error("setState(...): takes an object of state variables to update or a function which returns an object of state variables.");
             }
             this.updater.enqueueSetState(this, partialState, callback, "setState");
           };
-          Component.prototype.forceUpdate = function(callback) {
+          Component3.prototype.forceUpdate = function(callback) {
             this.updater.enqueueForceUpdate(this, callback, "forceUpdate");
           };
           {
@@ -263,7 +263,7 @@
               replaceState: ["replaceState", "Refactor your code to use setState instead (see https://github.com/facebook/react/issues/3236)."]
             };
             var defineDeprecationWarning = function(methodName, info) {
-              Object.defineProperty(Component.prototype, methodName, {
+              Object.defineProperty(Component3.prototype, methodName, {
                 get: function() {
                   warn("%s(...) is deprecated in plain JavaScript React classes. %s", info[0], info[1]);
                   return void 0;
@@ -278,7 +278,7 @@
           }
           function ComponentDummy() {
           }
-          ComponentDummy.prototype = Component.prototype;
+          ComponentDummy.prototype = Component3.prototype;
           function PureComponent2(props, context, updater) {
             this.props = props;
             this.context = context;
@@ -287,7 +287,7 @@
           }
           var pureComponentPrototype = PureComponent2.prototype = new ComponentDummy();
           pureComponentPrototype.constructor = PureComponent2;
-          assign2(pureComponentPrototype, Component.prototype);
+          assign2(pureComponentPrototype, Component3.prototype);
           pureComponentPrototype.isPureReactComponent = true;
           function createRef() {
             var refObject = {
@@ -299,7 +299,7 @@
             return refObject;
           }
           var isArrayImpl = Array.isArray;
-          function isArray2(a) {
+          function isArray3(a) {
             return isArrayImpl(a);
           }
           function typeName(value) {
@@ -513,7 +513,7 @@
             }
             return element;
           };
-          function createElement8(type, config, children) {
+          function createElement27(type, config, children) {
             var propName;
             var props = {};
             var key = null;
@@ -557,10 +557,10 @@
               props.children = childArray;
             }
             if (type && type.defaultProps) {
-              var defaultProps = type.defaultProps;
-              for (propName in defaultProps) {
+              var defaultProps2 = type.defaultProps;
+              for (propName in defaultProps2) {
                 if (props[propName] === void 0) {
-                  props[propName] = defaultProps[propName];
+                  props[propName] = defaultProps2[propName];
                 }
               }
             }
@@ -603,14 +603,14 @@
                 }
                 key = "" + config.key;
               }
-              var defaultProps;
+              var defaultProps2;
               if (element.type && element.type.defaultProps) {
-                defaultProps = element.type.defaultProps;
+                defaultProps2 = element.type.defaultProps;
               }
               for (propName in config) {
                 if (hasOwnProperty8.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
-                  if (config[propName] === void 0 && defaultProps !== void 0) {
-                    props[propName] = defaultProps[propName];
+                  if (config[propName] === void 0 && defaultProps2 !== void 0) {
+                    props[propName] = defaultProps2[propName];
                   } else {
                     props[propName] = config[propName];
                   }
@@ -650,14 +650,14 @@
           function escapeUserProvidedKey(text) {
             return text.replace(userProvidedKeyEscapeRegex, "$&/");
           }
-          function getElementKey(element, index) {
+          function getElementKey(element, index2) {
             if (typeof element === "object" && element !== null && element.key != null) {
               {
                 checkKeyStringCoercion(element.key);
               }
               return escape("" + element.key);
             }
-            return index.toString(36);
+            return index2.toString(36);
           }
           function mapIntoArray(children, array, escapedPrefix, nameSoFar, callback) {
             var type = typeof children;
@@ -685,7 +685,7 @@
               var _child = children;
               var mappedChild = callback(_child);
               var childKey = nameSoFar === "" ? SEPARATOR + getElementKey(_child, 0) : nameSoFar;
-              if (isArray2(mappedChild)) {
+              if (isArray3(mappedChild)) {
                 var escapedChildKey = "";
                 if (childKey != null) {
                   escapedChildKey = escapeUserProvidedKey(childKey) + "/";
@@ -720,7 +720,7 @@
             var nextName;
             var subtreeCount = 0;
             var nextNamePrefix = nameSoFar === "" ? SEPARATOR : nameSoFar + SUBSEPARATOR;
-            if (isArray2(children)) {
+            if (isArray3(children)) {
               for (var i = 0; i < children.length; i++) {
                 child = children[i];
                 nextName = nextNamePrefix + getElementKey(child, i);
@@ -787,7 +787,7 @@
             }
             return children;
           }
-          function createContext11(defaultValue) {
+          function createContext15(defaultValue) {
             var context = {
               $$typeof: REACT_CONTEXT_TYPE,
               // As a workaround to support multiple concurrent renderers, we categorize
@@ -941,17 +941,17 @@
               _init: lazyInitializer
             };
             {
-              var defaultProps;
+              var defaultProps2;
               var propTypes2;
               Object.defineProperties(lazyType, {
                 defaultProps: {
                   configurable: true,
                   get: function() {
-                    return defaultProps;
+                    return defaultProps2;
                   },
                   set: function(newDefaultProps) {
                     error("React.lazy(...): It is not supported to assign `defaultProps` to a lazy component import. Either specify them where the component is defined, or create a wrapping component around it.");
-                    defaultProps = newDefaultProps;
+                    defaultProps2 = newDefaultProps;
                     Object.defineProperty(lazyType, "defaultProps", {
                       enumerable: true
                     });
@@ -974,7 +974,7 @@
             }
             return lazyType;
           }
-          function forwardRef8(render) {
+          function forwardRef17(render) {
             {
               if (render != null && render.$$typeof === REACT_MEMO_TYPE) {
                 error("forwardRef requires a render function but received a `memo` component. Instead of forwardRef(memo(...)), use memo(forwardRef(...)).");
@@ -1035,7 +1035,7 @@
             }
             return false;
           }
-          function memo3(type, compare) {
+          function memo5(type, compare) {
             {
               if (!isValidElementType(type)) {
                 error("memo: The first argument must be a component. Instead received: %s", type === null ? "null" : typeof type);
@@ -1073,7 +1073,7 @@
             }
             return dispatcher;
           }
-          function useContext10(Context) {
+          function useContext15(Context) {
             var dispatcher = resolveDispatcher();
             {
               if (Context._context !== void 0) {
@@ -1087,7 +1087,7 @@
             }
             return dispatcher.useContext(Context);
           }
-          function useState18(initialState) {
+          function useState22(initialState) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useState(initialState);
           }
@@ -1095,11 +1095,11 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useReducer(reducer, initialArg, init);
           }
-          function useRef21(initialValue) {
+          function useRef27(initialValue) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useRef(initialValue);
           }
-          function useEffect28(create, deps) {
+          function useEffect32(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useEffect(create, deps);
           }
@@ -1107,19 +1107,19 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useInsertionEffect(create, deps);
           }
-          function useLayoutEffect5(create, deps) {
+          function useLayoutEffect7(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useLayoutEffect(create, deps);
           }
-          function useCallback13(callback, deps) {
+          function useCallback20(callback, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useCallback(callback, deps);
           }
-          function useMemo9(create, deps) {
+          function useMemo14(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useMemo(create, deps);
           }
-          function useImperativeHandle(ref, create, deps) {
+          function useImperativeHandle2(ref, create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useImperativeHandle(ref, create, deps);
           }
@@ -1224,18 +1224,18 @@
             }
           }
           var ReactCurrentDispatcher$1 = ReactSharedInternals.ReactCurrentDispatcher;
-          var prefix;
+          var prefix2;
           function describeBuiltInComponentFrame(name, source2, ownerFn) {
             {
-              if (prefix === void 0) {
+              if (prefix2 === void 0) {
                 try {
                   throw Error();
                 } catch (x) {
                   var match2 = x.stack.trim().match(/\n( *(at )?)/);
-                  prefix = match2 && match2[1] || "";
+                  prefix2 = match2 && match2[1] || "";
                 }
               }
-              return "\n" + prefix + name;
+              return "\n" + prefix2 + name;
             }
           }
           var reentry = false;
@@ -1352,8 +1352,8 @@
               return describeNativeComponentFrame(fn2, false);
             }
           }
-          function shouldConstruct(Component2) {
-            var prototype2 = Component2.prototype;
+          function shouldConstruct(Component4) {
+            var prototype2 = Component4.prototype;
             return !!(prototype2 && prototype2.isReactComponent);
           }
           function describeUnknownElementTypeFrameInDEV(type, source2, ownerFn) {
@@ -1510,7 +1510,7 @@
             if (typeof node2 !== "object") {
               return;
             }
-            if (isArray2(node2)) {
+            if (isArray3(node2)) {
               for (var i = 0; i < node2.length; i++) {
                 var child = node2[i];
                 if (isValidElement(child)) {
@@ -1600,7 +1600,7 @@
               var typeString;
               if (type === null) {
                 typeString = "null";
-              } else if (isArray2(type)) {
+              } else if (isArray3(type)) {
                 typeString = "array";
               } else if (type !== void 0 && type.$$typeof === REACT_ELEMENT_TYPE) {
                 typeString = "<" + (getComponentNameFromType(type.type) || "Unknown") + " />";
@@ -1612,7 +1612,7 @@
                 error("React.createElement: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", typeString, info);
               }
             }
-            var element = createElement8.apply(this, arguments);
+            var element = createElement27.apply(this, arguments);
             if (element == null) {
               return element;
             }
@@ -1658,7 +1658,7 @@
             validatePropTypes(newElement);
             return newElement;
           }
-          function startTransition(scope, options) {
+          function startTransition(scope, options2) {
             var prevTransition = ReactCurrentBatchConfig.transition;
             ReactCurrentBatchConfig.transition = {};
             var currentTransition = ReactCurrentBatchConfig.transition;
@@ -1851,15 +1851,15 @@
           var createElement$1 = createElementWithValidation;
           var cloneElement$1 = cloneElementWithValidation;
           var createFactory = createFactoryWithValidation;
-          var Children2 = {
+          var Children3 = {
             map: mapChildren,
             forEach: forEachChildren,
             count: countChildren,
             toArray: toArray2,
             only: onlyChild
           };
-          exports.Children = Children2;
-          exports.Component = Component;
+          exports.Children = Children3;
+          exports.Component = Component3;
           exports.Fragment = REACT_FRAGMENT_TYPE;
           exports.Profiler = REACT_PROFILER_TYPE;
           exports.PureComponent = PureComponent2;
@@ -1868,29 +1868,29 @@
           exports.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ReactSharedInternals;
           exports.act = act;
           exports.cloneElement = cloneElement$1;
-          exports.createContext = createContext11;
+          exports.createContext = createContext15;
           exports.createElement = createElement$1;
           exports.createFactory = createFactory;
           exports.createRef = createRef;
-          exports.forwardRef = forwardRef8;
+          exports.forwardRef = forwardRef17;
           exports.isValidElement = isValidElement;
           exports.lazy = lazy;
-          exports.memo = memo3;
+          exports.memo = memo5;
           exports.startTransition = startTransition;
           exports.unstable_act = act;
-          exports.useCallback = useCallback13;
-          exports.useContext = useContext10;
+          exports.useCallback = useCallback20;
+          exports.useContext = useContext15;
           exports.useDebugValue = useDebugValue;
           exports.useDeferredValue = useDeferredValue;
-          exports.useEffect = useEffect28;
+          exports.useEffect = useEffect32;
           exports.useId = useId2;
-          exports.useImperativeHandle = useImperativeHandle;
+          exports.useImperativeHandle = useImperativeHandle2;
           exports.useInsertionEffect = useInsertionEffect;
-          exports.useLayoutEffect = useLayoutEffect5;
-          exports.useMemo = useMemo9;
+          exports.useLayoutEffect = useLayoutEffect7;
+          exports.useMemo = useMemo14;
           exports.useReducer = useReducer;
-          exports.useRef = useRef21;
-          exports.useState = useState18;
+          exports.useRef = useRef27;
+          exports.useState = useState22;
           exports.useSyncExternalStore = useSyncExternalStore;
           exports.useTransition = useTransition;
           exports.version = ReactVersion;
@@ -1928,9 +1928,9 @@
           var enableProfiling = false;
           var frameYieldMs = 5;
           function push(heap, node2) {
-            var index = heap.length;
+            var index2 = heap.length;
             heap.push(node2);
-            siftUp(heap, node2, index);
+            siftUp(heap, node2, index2);
           }
           function peek(heap) {
             return heap.length === 0 ? null : heap[0];
@@ -1948,42 +1948,42 @@
             return first;
           }
           function siftUp(heap, node2, i) {
-            var index = i;
-            while (index > 0) {
-              var parentIndex = index - 1 >>> 1;
+            var index2 = i;
+            while (index2 > 0) {
+              var parentIndex = index2 - 1 >>> 1;
               var parent = heap[parentIndex];
               if (compare(parent, node2) > 0) {
                 heap[parentIndex] = node2;
-                heap[index] = parent;
-                index = parentIndex;
+                heap[index2] = parent;
+                index2 = parentIndex;
               } else {
                 return;
               }
             }
           }
           function siftDown(heap, node2, i) {
-            var index = i;
+            var index2 = i;
             var length = heap.length;
             var halfLength = length >>> 1;
-            while (index < halfLength) {
-              var leftIndex = (index + 1) * 2 - 1;
+            while (index2 < halfLength) {
+              var leftIndex = (index2 + 1) * 2 - 1;
               var left2 = heap[leftIndex];
               var rightIndex = leftIndex + 1;
               var right2 = heap[rightIndex];
               if (compare(left2, node2) < 0) {
                 if (rightIndex < length && compare(right2, left2) < 0) {
-                  heap[index] = right2;
+                  heap[index2] = right2;
                   heap[rightIndex] = node2;
-                  index = rightIndex;
+                  index2 = rightIndex;
                 } else {
-                  heap[index] = left2;
+                  heap[index2] = left2;
                   heap[leftIndex] = node2;
-                  index = leftIndex;
+                  index2 = leftIndex;
                 }
               } else if (rightIndex < length && compare(right2, node2) < 0) {
-                heap[index] = right2;
+                heap[index2] = right2;
                 heap[rightIndex] = node2;
-                index = rightIndex;
+                index2 = rightIndex;
               } else {
                 return;
               }
@@ -2179,11 +2179,11 @@
               }
             };
           }
-          function unstable_scheduleCallback(priorityLevel, callback, options) {
+          function unstable_scheduleCallback(priorityLevel, callback, options2) {
             var currentTime = exports.unstable_now();
             var startTime2;
-            if (typeof options === "object" && options !== null) {
-              var delay = options.delay;
+            if (typeof options2 === "object" && options2 !== null) {
+              var delay = options2.delay;
               if (typeof delay === "number" && delay > 0) {
                 startTime2 = currentTime + delay;
               } else {
@@ -2386,9 +2386,9 @@
           if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function") {
             __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
           }
-          var React40 = require_react();
+          var React70 = require_react();
           var Scheduler = require_scheduler();
-          var ReactSharedInternals = React40.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+          var ReactSharedInternals = React70.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
           var suppressWarning = false;
           function setSuppressWarning(newSuppressWarning) {
             {
@@ -2437,7 +2437,7 @@
           var HostPortal = 4;
           var HostComponent = 5;
           var HostText = 6;
-          var Fragment3 = 7;
+          var Fragment6 = 7;
           var Mode = 8;
           var ContextConsumer = 9;
           var ContextProvider = 10;
@@ -2491,7 +2491,7 @@
               allNativeEvents.add(dependencies[i]);
             }
           }
-          var canUseDOM2 = !!(typeof window !== "undefined" && typeof window.document !== "undefined" && typeof window.document.createElement !== "undefined");
+          var canUseDOM3 = !!(typeof window !== "undefined" && typeof window.document !== "undefined" && typeof window.document.createElement !== "undefined");
           var hasOwnProperty8 = Object.prototype.hasOwnProperty;
           function typeName(value) {
             {
@@ -2618,8 +2618,8 @@
                 if (propertyInfo !== null) {
                   return !propertyInfo.acceptsBooleans;
                 } else {
-                  var prefix2 = name.toLowerCase().slice(0, 5);
-                  return prefix2 !== "data-" && prefix2 !== "aria-";
+                  var prefix3 = name.toLowerCase().slice(0, 5);
+                  return prefix3 !== "data-" && prefix3 !== "aria-";
                 }
               }
               default:
@@ -3291,18 +3291,18 @@
             }
           }
           var ReactCurrentDispatcher = ReactSharedInternals.ReactCurrentDispatcher;
-          var prefix;
+          var prefix2;
           function describeBuiltInComponentFrame(name, source2, ownerFn) {
             {
-              if (prefix === void 0) {
+              if (prefix2 === void 0) {
                 try {
                   throw Error();
                 } catch (x) {
                   var match2 = x.stack.trim().match(/\n( *(at )?)/);
-                  prefix = match2 && match2[1] || "";
+                  prefix2 = match2 && match2[1] || "";
                 }
               }
-              return "\n" + prefix + name;
+              return "\n" + prefix2 + name;
             }
           }
           var reentry = false;
@@ -3424,8 +3424,8 @@
               return describeNativeComponentFrame(fn2, false);
             }
           }
-          function shouldConstruct(Component) {
-            var prototype2 = Component.prototype;
+          function shouldConstruct(Component3) {
+            var prototype2 = Component3.prototype;
             return !!(prototype2 && prototype2.isReactComponent);
           }
           function describeUnknownElementTypeFrameInDEV(type, source2, ownerFn) {
@@ -3594,7 +3594,7 @@
                 return "DehydratedFragment";
               case ForwardRef:
                 return getWrappedName$1(type, type.render, "ForwardRef");
-              case Fragment3:
+              case Fragment6:
                 return "Fragment";
               case HostComponent:
                 return type;
@@ -3995,7 +3995,7 @@
             {
               if (props.value == null) {
                 if (typeof props.children === "object" && props.children !== null) {
-                  React40.Children.forEach(props.children, function(child) {
+                  React70.Children.forEach(props.children, function(child) {
                     if (child == null) {
                       return;
                     }
@@ -4026,7 +4026,7 @@
             }
           }
           var isArrayImpl = Array.isArray;
-          function isArray2(a) {
+          function isArray3(a) {
             return isArrayImpl(a);
           }
           var didWarnValueDefaultValue$1;
@@ -4049,7 +4049,7 @@
                 if (props[propName] == null) {
                   continue;
                 }
-                var propNameIsArray = isArray2(props[propName]);
+                var propNameIsArray = isArray3(props[propName]);
                 if (props.multiple && !propNameIsArray) {
                   error("The `%s` prop supplied to <select> must be an array if `multiple` is true.%s", propName, getDeclarationErrorAddendum());
                 } else if (!props.multiple && propNameIsArray) {
@@ -4059,35 +4059,35 @@
             }
           }
           function updateOptions(node2, multiple, propValue, setDefaultSelected) {
-            var options2 = node2.options;
+            var options3 = node2.options;
             if (multiple) {
               var selectedValues = propValue;
               var selectedValue = {};
               for (var i = 0; i < selectedValues.length; i++) {
                 selectedValue["$" + selectedValues[i]] = true;
               }
-              for (var _i = 0; _i < options2.length; _i++) {
-                var selected = selectedValue.hasOwnProperty("$" + options2[_i].value);
-                if (options2[_i].selected !== selected) {
-                  options2[_i].selected = selected;
+              for (var _i = 0; _i < options3.length; _i++) {
+                var selected = selectedValue.hasOwnProperty("$" + options3[_i].value);
+                if (options3[_i].selected !== selected) {
+                  options3[_i].selected = selected;
                 }
                 if (selected && setDefaultSelected) {
-                  options2[_i].defaultSelected = true;
+                  options3[_i].defaultSelected = true;
                 }
               }
             } else {
               var _selectedValue = toString3(getToStringValue(propValue));
               var defaultSelected = null;
-              for (var _i2 = 0; _i2 < options2.length; _i2++) {
-                if (options2[_i2].value === _selectedValue) {
-                  options2[_i2].selected = true;
+              for (var _i2 = 0; _i2 < options3.length; _i2++) {
+                if (options3[_i2].value === _selectedValue) {
+                  options3[_i2].selected = true;
                   if (setDefaultSelected) {
-                    options2[_i2].defaultSelected = true;
+                    options3[_i2].defaultSelected = true;
                   }
                   return;
                 }
-                if (defaultSelected === null && !options2[_i2].disabled) {
-                  defaultSelected = options2[_i2];
+                if (defaultSelected === null && !options3[_i2].disabled) {
+                  defaultSelected = options3[_i2];
                 }
               }
               if (defaultSelected !== null) {
@@ -4180,7 +4180,7 @@
                   if (defaultValue != null) {
                     throw new Error("If you supply `defaultValue` on a <textarea>, do not pass children.");
                   }
-                  if (isArray2(children)) {
+                  if (isArray3(children)) {
                     if (children.length > 1) {
                       throw new Error("<textarea> can only have at most one child.");
                     }
@@ -4388,13 +4388,13 @@
             strokeOpacity: true,
             strokeWidth: true
           };
-          function prefixKey(prefix2, key) {
-            return prefix2 + key.charAt(0).toUpperCase() + key.substring(1);
+          function prefixKey(prefix3, key) {
+            return prefix3 + key.charAt(0).toUpperCase() + key.substring(1);
           }
           var prefixes = ["Webkit", "ms", "Moz", "O"];
           Object.keys(isUnitlessNumber).forEach(function(prop) {
-            prefixes.forEach(function(prefix2) {
-              isUnitlessNumber[prefixKey(prefix2, prop)] = isUnitlessNumber[prop];
+            prefixes.forEach(function(prefix3) {
+              isUnitlessNumber[prefixKey(prefix3, prop)] = isUnitlessNumber[prop];
             });
           });
           function dangerousStyleValue(name, value, isCustomProperty) {
@@ -4491,15 +4491,15 @@
             };
           }
           var warnValidStyle$1 = warnValidStyle;
-          function createDangerousStringForStyles(styles) {
+          function createDangerousStringForStyles(styles9) {
             {
               var serialized = "";
               var delimiter = "";
-              for (var styleName in styles) {
-                if (!styles.hasOwnProperty(styleName)) {
+              for (var styleName in styles9) {
+                if (!styles9.hasOwnProperty(styleName)) {
                   continue;
                 }
-                var styleValue = styles[styleName];
+                var styleValue = styles9[styleName];
                 if (styleValue != null) {
                   var isCustomProperty = styleName.indexOf("--") === 0;
                   serialized += delimiter + (isCustomProperty ? styleName : hyphenateStyleName(styleName)) + ":";
@@ -4510,19 +4510,19 @@
               return serialized || null;
             }
           }
-          function setValueForStyles(node2, styles) {
+          function setValueForStyles(node2, styles9) {
             var style2 = node2.style;
-            for (var styleName in styles) {
-              if (!styles.hasOwnProperty(styleName)) {
+            for (var styleName in styles9) {
+              if (!styles9.hasOwnProperty(styleName)) {
                 continue;
               }
               var isCustomProperty = styleName.indexOf("--") === 0;
               {
                 if (!isCustomProperty) {
-                  warnValidStyle$1(styleName, styles[styleName]);
+                  warnValidStyle$1(styleName, styles9[styleName]);
                 }
               }
-              var styleValue = dangerousStyleValue(styleName, styles[styleName], isCustomProperty);
+              var styleValue = dangerousStyleValue(styleName, styles9[styleName], isCustomProperty);
               if (styleName === "float") {
                 styleName = "cssFloat";
               }
@@ -4536,9 +4536,9 @@
           function isValueEmpty(value) {
             return value == null || typeof value === "boolean" || value === "";
           }
-          function expandShorthandMap(styles) {
+          function expandShorthandMap(styles9) {
             var expanded = {};
-            for (var key in styles) {
+            for (var key in styles9) {
               var longhands = shorthandToLonghand[key] || [key];
               for (var i = 0; i < longhands.length; i++) {
                 expanded[longhands[i]] = key;
@@ -5541,16 +5541,16 @@
             return listener;
           }
           var passiveBrowserEventsSupported = false;
-          if (canUseDOM2) {
+          if (canUseDOM3) {
             try {
-              var options = {};
-              Object.defineProperty(options, "passive", {
+              var options2 = {};
+              Object.defineProperty(options2, "passive", {
                 get: function() {
                   passiveBrowserEventsSupported = true;
                 }
               });
-              window.addEventListener("test", options, options);
-              window.removeEventListener("test", options, options);
+              window.addEventListener("test", options2, options2);
+              window.removeEventListener("test", options2, options2);
             } catch (e) {
               passiveBrowserEventsSupported = false;
             }
@@ -6158,7 +6158,7 @@
             {
               var map = /* @__PURE__ */ new Map();
               var lane = 1;
-              for (var index2 = 0; index2 < TotalLanes; index2++) {
+              for (var index3 = 0; index3 < TotalLanes; index3++) {
                 var label = getLabelForLane(lane);
                 map.set(lane, label);
                 lane *= 2;
@@ -6661,9 +6661,9 @@
               var entanglements = root3.entanglements;
               var lanes = nextLanes & entangledLanes;
               while (lanes > 0) {
-                var index2 = pickArbitraryLaneIndex(lanes);
-                var lane = 1 << index2;
-                nextLanes |= entanglements[index2];
+                var index3 = pickArbitraryLaneIndex(lanes);
+                var lane = 1 << index3;
+                nextLanes |= entanglements[index3];
                 lanes &= ~lane;
               }
             }
@@ -6673,9 +6673,9 @@
             var eventTimes = root3.eventTimes;
             var mostRecentEventTime = NoTimestamp;
             while (lanes > 0) {
-              var index2 = pickArbitraryLaneIndex(lanes);
-              var lane = 1 << index2;
-              var eventTime = eventTimes[index2];
+              var index3 = pickArbitraryLaneIndex(lanes);
+              var lane = 1 << index3;
+              var eventTime = eventTimes[index3];
               if (eventTime > mostRecentEventTime) {
                 mostRecentEventTime = eventTime;
               }
@@ -6734,12 +6734,12 @@
             var expirationTimes = root3.expirationTimes;
             var lanes = pendingLanes;
             while (lanes > 0) {
-              var index2 = pickArbitraryLaneIndex(lanes);
-              var lane = 1 << index2;
-              var expirationTime = expirationTimes[index2];
+              var index3 = pickArbitraryLaneIndex(lanes);
+              var lane = 1 << index3;
+              var expirationTime = expirationTimes[index3];
               if (expirationTime === NoTimestamp) {
                 if ((lane & suspendedLanes) === NoLanes || (lane & pingedLanes) !== NoLanes) {
-                  expirationTimes[index2] = computeExpirationTime(lane, currentTime);
+                  expirationTimes[index3] = computeExpirationTime(lane, currentTime);
                 }
               } else if (expirationTime <= currentTime) {
                 root3.expiredLanes |= lane;
@@ -6849,8 +6849,8 @@
               root3.pingedLanes = NoLanes;
             }
             var eventTimes = root3.eventTimes;
-            var index2 = laneToIndex(updateLane);
-            eventTimes[index2] = eventTime;
+            var index3 = laneToIndex(updateLane);
+            eventTimes[index3] = eventTime;
           }
           function markRootSuspended(root3, suspendedLanes) {
             root3.suspendedLanes |= suspendedLanes;
@@ -6858,9 +6858,9 @@
             var expirationTimes = root3.expirationTimes;
             var lanes = suspendedLanes;
             while (lanes > 0) {
-              var index2 = pickArbitraryLaneIndex(lanes);
-              var lane = 1 << index2;
-              expirationTimes[index2] = NoTimestamp;
+              var index3 = pickArbitraryLaneIndex(lanes);
+              var lane = 1 << index3;
+              expirationTimes[index3] = NoTimestamp;
               lanes &= ~lane;
             }
           }
@@ -6880,11 +6880,11 @@
             var expirationTimes = root3.expirationTimes;
             var lanes = noLongerPendingLanes;
             while (lanes > 0) {
-              var index2 = pickArbitraryLaneIndex(lanes);
-              var lane = 1 << index2;
-              entanglements[index2] = NoLanes;
-              eventTimes[index2] = NoTimestamp;
-              expirationTimes[index2] = NoTimestamp;
+              var index3 = pickArbitraryLaneIndex(lanes);
+              var lane = 1 << index3;
+              entanglements[index3] = NoLanes;
+              eventTimes[index3] = NoTimestamp;
+              expirationTimes[index3] = NoTimestamp;
               lanes &= ~lane;
             }
           }
@@ -6893,14 +6893,14 @@
             var entanglements = root3.entanglements;
             var lanes = rootEntangledLanes;
             while (lanes) {
-              var index2 = pickArbitraryLaneIndex(lanes);
-              var lane = 1 << index2;
+              var index3 = pickArbitraryLaneIndex(lanes);
+              var lane = 1 << index3;
               if (
                 // Is this one of the newly entangled lanes?
                 lane & entangledLanes | // Is this lane transitively entangled with the newly entangled lanes?
-                entanglements[index2] & entangledLanes
+                entanglements[index3] & entangledLanes
               ) {
-                entanglements[index2] |= entangledLanes;
+                entanglements[index3] |= entangledLanes;
               }
               lanes &= ~lane;
             }
@@ -6956,9 +6956,9 @@
             }
             var pendingUpdatersLaneMap = root3.pendingUpdatersLaneMap;
             while (lanes > 0) {
-              var index2 = laneToIndex(lanes);
-              var lane = 1 << index2;
-              var updaters = pendingUpdatersLaneMap[index2];
+              var index3 = laneToIndex(lanes);
+              var lane = 1 << index3;
+              var updaters = pendingUpdatersLaneMap[index3];
               updaters.add(fiber);
               lanes &= ~lane;
             }
@@ -6970,9 +6970,9 @@
             var pendingUpdatersLaneMap = root3.pendingUpdatersLaneMap;
             var memoizedUpdaters = root3.memoizedUpdaters;
             while (lanes > 0) {
-              var index2 = laneToIndex(lanes);
-              var lane = 1 << index2;
-              var updaters = pendingUpdatersLaneMap[index2];
+              var index3 = laneToIndex(lanes);
+              var lane = 1 << index3;
+              var updaters = pendingUpdatersLaneMap[index3];
               if (updaters.size > 0) {
                 updaters.forEach(function(fiber) {
                   var alternate = fiber.alternate;
@@ -7981,13 +7981,13 @@
           var SyntheticWheelEvent = createSyntheticEvent(WheelEventInterface);
           var END_KEYCODES = [9, 13, 27, 32];
           var START_KEYCODE = 229;
-          var canUseCompositionEvent = canUseDOM2 && "CompositionEvent" in window;
+          var canUseCompositionEvent = canUseDOM3 && "CompositionEvent" in window;
           var documentMode = null;
-          if (canUseDOM2 && "documentMode" in document) {
+          if (canUseDOM3 && "documentMode" in document) {
             documentMode = document.documentMode;
           }
-          var canUseTextInputEvent = canUseDOM2 && "TextEvent" in window && !documentMode;
-          var useFallbackCompositionData = canUseDOM2 && (!canUseCompositionEvent || documentMode && documentMode > 8 && documentMode <= 11);
+          var canUseTextInputEvent = canUseDOM3 && "TextEvent" in window && !documentMode;
+          var useFallbackCompositionData = canUseDOM3 && (!canUseCompositionEvent || documentMode && documentMode > 8 && documentMode <= 11);
           var SPACEBAR_CODE = 32;
           var SPACEBAR_CHAR = String.fromCharCode(SPACEBAR_CODE);
           function registerEvents() {
@@ -8181,7 +8181,7 @@
             return false;
           }
           function isEventSupported(eventNameSuffix) {
-            if (!canUseDOM2) {
+            if (!canUseDOM3) {
               return false;
             }
             var eventName = "on" + eventNameSuffix;
@@ -8233,7 +8233,7 @@
             }
           }
           var isInputEventSupported = false;
-          if (canUseDOM2) {
+          if (canUseDOM3) {
             isInputEventSupported = isEventSupported("input") && (!document.documentMode || document.documentMode > 9);
           }
           function startWatchingForValueChange(target, targetInst) {
@@ -8435,17 +8435,17 @@
               node2 = node2.parentNode;
             }
           }
-          function getNodeForCharacterOffset(root3, offset2) {
+          function getNodeForCharacterOffset(root3, offset3) {
             var node2 = getLeafNode(root3);
             var nodeStart = 0;
             var nodeEnd = 0;
             while (node2) {
               if (node2.nodeType === TEXT_NODE) {
                 nodeEnd = nodeStart + node2.textContent.length;
-                if (nodeStart <= offset2 && nodeEnd >= offset2) {
+                if (nodeStart <= offset3 && nodeEnd >= offset3) {
                   return {
                     node: node2,
-                    offset: offset2 - nodeStart
+                    offset: offset3 - nodeStart
                   };
                 }
                 nodeStart = nodeEnd;
@@ -8665,7 +8665,7 @@
               setOffsets(input, offsets);
             }
           }
-          var skipSelectionChangeEvent = canUseDOM2 && "documentMode" in document && document.documentMode <= 11;
+          var skipSelectionChangeEvent = canUseDOM3 && "documentMode" in document && document.documentMode <= 11;
           function registerEvents$3() {
             registerTwoPhaseEvent("onSelect", ["focusout", "contextmenu", "dragend", "focusin", "keydown", "keyup", "mousedown", "mouseup", "selectionchange"]);
           }
@@ -8773,7 +8773,7 @@
           };
           var prefixedEventNames = {};
           var style = {};
-          if (canUseDOM2) {
+          if (canUseDOM3) {
             style = document.createElement("div").style;
             if (!("AnimationEvent" in window)) {
               delete vendorPrefixes.animationend.animation;
@@ -9289,7 +9289,7 @@
                 possibleRegistrationNames
               });
             };
-            canDiffStyleForHydrationWarning = canUseDOM2 && !document.documentMode;
+            canDiffStyleForHydrationWarning = canUseDOM3 && !document.documentMode;
             warnForPropDifference = function(propName, serverValue, clientValue) {
               if (didWarnInvalidHydration) {
                 return;
@@ -9356,10 +9356,10 @@
           function getOwnerDocumentFromRootContainer(rootContainerElement) {
             return rootContainerElement.nodeType === DOCUMENT_NODE ? rootContainerElement : rootContainerElement.ownerDocument;
           }
-          function noop3() {
+          function noop7() {
           }
           function trapClickOnNonInteractiveElement(node2) {
-            node2.onclick = noop3;
+            node2.onclick = noop7;
           }
           function setInitialDOMProperties(tag, domElement, rootContainerElement, nextProps, isCustomComponentTag) {
             for (var propKey in nextProps) {
@@ -9419,7 +9419,7 @@
               }
             }
           }
-          function createElement8(type, props, rootContainerElement, parentNamespace) {
+          function createElement27(type, props, rootContainerElement, parentNamespace) {
             var isCustomComponentTag;
             var ownerDocument = getOwnerDocumentFromRootContainer(rootContainerElement);
             var domElement;
@@ -10289,7 +10289,7 @@
               }
               parentNamespace = hostContextDev.namespace;
             }
-            var domElement = createElement8(type, props, rootContainerInstance, parentNamespace);
+            var domElement = createElement27(type, props, rootContainerInstance, parentNamespace);
             precacheFiberNode(internalInstanceHandle, domElement);
             updateFiberProps(domElement, props);
             return domElement;
@@ -10844,36 +10844,36 @@
           {
             fiberStack = [];
           }
-          var index = -1;
+          var index2 = -1;
           function createCursor(defaultValue) {
             return {
               current: defaultValue
             };
           }
           function pop(cursor, fiber) {
-            if (index < 0) {
+            if (index2 < 0) {
               {
                 error("Unexpected pop.");
               }
               return;
             }
             {
-              if (fiber !== fiberStack[index]) {
+              if (fiber !== fiberStack[index2]) {
                 error("Unexpected Fiber popped.");
               }
             }
-            cursor.current = valueStack[index];
-            valueStack[index] = null;
+            cursor.current = valueStack[index2];
+            valueStack[index2] = null;
             {
-              fiberStack[index] = null;
+              fiberStack[index2] = null;
             }
-            index--;
+            index2--;
           }
           function push(cursor, value, fiber) {
-            index++;
-            valueStack[index] = cursor.current;
+            index2++;
+            valueStack[index2] = cursor.current;
             {
-              fiberStack[index] = fiber;
+              fiberStack[index2] = fiber;
             }
             cursor.current = value;
           }
@@ -10888,9 +10888,9 @@
           var contextStackCursor = createCursor(emptyContextObject);
           var didPerformWorkStackCursor = createCursor(false);
           var previousContext = emptyContextObject;
-          function getUnmaskedContext(workInProgress2, Component, didPushOwnContextIfProvider) {
+          function getUnmaskedContext(workInProgress2, Component3, didPushOwnContextIfProvider) {
             {
-              if (didPushOwnContextIfProvider && isContextProvider(Component)) {
+              if (didPushOwnContextIfProvider && isContextProvider(Component3)) {
                 return previousContext;
               }
               return contextStackCursor.current;
@@ -11027,8 +11027,8 @@
                   case HostRoot:
                     return node2.stateNode.context;
                   case ClassComponent: {
-                    var Component = node2.type;
-                    if (isContextProvider(Component)) {
+                    var Component3 = node2.type;
+                    if (isContextProvider(Component3)) {
                       return node2.stateNode.__reactInternalMemoizedMergedChildContext;
                     }
                     break;
@@ -11120,7 +11120,7 @@
             treeForkProvider = workInProgress2;
             treeForkCount = totalChildren;
           }
-          function pushTreeId(workInProgress2, totalChildren, index2) {
+          function pushTreeId(workInProgress2, totalChildren, index3) {
             warnIfNotHydrating();
             idStack[idStackIndex++] = treeContextId;
             idStack[idStackIndex++] = treeContextOverflow;
@@ -11130,7 +11130,7 @@
             var baseOverflow = treeContextOverflow;
             var baseLength = getBitLength(baseIdWithLeadingBit) - 1;
             var baseId = baseIdWithLeadingBit & ~(1 << baseLength);
-            var slot = index2 + 1;
+            var slot = index3 + 1;
             var length = getBitLength(totalChildren) + baseLength;
             if (length > 30) {
               var numberOfOverflowBits = baseLength - baseLength % 5;
@@ -12023,7 +12023,7 @@
               }
             }
             function updateFragment2(returnFiber, current2, fragment, lanes, key) {
-              if (current2 === null || current2.tag !== Fragment3) {
+              if (current2 === null || current2.tag !== Fragment6) {
                 var created = createFiberFromFragment(fragment, returnFiber.mode, lanes, key);
                 created.return = returnFiber;
                 return created;
@@ -12058,7 +12058,7 @@
                     return createChild(returnFiber, init(payload), lanes);
                   }
                 }
-                if (isArray2(newChild) || getIteratorFn(newChild)) {
+                if (isArray3(newChild) || getIteratorFn(newChild)) {
                   var _created3 = createFiberFromFragment(newChild, returnFiber.mode, lanes, null);
                   _created3.return = returnFiber;
                   return _created3;
@@ -12102,7 +12102,7 @@
                     return updateSlot(returnFiber, oldFiber, init(payload), lanes);
                   }
                 }
-                if (isArray2(newChild) || getIteratorFn(newChild)) {
+                if (isArray3(newChild) || getIteratorFn(newChild)) {
                   if (key !== null) {
                     return null;
                   }
@@ -12137,7 +12137,7 @@
                     var init = newChild._init;
                     return updateFromMap(existingChildren, returnFiber, newIdx, init(payload), lanes);
                 }
-                if (isArray2(newChild) || getIteratorFn(newChild)) {
+                if (isArray3(newChild) || getIteratorFn(newChild)) {
                   var _matchedFiber3 = existingChildren.get(newIdx) || null;
                   return updateFragment2(returnFiber, _matchedFiber3, newChild, lanes, null);
                 }
@@ -12426,7 +12426,7 @@
                 if (child.key === key) {
                   var elementType = element.type;
                   if (elementType === REACT_FRAGMENT_TYPE) {
-                    if (child.tag === Fragment3) {
+                    if (child.tag === Fragment6) {
                       deleteRemainingChildren(returnFiber, child.sibling);
                       var existing = useFiber(child, element.props.children);
                       existing.return = returnFiber;
@@ -12511,7 +12511,7 @@
                     var init = newChild._init;
                     return reconcileChildFibers2(returnFiber, currentFirstChild, init(payload), lanes);
                 }
-                if (isArray2(newChild)) {
+                if (isArray3(newChild)) {
                   return reconcileChildrenArray(returnFiber, currentFirstChild, newChild, lanes);
                 }
                 if (getIteratorFn(newChild)) {
@@ -13426,7 +13426,7 @@
           }
           function checkDepsAreArrayDev(deps) {
             {
-              if (deps !== void 0 && deps !== null && !isArray2(deps)) {
+              if (deps !== void 0 && deps !== null && !isArray3(deps)) {
                 error("%s received a final argument that is not an array (instead, received `%s`). When specified, the final argument must be an array.", currentHookNameInDev, typeof deps);
               }
             }
@@ -13482,7 +13482,7 @@
             }
             return true;
           }
-          function renderWithHooks(current2, workInProgress2, Component, props, secondArg, nextRenderLanes) {
+          function renderWithHooks(current2, workInProgress2, Component3, props, secondArg, nextRenderLanes) {
             renderLanes = nextRenderLanes;
             currentlyRenderingFiber$1 = workInProgress2;
             {
@@ -13502,7 +13502,7 @@
                 ReactCurrentDispatcher$1.current = HooksDispatcherOnMountInDEV;
               }
             }
-            var children = Component(props, secondArg);
+            var children = Component3(props, secondArg);
             if (didScheduleRenderPhaseUpdateDuringThisPass) {
               var numberOfReRenders = 0;
               do {
@@ -13522,7 +13522,7 @@
                   hookTypesUpdateIndexDev = -1;
                 }
                 ReactCurrentDispatcher$1.current = HooksDispatcherOnRerenderInDEV;
-                children = Component(props, secondArg);
+                children = Component3(props, secondArg);
               } while (didScheduleRenderPhaseUpdateDuringThisPass);
             }
             ReactCurrentDispatcher$1.current = ContextOnlyDispatcher;
@@ -14208,7 +14208,7 @@
               return value;
             }
           }
-          function startTransition(setPending, callback, options2) {
+          function startTransition(setPending, callback, options3) {
             var previousPriority = getCurrentUpdatePriority();
             setCurrentUpdatePriority(higherEventPriority(previousPriority, ContinuousEventPriority));
             setPending(true);
@@ -15321,13 +15321,13 @@
               child = child.sibling;
             }
           }
-          function resolveDefaultProps(Component, baseProps) {
-            if (Component && Component.defaultProps) {
+          function resolveDefaultProps(Component3, baseProps) {
+            if (Component3 && Component3.defaultProps) {
               var props = assign2({}, baseProps);
-              var defaultProps = Component.defaultProps;
-              for (var propName in defaultProps) {
+              var defaultProps2 = Component3.defaultProps;
+              for (var propName in defaultProps2) {
                 if (props[propName] === void 0) {
-                  props[propName] = defaultProps[propName];
+                  props[propName] = defaultProps2[propName];
                 }
               }
               return props;
@@ -15580,7 +15580,7 @@
                 error("%s: getSnapshotBeforeUpdate() is defined as a static method and will be ignored. Instead, declare it as an instance method.", name);
               }
               var _state = instance.state;
-              if (_state && (typeof _state !== "object" || isArray2(_state))) {
+              if (_state && (typeof _state !== "object" || isArray3(_state))) {
                 error("%s.state: must be set to an object or null", name);
               }
               if (typeof instance.getChildContext === "function" && typeof ctor.childContextTypes !== "object") {
@@ -16253,22 +16253,22 @@
             workInProgress2.child = reconcileChildFibers(workInProgress2, current2.child, null, renderLanes2);
             workInProgress2.child = reconcileChildFibers(workInProgress2, null, nextChildren, renderLanes2);
           }
-          function updateForwardRef(current2, workInProgress2, Component, nextProps, renderLanes2) {
+          function updateForwardRef(current2, workInProgress2, Component3, nextProps, renderLanes2) {
             {
               if (workInProgress2.type !== workInProgress2.elementType) {
-                var innerPropTypes = Component.propTypes;
+                var innerPropTypes = Component3.propTypes;
                 if (innerPropTypes) {
                   checkPropTypes(
                     innerPropTypes,
                     nextProps,
                     // Resolved props
                     "prop",
-                    getComponentNameFromType(Component)
+                    getComponentNameFromType(Component3)
                   );
                 }
               }
             }
-            var render2 = Component.render;
+            var render2 = Component3.render;
             var ref = workInProgress2.ref;
             var nextChildren;
             var hasId;
@@ -16306,11 +16306,11 @@
             reconcileChildren(current2, workInProgress2, nextChildren, renderLanes2);
             return workInProgress2.child;
           }
-          function updateMemoComponent(current2, workInProgress2, Component, nextProps, renderLanes2) {
+          function updateMemoComponent(current2, workInProgress2, Component3, nextProps, renderLanes2) {
             if (current2 === null) {
-              var type = Component.type;
-              if (isSimpleFunctionComponent(type) && Component.compare === null && // SimpleMemoComponent codepath doesn't resolve outer props either.
-              Component.defaultProps === void 0) {
+              var type = Component3.type;
+              if (isSimpleFunctionComponent(type) && Component3.compare === null && // SimpleMemoComponent codepath doesn't resolve outer props either.
+              Component3.defaultProps === void 0) {
                 var resolvedType = type;
                 {
                   resolvedType = resolveFunctionForHotReloading(type);
@@ -16333,7 +16333,7 @@
                     getComponentNameFromType(type)
                   );
                 }
-                if (Component.defaultProps !== void 0) {
+                if (Component3.defaultProps !== void 0) {
                   var componentName = getComponentNameFromType(type) || "Unknown";
                   if (!didWarnAboutDefaultPropsOnFunctionComponent[componentName]) {
                     error("%s: Support for defaultProps will be removed from memo components in a future major release. Use JavaScript default parameters instead.", componentName);
@@ -16341,14 +16341,14 @@
                   }
                 }
               }
-              var child = createFiberFromTypeAndProps(Component.type, null, nextProps, workInProgress2, workInProgress2.mode, renderLanes2);
+              var child = createFiberFromTypeAndProps(Component3.type, null, nextProps, workInProgress2, workInProgress2.mode, renderLanes2);
               child.ref = workInProgress2.ref;
               child.return = workInProgress2;
               workInProgress2.child = child;
               return child;
             }
             {
-              var _type = Component.type;
+              var _type = Component3.type;
               var _innerPropTypes = _type.propTypes;
               if (_innerPropTypes) {
                 checkPropTypes(
@@ -16364,7 +16364,7 @@
             var hasScheduledUpdateOrContext = checkScheduledUpdateOrContext(current2, renderLanes2);
             if (!hasScheduledUpdateOrContext) {
               var prevProps = currentChild.memoizedProps;
-              var compare = Component.compare;
+              var compare = Component3.compare;
               compare = compare !== null ? compare : shallowEqual;
               if (compare(prevProps, nextProps) && current2.ref === workInProgress2.ref) {
                 return bailoutOnAlreadyFinishedWork(current2, workInProgress2, renderLanes2);
@@ -16377,7 +16377,7 @@
             workInProgress2.child = newChild;
             return newChild;
           }
-          function updateSimpleMemoComponent(current2, workInProgress2, Component, nextProps, renderLanes2) {
+          function updateSimpleMemoComponent(current2, workInProgress2, Component3, nextProps, renderLanes2) {
             {
               if (workInProgress2.type !== workInProgress2.elementType) {
                 var outerMemoType = workInProgress2.elementType;
@@ -16417,7 +16417,7 @@
                 }
               }
             }
-            return updateFunctionComponent(current2, workInProgress2, Component, nextProps, renderLanes2);
+            return updateFunctionComponent(current2, workInProgress2, Component3, nextProps, renderLanes2);
           }
           function updateOffscreenComponent(current2, workInProgress2, renderLanes2) {
             var nextProps = workInProgress2.pendingProps;
@@ -16507,24 +16507,24 @@
               }
             }
           }
-          function updateFunctionComponent(current2, workInProgress2, Component, nextProps, renderLanes2) {
+          function updateFunctionComponent(current2, workInProgress2, Component3, nextProps, renderLanes2) {
             {
               if (workInProgress2.type !== workInProgress2.elementType) {
-                var innerPropTypes = Component.propTypes;
+                var innerPropTypes = Component3.propTypes;
                 if (innerPropTypes) {
                   checkPropTypes(
                     innerPropTypes,
                     nextProps,
                     // Resolved props
                     "prop",
-                    getComponentNameFromType(Component)
+                    getComponentNameFromType(Component3)
                   );
                 }
               }
             }
             var context;
             {
-              var unmaskedContext = getUnmaskedContext(workInProgress2, Component, true);
+              var unmaskedContext = getUnmaskedContext(workInProgress2, Component3, true);
               context = getMaskedContext(workInProgress2, unmaskedContext);
             }
             var nextChildren;
@@ -16536,12 +16536,12 @@
             {
               ReactCurrentOwner$1.current = workInProgress2;
               setIsRendering(true);
-              nextChildren = renderWithHooks(current2, workInProgress2, Component, nextProps, context, renderLanes2);
+              nextChildren = renderWithHooks(current2, workInProgress2, Component3, nextProps, context, renderLanes2);
               hasId = checkDidRenderIdHook();
               if (workInProgress2.mode & StrictLegacyMode) {
                 setIsStrictModeForDevtools(true);
                 try {
-                  nextChildren = renderWithHooks(current2, workInProgress2, Component, nextProps, context, renderLanes2);
+                  nextChildren = renderWithHooks(current2, workInProgress2, Component3, nextProps, context, renderLanes2);
                   hasId = checkDidRenderIdHook();
                 } finally {
                   setIsStrictModeForDevtools(false);
@@ -16563,7 +16563,7 @@
             reconcileChildren(current2, workInProgress2, nextChildren, renderLanes2);
             return workInProgress2.child;
           }
-          function updateClassComponent(current2, workInProgress2, Component, nextProps, renderLanes2) {
+          function updateClassComponent(current2, workInProgress2, Component3, nextProps, renderLanes2) {
             {
               switch (shouldError(workInProgress2)) {
                 case false: {
@@ -16586,20 +16586,20 @@
                 }
               }
               if (workInProgress2.type !== workInProgress2.elementType) {
-                var innerPropTypes = Component.propTypes;
+                var innerPropTypes = Component3.propTypes;
                 if (innerPropTypes) {
                   checkPropTypes(
                     innerPropTypes,
                     nextProps,
                     // Resolved props
                     "prop",
-                    getComponentNameFromType(Component)
+                    getComponentNameFromType(Component3)
                   );
                 }
               }
             }
             var hasContext;
-            if (isContextProvider(Component)) {
+            if (isContextProvider(Component3)) {
               hasContext = true;
               pushContextProvider(workInProgress2);
             } else {
@@ -16610,15 +16610,15 @@
             var shouldUpdate;
             if (instance === null) {
               resetSuspendedCurrentOnMountInLegacyMode(current2, workInProgress2);
-              constructClassInstance(workInProgress2, Component, nextProps);
-              mountClassInstance(workInProgress2, Component, nextProps, renderLanes2);
+              constructClassInstance(workInProgress2, Component3, nextProps);
+              mountClassInstance(workInProgress2, Component3, nextProps, renderLanes2);
               shouldUpdate = true;
             } else if (current2 === null) {
-              shouldUpdate = resumeMountClassInstance(workInProgress2, Component, nextProps, renderLanes2);
+              shouldUpdate = resumeMountClassInstance(workInProgress2, Component3, nextProps, renderLanes2);
             } else {
-              shouldUpdate = updateClassInstance(current2, workInProgress2, Component, nextProps, renderLanes2);
+              shouldUpdate = updateClassInstance(current2, workInProgress2, Component3, nextProps, renderLanes2);
             }
-            var nextUnitOfWork = finishClassComponent(current2, workInProgress2, Component, shouldUpdate, hasContext, renderLanes2);
+            var nextUnitOfWork = finishClassComponent(current2, workInProgress2, Component3, shouldUpdate, hasContext, renderLanes2);
             {
               var inst = workInProgress2.stateNode;
               if (shouldUpdate && inst.props !== nextProps) {
@@ -16630,19 +16630,19 @@
             }
             return nextUnitOfWork;
           }
-          function finishClassComponent(current2, workInProgress2, Component, shouldUpdate, hasContext, renderLanes2) {
+          function finishClassComponent(current2, workInProgress2, Component3, shouldUpdate, hasContext, renderLanes2) {
             markRef(current2, workInProgress2);
             var didCaptureError = (workInProgress2.flags & DidCapture) !== NoFlags;
             if (!shouldUpdate && !didCaptureError) {
               if (hasContext) {
-                invalidateContextProvider(workInProgress2, Component, false);
+                invalidateContextProvider(workInProgress2, Component3, false);
               }
               return bailoutOnAlreadyFinishedWork(current2, workInProgress2, renderLanes2);
             }
             var instance = workInProgress2.stateNode;
             ReactCurrentOwner$1.current = workInProgress2;
             var nextChildren;
-            if (didCaptureError && typeof Component.getDerivedStateFromError !== "function") {
+            if (didCaptureError && typeof Component3.getDerivedStateFromError !== "function") {
               nextChildren = null;
               {
                 stopProfilerTimerIfRunning();
@@ -16676,7 +16676,7 @@
             }
             workInProgress2.memoizedState = instance.state;
             if (hasContext) {
-              invalidateContextProvider(workInProgress2, Component, true);
+              invalidateContextProvider(workInProgress2, Component3, true);
             }
             return workInProgress2.child;
           }
@@ -16776,45 +16776,45 @@
             var lazyComponent = elementType;
             var payload = lazyComponent._payload;
             var init = lazyComponent._init;
-            var Component = init(payload);
-            workInProgress2.type = Component;
-            var resolvedTag = workInProgress2.tag = resolveLazyComponentTag(Component);
-            var resolvedProps = resolveDefaultProps(Component, props);
+            var Component3 = init(payload);
+            workInProgress2.type = Component3;
+            var resolvedTag = workInProgress2.tag = resolveLazyComponentTag(Component3);
+            var resolvedProps = resolveDefaultProps(Component3, props);
             var child;
             switch (resolvedTag) {
               case FunctionComponent: {
                 {
-                  validateFunctionComponentInDev(workInProgress2, Component);
-                  workInProgress2.type = Component = resolveFunctionForHotReloading(Component);
+                  validateFunctionComponentInDev(workInProgress2, Component3);
+                  workInProgress2.type = Component3 = resolveFunctionForHotReloading(Component3);
                 }
-                child = updateFunctionComponent(null, workInProgress2, Component, resolvedProps, renderLanes2);
+                child = updateFunctionComponent(null, workInProgress2, Component3, resolvedProps, renderLanes2);
                 return child;
               }
               case ClassComponent: {
                 {
-                  workInProgress2.type = Component = resolveClassForHotReloading(Component);
+                  workInProgress2.type = Component3 = resolveClassForHotReloading(Component3);
                 }
-                child = updateClassComponent(null, workInProgress2, Component, resolvedProps, renderLanes2);
+                child = updateClassComponent(null, workInProgress2, Component3, resolvedProps, renderLanes2);
                 return child;
               }
               case ForwardRef: {
                 {
-                  workInProgress2.type = Component = resolveForwardRefForHotReloading(Component);
+                  workInProgress2.type = Component3 = resolveForwardRefForHotReloading(Component3);
                 }
-                child = updateForwardRef(null, workInProgress2, Component, resolvedProps, renderLanes2);
+                child = updateForwardRef(null, workInProgress2, Component3, resolvedProps, renderLanes2);
                 return child;
               }
               case MemoComponent: {
                 {
                   if (workInProgress2.type !== workInProgress2.elementType) {
-                    var outerPropTypes = Component.propTypes;
+                    var outerPropTypes = Component3.propTypes;
                     if (outerPropTypes) {
                       checkPropTypes(
                         outerPropTypes,
                         resolvedProps,
                         // Resolved for outer only
                         "prop",
-                        getComponentNameFromType(Component)
+                        getComponentNameFromType(Component3)
                       );
                     }
                   }
@@ -16822,8 +16822,8 @@
                 child = updateMemoComponent(
                   null,
                   workInProgress2,
-                  Component,
-                  resolveDefaultProps(Component.type, resolvedProps),
+                  Component3,
+                  resolveDefaultProps(Component3.type, resolvedProps),
                   // The inner type can have defaults too
                   renderLanes2
                 );
@@ -16832,33 +16832,33 @@
             }
             var hint = "";
             {
-              if (Component !== null && typeof Component === "object" && Component.$$typeof === REACT_LAZY_TYPE) {
+              if (Component3 !== null && typeof Component3 === "object" && Component3.$$typeof === REACT_LAZY_TYPE) {
                 hint = " Did you wrap a component in React.lazy() more than once?";
               }
             }
-            throw new Error("Element type is invalid. Received a promise that resolves to: " + Component + ". " + ("Lazy element type must resolve to a class or function." + hint));
+            throw new Error("Element type is invalid. Received a promise that resolves to: " + Component3 + ". " + ("Lazy element type must resolve to a class or function." + hint));
           }
-          function mountIncompleteClassComponent(_current, workInProgress2, Component, nextProps, renderLanes2) {
+          function mountIncompleteClassComponent(_current, workInProgress2, Component3, nextProps, renderLanes2) {
             resetSuspendedCurrentOnMountInLegacyMode(_current, workInProgress2);
             workInProgress2.tag = ClassComponent;
             var hasContext;
-            if (isContextProvider(Component)) {
+            if (isContextProvider(Component3)) {
               hasContext = true;
               pushContextProvider(workInProgress2);
             } else {
               hasContext = false;
             }
             prepareToReadContext(workInProgress2, renderLanes2);
-            constructClassInstance(workInProgress2, Component, nextProps);
-            mountClassInstance(workInProgress2, Component, nextProps, renderLanes2);
-            return finishClassComponent(null, workInProgress2, Component, true, hasContext, renderLanes2);
+            constructClassInstance(workInProgress2, Component3, nextProps);
+            mountClassInstance(workInProgress2, Component3, nextProps, renderLanes2);
+            return finishClassComponent(null, workInProgress2, Component3, true, hasContext, renderLanes2);
           }
-          function mountIndeterminateComponent(_current, workInProgress2, Component, renderLanes2) {
+          function mountIndeterminateComponent(_current, workInProgress2, Component3, renderLanes2) {
             resetSuspendedCurrentOnMountInLegacyMode(_current, workInProgress2);
             var props = workInProgress2.pendingProps;
             var context;
             {
-              var unmaskedContext = getUnmaskedContext(workInProgress2, Component, false);
+              var unmaskedContext = getUnmaskedContext(workInProgress2, Component3, false);
               context = getMaskedContext(workInProgress2, unmaskedContext);
             }
             prepareToReadContext(workInProgress2, renderLanes2);
@@ -16868,8 +16868,8 @@
               markComponentRenderStarted(workInProgress2);
             }
             {
-              if (Component.prototype && typeof Component.prototype.render === "function") {
-                var componentName = getComponentNameFromType(Component) || "Unknown";
+              if (Component3.prototype && typeof Component3.prototype.render === "function") {
+                var componentName = getComponentNameFromType(Component3) || "Unknown";
                 if (!didWarnAboutBadClass[componentName]) {
                   error("The <%s /> component appears to have a render method, but doesn't extend React.Component. This is likely to cause errors. Change %s to extend React.Component instead.", componentName, componentName);
                   didWarnAboutBadClass[componentName] = true;
@@ -16880,7 +16880,7 @@
               }
               setIsRendering(true);
               ReactCurrentOwner$1.current = workInProgress2;
-              value = renderWithHooks(null, workInProgress2, Component, props, context, renderLanes2);
+              value = renderWithHooks(null, workInProgress2, Component3, props, context, renderLanes2);
               hasId = checkDidRenderIdHook();
               setIsRendering(false);
             }
@@ -16890,7 +16890,7 @@
             workInProgress2.flags |= PerformedWork;
             {
               if (typeof value === "object" && value !== null && typeof value.render === "function" && value.$$typeof === void 0) {
-                var _componentName = getComponentNameFromType(Component) || "Unknown";
+                var _componentName = getComponentNameFromType(Component3) || "Unknown";
                 if (!didWarnAboutModulePatternComponent[_componentName]) {
                   error("The <%s /> component appears to be a function component that returns a class instance. Change %s to a class that extends React.Component instead. If you can't use a class try assigning the prototype on the function as a workaround. `%s.prototype = React.Component.prototype`. Don't use an arrow function since it cannot be called with `new` by React.", _componentName, _componentName, _componentName);
                   didWarnAboutModulePatternComponent[_componentName] = true;
@@ -16903,7 +16903,7 @@
               typeof value === "object" && value !== null && typeof value.render === "function" && value.$$typeof === void 0
             ) {
               {
-                var _componentName2 = getComponentNameFromType(Component) || "Unknown";
+                var _componentName2 = getComponentNameFromType(Component3) || "Unknown";
                 if (!didWarnAboutModulePatternComponent[_componentName2]) {
                   error("The <%s /> component appears to be a function component that returns a class instance. Change %s to a class that extends React.Component instead. If you can't use a class try assigning the prototype on the function as a workaround. `%s.prototype = React.Component.prototype`. Don't use an arrow function since it cannot be called with `new` by React.", _componentName2, _componentName2, _componentName2);
                   didWarnAboutModulePatternComponent[_componentName2] = true;
@@ -16913,7 +16913,7 @@
               workInProgress2.memoizedState = null;
               workInProgress2.updateQueue = null;
               var hasContext = false;
-              if (isContextProvider(Component)) {
+              if (isContextProvider(Component3)) {
                 hasContext = true;
                 pushContextProvider(workInProgress2);
               } else {
@@ -16922,15 +16922,15 @@
               workInProgress2.memoizedState = value.state !== null && value.state !== void 0 ? value.state : null;
               initializeUpdateQueue(workInProgress2);
               adoptClassInstance(workInProgress2, value);
-              mountClassInstance(workInProgress2, Component, props, renderLanes2);
-              return finishClassComponent(null, workInProgress2, Component, true, hasContext, renderLanes2);
+              mountClassInstance(workInProgress2, Component3, props, renderLanes2);
+              return finishClassComponent(null, workInProgress2, Component3, true, hasContext, renderLanes2);
             } else {
               workInProgress2.tag = FunctionComponent;
               {
                 if (workInProgress2.mode & StrictLegacyMode) {
                   setIsStrictModeForDevtools(true);
                   try {
-                    value = renderWithHooks(null, workInProgress2, Component, props, context, renderLanes2);
+                    value = renderWithHooks(null, workInProgress2, Component3, props, context, renderLanes2);
                     hasId = checkDidRenderIdHook();
                   } finally {
                     setIsStrictModeForDevtools(false);
@@ -16942,16 +16942,16 @@
               }
               reconcileChildren(null, workInProgress2, value, renderLanes2);
               {
-                validateFunctionComponentInDev(workInProgress2, Component);
+                validateFunctionComponentInDev(workInProgress2, Component3);
               }
               return workInProgress2.child;
             }
           }
-          function validateFunctionComponentInDev(workInProgress2, Component) {
+          function validateFunctionComponentInDev(workInProgress2, Component3) {
             {
-              if (Component) {
-                if (Component.childContextTypes) {
-                  error("%s(...): childContextTypes cannot be defined on a function component.", Component.displayName || Component.name || "Component");
+              if (Component3) {
+                if (Component3.childContextTypes) {
+                  error("%s(...): childContextTypes cannot be defined on a function component.", Component3.displayName || Component3.name || "Component");
                 }
               }
               if (workInProgress2.ref !== null) {
@@ -16970,22 +16970,22 @@
                   error("Function components cannot be given refs. Attempts to access this ref will fail. Did you mean to use React.forwardRef()?%s", info);
                 }
               }
-              if (Component.defaultProps !== void 0) {
-                var componentName = getComponentNameFromType(Component) || "Unknown";
+              if (Component3.defaultProps !== void 0) {
+                var componentName = getComponentNameFromType(Component3) || "Unknown";
                 if (!didWarnAboutDefaultPropsOnFunctionComponent[componentName]) {
                   error("%s: Support for defaultProps will be removed from function components in a future major release. Use JavaScript default parameters instead.", componentName);
                   didWarnAboutDefaultPropsOnFunctionComponent[componentName] = true;
                 }
               }
-              if (typeof Component.getDerivedStateFromProps === "function") {
-                var _componentName3 = getComponentNameFromType(Component) || "Unknown";
+              if (typeof Component3.getDerivedStateFromProps === "function") {
+                var _componentName3 = getComponentNameFromType(Component3) || "Unknown";
                 if (!didWarnAboutGetDerivedStateOnFunctionComponent[_componentName3]) {
                   error("%s: Function components do not support getDerivedStateFromProps.", _componentName3);
                   didWarnAboutGetDerivedStateOnFunctionComponent[_componentName3] = true;
                 }
               }
-              if (typeof Component.contextType === "object" && Component.contextType !== null) {
-                var _componentName4 = getComponentNameFromType(Component) || "Unknown";
+              if (typeof Component3.contextType === "object" && Component3.contextType !== null) {
+                var _componentName4 = getComponentNameFromType(Component3) || "Unknown";
                 if (!didWarnAboutContextTypeOnFunctionComponent[_componentName4]) {
                   error("%s: Function components do not support contextType.", _componentName4);
                   didWarnAboutContextTypeOnFunctionComponent[_componentName4] = true;
@@ -17422,13 +17422,13 @@
               }
             }
           }
-          function validateSuspenseListNestedChild(childSlot, index2) {
+          function validateSuspenseListNestedChild(childSlot, index3) {
             {
-              var isAnArray = isArray2(childSlot);
+              var isAnArray = isArray3(childSlot);
               var isIterable = !isAnArray && typeof getIteratorFn(childSlot) === "function";
               if (isAnArray || isIterable) {
                 var type = isAnArray ? "array" : "iterable";
-                error("A nested %s was passed to row #%s in <SuspenseList />. Wrap it in an additional SuspenseList to configure its revealOrder: <SuspenseList revealOrder=...> ... <SuspenseList revealOrder=...>{%s}</SuspenseList> ... </SuspenseList>", type, index2, type);
+                error("A nested %s was passed to row #%s in <SuspenseList />. Wrap it in an additional SuspenseList to configure its revealOrder: <SuspenseList revealOrder=...> ... <SuspenseList revealOrder=...>{%s}</SuspenseList> ... </SuspenseList>", type, index3, type);
                 return false;
               }
             }
@@ -17437,7 +17437,7 @@
           function validateSuspenseListChildren(children, revealOrder) {
             {
               if ((revealOrder === "forwards" || revealOrder === "backwards") && children !== void 0 && children !== null && children !== false) {
-                if (isArray2(children)) {
+                if (isArray3(children)) {
                   for (var i = 0; i < children.length; i++) {
                     if (!validateSuspenseListNestedChild(children[i], i)) {
                       return;
@@ -17747,8 +17747,8 @@
                 pushHostContext(workInProgress2);
                 break;
               case ClassComponent: {
-                var Component = workInProgress2.type;
-                if (isContextProvider(Component)) {
+                var Component3 = workInProgress2.type;
+                if (isContextProvider(Component3)) {
                   pushContextProvider(workInProgress2);
                 }
                 break;
@@ -17875,10 +17875,10 @@
                 return mountLazyComponent(current2, workInProgress2, elementType, renderLanes2);
               }
               case FunctionComponent: {
-                var Component = workInProgress2.type;
+                var Component3 = workInProgress2.type;
                 var unresolvedProps = workInProgress2.pendingProps;
-                var resolvedProps = workInProgress2.elementType === Component ? unresolvedProps : resolveDefaultProps(Component, unresolvedProps);
-                return updateFunctionComponent(current2, workInProgress2, Component, resolvedProps, renderLanes2);
+                var resolvedProps = workInProgress2.elementType === Component3 ? unresolvedProps : resolveDefaultProps(Component3, unresolvedProps);
+                return updateFunctionComponent(current2, workInProgress2, Component3, resolvedProps, renderLanes2);
               }
               case ClassComponent: {
                 var _Component = workInProgress2.type;
@@ -17902,7 +17902,7 @@
                 var _resolvedProps2 = workInProgress2.elementType === type ? _unresolvedProps2 : resolveDefaultProps(type, _unresolvedProps2);
                 return updateForwardRef(current2, workInProgress2, type, _resolvedProps2, renderLanes2);
               }
-              case Fragment3:
+              case Fragment6:
                 return updateFragment(current2, workInProgress2, renderLanes2);
               case Mode:
                 return updateMode(current2, workInProgress2, renderLanes2);
@@ -18174,7 +18174,7 @@
               case SimpleMemoComponent:
               case FunctionComponent:
               case ForwardRef:
-              case Fragment3:
+              case Fragment6:
               case Mode:
               case Profiler:
               case ContextConsumer:
@@ -18182,8 +18182,8 @@
                 bubbleProperties(workInProgress2);
                 return null;
               case ClassComponent: {
-                var Component = workInProgress2.type;
-                if (isContextProvider(Component)) {
+                var Component3 = workInProgress2.type;
+                if (isContextProvider(Component3)) {
                   popContext(workInProgress2);
                 }
                 bubbleProperties(workInProgress2);
@@ -18501,8 +18501,8 @@
             popTreeContext(workInProgress2);
             switch (workInProgress2.tag) {
               case ClassComponent: {
-                var Component = workInProgress2.type;
-                if (isContextProvider(Component)) {
+                var Component3 = workInProgress2.type;
+                if (isContextProvider(Component3)) {
                   popContext(workInProgress2);
                 }
                 var flags = workInProgress2.flags;
@@ -22187,18 +22187,18 @@
           var createFiber = function(tag, pendingProps, key, mode) {
             return new FiberNode(tag, pendingProps, key, mode);
           };
-          function shouldConstruct$1(Component) {
-            var prototype2 = Component.prototype;
+          function shouldConstruct$1(Component3) {
+            var prototype2 = Component3.prototype;
             return !!(prototype2 && prototype2.isReactComponent);
           }
           function isSimpleFunctionComponent(type) {
             return typeof type === "function" && !shouldConstruct$1(type) && type.defaultProps === void 0;
           }
-          function resolveLazyComponentTag(Component) {
-            if (typeof Component === "function") {
-              return shouldConstruct$1(Component) ? ClassComponent : FunctionComponent;
-            } else if (Component !== void 0 && Component !== null) {
-              var $$typeof = Component.$$typeof;
+          function resolveLazyComponentTag(Component3) {
+            if (typeof Component3 === "function") {
+              return shouldConstruct$1(Component3) ? ClassComponent : FunctionComponent;
+            } else if (Component3 !== void 0 && Component3 !== null) {
+              var $$typeof = Component3.$$typeof;
               if ($$typeof === REACT_FORWARD_REF_TYPE) {
                 return ForwardRef;
               }
@@ -22435,7 +22435,7 @@
             return fiber;
           }
           function createFiberFromFragment(elements, mode, lanes, key) {
-            var fiber = createFiber(Fragment3, elements, key, mode);
+            var fiber = createFiber(Fragment6, elements, key, mode);
             fiber.lanes = lanes;
             return fiber;
           }
@@ -22612,7 +22612,7 @@
             return root3;
           }
           var ReactVersion = "18.3.1";
-          function createPortal3(children, containerInfo, implementation) {
+          function createPortal4(children, containerInfo, implementation) {
             var key = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : null;
             {
               checkKeyStringCoercion(key);
@@ -22639,9 +22639,9 @@
             var fiber = get(parentComponent);
             var parentContext = findCurrentUnmaskedContext(fiber);
             if (fiber.tag === ClassComponent) {
-              var Component = fiber.type;
-              if (isContextProvider(Component)) {
-                return processChildContext(fiber, Component, parentContext);
+              var Component3 = fiber.type;
+              if (isContextProvider(Component3)) {
+                return processChildContext(fiber, Component3, parentContext);
               }
             }
             return parentContext;
@@ -22847,30 +22847,30 @@
           var setErrorHandler = null;
           var setSuspenseHandler = null;
           {
-            var copyWithDeleteImpl = function(obj, path, index2) {
-              var key = path[index2];
-              var updated = isArray2(obj) ? obj.slice() : assign2({}, obj);
-              if (index2 + 1 === path.length) {
-                if (isArray2(updated)) {
+            var copyWithDeleteImpl = function(obj, path, index3) {
+              var key = path[index3];
+              var updated = isArray3(obj) ? obj.slice() : assign2({}, obj);
+              if (index3 + 1 === path.length) {
+                if (isArray3(updated)) {
                   updated.splice(key, 1);
                 } else {
                   delete updated[key];
                 }
                 return updated;
               }
-              updated[key] = copyWithDeleteImpl(obj[key], path, index2 + 1);
+              updated[key] = copyWithDeleteImpl(obj[key], path, index3 + 1);
               return updated;
             };
             var copyWithDelete = function(obj, path) {
               return copyWithDeleteImpl(obj, path, 0);
             };
-            var copyWithRenameImpl = function(obj, oldPath, newPath, index2) {
-              var oldKey = oldPath[index2];
-              var updated = isArray2(obj) ? obj.slice() : assign2({}, obj);
-              if (index2 + 1 === oldPath.length) {
-                var newKey = newPath[index2];
+            var copyWithRenameImpl = function(obj, oldPath, newPath, index3) {
+              var oldKey = oldPath[index3];
+              var updated = isArray3(obj) ? obj.slice() : assign2({}, obj);
+              if (index3 + 1 === oldPath.length) {
+                var newKey = newPath[index3];
                 updated[newKey] = updated[oldKey];
-                if (isArray2(updated)) {
+                if (isArray3(updated)) {
                   updated.splice(oldKey, 1);
                 } else {
                   delete updated[oldKey];
@@ -22881,7 +22881,7 @@
                   obj[oldKey],
                   oldPath,
                   newPath,
-                  index2 + 1
+                  index3 + 1
                 );
               }
               return updated;
@@ -22900,13 +22900,13 @@
               }
               return copyWithRenameImpl(obj, oldPath, newPath, 0);
             };
-            var copyWithSetImpl = function(obj, path, index2, value) {
-              if (index2 >= path.length) {
+            var copyWithSetImpl = function(obj, path, index3, value) {
+              if (index3 >= path.length) {
                 return value;
               }
-              var key = path[index2];
-              var updated = isArray2(obj) ? obj.slice() : assign2({}, obj);
-              updated[key] = copyWithSetImpl(obj[key], path, index2 + 1, value);
+              var key = path[index3];
+              var updated = isArray3(obj) ? obj.slice() : assign2({}, obj);
+              updated[key] = copyWithSetImpl(obj[key], path, index3 + 1, value);
               return updated;
             };
             var copyWithSet = function(obj, path, value) {
@@ -23103,7 +23103,7 @@
               unmarkContainerAsRoot(container2);
             }
           };
-          function createRoot2(container2, options2) {
+          function createRoot2(container2, options3) {
             if (!isValidContainer(container2)) {
               throw new Error("createRoot(...): Target container is not a DOM element.");
             }
@@ -23113,27 +23113,27 @@
             var identifierPrefix = "";
             var onRecoverableError = defaultOnRecoverableError;
             var transitionCallbacks = null;
-            if (options2 !== null && options2 !== void 0) {
+            if (options3 !== null && options3 !== void 0) {
               {
-                if (options2.hydrate) {
+                if (options3.hydrate) {
                   warn("hydrate through createRoot is deprecated. Use ReactDOMClient.hydrateRoot(container, <App />) instead.");
                 } else {
-                  if (typeof options2 === "object" && options2 !== null && options2.$$typeof === REACT_ELEMENT_TYPE) {
+                  if (typeof options3 === "object" && options3 !== null && options3.$$typeof === REACT_ELEMENT_TYPE) {
                     error("You passed a JSX element to createRoot. You probably meant to call root.render instead. Example usage:\n\n  let root = createRoot(domContainer);\n  root.render(<App />);");
                   }
                 }
               }
-              if (options2.unstable_strictMode === true) {
+              if (options3.unstable_strictMode === true) {
                 isStrictMode = true;
               }
-              if (options2.identifierPrefix !== void 0) {
-                identifierPrefix = options2.identifierPrefix;
+              if (options3.identifierPrefix !== void 0) {
+                identifierPrefix = options3.identifierPrefix;
               }
-              if (options2.onRecoverableError !== void 0) {
-                onRecoverableError = options2.onRecoverableError;
+              if (options3.onRecoverableError !== void 0) {
+                onRecoverableError = options3.onRecoverableError;
               }
-              if (options2.transitionCallbacks !== void 0) {
-                transitionCallbacks = options2.transitionCallbacks;
+              if (options3.transitionCallbacks !== void 0) {
+                transitionCallbacks = options3.transitionCallbacks;
               }
             }
             var root3 = createContainer3(container2, ConcurrentRoot, null, isStrictMode, concurrentUpdatesByDefaultOverride, identifierPrefix, onRecoverableError);
@@ -23151,7 +23151,7 @@
             }
           }
           ReactDOMHydrationRoot.prototype.unstable_scheduleHydration = scheduleHydration;
-          function hydrateRoot(container2, initialChildren, options2) {
+          function hydrateRoot(container2, initialChildren, options3) {
             if (!isValidContainer(container2)) {
               throw new Error("hydrateRoot(...): Target container is not a DOM element.");
             }
@@ -23161,21 +23161,21 @@
                 error("Must provide initial children as second argument to hydrateRoot. Example usage: hydrateRoot(domContainer, <App />)");
               }
             }
-            var hydrationCallbacks = options2 != null ? options2 : null;
-            var mutableSources = options2 != null && options2.hydratedSources || null;
+            var hydrationCallbacks = options3 != null ? options3 : null;
+            var mutableSources = options3 != null && options3.hydratedSources || null;
             var isStrictMode = false;
             var concurrentUpdatesByDefaultOverride = false;
             var identifierPrefix = "";
             var onRecoverableError = defaultOnRecoverableError;
-            if (options2 !== null && options2 !== void 0) {
-              if (options2.unstable_strictMode === true) {
+            if (options3 !== null && options3 !== void 0) {
+              if (options3.unstable_strictMode === true) {
                 isStrictMode = true;
               }
-              if (options2.identifierPrefix !== void 0) {
-                identifierPrefix = options2.identifierPrefix;
+              if (options3.identifierPrefix !== void 0) {
+                identifierPrefix = options3.identifierPrefix;
               }
-              if (options2.onRecoverableError !== void 0) {
-                onRecoverableError = options2.onRecoverableError;
+              if (options3.onRecoverableError !== void 0) {
+                onRecoverableError = options3.onRecoverableError;
               }
             }
             var root3 = createHydrationContainer(initialChildren, null, container2, ConcurrentRoot, hydrationCallbacks, isStrictMode, concurrentUpdatesByDefaultOverride, identifierPrefix, onRecoverableError);
@@ -23469,7 +23469,7 @@
             if (!isValidContainer(container2)) {
               throw new Error("Target container is not a DOM element.");
             }
-            return createPortal3(children, container2, null, key);
+            return createPortal4(children, container2, null, key);
           }
           function renderSubtreeIntoContainer(parentComponent, element, containerNode, callback) {
             return unstable_renderSubtreeIntoContainer(parentComponent, element, containerNode, callback);
@@ -23480,21 +23480,21 @@
             // This is an array for better minification.
             Events: [getInstanceFromNode, getNodeFromInstance, getFiberCurrentPropsFromNode, enqueueStateRestore, restoreStateIfNeeded, batchedUpdates$1]
           };
-          function createRoot$1(container2, options2) {
+          function createRoot$1(container2, options3) {
             {
               if (!Internals.usingClientEntryPoint && true) {
                 error('You are importing createRoot from "react-dom" which is not supported. You should instead import it from "react-dom/client".');
               }
             }
-            return createRoot2(container2, options2);
+            return createRoot2(container2, options3);
           }
-          function hydrateRoot$1(container2, initialChildren, options2) {
+          function hydrateRoot$1(container2, initialChildren, options3) {
             {
               if (!Internals.usingClientEntryPoint && true) {
                 error('You are importing hydrateRoot from "react-dom" which is not supported. You should instead import it from "react-dom/client".');
               }
             }
-            return hydrateRoot(container2, initialChildren, options2);
+            return hydrateRoot(container2, initialChildren, options3);
           }
           function flushSync$1(fn2) {
             {
@@ -23511,7 +23511,7 @@
             rendererPackageName: "react-dom"
           });
           {
-            if (!foundDevTools && canUseDOM2 && window.top === window.self) {
+            if (!foundDevTools && canUseDOM3 && window.top === window.self) {
               if (navigator.userAgent.indexOf("Chrome") > -1 && navigator.userAgent.indexOf("Edge") === -1 || navigator.userAgent.indexOf("Firefox") > -1) {
                 var protocol = window.location.protocol;
                 if (/^(https?|file):$/.test(protocol)) {
@@ -23629,7 +23629,7 @@
         }
         var _global = typeof globalThis !== "undefined" ? globalThis : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : global;
         var keys = Object.keys;
-        var isArray2 = Array.isArray;
+        var isArray3 = Array.isArray;
         if (typeof Promise !== "undefined" && !_global.Promise) {
           _global.Promise = Promise;
         }
@@ -23654,8 +23654,8 @@
           });
         }
         var defineProperty = Object.defineProperty;
-        function setProp(obj, prop, functionOrGetSet, options) {
-          defineProperty(obj, prop, extend(functionOrGetSet && hasOwn2(functionOrGetSet, "get") && typeof functionOrGetSet.get === "function" ? { get: functionOrGetSet.get, set: functionOrGetSet.set, configurable: true } : { value: functionOrGetSet, configurable: true, writable: true }, options));
+        function setProp(obj, prop, functionOrGetSet, options2) {
+          defineProperty(obj, prop, extend(functionOrGetSet && hasOwn2(functionOrGetSet, "get") && typeof functionOrGetSet.get === "function" ? { get: functionOrGetSet.get, set: functionOrGetSet.set, configurable: true } : { value: functionOrGetSet, configurable: true, writable: true }, options2));
         }
         function derive(Child) {
           return {
@@ -23736,7 +23736,7 @@
               var remainingKeyPath = keyPath.substr(period + 1);
               if (remainingKeyPath === "")
                 if (value === void 0) {
-                  if (isArray2(obj) && !isNaN(parseInt(currentKeyPath)))
+                  if (isArray3(obj) && !isNaN(parseInt(currentKeyPath)))
                     obj.splice(currentKeyPath, 1);
                   else
                     delete obj[currentKeyPath];
@@ -23750,7 +23750,7 @@
               }
             } else {
               if (value === void 0) {
-                if (isArray2(obj) && !isNaN(parseInt(keyPath)))
+                if (isArray3(obj) && !isNaN(parseInt(keyPath)))
                   obj.splice(keyPath, 1);
                 else
                   delete obj[keyPath];
@@ -23817,7 +23817,7 @@
           var rv = circularRefs.get(x);
           if (rv)
             return rv;
-          if (isArray2(x)) {
+          if (isArray3(x)) {
             rv = [];
             circularRefs.set(x, rv);
             for (var i = 0, l = x.length; i < l; ++i) {
@@ -23858,7 +23858,7 @@
         function getArrayOf(arrayLike) {
           var i, a, x, it;
           if (arguments.length === 1) {
-            if (isArray2(arrayLike))
+            if (isArray3(arrayLike))
               return arrayLike.slice();
             if (this === NO_CHAR_ARRAY && typeof arrayLike === "string")
               return [arrayLike];
@@ -24885,7 +24885,7 @@
           Table2.prototype.where = function(indexOrCrit) {
             if (typeof indexOrCrit === "string")
               return new this.db.WhereClause(this, indexOrCrit);
-            if (isArray2(indexOrCrit))
+            if (isArray3(indexOrCrit))
               return new this.db.WhereClause(this, "[".concat(indexOrCrit.join("+"), "]"));
             var keyPaths = keys(indexOrCrit);
             if (keyPaths.length === 1)
@@ -24918,13 +24918,13 @@
             }
             var _a3 = keyPaths.reduce(function(_a4, keyPath) {
               var prevIndex = _a4[0], prevFilterFn = _a4[1];
-              var index = idxByName[keyPath];
+              var index2 = idxByName[keyPath];
               var value = indexOrCrit[keyPath];
               return [
-                prevIndex || index,
-                prevIndex || !index ? combine2(prevFilterFn, index && index.multi ? function(x) {
+                prevIndex || index2,
+                prevIndex || !index2 ? combine2(prevFilterFn, index2 && index2.multi ? function(x) {
                   var prop = getByKeyPath(x, keyPath);
-                  return isArray2(prop) && prop.some(function(item) {
+                  return isArray3(prop) && prop.some(function(item) {
                     return equals(value, item);
                   });
                 } : function(x) {
@@ -24940,8 +24940,8 @@
           Table2.prototype.count = function(thenShortcut) {
             return this.toCollection().count(thenShortcut);
           };
-          Table2.prototype.offset = function(offset2) {
-            return this.toCollection().offset(offset2);
+          Table2.prototype.offset = function(offset3) {
+            return this.toCollection().offset(offset3);
           };
           Table2.prototype.limit = function(numRows) {
             return this.toCollection().limit(numRows);
@@ -24955,8 +24955,8 @@
           Table2.prototype.toCollection = function() {
             return new this.db.Collection(new this.db.WhereClause(this));
           };
-          Table2.prototype.orderBy = function(index) {
-            return new this.db.Collection(new this.db.WhereClause(this, isArray2(index) ? "[".concat(index.join("+"), "]") : index));
+          Table2.prototype.orderBy = function(index2) {
+            return new this.db.Collection(new this.db.WhereClause(this, isArray3(index2) ? "[".concat(index2.join("+"), "]") : index2));
           };
           Table2.prototype.reverse = function() {
             return this.toCollection().reverse();
@@ -25036,7 +25036,7 @@
             });
           };
           Table2.prototype.update = function(keyOrObject, modifications) {
-            if (typeof keyOrObject === "object" && !isArray2(keyOrObject)) {
+            if (typeof keyOrObject === "object" && !isArray3(keyOrObject)) {
               var key = getByKeyPath(keyOrObject, this.schema.primKey.keyPath);
               if (key === void 0)
                 return rejection(new exceptions.InvalidArgument("Given object does not contain its primary key"));
@@ -25095,11 +25095,11 @@
               });
             });
           };
-          Table2.prototype.bulkAdd = function(objects, keysOrOptions, options) {
+          Table2.prototype.bulkAdd = function(objects, keysOrOptions, options2) {
             var _this = this;
             var keys2 = Array.isArray(keysOrOptions) ? keysOrOptions : void 0;
-            options = options || (keys2 ? void 0 : keysOrOptions);
-            var wantResults = options ? options.allKeys : void 0;
+            options2 = options2 || (keys2 ? void 0 : keysOrOptions);
+            var wantResults = options2 ? options2.allKeys : void 0;
             return this._trans("readwrite", function(trans) {
               var _a3 = _this.schema.primKey, auto2 = _a3.auto, keyPath = _a3.keyPath;
               if (keyPath && keys2)
@@ -25117,11 +25117,11 @@
               });
             });
           };
-          Table2.prototype.bulkPut = function(objects, keysOrOptions, options) {
+          Table2.prototype.bulkPut = function(objects, keysOrOptions, options2) {
             var _this = this;
             var keys2 = Array.isArray(keysOrOptions) ? keysOrOptions : void 0;
-            options = options || (keys2 ? void 0 : keysOrOptions);
-            var wantResults = options ? options.allKeys : void 0;
+            options2 = options2 || (keys2 ? void 0 : keysOrOptions);
+            var wantResults = options2 ? options2.allKeys : void 0;
             return this._trans("readwrite", function(trans) {
               var _a3 = _this.schema.primKey, auto2 = _a3.auto, keyPath = _a3.keyPath;
               if (keyPath && keys2)
@@ -25188,11 +25188,11 @@
                   if (numFailures === 0)
                     return numEntries;
                   for (var _i = 0, _b = Object.keys(failures); _i < _b.length; _i++) {
-                    var offset2 = _b[_i];
-                    var mappedOffset = offsetMap[Number(offset2)];
+                    var offset3 = _b[_i];
+                    var mappedOffset = offsetMap[Number(offset3)];
                     if (mappedOffset != null) {
-                      var failure = failures[offset2];
-                      delete failures[offset2];
+                      var failure = failures[offset3];
+                      delete failures[offset3];
                       failures[mappedOffset] = failure;
                     }
                   }
@@ -25262,7 +25262,7 @@
           function addConfiguredEvents(cfg) {
             keys(cfg).forEach(function(eventName) {
               var args = cfg[eventName];
-              if (isArray2(args)) {
+              if (isArray3(args)) {
                 add3(eventName, cfg[eventName][0], cfg[eventName][1]);
               } else if (args === "asap") {
                 var context = add3(eventName, mirror, function fire() {
@@ -25317,20 +25317,20 @@
         function getIndexOrStore(ctx, coreSchema) {
           if (ctx.isPrimKey)
             return coreSchema.primaryKey;
-          var index = coreSchema.getIndexByKeyPath(ctx.index);
-          if (!index)
+          var index2 = coreSchema.getIndexByKeyPath(ctx.index);
+          if (!index2)
             throw new exceptions.Schema("KeyPath " + ctx.index + " on object store " + coreSchema.name + " is not indexed");
-          return index;
+          return index2;
         }
         function openCursor(ctx, coreTable, trans) {
-          var index = getIndexOrStore(ctx, coreTable.schema);
+          var index2 = getIndexOrStore(ctx, coreTable.schema);
           return coreTable.openCursor({
             trans,
             values: !ctx.keysOnly,
             reverse: ctx.dir === "prev",
             unique: !!ctx.unique,
             query: {
-              index,
+              index: index2,
               range: ctx.range
             }
           });
@@ -25400,8 +25400,8 @@
             var spec = this["@@propmod"];
             if (spec.add !== void 0) {
               var term = spec.add;
-              if (isArray2(term)) {
-                return __spreadArray2(__spreadArray2([], isArray2(value) ? value : [], true), term, true).sort();
+              if (isArray3(term)) {
+                return __spreadArray2(__spreadArray2([], isArray3(value) ? value : [], true), term, true).sort();
               }
               if (typeof term === "number")
                 return (Number(value) || 0) + term;
@@ -25416,8 +25416,8 @@
             }
             if (spec.remove !== void 0) {
               var subtrahend_1 = spec.remove;
-              if (isArray2(subtrahend_1)) {
-                return isArray2(value) ? value.filter(function(item) {
+              if (isArray3(subtrahend_1)) {
+                return isArray3(value) ? value.filter(function(item) {
                   return !subtrahend_1.includes(item);
                 }).sort() : [];
               }
@@ -25523,13 +25523,13 @@
               var ctx = _this._ctx;
               if (ctx.dir === "next" && isPlainKeyRange(ctx, true) && ctx.limit > 0) {
                 var valueMapper_1 = ctx.valueMapper;
-                var index = getIndexOrStore(ctx, ctx.table.core.schema);
+                var index2 = getIndexOrStore(ctx, ctx.table.core.schema);
                 return ctx.table.core.query({
                   trans,
                   limit: ctx.limit,
                   values: true,
                   query: {
-                    index,
+                    index: index2,
                     range: ctx.range
                   }
                 }).then(function(_a3) {
@@ -25546,14 +25546,14 @@
               }
             }, cb);
           };
-          Collection2.prototype.offset = function(offset2) {
+          Collection2.prototype.offset = function(offset3) {
             var ctx = this._ctx;
-            if (offset2 <= 0)
+            if (offset3 <= 0)
               return this;
-            ctx.offset += offset2;
+            ctx.offset += offset3;
             if (isPlainKeyRange(ctx)) {
               addReplayFilter(ctx, function() {
-                var offsetLeft = offset2;
+                var offsetLeft = offset3;
                 return function(cursor, advance) {
                   if (offsetLeft === 0)
                     return true;
@@ -25570,7 +25570,7 @@
               });
             } else {
               addReplayFilter(ctx, function() {
-                var offsetLeft = offset2;
+                var offsetLeft = offset3;
                 return function() {
                   return --offsetLeft < 0;
                 };
@@ -25663,13 +25663,13 @@
             var ctx = this._ctx;
             if (ctx.dir === "next" && isPlainKeyRange(ctx, true) && ctx.limit > 0) {
               return this._read(function(trans) {
-                var index = getIndexOrStore(ctx, ctx.table.core.schema);
+                var index2 = getIndexOrStore(ctx, ctx.table.core.schema);
                 return ctx.table.core.query({
                   trans,
                   values: false,
                   limit: ctx.limit,
                   query: {
-                    index,
+                    index: index2,
                     range: ctx.range
                   }
                 });
@@ -25765,11 +25765,11 @@
                   index: ctx.index,
                   range: ctx.range
                 };
-                var nextChunk = function(offset2) {
-                  var count = Math.min(limit, keys2.length - offset2);
+                var nextChunk = function(offset3) {
+                  var count = Math.min(limit, keys2.length - offset3);
                   return coreTable.getMany({
                     trans,
-                    keys: keys2.slice(offset2, offset2 + count),
+                    keys: keys2.slice(offset3, offset3 + count),
                     cache: "immutable"
                   }).then(function(values) {
                     var addValues = [];
@@ -25780,18 +25780,18 @@
                       var origValue = values[i];
                       var ctx_1 = {
                         value: deepClone(origValue),
-                        primKey: keys2[offset2 + i]
+                        primKey: keys2[offset3 + i]
                       };
                       if (modifyer.call(ctx_1, ctx_1.value, ctx_1) !== false) {
                         if (ctx_1.value == null) {
-                          deleteKeys.push(keys2[offset2 + i]);
+                          deleteKeys.push(keys2[offset3 + i]);
                         } else if (!outbound && cmp2(extractKey2(origValue), extractKey2(ctx_1.value)) !== 0) {
-                          deleteKeys.push(keys2[offset2 + i]);
+                          deleteKeys.push(keys2[offset3 + i]);
                           addValues.push(ctx_1.value);
                         } else {
                           putValues.push(ctx_1.value);
                           if (outbound)
-                            putKeys.push(keys2[offset2 + i]);
+                            putKeys.push(keys2[offset3 + i]);
                         }
                       }
                     }
@@ -25808,7 +25808,7 @@
                         values: putValues,
                         criteria,
                         changeSpec: typeof changes !== "function" && changes,
-                        isAdditionalChunk: offset2 > 0
+                        isAdditionalChunk: offset3 > 0
                       }).then(function(res) {
                         return applyMutateResult(putValues.length, res);
                       });
@@ -25818,12 +25818,12 @@
                         type: "delete",
                         keys: deleteKeys,
                         criteria,
-                        isAdditionalChunk: offset2 > 0
+                        isAdditionalChunk: offset3 > 0
                       }).then(function(res) {
                         return applyMutateResult(deleteKeys.length, res);
                       });
                     }).then(function() {
-                      return keys2.length > offset2 + count && nextChunk(offset2 + limit);
+                      return keys2.length > offset3 + count && nextChunk(offset3 + limit);
                     });
                   });
                 };
@@ -26178,9 +26178,9 @@
             ranges.push([set[set.length - 1], this.db._maxKey]);
             return this.inAnyRange(ranges, { includeLowers: false, includeUppers: false });
           };
-          WhereClause2.prototype.inAnyRange = function(ranges, options) {
+          WhereClause2.prototype.inAnyRange = function(ranges, options2) {
             var _this = this;
-            var cmp3 = this._cmp, ascending = this._ascending, descending = this._descending, min2 = this._min, max2 = this._max;
+            var cmp3 = this._cmp, ascending = this._ascending, descending = this._descending, min3 = this._min, max3 = this._max;
             if (ranges.length === 0)
               return emptyCollection(this);
             if (!ranges.every(function(range) {
@@ -26188,15 +26188,15 @@
             })) {
               return fail(this, "First argument to inAnyRange() must be an Array of two-value Arrays [lower,upper] where upper must not be lower than lower", exceptions.InvalidArgument);
             }
-            var includeLowers = !options || options.includeLowers !== false;
-            var includeUppers = options && options.includeUppers === true;
+            var includeLowers = !options2 || options2.includeLowers !== false;
+            var includeUppers = options2 && options2.includeUppers === true;
             function addRange2(ranges2, newRange) {
               var i = 0, l = ranges2.length;
               for (; i < l; ++i) {
                 var range = ranges2[i];
                 if (cmp3(newRange[0], range[1]) < 0 && cmp3(newRange[1], range[0]) > 0) {
-                  range[0] = min2(range[0], newRange[0]);
-                  range[1] = max2(range[1], newRange[1]);
+                  range[0] = min3(range[0], newRange[0]);
+                  range[1] = max3(range[1], newRange[1]);
                   break;
                 }
               }
@@ -26284,11 +26284,11 @@
           return WhereClause2;
         })();
         function createWhereClauseConstructor(db2) {
-          return makeClassConstructor(WhereClause.prototype, function WhereClause2(table, index, orCollection) {
+          return makeClassConstructor(WhereClause.prototype, function WhereClause2(table, index2, orCollection) {
             this.db = db2;
             this._ctx = {
               table,
-              index: index === ":id" ? null : index,
+              index: index2 === ":id" ? null : index2,
               or: orCollection
             };
             this._cmp = this._ascending = cmp2;
@@ -26539,8 +26539,8 @@
             primKey,
             indexes,
             mappedClass: null,
-            idxByName: arrayToObject(indexes, function(index) {
-              return [index.name, index];
+            idxByName: arrayToObject(indexes, function(index2) {
+              return [index2.name, index2];
             })
           };
         }
@@ -26603,7 +26603,7 @@
                   return trans.objectStore(table);
                 }).map(function(store) {
                   var keyPath = store.keyPath, autoIncrement = store.autoIncrement;
-                  var compound = isArray2(keyPath);
+                  var compound = isArray3(keyPath);
                   var outbound = keyPath == null;
                   var indexByKeyPath = {};
                   var result2 = {
@@ -26620,9 +26620,9 @@
                     },
                     indexes: arrayify(store.indexNames).map(function(indexName) {
                       return store.index(indexName);
-                    }).map(function(index) {
-                      var name = index.name, unique = index.unique, multiEntry = index.multiEntry, keyPath2 = index.keyPath;
-                      var compound2 = isArray2(keyPath2);
+                    }).map(function(index2) {
+                      var name = index2.name, unique = index2.unique, multiEntry = index2.multiEntry, keyPath2 = index2.keyPath;
+                      var compound2 = isArray3(keyPath2);
                       var result3 = {
                         name,
                         compound: compound2,
@@ -26728,9 +26728,9 @@
               var trans = _a4.trans, values = _a4.values, query2 = _a4.query, reverse = _a4.reverse, unique = _a4.unique;
               return new Promise(function(resolve, reject) {
                 resolve = wrap4(resolve);
-                var index = query2.index, range = query2.range;
+                var index2 = query2.index, range = query2.range;
                 var store = trans.objectStore(tableName);
-                var source2 = index.isPrimaryKey ? store : store.index(index.name);
+                var source2 = index2.isPrimaryKey ? store : store.index(index2.name);
                 var direction = reverse ? unique ? "prevunique" : "prev" : unique ? "nextunique" : "next";
                 var req = values || !("openKeyCursor" in source2) ? source2.openCursor(makeIDBKeyRange(range), direction) : source2.openKeyCursor(makeIDBKeyRange(range), direction);
                 req.onerror = eventRejectHandler(reject);
@@ -26810,9 +26810,9 @@
                   resolve = wrap4(resolve);
                   var trans = request.trans, values = request.values, limit = request.limit, query2 = request.query;
                   var nonInfinitLimit = limit === Infinity ? void 0 : limit;
-                  var index = query2.index, range = query2.range;
+                  var index2 = query2.index, range = query2.range;
                   var store = trans.objectStore(tableName);
-                  var source2 = index.isPrimaryKey ? store : store.index(index.name);
+                  var source2 = index2.isPrimaryKey ? store : store.index(index2.name);
                   var idbKeyRange = makeIDBKeyRange(range);
                   if (limit === 0)
                     return resolve({ result: [] });
@@ -26892,10 +26892,10 @@
               openCursor: openCursor2,
               count: function(_a4) {
                 var query2 = _a4.query, trans = _a4.trans;
-                var index = query2.index, range = query2.range;
+                var index2 = query2.index, range = query2.range;
                 return new Promise(function(resolve, reject) {
                   var store = trans.objectStore(tableName);
-                  var source2 = index.isPrimaryKey ? store : store.index(index.name);
+                  var source2 = index2.isPrimaryKey ? store : store.index(index2.name);
                   var idbKeyRange = makeIDBKeyRange(range);
                   var req = idbKeyRange ? source2.count(idbKeyRange) : source2.count();
                   req.onsuccess = wrap4(function(ev) {
@@ -27238,8 +27238,8 @@
             for (var j = 0; j < store.indexNames.length; ++j) {
               var idbindex = store.index(store.indexNames[j]);
               keyPath = idbindex.keyPath;
-              var index = createIndexSpec(idbindex.name, keyPath, !!idbindex.unique, !!idbindex.multiEntry, false, keyPath && typeof keyPath !== "string", false);
-              indexes.push(index);
+              var index2 = createIndexSpec(idbindex.name, keyPath, !!idbindex.unique, !!idbindex.multiEntry, false, keyPath && typeof keyPath !== "string", false);
+              indexes.push(index2);
             }
             globalSchema[storeName] = createTableSchema(storeName, primKey, indexes);
           });
@@ -27283,11 +27283,11 @@
           }
         }
         function parseIndexSyntax(primKeyAndIndexes) {
-          return primKeyAndIndexes.split(",").map(function(index, indexNum) {
-            index = index.trim();
-            var name = index.replace(/([&*]|\+\+)/g, "");
+          return primKeyAndIndexes.split(",").map(function(index2, indexNum) {
+            index2 = index2.trim();
+            var name = index2.replace(/([&*]|\+\+)/g, "");
             var keyPath = /^\[/.test(name) ? name.match(/^\[(.*)\]$/)[1].split("+") : name;
-            return createIndexSpec(name, keyPath || null, /\&/.test(index), /\*/.test(index), /\+\+/.test(index), isArray2(keyPath), indexNum === 0);
+            return createIndexSpec(name, keyPath || null, /\&/.test(index2), /\*/.test(index2), /\+\+/.test(index2), isArray3(keyPath), indexNum === 0);
           });
         }
         var Version = (function() {
@@ -27386,8 +27386,8 @@
           });
         }
         function idbReady() {
-          var isSafari3 = !navigator.userAgentData && /Safari\//.test(navigator.userAgent) && !/Chrom(e|ium)\//.test(navigator.userAgent);
-          if (!isSafari3 || !indexedDB.databases)
+          var isSafari4 = !navigator.userAgentData && /Safari\//.test(navigator.userAgent) && !/Chrom(e|ium)\//.test(navigator.userAgent);
+          if (!isSafari4 || !indexedDB.databases)
             return Promise.resolve();
           var intervalId;
           return new Promise(function(resolve) {
@@ -27799,7 +27799,7 @@
           function step(getNext) {
             return function(val) {
               var next = getNext(val), value = next.value;
-              return next.done ? value : !value || typeof value.then !== "function" ? isArray2(value) ? Promise.all(value).then(onSuccess, onError) : onSuccess(value) : value.then(onSuccess, onError);
+              return next.done ? value : !value || typeof value.then !== "function" ? isArray3(value) ? Promise.all(value).then(onSuccess, onError) : onSuccess(value) : value.then(onSuccess, onError);
             };
           }
           return step(callNext)();
@@ -27875,7 +27875,7 @@
           });
         }
         function pad(a, value, count) {
-          var result2 = isArray2(a) ? a.slice() : [a];
+          var result2 = isArray3(a) ? a.slice() : [a];
           for (var i = 0; i < count; ++i)
             result2.push(value);
           return result2;
@@ -27908,8 +27908,8 @@
             var primaryKey = addVirtualIndexes(schema.primaryKey.keyPath, 0, schema.primaryKey);
             indexLookup[":id"] = [primaryKey];
             for (var _i = 0, _a3 = schema.indexes; _i < _a3.length; _i++) {
-              var index = _a3[_i];
-              addVirtualIndexes(index.keyPath, 0, index);
+              var index2 = _a3[_i];
+              addVirtualIndexes(index2.keyPath, 0, index2);
             }
             function findBestIndex(keyPath) {
               var result3 = indexLookup[getKeyPathAlias(keyPath)];
@@ -27925,10 +27925,10 @@
               };
             }
             function translateRequest(req) {
-              var index2 = req.query.index;
-              return index2.isVirtual ? __assign2(__assign2({}, req), { query: {
-                index: index2.lowLevelIndex,
-                range: translateRange(req.query.range, index2.keyTail)
+              var index3 = req.query.index;
+              return index3.isVirtual ? __assign2(__assign2({}, req), { query: {
+                index: index3.lowLevelIndex,
+                range: translateRange(req.query.range, index3.keyTail)
               } }) : req;
             }
             var result2 = __assign2(__assign2({}, table), { schema: __assign2(__assign2({}, schema), { primaryKey, indexes: allVirtualIndexes, getIndexByKeyPath: findBestIndex }), count: function(req) {
@@ -28215,18 +28215,18 @@
           create: function(core) {
             var dbName = core.schema.name;
             var FULL_RANGE = new RangeSet2(core.MIN_KEY, core.MAX_KEY);
-            return __assign2(__assign2({}, core), { transaction: function(stores, mode, options) {
+            return __assign2(__assign2({}, core), { transaction: function(stores, mode, options2) {
               if (PSD.subscr && mode !== "readonly") {
                 throw new exceptions.ReadOnly("Readwrite transaction in liveQuery context. Querier source: ".concat(PSD.querier));
               }
-              return core.transaction(stores, mode, options);
+              return core.transaction(stores, mode, options2);
             }, table: function(tableName) {
               var table = core.table(tableName);
               var schema = table.schema;
               var primaryKey = schema.primaryKey, indexes = schema.indexes;
               var extractKey2 = primaryKey.extractKey, outbound = primaryKey.outbound;
-              var indexesWithAutoIncPK = primaryKey.autoIncrement && indexes.filter(function(index) {
-                return index.compound && index.keyPath.includes(primaryKey.keyPath);
+              var indexesWithAutoIncPK = primaryKey.autoIncrement && indexes.filter(function(index2) {
+                return index2.compound && index2.keyPath.includes(primaryKey.keyPath);
               });
               var tableClone = __assign2(__assign2({}, table), { mutate: function(req) {
                 var _a3, _b;
@@ -28243,7 +28243,7 @@
                   return id;
                 }), req.values] : [], keys2 = _c[0], newObjs = _c[1];
                 var oldCache = req.trans["_cache"];
-                if (isArray2(keys2)) {
+                if (isArray3(keys2)) {
                   pkRangeSet.addKeys(keys2);
                   var oldObjs = type2 === "delete" || keys2.length === newObjs.length ? getFromTransactionCache(keys2, oldCache) : null;
                   if (!oldObjs) {
@@ -28290,9 +28290,9 @@
               } });
               var getRange = function(_a3) {
                 var _b, _c;
-                var _d = _a3.query, index = _d.index, range = _d.range;
+                var _d = _a3.query, index2 = _d.index, range = _d.range;
                 return [
-                  index,
+                  index2,
                   new RangeSet2((_b = range.lower) !== null && _b !== void 0 ? _b : core.MIN_KEY, (_c = range.upper) !== null && _c !== void 0 ? _c : core.MAX_KEY)
                 ];
               };
@@ -28390,7 +28390,7 @@
               return obj != null ? ix.extractKey(obj) : null;
             }
             var addKeyOrKeys = function(key) {
-              return ix.multiEntry && isArray2(key) ? key.forEach(function(key2) {
+              return ix.multiEntry && isArray3(key) ? key.forEach(function(key2) {
                 return rangeSet.addKey(key2);
               }) : rangeSet.addKey(key);
             };
@@ -28418,12 +28418,12 @@
             return null;
           }
           var clone = __assign2({}, req);
-          if (isArray2(clone.keys)) {
+          if (isArray3(clone.keys)) {
             clone.keys = clone.keys.filter(function(_, i) {
               return !(i in res.failures);
             });
           }
-          if ("values" in clone && isArray2(clone.values)) {
+          if ("values" in clone && isArray3(clone.values)) {
             clone.values = clone.values.filter(function(_, i) {
               return !(i in res.failures);
             });
@@ -28442,13 +28442,13 @@
         function applyOptimisticOps(result2, req, ops, table, cacheEntry, immutable) {
           if (!ops || ops.length === 0)
             return result2;
-          var index = req.query.index;
-          var multiEntry = index.multiEntry;
+          var index2 = req.query.index;
+          var multiEntry = index2.multiEntry;
           var queryRange = req.query.range;
           var primaryKey = table.schema.primaryKey;
           var extractPrimKey = primaryKey.extractKey;
-          var extractIndex = index.extractKey;
-          var extractLowLevelIndex = (index.lowLevelIndex || index).extractKey;
+          var extractIndex = index2.extractKey;
+          var extractLowLevelIndex = (index2.lowLevelIndex || index2).extractKey;
           var finalResult = ops.reduce(function(result3, op) {
             var modifedResult = result3;
             var includedValues = [];
@@ -28460,7 +28460,7 @@
                 if (includedPKs.hasKey(pk))
                   continue;
                 var key = extractIndex(value);
-                if (multiEntry && isArray2(key) ? key.some(function(k) {
+                if (multiEntry && isArray3(key) ? key.some(function(k) {
                   return isWithinRange(k, queryRange);
                 }) : isWithinRange(key, queryRange)) {
                   includedPKs.addKey(pk);
@@ -28628,8 +28628,8 @@
           name: "Cache",
           create: function(core) {
             var dbName = core.schema.name;
-            var coreMW = __assign2(__assign2({}, core), { transaction: function(stores, mode, options) {
-              var idbtrans = core.transaction(stores, mode, options);
+            var coreMW = __assign2(__assign2({}, core), { transaction: function(stores, mode, options2) {
+              var idbtrans = core.transaction(stores, mode, options2);
               if (mode === "readwrite") {
                 var ac_1 = new AbortController();
                 var signal = ac_1.signal;
@@ -28836,23 +28836,23 @@
           });
         }
         var Dexie$1 = (function() {
-          function Dexie3(name, options) {
+          function Dexie3(name, options2) {
             var _this = this;
             this._middlewares = {};
             this.verno = 0;
             var deps = Dexie3.dependencies;
-            this._options = options = __assign2({
+            this._options = options2 = __assign2({
               addons: Dexie3.addons,
               autoOpen: true,
               indexedDB: deps.indexedDB,
               IDBKeyRange: deps.IDBKeyRange,
               cache: "cloned"
-            }, options);
+            }, options2);
             this._deps = {
-              indexedDB: options.indexedDB,
-              IDBKeyRange: options.IDBKeyRange
+              indexedDB: options2.indexedDB,
+              IDBKeyRange: options2.IDBKeyRange
             };
-            var addons = options.addons;
+            var addons = options2.addons;
             this._dbSchema = {};
             this._versions = [];
             this._storeNames = [];
@@ -28870,7 +28870,7 @@
               openCanceller: null,
               autoSchema: true,
               PR1398_maxLoop: 3,
-              autoOpen: options.autoOpen
+              autoOpen: options2.autoOpen
             };
             state.dbReadyPromise = new DexiePromise(function(resolve) {
               state.dbReadyResolve = resolve;
@@ -28924,7 +28924,7 @@
               else
                 console.warn("Upgrade '".concat(_this.name, "' blocked by other connection holding version ").concat(ev.oldVersion / 10));
             });
-            this._maxKey = getMaxKey(options.IDBKeyRange);
+            this._maxKey = getMaxKey(options2.IDBKeyRange);
             this._createTransaction = function(mode, storeNames, dbschema, parentTransaction) {
               return new _this.Transaction(mode, storeNames, dbschema, _this._options.chromeTransactionDurability, parentTransaction);
             };
@@ -29583,7 +29583,7 @@
         D[g] = M;
         var p = "$isDayjsObject", S = function(t2) {
           return t2 instanceof _ || !(!t2 || !t2[p]);
-        }, w = function t2(e2, n2, r2) {
+        }, w2 = function t2(e2, n2, r2) {
           var i2;
           if (!e2) return g;
           if ("string" == typeof e2) {
@@ -29601,12 +29601,12 @@
           var n2 = "object" == typeof e2 ? e2 : {};
           return n2.date = t2, n2.args = arguments, new _(n2);
         }, b = v;
-        b.l = w, b.i = S, b.w = function(t2, e2) {
+        b.l = w2, b.i = S, b.w = function(t2, e2) {
           return O(t2, { locale: e2.$L, utc: e2.$u, x: e2.$x, $offset: e2.$offset });
         };
         var _ = (function() {
           function M2(t2) {
-            this.$L = w(t2.locale, null, true), this.parse(t2), this.$x = this.$x || t2.x || {}, this[p] = true;
+            this.$L = w2(t2.locale, null, true), this.parse(t2), this.$x = this.$x || t2.x || {}, this[p] = true;
           }
           var m2 = M2.prototype;
           return m2.parse = function(t2) {
@@ -29806,7 +29806,7 @@
             return D[this.$L];
           }, m2.locale = function(t2, e2) {
             if (!t2) return this.$L;
-            var n2 = this.clone(), r2 = w(t2, e2, true);
+            var n2 = this.clone(), r2 = w2(t2, e2, true);
             return r2 && (n2.$L = r2), n2;
           }, m2.clone = function() {
             return b.w(this.$d, this);
@@ -29826,7 +29826,7 @@
           };
         })), O.extend = function(t2, e2) {
           return t2.$i || (t2(e2, _, O), t2.$i = true), O;
-        }, O.locale = w, O.isDayjs = S, O.unix = function(t2) {
+        }, O.locale = w2, O.isDayjs = S, O.unix = function(t2) {
           return O(1e3 * t2);
         }, O.en = D[g], O.Ls = D, O.p = {}, O;
       }));
@@ -29981,10 +29981,10 @@
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.bind = void 0;
       function bind10(target, _a2) {
-        var type = _a2.type, listener = _a2.listener, options = _a2.options;
-        target.addEventListener(type, listener, options);
+        var type = _a2.type, listener = _a2.listener, options2 = _a2.options;
+        target.addEventListener(type, listener, options2);
         return function unbind() {
-          target.removeEventListener(type, listener, options);
+          target.removeEventListener(type, listener, options2);
         };
       }
       exports.bind = bind10;
@@ -30250,7 +30250,7 @@
   var require_objectWithoutProperties = __commonJS({
     "node_modules/@babel/runtime/helpers/objectWithoutProperties.js"(exports, module2) {
       var objectWithoutPropertiesLoose = require_objectWithoutPropertiesLoose();
-      function _objectWithoutProperties(e, t) {
+      function _objectWithoutProperties2(e, t) {
         if (null == e) return {};
         var o, r, i = objectWithoutPropertiesLoose(e, t);
         if (Object.getOwnPropertySymbols) {
@@ -30259,7 +30259,7 @@
         }
         return i;
       }
-      module2.exports = _objectWithoutProperties, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
+      module2.exports = _objectWithoutProperties2, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
     }
   });
 
@@ -30856,7 +30856,7 @@
             error: exports.Diagnostics._formatError(e)
           };
         },
-        _enqueueDiagnosticsEvent(user, logger, sdk, options) {
+        _enqueueDiagnosticsEvent(user, logger, sdk, options2) {
           const markers = exports.Diagnostics._getMarkers(sdk);
           if (markers == null || markers.length <= 0) {
             return -1;
@@ -30866,7 +30866,7 @@
           const event = _makeDiagnosticsEvent(user, {
             context: "initialize",
             markers: markers.slice(),
-            statsigOptions: options
+            statsigOptions: options2
           });
           logger.enqueue(event);
           return overallInitDuration;
@@ -31039,9 +31039,9 @@
         if ((0, exports._getDocumentSafe)() !== null) {
           return false;
         }
-        const isNode2 = typeof process !== "undefined" && process.versions != null && process.versions.node != null;
+        const isNode3 = typeof process !== "undefined" && process.versions != null && process.versions.node != null;
         const isVercel = typeof EdgeRuntime === "string";
-        return isVercel || isNode2;
+        return isVercel || isNode3;
       };
       exports._isServerEnv = _isServerEnv;
       var _addWindowEventListenerSafe = (key, listener) => {
@@ -31885,11 +31885,11 @@
       exports._getFullUserHash = exports._normalizeUser = void 0;
       var Hashing_1 = require_Hashing();
       var Log_1 = require_Log();
-      function _normalizeUser(original, options, fallbackEnvironment) {
+      function _normalizeUser(original, options2, fallbackEnvironment) {
         try {
           const copy = JSON.parse(JSON.stringify(original));
-          if (options != null && options.environment != null) {
-            copy.statsigEnvironment = options.environment;
+          if (options2 != null && options2.environment != null) {
+            copy.statsigEnvironment = options2.environment;
           } else if (fallbackEnvironment != null) {
             copy.statsigEnvironment = { tier: fallbackEnvironment };
           }
@@ -31977,9 +31977,9 @@
           this._lastModifiedStoreKey = `statsig.last_modified_time.${_cacheSuffix}`;
           this._inMemoryCache = new InMemoryCache2();
         }
-        attach(sdkKey, options, _network) {
+        attach(sdkKey, options2, _network) {
           this._sdkKey = sdkKey;
-          this._options = options;
+          this._options = options2;
         }
         getDataSync(user) {
           const normalized = user && (0, StatsigUser_1._normalizeUser)(user, this._options);
@@ -32003,15 +32003,15 @@
         _getIsCacheValueValid(current) {
           return current.stableID == null || current.stableID === StableID_1.StableID.get(this._getSdkKey());
         }
-        _getDataAsyncImpl(current, user, options) {
+        _getDataAsyncImpl(current, user, options2) {
           return __awaiter2(this, void 0, void 0, function* () {
             if (!StorageProvider_1.Storage.isReady()) {
               yield StorageProvider_1.Storage.isReadyResolver();
             }
             const cache = current !== null && current !== void 0 ? current : this.getDataSync(user);
-            const ops = [this._fetchAndPrepFromNetwork(cache, user, options)];
-            if (options === null || options === void 0 ? void 0 : options.timeoutMs) {
-              ops.push(new Promise((r) => setTimeout(r, options.timeoutMs)).then(() => {
+            const ops = [this._fetchAndPrepFromNetwork(cache, user, options2)];
+            if (options2 === null || options2 === void 0 ? void 0 : options2.timeoutMs) {
+              ops.push(new Promise((r) => setTimeout(r, options2.timeoutMs)).then(() => {
                 Log_1.Log.debug("Fetching latest value timed out");
                 return null;
               }));
@@ -32019,22 +32019,22 @@
             return yield Promise.race(ops);
           });
         }
-        _prefetchDataImpl(user, options) {
+        _prefetchDataImpl(user, options2) {
           return __awaiter2(this, void 0, void 0, function* () {
             const normalized = user && (0, StatsigUser_1._normalizeUser)(user, this._options);
             const cacheKey = this._getCacheKey(normalized);
-            const result2 = yield this._getDataAsyncImpl(null, normalized, options);
+            const result2 = yield this._getDataAsyncImpl(null, normalized, options2);
             if (result2) {
               this._inMemoryCache.add(cacheKey, Object.assign(Object.assign({}, result2), { source: "Prefetch" }));
             }
           });
         }
-        _fetchAndPrepFromNetwork(cachedResult, user, options) {
+        _fetchAndPrepFromNetwork(cachedResult, user, options2) {
           return __awaiter2(this, void 0, void 0, function* () {
             var _a2;
             const cachedData = (_a2 = cachedResult === null || cachedResult === void 0 ? void 0 : cachedResult.data) !== null && _a2 !== void 0 ? _a2 : null;
             const isCacheValidFor204 = cachedResult != null && this._isCachedResultValidFor204(cachedResult, user);
-            const latest = yield this._fetchFromNetwork(cachedData, user, options, isCacheValidFor204);
+            const latest = yield this._fetchFromNetwork(cachedData, user, options2, isCacheValidFor204);
             if (!latest) {
               Log_1.Log.debug("No response returned for latest value");
               return null;
@@ -32340,12 +32340,12 @@
         }
         return Array.from(names);
       }
-      function _getStatsigOptionLoggingCopy(options) {
-        if (!options) {
+      function _getStatsigOptionLoggingCopy(options2) {
+        if (!options2) {
           return {};
         }
         const loggingCopy = {};
-        Object.entries(options).forEach(([option, value]) => {
+        Object.entries(options2).forEach(([option, value]) => {
           const valueType = typeof value;
           switch (valueType) {
             case "number":
@@ -32422,19 +32422,19 @@
         // Add keys that if exist, should not be memoized
         "userPersistedValues"
       ]);
-      function createMemoKey(prefix, name, options) {
-        let cacheKey = `${prefix}|${name}`;
-        if (!options) {
+      function createMemoKey(prefix2, name, options2) {
+        let cacheKey = `${prefix2}|${name}`;
+        if (!options2) {
           return cacheKey;
         }
-        for (const key of Object.keys(options)) {
+        for (const key of Object.keys(options2)) {
           if (DO_NOT_MEMO_KEYS.has(key)) {
             return void 0;
           }
           if (EXIST_KEYS.has(key)) {
             cacheKey += `|${key}=true`;
           } else {
-            cacheKey += `|${key}=${options[key]}`;
+            cacheKey += `|${key}=${options2[key]}`;
           }
         }
         return cacheKey;
@@ -32545,7 +32545,7 @@
       }
       exports._fetchTxtRecords = _fetchTxtRecords;
       function _parseDnsResponse(input) {
-        const start3 = input.findIndex((byte, index) => index < MAX_START_LOOKUP && String.fromCharCode(byte) === "=" && DOMAIN_CHARS.includes(String.fromCharCode(input[index - 1])));
+        const start3 = input.findIndex((byte, index2) => index2 < MAX_START_LOOKUP && String.fromCharCode(byte) === "=" && DOMAIN_CHARS.includes(String.fromCharCode(input[index2 - 1])));
         if (start3 === -1) {
           const err = new Error("Failed to parse TXT records from DNS");
           err.name = "DnsTxtParseError";
@@ -32600,12 +32600,12 @@
       var DEFAULT_TTL_MS = 7 * 24 * 60 * 60 * 1e3;
       var COOLDOWN_TIME_MS = 4 * 60 * 60 * 1e3;
       var NetworkFallbackResolver = class {
-        constructor(options) {
+        constructor(options2) {
           var _a2;
           this._fallbackInfo = null;
           this._errorBoundary = null;
           this._dnsQueryCooldowns = {};
-          this._networkOverrideFunc = (_a2 = options.networkConfig) === null || _a2 === void 0 ? void 0 : _a2.networkOverrideFunc;
+          this._networkOverrideFunc = (_a2 = options2.networkConfig) === null || _a2 === void 0 ? void 0 : _a2.networkOverrideFunc;
         }
         setErrorBoundary(errorBoundary) {
           this._errorBoundary = errorBoundary;
@@ -32970,7 +32970,7 @@
       var LEAK_RATE = RATE_LIMIT_MAX_REQ_COUNT / RATE_LIMIT_WINDOW_MS;
       var RETRYABLE_CODES = /* @__PURE__ */ new Set([408, 500, 502, 503, 504, 522, 524, 599]);
       var NetworkCore = class {
-        constructor(options, _emitter) {
+        constructor(options2, _emitter) {
           this._emitter = _emitter;
           this._errorBoundary = null;
           this._timeout = DEFAULT_TIMEOUT_MS;
@@ -32978,8 +32978,8 @@
           this._options = {};
           this._leakyBucket = {};
           this._lastUsedInitUrl = null;
-          if (options) {
-            this._options = options;
+          if (options2) {
+            this._options = options2;
           }
           if (this._options.networkConfig) {
             this._netConfig = this._options.networkConfig;
@@ -32988,7 +32988,7 @@
             this._timeout = this._netConfig.networkTimeoutMs;
           }
           this._fallbackResolver = new NetworkFallbackResolver_1.NetworkFallbackResolver(this._options);
-          this.setLogEventCompressionMode(this._getLogEventCompressionMode(options));
+          this.setLogEventCompressionMode(this._getLogEventCompressionMode(options2));
         }
         setLogEventCompressionMode(mode) {
           this._options.logEventCompressionMode = mode;
@@ -33107,9 +33107,9 @@
             }
           });
         }
-        _getLogEventCompressionMode(options) {
-          let compressionMode = options === null || options === void 0 ? void 0 : options.logEventCompressionMode;
-          if (!compressionMode && (options === null || options === void 0 ? void 0 : options.disableCompression) === true) {
+        _getLogEventCompressionMode(options2) {
+          let compressionMode = options2 === null || options2 === void 0 ? void 0 : options2.logEventCompressionMode;
+          if (!compressionMode && (options2 === null || options2 === void 0 ? void 0 : options2.disableCompression) === true) {
             compressionMode = StatsigOptionsCommon_1.LogEventCompressionMode.Disabled;
           }
           if (!compressionMode) {
@@ -33182,10 +33182,10 @@
               }
               const totalLength = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
               const combined = new Uint8Array(totalLength);
-              let offset2 = 0;
+              let offset3 = 0;
               for (const chunk of chunks) {
-                combined.set(chunk, offset2);
-                offset2 += chunk.length;
+                combined.set(chunk, offset3);
+                offset3 += chunk.length;
               }
               args.body = combined;
               args.params = Object.assign(Object.assign({}, (_a2 = args.params) !== null && _a2 !== void 0 ? _a2 : {}), { [NetworkConfig_1.NetworkParam.IsGzipped]: "1" });
@@ -33226,7 +33226,7 @@
           fallbackUrl
         }) }));
       };
-      function _allowCompression(args, options) {
+      function _allowCompression(args, options2) {
         if (!args.isCompressable) {
           return false;
         }
@@ -33235,7 +33235,7 @@
         }
         const isProxy = args.urlConfig.customUrl != null || args.urlConfig.fallbackUrls != null;
         const flagEnabled = SDKFlags_1.SDKFlags.get(args.sdkKey, "enable_log_event_compression") === true;
-        switch (options.logEventCompressionMode) {
+        switch (options2.logEventCompressionMode) {
           case StatsigOptionsCommon_1.LogEventCompressionMode.Disabled:
             return false;
           case StatsigOptionsCommon_1.LogEventCompressionMode.Enabled:
@@ -33311,23 +33311,23 @@
       exports._fastApproxSizeOf = void 0;
       var CURLY_AND_SQUARE_BRACKET_SIZE = 2;
       var APPROX_ADDITIONAL_SIZE = 1;
-      var _fastApproxSizeOf = (obj, max2) => {
-        let size = 0;
+      var _fastApproxSizeOf = (obj, max3) => {
+        let size2 = 0;
         const keys = Object.keys(obj);
         for (let i = 0; i < keys.length; i++) {
           const key = keys[i];
           const value = obj[key];
-          size += key.length;
+          size2 += key.length;
           if (typeof value === "object" && value !== null) {
-            size += (0, exports._fastApproxSizeOf)(value, max2) + CURLY_AND_SQUARE_BRACKET_SIZE;
+            size2 += (0, exports._fastApproxSizeOf)(value, max3) + CURLY_AND_SQUARE_BRACKET_SIZE;
           } else {
-            size += String(value).length + APPROX_ADDITIONAL_SIZE;
+            size2 += String(value).length + APPROX_ADDITIONAL_SIZE;
           }
-          if (size >= max2) {
-            return size;
+          if (size2 >= max3) {
+            return size2;
           }
         }
-        return size;
+        return size2;
       };
       exports._fastApproxSizeOf = _fastApproxSizeOf;
     }
@@ -33379,30 +33379,30 @@
       var StorageProvider_1 = require_StorageProvider();
       var MAX_MEMO_CACHE_SIZE = 3e3;
       var StatsigClientBase = class {
-        constructor(sdkKey, adapter4, network, options) {
+        constructor(sdkKey, adapter4, network, options2) {
           var _a2, _b, _c, _d;
           this.loadingStatus = "Uninitialized";
           this._initializePromise = null;
           this._listeners = {};
           const emitter = this.$emt.bind(this);
-          (options === null || options === void 0 ? void 0 : options.logLevel) != null && (Log_1.Log.level = options.logLevel);
-          (options === null || options === void 0 ? void 0 : options.disableStorage) && StorageProvider_1.Storage._setDisabled(true);
-          (options === null || options === void 0 ? void 0 : options.initialSessionID) && SessionID_1.StatsigSession.overrideInitialSessionID(options.initialSessionID, sdkKey);
-          (options === null || options === void 0 ? void 0 : options.storageProvider) && StorageProvider_1.Storage._setProvider(options.storageProvider);
-          (options === null || options === void 0 ? void 0 : options.enableCookies) && StableID_1.StableID._setCookiesEnabled(sdkKey, options.enableCookies);
-          (options === null || options === void 0 ? void 0 : options.disableStableID) && StableID_1.StableID._setDisabled(sdkKey, true);
+          (options2 === null || options2 === void 0 ? void 0 : options2.logLevel) != null && (Log_1.Log.level = options2.logLevel);
+          (options2 === null || options2 === void 0 ? void 0 : options2.disableStorage) && StorageProvider_1.Storage._setDisabled(true);
+          (options2 === null || options2 === void 0 ? void 0 : options2.initialSessionID) && SessionID_1.StatsigSession.overrideInitialSessionID(options2.initialSessionID, sdkKey);
+          (options2 === null || options2 === void 0 ? void 0 : options2.storageProvider) && StorageProvider_1.Storage._setProvider(options2.storageProvider);
+          (options2 === null || options2 === void 0 ? void 0 : options2.enableCookies) && StableID_1.StableID._setCookiesEnabled(sdkKey, options2.enableCookies);
+          (options2 === null || options2 === void 0 ? void 0 : options2.disableStableID) && StableID_1.StableID._setDisabled(sdkKey, true);
           this._sdkKey = sdkKey;
-          this._options = options !== null && options !== void 0 ? options : {};
+          this._options = options2 !== null && options2 !== void 0 ? options2 : {};
           this._memoCache = {};
-          this.overrideAdapter = (_a2 = options === null || options === void 0 ? void 0 : options.overrideAdapter) !== null && _a2 !== void 0 ? _a2 : null;
-          this._logger = new EventLogger_1.EventLogger(sdkKey, emitter, network, options);
-          this._errorBoundary = new ErrorBoundary_1.ErrorBoundary(sdkKey, options, emitter);
+          this.overrideAdapter = (_a2 = options2 === null || options2 === void 0 ? void 0 : options2.overrideAdapter) !== null && _a2 !== void 0 ? _a2 : null;
+          this._logger = new EventLogger_1.EventLogger(sdkKey, emitter, network, options2);
+          this._errorBoundary = new ErrorBoundary_1.ErrorBoundary(sdkKey, options2, emitter);
           this._errorBoundary.wrap(this);
           this._errorBoundary.wrap(adapter4);
           this._errorBoundary.wrap(this._logger);
           network.setErrorBoundary(this._errorBoundary);
           this.dataAdapter = adapter4;
-          this.dataAdapter.attach(sdkKey, options, network);
+          this.dataAdapter.attach(sdkKey, options2, network);
           this.storageProvider = StorageProvider_1.Storage;
           (_d = (_c = (_b = this.overrideAdapter) === null || _b === void 0 ? void 0 : _b.loadFromStorage) === null || _c === void 0 ? void 0 : _c.call(_b)) === null || _d === void 0 ? void 0 : _d.catch((e) => this._errorBoundary.logError("OA::loadFromStorage", e));
           this._primeReadyRipcord();
@@ -33413,25 +33413,25 @@
          *
          * @param {StatsigRuntimeMutableOptions} options - The configuration options that dictate the runtime behavior of the SDK.
          */
-        updateRuntimeOptions(options) {
-          if (options.loggingEnabled) {
-            this._options.loggingEnabled = options.loggingEnabled;
-            this._logger.setLoggingEnabled(options.loggingEnabled);
-          } else if (options.disableLogging != null) {
-            this._options.disableLogging = options.disableLogging;
-            this._logger.setLoggingEnabled(options.disableLogging ? "disabled" : "browser-only");
+        updateRuntimeOptions(options2) {
+          if (options2.loggingEnabled) {
+            this._options.loggingEnabled = options2.loggingEnabled;
+            this._logger.setLoggingEnabled(options2.loggingEnabled);
+          } else if (options2.disableLogging != null) {
+            this._options.disableLogging = options2.disableLogging;
+            this._logger.setLoggingEnabled(options2.disableLogging ? "disabled" : "browser-only");
           }
-          if (options.disableStorage != null) {
-            this._options.disableStorage = options.disableStorage;
-            StorageProvider_1.Storage._setDisabled(options.disableStorage);
+          if (options2.disableStorage != null) {
+            this._options.disableStorage = options2.disableStorage;
+            StorageProvider_1.Storage._setDisabled(options2.disableStorage);
           }
-          if (options.enableCookies != null) {
-            this._options.enableCookies = options.enableCookies;
-            StableID_1.StableID._setCookiesEnabled(this._sdkKey, options.enableCookies);
+          if (options2.enableCookies != null) {
+            this._options.enableCookies = options2.enableCookies;
+            StableID_1.StableID._setCookiesEnabled(this._sdkKey, options2.enableCookies);
           }
-          if (options.logEventCompressionMode) {
-            this._logger.setLogEventCompressionMode(options.logEventCompressionMode);
-          } else if (options.disableCompression) {
+          if (options2.logEventCompressionMode) {
+            this._logger.setLogEventCompressionMode(options2.logEventCompressionMode);
+          } else if (options2.disableCompression) {
             this._logger.setLogEventCompressionMode(StatsigOptionsCommon_1.LogEventCompressionMode.Disabled);
           }
         }
@@ -33478,9 +33478,9 @@
          */
         off(event, listener) {
           if (this._listeners[event]) {
-            const index = this._listeners[event].indexOf(listener);
-            if (index !== -1) {
-              this._listeners[event].splice(index, 1);
+            const index2 = this._listeners[event].indexOf(listener);
+            if (index2 !== -1) {
+              this._listeners[event].splice(index2, 1);
             }
           }
         }
@@ -33511,27 +33511,27 @@
           this._memoCache = {};
           this.$emt({ name: "values_updated", status: newStatus, values });
         }
-        _enqueueExposure(name, exposure, options) {
-          if ((options === null || options === void 0 ? void 0 : options.disableExposureLog) === true) {
+        _enqueueExposure(name, exposure, options2) {
+          if ((options2 === null || options2 === void 0 ? void 0 : options2.disableExposureLog) === true) {
             this._logger.incrementNonExposureCount(name);
             return;
           }
           this._logger.enqueue(exposure);
         }
-        _memoize(prefix, fn2) {
-          return (name, options) => {
+        _memoize(prefix2, fn2) {
+          return (name, options2) => {
             if (this._options.disableEvaluationMemoization) {
-              return fn2(name, options);
+              return fn2(name, options2);
             }
-            const memoKey = (0, MemoKey_1.createMemoKey)(prefix, name, options);
+            const memoKey = (0, MemoKey_1.createMemoKey)(prefix2, name, options2);
             if (!memoKey) {
-              return fn2(name, options);
+              return fn2(name, options2);
             }
             if (!(memoKey in this._memoCache)) {
               if (Object.keys(this._memoCache).length >= MAX_MEMO_CACHE_SIZE) {
                 this._memoCache = {};
               }
-              this._memoCache[memoKey] = fn2(name, options);
+              this._memoCache[memoKey] = fn2(name, options2);
             }
             return this._memoCache[memoKey];
           };
@@ -34018,10 +34018,10 @@
       var client_core_1 = require_src();
       var EvaluationResponseDeltas_1 = require_EvaluationResponseDeltas();
       var StatsigNetwork = class extends client_core_1.NetworkCore {
-        constructor(options, emitter) {
-          super(options, emitter);
-          const config = options === null || options === void 0 ? void 0 : options.networkConfig;
-          this._option = options;
+        constructor(options2, emitter) {
+          super(options2, emitter);
+          const config = options2 === null || options2 === void 0 ? void 0 : options2.networkConfig;
+          this._option = options2;
           this._initializeUrlConfig = new client_core_1.UrlConfiguration(client_core_1.Endpoint._initialize, config === null || config === void 0 ? void 0 : config.initializeUrl, config === null || config === void 0 ? void 0 : config.api, config === null || config === void 0 ? void 0 : config.initializeFallbackUrls);
         }
         fetchEvaluations(sdkKey, current, priority, user, isCacheValidFor204) {
@@ -34083,8 +34083,8 @@
       var NO_EXPOSURE_OPT = {
         disableExposureLog: true
       };
-      function _shouldLogExposure(options) {
-        return options == null || options.disableExposureLog === false;
+      function _shouldLogExposure(options2) {
+        return options2 == null || options2.disableExposureLog === false;
       }
       function _shouldReturnFallback(value, fallback) {
         return fallback != null && !(0, client_core_1._isTypeMatch)(value, fallback);
@@ -34092,38 +34092,38 @@
       function _getMappedStaticValue(param, _options) {
         return param.value;
       }
-      function _getMappedGateValue(client2, param, options) {
-        const gate = client2.getFeatureGate(param.gate_name, _shouldLogExposure(options) ? void 0 : NO_EXPOSURE_OPT);
+      function _getMappedGateValue(client2, param, options2) {
+        const gate = client2.getFeatureGate(param.gate_name, _shouldLogExposure(options2) ? void 0 : NO_EXPOSURE_OPT);
         if (gate.value) {
           return param.pass_value;
         }
         return param.fail_value;
       }
-      function _getMappedDynamicConfigValue(client2, param, fallback, options) {
-        const config = client2.getDynamicConfig(param.config_name, _shouldLogExposure(options) ? void 0 : NO_EXPOSURE_OPT);
+      function _getMappedDynamicConfigValue(client2, param, fallback, options2) {
+        const config = client2.getDynamicConfig(param.config_name, _shouldLogExposure(options2) ? void 0 : NO_EXPOSURE_OPT);
         const value = config.get(param.param_name);
         if (_shouldReturnFallback(value, fallback)) {
           return fallback;
         }
         return value;
       }
-      function _getMappedExperimentValue(client2, param, fallback, options) {
-        const experiment = client2.getExperiment(param.experiment_name, _shouldLogExposure(options) ? void 0 : NO_EXPOSURE_OPT);
+      function _getMappedExperimentValue(client2, param, fallback, options2) {
+        const experiment = client2.getExperiment(param.experiment_name, _shouldLogExposure(options2) ? void 0 : NO_EXPOSURE_OPT);
         const value = experiment.get(param.param_name);
         if (_shouldReturnFallback(value, fallback)) {
           return fallback;
         }
         return value;
       }
-      function _getMappedLayerValue(client2, param, fallback, options) {
-        const layer2 = client2.getLayer(param.layer_name, _shouldLogExposure(options) ? void 0 : NO_EXPOSURE_OPT);
+      function _getMappedLayerValue(client2, param, fallback, options2) {
+        const layer2 = client2.getLayer(param.layer_name, _shouldLogExposure(options2) ? void 0 : NO_EXPOSURE_OPT);
         const value = layer2.get(param.param_name);
         if (_shouldReturnFallback(value, fallback)) {
           return fallback;
         }
         return value;
       }
-      function _makeParamStoreGetter(client2, config, options) {
+      function _makeParamStoreGetter(client2, config, options2) {
         return (paramName, fallback) => {
           if (config == null) {
             return fallback;
@@ -34134,15 +34134,15 @@
           }
           switch (param.ref_type) {
             case "static":
-              return _getMappedStaticValue(param, options);
+              return _getMappedStaticValue(param, options2);
             case "gate":
-              return _getMappedGateValue(client2, param, options);
+              return _getMappedGateValue(client2, param, options2);
             case "dynamic_config":
-              return _getMappedDynamicConfigValue(client2, param, fallback, options);
+              return _getMappedDynamicConfigValue(client2, param, fallback, options2);
             case "experiment":
-              return _getMappedExperimentValue(client2, param, fallback, options);
+              return _getMappedExperimentValue(client2, param, fallback, options2);
             case "layer":
-              return _getMappedLayerValue(client2, param, fallback, options);
+              return _getMappedLayerValue(client2, param, fallback, options2);
             default:
               return fallback;
           }
@@ -34193,19 +34193,19 @@
           this._network = null;
           this._options = null;
         }
-        attach(sdkKey, options, network) {
-          super.attach(sdkKey, options, network);
+        attach(sdkKey, options2, network) {
+          super.attach(sdkKey, options2, network);
           if (network !== null && network instanceof Network_1.default) {
             this._network = network;
           } else {
-            this._network = new Network_1.default(options !== null && options !== void 0 ? options : {});
+            this._network = new Network_1.default(options2 !== null && options2 !== void 0 ? options2 : {});
           }
         }
-        getDataAsync(current, user, options) {
-          return this._getDataAsyncImpl(current, (0, client_core_1._normalizeUser)(user, this._options), options);
+        getDataAsync(current, user, options2) {
+          return this._getDataAsyncImpl(current, (0, client_core_1._normalizeUser)(user, this._options), options2);
         }
-        prefetchData(user, options) {
-          return this._prefetchDataImpl(user, options);
+        prefetchData(user, options2) {
+          return this._prefetchDataImpl(user, options2);
         }
         setData(data) {
           const values = (0, client_core_1._typedJsonParse)(data, "has_updates", "data");
@@ -34218,10 +34218,10 @@
         setDataLegacy(data, user) {
           super.setData(data, user);
         }
-        _fetchFromNetwork(current, user, options, isCacheValidFor204) {
+        _fetchFromNetwork(current, user, options2, isCacheValidFor204) {
           return __awaiter2(this, void 0, void 0, function* () {
             var _a2;
-            const result2 = yield (_a2 = this._network) === null || _a2 === void 0 ? void 0 : _a2.fetchEvaluations(this._getSdkKey(), current, options === null || options === void 0 ? void 0 : options.priority, user, isCacheValidFor204);
+            const result2 = yield (_a2 = this._network) === null || _a2 === void 0 ? void 0 : _a2.fetchEvaluations(this._getSdkKey(), current, options2 === null || options2 === void 0 ? void 0 : options2.priority, user, isCacheValidFor204);
             return result2 !== null && result2 !== void 0 ? result2 : null;
           });
         }
@@ -34300,13 +34300,13 @@
          * @param {StatsigUser} user StatsigUser object containing various attributes related to a user.
          * @param {StatsigOptions | null} options StatsigOptions, used to customize the behavior of the SDK.
          */
-        constructor(sdkKey, user, options = null) {
+        constructor(sdkKey, user, options2 = null) {
           var _a2, _b;
           client_core_1.SDKType._setClientType(sdkKey, "javascript-client");
-          const network = new Network_1.default(options, (e) => {
+          const network = new Network_1.default(options2, (e) => {
             this.$emt(e);
           });
-          super(sdkKey, (_a2 = options === null || options === void 0 ? void 0 : options.dataAdapter) !== null && _a2 !== void 0 ? _a2 : new StatsigEvaluationsDataAdapter_1.StatsigEvaluationsDataAdapter(), network, options);
+          super(sdkKey, (_a2 = options2 === null || options2 === void 0 ? void 0 : options2.dataAdapter) !== null && _a2 !== void 0 ? _a2 : new StatsigEvaluationsDataAdapter_1.StatsigEvaluationsDataAdapter(), network, options2);
           this._possibleFirstTouchMetadata = {};
           this.getFeatureGate = this._memoize(client_core_1.MemoPrefix._gate, this._getFeatureGateImpl.bind(this));
           this.getDynamicConfig = this._memoize(client_core_1.MemoPrefix._dynamicConfig, this._getDynamicConfigImpl.bind(this));
@@ -34316,9 +34316,9 @@
           this.getParameterStore = this._memoize(client_core_1.MemoPrefix._paramStore, this._getParameterStoreImpl.bind(this));
           this._store = new EvaluationStore_1.default(sdkKey);
           this._network = network;
-          this._user = this._configureUser(user, options);
+          this._user = this._configureUser(user, options2);
           this._sdkInstanceID = (0, client_core_1.getUUID)();
-          const plugins = (_b = options === null || options === void 0 ? void 0 : options.plugins) !== null && _b !== void 0 ? _b : [];
+          const plugins = (_b = options2 === null || options2 === void 0 ? void 0 : options2.plugins) !== null && _b !== void 0 ? _b : [];
           for (const plugin of plugins) {
             plugin.bind(this);
           }
@@ -34330,13 +34330,13 @@
          *
          * @see {@link initializeAsync} for the asynchronous version of this method.
          */
-        initializeSync(options) {
+        initializeSync(options2) {
           var _a2;
           if (this.loadingStatus !== "Uninitialized") {
             return (0, client_core_1.createUpdateDetails)(true, this._store.getSource(), -1, null, null, ["MultipleInitializations", ...(_a2 = this._store.getWarnings()) !== null && _a2 !== void 0 ? _a2 : []]);
           }
           this._logger.start();
-          return this.updateUserSync(this._user, options);
+          return this.updateUserSync(this._user, options2);
         }
         /**
          * Initializes the StatsigClient asynchronously by first using cached values and then updating to the latest values from the network.
@@ -34348,12 +34348,12 @@
          * @returns {Promise<void>} A promise that resolves once the client is fully initialized with the latest values from the network or a timeout (if set) is hit.
          * @see {@link initializeSync} for the synchronous version of this method.
          */
-        initializeAsync(options) {
+        initializeAsync(options2) {
           return __awaiter2(this, void 0, void 0, function* () {
             if (this._initializePromise) {
               return this._initializePromise;
             }
-            this._initializePromise = this._initializeAsyncImpl(options);
+            this._initializePromise = this._initializeAsyncImpl(options2);
             return this._initializePromise;
           });
         }
@@ -34365,16 +34365,16 @@
          * @param {StatsigUser} user - The new StatsigUser for which the client should update its internal state.
          * @see {@link updateUserAsync} for the asynchronous version of this method.
          */
-        updateUserSync(user, options) {
+        updateUserSync(user, options2) {
           const startTime = performance.now();
           try {
-            return this._updateUserSyncImpl(user, options, startTime);
+            return this._updateUserSyncImpl(user, options2, startTime);
           } catch (e) {
             const err = e instanceof Error ? e : new Error(String(e));
             return this._createErrorUpdateDetails(err, startTime);
           }
         }
-        _updateUserSyncImpl(user, options, startTime) {
+        _updateUserSyncImpl(user, options2, startTime) {
           var _a2;
           const warnings2 = [...(_a2 = this._store.getWarnings()) !== null && _a2 !== void 0 ? _a2 : []];
           this._resetForUser(user);
@@ -34384,7 +34384,7 @@
           }
           this._store.setValues(result2, this._user);
           this._finalizeUpdate(result2);
-          const disable = options === null || options === void 0 ? void 0 : options.disableBackgroundCacheRefresh;
+          const disable = options2 === null || options2 === void 0 ? void 0 : options2.disableBackgroundCacheRefresh;
           if (disable === true || disable == null && (result2 === null || result2 === void 0 ? void 0 : result2.source) === "Bootstrap") {
             return (0, client_core_1.createUpdateDetails)(true, this._store.getSource(), performance.now() - startTime, this._errorBoundary.getLastSeenErrorAndReset(), this._network.getLastUsedInitUrlAndReset(), warnings2);
           }
@@ -34402,18 +34402,18 @@
          * @returns {Promise<void>} A promise that resolves once the client is fully updated with the latest values from the network or a timeout (if set) is hit.
          * @see {@link updateUserSync} for the synchronous version of this method.
          */
-        updateUserAsync(user, options) {
+        updateUserAsync(user, options2) {
           return __awaiter2(this, void 0, void 0, function* () {
             const startTime = performance.now();
             try {
-              return yield this._updateUserAsyncImpl(user, options);
+              return yield this._updateUserAsyncImpl(user, options2);
             } catch (e) {
               const err = e instanceof Error ? e : new Error(String(e));
               return this._createErrorUpdateDetails(err, startTime);
             }
           });
         }
-        _updateUserAsyncImpl(user, options) {
+        _updateUserAsyncImpl(user, options2) {
           return __awaiter2(this, void 0, void 0, function* () {
             this._resetForUser(user);
             const initiator = this._user;
@@ -34421,7 +34421,7 @@
             let result2 = this.dataAdapter.getDataSync(initiator);
             this._store.setValues(result2, this._user);
             this._setStatus("Loading", result2);
-            result2 = yield this.dataAdapter.getDataAsync(result2, initiator, options);
+            result2 = yield this.dataAdapter.getDataAsync(result2, initiator, options2);
             if (initiator !== this._user) {
               return (0, client_core_1.createUpdateDetails)(false, this._store.getSource(), -1, new Error("User changed during update"), this._network.getLastUsedInitUrlAndReset());
             }
@@ -34467,8 +34467,8 @@
          * @param {FeatureGateEvaluationOptions} [options] - Optional. Additional options to customize the method call.
          * @returns {boolean} - The boolean value representing the gate's current evaluation results for the user.
          */
-        checkGate(name, options) {
-          return this.getFeatureGate(name, options).value;
+        checkGate(name, options2) {
+          return this.getFeatureGate(name, options2).value;
         }
         /**
          * Logs an event to the internal logging system. This function allows logging by either passing a fully formed event object or by specifying the event name with optional value and metadata.
@@ -34502,13 +34502,13 @@
             this.loadingStatus === "Loading" && this._finalizeUpdate(null);
           });
         }
-        _initializeAsyncImpl(options) {
+        _initializeAsyncImpl(options2) {
           return __awaiter2(this, void 0, void 0, function* () {
             if (!client_core_1.Storage.isReady()) {
               yield client_core_1.Storage.isReadyResolver();
             }
             this._logger.start();
-            return this.updateUserAsync(this._user, options);
+            return this.updateUserAsync(this._user, options2);
           });
         }
         _createErrorUpdateDetails(error, startTime) {
@@ -34529,9 +34529,9 @@
           this._store.reset();
           this._user = this._configureUser(user, this._options);
         }
-        _configureUser(originalUser, options) {
+        _configureUser(originalUser, options2) {
           var _a2;
-          const user = (0, client_core_1._normalizeUser)(originalUser, options);
+          const user = (0, client_core_1._normalizeUser)(originalUser, options2);
           const stableIdOverride = (_a2 = user.customIDs) === null || _a2 === void 0 ? void 0 : _a2.stableID;
           if (stableIdOverride) {
             client_core_1.StableID.setOverride(stableIdOverride, this._sdkKey);
@@ -34541,60 +34541,60 @@
           }
           return user;
         }
-        _getFeatureGateImpl(name, options) {
+        _getFeatureGateImpl(name, options2) {
           var _a2, _b;
           const { result: evaluation, details } = this._store.getGate(name);
           const gate = (0, client_core_1._makeFeatureGate)(name, details, evaluation);
-          const overridden = (_b = (_a2 = this.overrideAdapter) === null || _a2 === void 0 ? void 0 : _a2.getGateOverride) === null || _b === void 0 ? void 0 : _b.call(_a2, gate, this._user, options);
+          const overridden = (_b = (_a2 = this.overrideAdapter) === null || _a2 === void 0 ? void 0 : _a2.getGateOverride) === null || _b === void 0 ? void 0 : _b.call(_a2, gate, this._user, options2);
           const result2 = overridden !== null && overridden !== void 0 ? overridden : gate;
-          this._enqueueExposure(name, (0, client_core_1._createGateExposure)(this._user, result2, this._store.getExposureMapping()), options);
+          this._enqueueExposure(name, (0, client_core_1._createGateExposure)(this._user, result2, this._store.getExposureMapping()), options2);
           this.$emt({ name: "gate_evaluation", gate: result2 });
           return result2;
         }
-        _getDynamicConfigImpl(name, options) {
+        _getDynamicConfigImpl(name, options2) {
           var _a2, _b;
           const { result: evaluation, details } = this._store.getConfig(name);
           const config = (0, client_core_1._makeDynamicConfig)(name, details, evaluation);
-          const overridden = (_b = (_a2 = this.overrideAdapter) === null || _a2 === void 0 ? void 0 : _a2.getDynamicConfigOverride) === null || _b === void 0 ? void 0 : _b.call(_a2, config, this._user, options);
+          const overridden = (_b = (_a2 = this.overrideAdapter) === null || _a2 === void 0 ? void 0 : _a2.getDynamicConfigOverride) === null || _b === void 0 ? void 0 : _b.call(_a2, config, this._user, options2);
           const result2 = overridden !== null && overridden !== void 0 ? overridden : config;
-          this._enqueueExposure(name, (0, client_core_1._createConfigExposure)(this._user, result2, this._store.getExposureMapping()), options);
+          this._enqueueExposure(name, (0, client_core_1._createConfigExposure)(this._user, result2, this._store.getExposureMapping()), options2);
           this.$emt({ name: "dynamic_config_evaluation", dynamicConfig: result2 });
           return result2;
         }
-        _getExperimentImpl(name, options) {
+        _getExperimentImpl(name, options2) {
           var _a2, _b, _c, _d;
           const { result: evaluation, details } = this._store.getConfig(name);
           const experiment = (0, client_core_1._makeExperiment)(name, details, evaluation);
           if (experiment.__evaluation != null) {
             experiment.__evaluation.secondary_exposures = (0, client_core_1._mapExposures)((_b = (_a2 = experiment.__evaluation) === null || _a2 === void 0 ? void 0 : _a2.secondary_exposures) !== null && _b !== void 0 ? _b : [], this._store.getExposureMapping());
           }
-          const overridden = (_d = (_c = this.overrideAdapter) === null || _c === void 0 ? void 0 : _c.getExperimentOverride) === null || _d === void 0 ? void 0 : _d.call(_c, experiment, this._user, options);
+          const overridden = (_d = (_c = this.overrideAdapter) === null || _c === void 0 ? void 0 : _c.getExperimentOverride) === null || _d === void 0 ? void 0 : _d.call(_c, experiment, this._user, options2);
           const result2 = overridden !== null && overridden !== void 0 ? overridden : experiment;
-          this._enqueueExposure(name, (0, client_core_1._createConfigExposure)(this._user, result2, this._store.getExposureMapping()), options);
+          this._enqueueExposure(name, (0, client_core_1._createConfigExposure)(this._user, result2, this._store.getExposureMapping()), options2);
           this.$emt({ name: "experiment_evaluation", experiment: result2 });
           return result2;
         }
         _getConfigListImpl() {
           return this._store.getConfigList();
         }
-        _getLayerImpl(name, options) {
+        _getLayerImpl(name, options2) {
           var _a2, _b, _c;
           const { result: evaluation, details } = this._store.getLayer(name);
           const layer2 = (0, client_core_1._makeLayer)(name, details, evaluation);
-          const overridden = (_b = (_a2 = this.overrideAdapter) === null || _a2 === void 0 ? void 0 : _a2.getLayerOverride) === null || _b === void 0 ? void 0 : _b.call(_a2, layer2, this._user, options);
-          if (options === null || options === void 0 ? void 0 : options.disableExposureLog) {
+          const overridden = (_b = (_a2 = this.overrideAdapter) === null || _a2 === void 0 ? void 0 : _a2.getLayerOverride) === null || _b === void 0 ? void 0 : _b.call(_a2, layer2, this._user, options2);
+          if (options2 === null || options2 === void 0 ? void 0 : options2.disableExposureLog) {
             this._logger.incrementNonExposureCount(name);
           }
           const result2 = (0, client_core_1._mergeOverride)(layer2, overridden, (_c = overridden === null || overridden === void 0 ? void 0 : overridden.__value) !== null && _c !== void 0 ? _c : layer2.__value, (param) => {
-            if (options === null || options === void 0 ? void 0 : options.disableExposureLog) {
+            if (options2 === null || options2 === void 0 ? void 0 : options2.disableExposureLog) {
               return;
             }
-            this._enqueueExposure(name, (0, client_core_1._createLayerParameterExposure)(this._user, result2, param, this._store.getExposureMapping()), options);
+            this._enqueueExposure(name, (0, client_core_1._createLayerParameterExposure)(this._user, result2, param, this._store.getExposureMapping()), options2);
           });
           this.$emt({ name: "layer_evaluation", layer: result2 });
           return result2;
         }
-        _getParameterStoreImpl(name, options) {
+        _getParameterStoreImpl(name, options2) {
           var _a2, _b;
           const { result: configuration2, details } = this._store.getParamStore(name);
           this._logger.incrementNonExposureCount(name);
@@ -34602,13 +34602,13 @@
             name,
             details,
             __configuration: configuration2,
-            get: (0, ParamStoreGetterFactory_1._makeParamStoreGetter)(this, configuration2, options)
+            get: (0, ParamStoreGetterFactory_1._makeParamStoreGetter)(this, configuration2, options2)
           };
-          const overridden = (_b = (_a2 = this.overrideAdapter) === null || _a2 === void 0 ? void 0 : _a2.getParamStoreOverride) === null || _b === void 0 ? void 0 : _b.call(_a2, paramStore, options);
+          const overridden = (_b = (_a2 = this.overrideAdapter) === null || _a2 === void 0 ? void 0 : _a2.getParamStoreOverride) === null || _b === void 0 ? void 0 : _b.call(_a2, paramStore, options2);
           if (overridden != null) {
             paramStore.__configuration = overridden.config;
             paramStore.details = overridden.details;
-            paramStore.get = (0, ParamStoreGetterFactory_1._makeParamStoreGetter)(this, overridden.config, options);
+            paramStore.get = (0, ParamStoreGetterFactory_1._makeParamStoreGetter)(this, overridden.config, options2);
           }
           return paramStore;
         }
@@ -34655,12 +34655,12 @@
     "node_modules/eventemitter3/index.js"(exports, module2) {
       "use strict";
       var has = Object.prototype.hasOwnProperty;
-      var prefix = "~";
+      var prefix2 = "~";
       function Events() {
       }
       if (Object.create) {
         Events.prototype = /* @__PURE__ */ Object.create(null);
-        if (!new Events().__proto__) prefix = false;
+        if (!new Events().__proto__) prefix2 = false;
       }
       function EE(fn2, context, once2) {
         this.fn = fn2;
@@ -34671,7 +34671,7 @@
         if (typeof fn2 !== "function") {
           throw new TypeError("The listener must be a function");
         }
-        var listener = new EE(fn2, context || emitter, once2), evt = prefix ? prefix + event : event;
+        var listener = new EE(fn2, context || emitter, once2), evt = prefix2 ? prefix2 + event : event;
         if (!emitter._events[evt]) emitter._events[evt] = listener, emitter._eventsCount++;
         else if (!emitter._events[evt].fn) emitter._events[evt].push(listener);
         else emitter._events[evt] = [emitter._events[evt], listener];
@@ -34689,7 +34689,7 @@
         var names = [], events, name;
         if (this._eventsCount === 0) return names;
         for (name in events = this._events) {
-          if (has.call(events, name)) names.push(prefix ? name.slice(1) : name);
+          if (has.call(events, name)) names.push(prefix2 ? name.slice(1) : name);
         }
         if (Object.getOwnPropertySymbols) {
           return names.concat(Object.getOwnPropertySymbols(events));
@@ -34697,7 +34697,7 @@
         return names;
       };
       EventEmitter.prototype.listeners = function listeners(event) {
-        var evt = prefix ? prefix + event : event, handlers = this._events[evt];
+        var evt = prefix2 ? prefix2 + event : event, handlers = this._events[evt];
         if (!handlers) return [];
         if (handlers.fn) return [handlers.fn];
         for (var i = 0, l = handlers.length, ee = new Array(l); i < l; i++) {
@@ -34706,13 +34706,13 @@
         return ee;
       };
       EventEmitter.prototype.listenerCount = function listenerCount(event) {
-        var evt = prefix ? prefix + event : event, listeners = this._events[evt];
+        var evt = prefix2 ? prefix2 + event : event, listeners = this._events[evt];
         if (!listeners) return 0;
         if (listeners.fn) return 1;
         return listeners.length;
       };
       EventEmitter.prototype.emit = function emit(event, a1, a2, a3, a4, a5) {
-        var evt = prefix ? prefix + event : event;
+        var evt = prefix2 ? prefix2 + event : event;
         if (!this._events[evt]) return false;
         var listeners = this._events[evt], len = arguments.length, args, i;
         if (listeners.fn) {
@@ -34769,7 +34769,7 @@
         return addListener(this, event, fn2, context, true);
       };
       EventEmitter.prototype.removeListener = function removeListener(event, fn2, context, once2) {
-        var evt = prefix ? prefix + event : event;
+        var evt = prefix2 ? prefix2 + event : event;
         if (!this._events[evt]) return this;
         if (!fn2) {
           clearEvent(this, evt);
@@ -34794,7 +34794,7 @@
       EventEmitter.prototype.removeAllListeners = function removeAllListeners(event) {
         var evt;
         if (event) {
-          evt = prefix ? prefix + event : event;
+          evt = prefix2 ? prefix2 + event : event;
           if (this._events[evt]) clearEvent(this, evt);
         } else {
           this._events = new Events();
@@ -34804,7 +34804,7 @@
       };
       EventEmitter.prototype.off = EventEmitter.prototype.removeListener;
       EventEmitter.prototype.addListener = EventEmitter.prototype.on;
-      EventEmitter.prefixed = prefix;
+      EventEmitter.prefixed = prefix2;
       EventEmitter.EventEmitter = EventEmitter;
       if ("undefined" !== typeof module2) {
         module2.exports = EventEmitter;
@@ -34825,7 +34825,7 @@
       var _createClass22 = _interopRequireDefault(require_createClass());
       var _defineProperty2 = _interopRequireDefault(require_defineProperty());
       var _eventemitter = _interopRequireDefault(require_eventemitter3());
-      function ownKeys10(e, r) {
+      function ownKeys23(e, r) {
         var t = Object.keys(e);
         if (Object.getOwnPropertySymbols) {
           var o = Object.getOwnPropertySymbols(e);
@@ -34835,12 +34835,12 @@
         }
         return t;
       }
-      function _objectSpread10(e) {
+      function _objectSpread23(e) {
         for (var r = 1; r < arguments.length; r++) {
           var t = null != arguments[r] ? arguments[r] : {};
-          r % 2 ? ownKeys10(Object(t), true).forEach(function(r2) {
+          r % 2 ? ownKeys23(Object(t), true).forEach(function(r2) {
             (0, _defineProperty2.default)(e, r2, t[r2]);
-          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys10(Object(t)).forEach(function(r2) {
+          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys23(Object(t)).forEach(function(r2) {
             Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
           });
         }
@@ -34855,16 +34855,16 @@
         }
         return (0, _createClass22.default)(Subscriptions2, [{
           key: "onGateUpdated",
-          value: function onGateUpdated(gateName, callback, checkGate, options) {
+          value: function onGateUpdated(gateName, callback, checkGate, options2) {
             var _this = this;
-            var value = checkGate(gateName, _objectSpread10(_objectSpread10({}, options), {}, {
+            var value = checkGate(gateName, _objectSpread23(_objectSpread23({}, options2), {}, {
               fireGateExposure: false
             }));
             if (this.eventToValue.get(callback) === void 0) {
               this.eventToValue.set(callback, value);
             }
             var wrapCallback = function wrapCallback2() {
-              var value2 = checkGate(gateName, _objectSpread10(_objectSpread10({}, options), {}, {
+              var value2 = checkGate(gateName, _objectSpread23(_objectSpread23({}, options2), {}, {
                 fireGateExposure: false
               }));
               var existingValue = _this.eventToValue.get(callback);
@@ -34880,17 +34880,17 @@
           }
         }, {
           key: "onExperimentValueUpdated",
-          value: function onExperimentValueUpdated(experimentName, parameterName, defaultValue, callback, getExperimentValue, options) {
+          value: function onExperimentValueUpdated(experimentName, parameterName, defaultValue, callback, getExperimentValue, options2) {
             var _this2 = this;
             var experimentEventName = "".concat(experimentName, ".").concat(parameterName);
-            var value = getExperimentValue(experimentName, parameterName, defaultValue, _objectSpread10(_objectSpread10({}, options), {}, {
+            var value = getExperimentValue(experimentName, parameterName, defaultValue, _objectSpread23(_objectSpread23({}, options2), {}, {
               fireExperimentExposure: false
             }));
             if (this.eventToValue.get(callback) === void 0) {
               this.eventToValue.set(callback, value);
             }
             var wrapCallback = function wrapCallback2() {
-              var value2 = getExperimentValue(experimentName, parameterName, defaultValue, _objectSpread10(_objectSpread10({}, options), {}, {
+              var value2 = getExperimentValue(experimentName, parameterName, defaultValue, _objectSpread23(_objectSpread23({}, options2), {}, {
                 fireExperimentExposure: false
               }));
               var existingValue = _this2.eventToValue.get(callback);
@@ -35567,8 +35567,8 @@
       var _atlassianContext = require_cjs();
       var _types = require_types2();
       var _types2 = require_types3();
-      var _excluded = ["api", "disableCurrentPageLogging", "loggingIntervalMillis", "loggingBufferMaxSize", "localMode", "eventLoggingApi", "eventLoggingApiForRetries", "disableLocalStorage", "ignoreWindowUndefined", "disableAllLogging", "initTimeoutMs", "disableNetworkKeepalive", "overrideStableID", "disableErrorLogging", "disableAutoMetricsLogging"];
-      function ownKeys10(e, r) {
+      var _excluded15 = ["api", "disableCurrentPageLogging", "loggingIntervalMillis", "loggingBufferMaxSize", "localMode", "eventLoggingApi", "eventLoggingApiForRetries", "disableLocalStorage", "ignoreWindowUndefined", "disableAllLogging", "initTimeoutMs", "disableNetworkKeepalive", "overrideStableID", "disableErrorLogging", "disableAutoMetricsLogging"];
+      function ownKeys23(e, r) {
         var t = Object.keys(e);
         if (Object.getOwnPropertySymbols) {
           var o = Object.getOwnPropertySymbols(e);
@@ -35578,25 +35578,25 @@
         }
         return t;
       }
-      function _objectSpread10(e) {
+      function _objectSpread23(e) {
         for (var r = 1; r < arguments.length; r++) {
           var t = null != arguments[r] ? arguments[r] : {};
-          r % 2 ? ownKeys10(Object(t), true).forEach(function(r2) {
+          r % 2 ? ownKeys23(Object(t), true).forEach(function(r2) {
             (0, _defineProperty2.default)(e, r2, t[r2]);
-          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys10(Object(t)).forEach(function(r2) {
+          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys23(Object(t)).forEach(function(r2) {
             Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
           });
         }
         return e;
       }
-      var getOptionsWithDefaults = exports.getOptionsWithDefaults = function getOptionsWithDefaults2(options) {
-        return _objectSpread10({
+      var getOptionsWithDefaults = exports.getOptionsWithDefaults = function getOptionsWithDefaults2(options2) {
+        return _objectSpread23({
           /**
            * If more federal PerimeterTypes are added in the future, this should be updated so
            * that isFedRamp() === true always returns the strictest perimeter.
            */
           perimeter: (0, _atlassianContext.isFedRamp)() ? _types2.PerimeterType.FEDRAMP_MODERATE : _types2.PerimeterType.COMMERCIAL
-        }, options);
+        }, options2);
       };
       var shallowEquals = exports.shallowEquals = function shallowEquals2(objectA, objectB) {
         if (!objectA && !objectB) {
@@ -35636,9 +35636,9 @@
         }
         return user;
       };
-      var migrateInitializationOptions = exports.migrateInitializationOptions = function migrateInitializationOptions2(options) {
-        var api4 = options.api, disableCurrentPageLogging = options.disableCurrentPageLogging, loggingIntervalMillis = options.loggingIntervalMillis, loggingBufferMaxSize = options.loggingBufferMaxSize, localMode = options.localMode, eventLoggingApi = options.eventLoggingApi, eventLoggingApiForRetries = options.eventLoggingApiForRetries, disableLocalStorage = options.disableLocalStorage, ignoreWindowUndefined = options.ignoreWindowUndefined, disableAllLogging = options.disableAllLogging, _initTimeoutMs = options.initTimeoutMs, _disableNetworkKeepalive = options.disableNetworkKeepalive, _overrideStableID = options.overrideStableID, _disableErrorLogging = options.disableErrorLogging, _disableAutoMetricsLogging = options.disableAutoMetricsLogging, rest = (0, _objectWithoutProperties2.default)(options, _excluded);
-        return _objectSpread10(_objectSpread10({}, rest), {}, {
+      var migrateInitializationOptions = exports.migrateInitializationOptions = function migrateInitializationOptions2(options2) {
+        var api4 = options2.api, disableCurrentPageLogging = options2.disableCurrentPageLogging, loggingIntervalMillis = options2.loggingIntervalMillis, loggingBufferMaxSize = options2.loggingBufferMaxSize, localMode = options2.localMode, eventLoggingApi = options2.eventLoggingApi, eventLoggingApiForRetries = options2.eventLoggingApiForRetries, disableLocalStorage = options2.disableLocalStorage, ignoreWindowUndefined = options2.ignoreWindowUndefined, disableAllLogging = options2.disableAllLogging, _initTimeoutMs = options2.initTimeoutMs, _disableNetworkKeepalive = options2.disableNetworkKeepalive, _overrideStableID = options2.overrideStableID, _disableErrorLogging = options2.disableErrorLogging, _disableAutoMetricsLogging = options2.disableAutoMetricsLogging, rest = (0, _objectWithoutProperties2.default)(options2, _excluded15);
+        return _objectSpread23(_objectSpread23({}, rest), {}, {
           networkConfig: {
             api: api4,
             logEventUrl: eventLoggingApi ? eventLoggingApi + "rgstr" : void 0,
@@ -35955,17 +35955,17 @@
   // node_modules/@babel/runtime/helpers/isNativeReflectConstruct.js
   var require_isNativeReflectConstruct = __commonJS({
     "node_modules/@babel/runtime/helpers/isNativeReflectConstruct.js"(exports, module2) {
-      function _isNativeReflectConstruct2() {
+      function _isNativeReflectConstruct4() {
         try {
           var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
           }));
         } catch (t2) {
         }
-        return (module2.exports = _isNativeReflectConstruct2 = function _isNativeReflectConstruct3() {
+        return (module2.exports = _isNativeReflectConstruct4 = function _isNativeReflectConstruct5() {
           return !!t;
         }, module2.exports.__esModule = true, module2.exports["default"] = module2.exports)();
       }
-      module2.exports = _isNativeReflectConstruct2, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
+      module2.exports = _isNativeReflectConstruct4, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
     }
   });
 
@@ -36033,23 +36033,23 @@
       var _getPrototypeOf2 = _interopRequireDefault(require_getPrototypeOf());
       var _inherits2 = _interopRequireDefault(require_inherits());
       var _wrapNativeSuper2 = _interopRequireDefault(require_wrapNativeSuper());
-      function _callSuper2(t, o, e) {
-        return o = (0, _getPrototypeOf2.default)(o), (0, _possibleConstructorReturn2.default)(t, _isNativeReflectConstruct2() ? Reflect.construct(o, e || [], (0, _getPrototypeOf2.default)(t).constructor) : o.apply(t, e));
+      function _callSuper4(t, o, e) {
+        return o = (0, _getPrototypeOf2.default)(o), (0, _possibleConstructorReturn2.default)(t, _isNativeReflectConstruct4() ? Reflect.construct(o, e || [], (0, _getPrototypeOf2.default)(t).constructor) : o.apply(t, e));
       }
-      function _isNativeReflectConstruct2() {
+      function _isNativeReflectConstruct4() {
         try {
           var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
           }));
         } catch (t2) {
         }
-        return (_isNativeReflectConstruct2 = function _isNativeReflectConstruct3() {
+        return (_isNativeReflectConstruct4 = function _isNativeReflectConstruct5() {
           return !!t;
         })();
       }
       var ResponseError = exports.ResponseError = /* @__PURE__ */ (function(_Error) {
         function ResponseError2(message2) {
           (0, _classCallCheck2.default)(this, ResponseError2);
-          return _callSuper2(this, ResponseError2, [message2]);
+          return _callSuper4(this, ResponseError2, [message2]);
         }
         (0, _inherits2.default)(ResponseError2, _Error);
         return (0, _createClass22.default)(ResponseError2);
@@ -36074,7 +36074,7 @@
       var _types = require_types3();
       var _version = require_version();
       var _errors = require_errors();
-      function ownKeys10(e, r) {
+      function ownKeys23(e, r) {
         var t = Object.keys(e);
         if (Object.getOwnPropertySymbols) {
           var o = Object.getOwnPropertySymbols(e);
@@ -36084,12 +36084,12 @@
         }
         return t;
       }
-      function _objectSpread10(e) {
+      function _objectSpread23(e) {
         for (var r = 1; r < arguments.length; r++) {
           var t = null != arguments[r] ? arguments[r] : {};
-          r % 2 ? ownKeys10(Object(t), true).forEach(function(r2) {
+          r % 2 ? ownKeys23(Object(t), true).forEach(function(r2) {
             (0, _defineProperty2.default)(e, r2, t[r2]);
-          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys10(Object(t)).forEach(function(r2) {
+          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys23(Object(t)).forEach(function(r2) {
             Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
           });
         }
@@ -36301,7 +36301,7 @@
                       }, fetchTimeout);
                     }
                     _context5.next = 5;
-                    return fetch("".concat(baseUrl).concat(path), _objectSpread10({
+                    return fetch("".concat(baseUrl).concat(path), _objectSpread23({
                       method,
                       headers: {
                         "Content-Type": "application/json",
@@ -36433,7 +36433,7 @@
       var _inherits2 = _interopRequireDefault(require_inherits());
       var _defineProperty2 = _interopRequireDefault(require_defineProperty());
       var _jsClient = require_src2();
-      function ownKeys10(e, r) {
+      function ownKeys23(e, r) {
         var t = Object.keys(e);
         if (Object.getOwnPropertySymbols) {
           var o = Object.getOwnPropertySymbols(e);
@@ -36443,27 +36443,27 @@
         }
         return t;
       }
-      function _objectSpread10(e) {
+      function _objectSpread23(e) {
         for (var r = 1; r < arguments.length; r++) {
           var t = null != arguments[r] ? arguments[r] : {};
-          r % 2 ? ownKeys10(Object(t), true).forEach(function(r2) {
+          r % 2 ? ownKeys23(Object(t), true).forEach(function(r2) {
             (0, _defineProperty2.default)(e, r2, t[r2]);
-          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys10(Object(t)).forEach(function(r2) {
+          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys23(Object(t)).forEach(function(r2) {
             Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
           });
         }
         return e;
       }
-      function _callSuper2(t, o, e) {
-        return o = (0, _getPrototypeOf2.default)(o), (0, _possibleConstructorReturn2.default)(t, _isNativeReflectConstruct2() ? Reflect.construct(o, e || [], (0, _getPrototypeOf2.default)(t).constructor) : o.apply(t, e));
+      function _callSuper4(t, o, e) {
+        return o = (0, _getPrototypeOf2.default)(o), (0, _possibleConstructorReturn2.default)(t, _isNativeReflectConstruct4() ? Reflect.construct(o, e || [], (0, _getPrototypeOf2.default)(t).constructor) : o.apply(t, e));
       }
-      function _isNativeReflectConstruct2() {
+      function _isNativeReflectConstruct4() {
         try {
           var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
           }));
         } catch (t2) {
         }
-        return (_isNativeReflectConstruct2 = function _isNativeReflectConstruct3() {
+        return (_isNativeReflectConstruct4 = function _isNativeReflectConstruct5() {
           return !!t;
         })();
       }
@@ -36477,7 +36477,7 @@
         function NoFetchDataAdapter2() {
           var _this;
           (0, _classCallCheck2.default)(this, NoFetchDataAdapter2);
-          _this = _callSuper2(this, NoFetchDataAdapter2, ["NoFetchDataAdapter", "nofetch"]);
+          _this = _callSuper4(this, NoFetchDataAdapter2, ["NoFetchDataAdapter", "nofetch"]);
           (0, _defineProperty2.default)(_this, "bootstrapResult", null);
           return _this;
         }
@@ -36517,7 +36517,7 @@
               return _regenerator.default.wrap(function _callee2$(_context2) {
                 while (1) switch (_context2.prev = _context2.next) {
                   case 0:
-                    return _context2.abrupt("return", this.bootstrapResult && _objectSpread10(_objectSpread10({}, this.bootstrapResult), {}, {
+                    return _context2.abrupt("return", this.bootstrapResult && _objectSpread23(_objectSpread23({}, this.bootstrapResult), {}, {
                       fullUserHash: (0, _jsClient._getFullUserHash)(user)
                     }));
                   case 1:
@@ -36534,7 +36534,7 @@
         }, {
           key: "getDataSync",
           value: function getDataSync(user) {
-            return this.bootstrapResult && _objectSpread10(_objectSpread10({}, this.bootstrapResult), {}, {
+            return this.bootstrapResult && _objectSpread23(_objectSpread23({}, this.bootstrapResult), {}, {
               fullUserHash: (0, _jsClient._getFullUserHash)(user)
             });
           }
@@ -36579,7 +36579,7 @@
         }, {
           key: "toJSON",
           value: function toJSON() {
-            var result2 = _objectSpread10({}, this);
+            var result2 = _objectSpread23({}, this);
             delete result2._options;
             delete result2._inMemoryCache;
             delete result2.bootstrapResult;
@@ -36604,7 +36604,7 @@
       var _classCallCheck2 = _interopRequireDefault(require_classCallCheck());
       var _createClass22 = _interopRequireDefault(require_createClass());
       var _clientCore = require_src();
-      function ownKeys10(e, r) {
+      function ownKeys23(e, r) {
         var t = Object.keys(e);
         if (Object.getOwnPropertySymbols) {
           var o = Object.getOwnPropertySymbols(e);
@@ -36614,12 +36614,12 @@
         }
         return t;
       }
-      function _objectSpread10(e) {
+      function _objectSpread23(e) {
         for (var r = 1; r < arguments.length; r++) {
           var t = null != arguments[r] ? arguments[r] : {};
-          r % 2 ? ownKeys10(Object(t), true).forEach(function(r2) {
+          r % 2 ? ownKeys23(Object(t), true).forEach(function(r2) {
             (0, _defineProperty2.default)(e, r2, t[r2]);
-          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys10(Object(t)).forEach(function(r2) {
+          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys23(Object(t)).forEach(function(r2) {
             Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
           });
         }
@@ -36772,7 +36772,7 @@
         }, {
           key: "applyOverrides",
           value: function applyOverrides(overrides) {
-            var newOverrides = _objectSpread10(_objectSpread10({}, makeEmptyStore()), overrides);
+            var newOverrides = _objectSpread23(_objectSpread23({}, makeEmptyStore()), overrides);
             this._djb2Map.clear();
             for (var _i6 = 0, _Object$entries4 = Object.entries(newOverrides); _i6 < _Object$entries4.length; _i6++) {
               var _Object$entries4$_i = (0, _slicedToArray2.default)(_Object$entries4[_i6], 2), containerName = _Object$entries4$_i[0], container2 = _Object$entries4$_i[1];
@@ -36811,9 +36811,9 @@
             if (overridden == null) {
               return null;
             }
-            return _objectSpread10(_objectSpread10({}, current), {}, {
+            return _objectSpread23(_objectSpread23({}, current), {}, {
               value: overridden,
-              details: _objectSpread10(_objectSpread10({}, current.details), {}, {
+              details: _objectSpread23(_objectSpread23({}, current.details), {}, {
                 reason: LOCAL_OVERRIDE_REASON
               })
             });
@@ -36887,10 +36887,10 @@
             if (overridden == null) {
               return null;
             }
-            return _objectSpread10(_objectSpread10({}, current), {}, {
+            return _objectSpread23(_objectSpread23({}, current), {}, {
               __value: overridden,
               get: (0, _clientCore._makeTypedGet)(current.name, overridden),
-              details: _objectSpread10(_objectSpread10({}, current.details), {}, {
+              details: _objectSpread23(_objectSpread23({}, current.details), {}, {
                 reason: LOCAL_OVERRIDE_REASON
               })
             });
@@ -36903,10 +36903,10 @@
             if (overridden == null) {
               return null;
             }
-            return _objectSpread10(_objectSpread10({}, current), {}, {
+            return _objectSpread23(_objectSpread23({}, current), {}, {
               value: overridden,
               get: (0, _clientCore._makeTypedGet)(current.name, overridden),
-              details: _objectSpread10(_objectSpread10({}, current.details), {}, {
+              details: _objectSpread23(_objectSpread23({}, current.details), {}, {
                 reason: LOCAL_OVERRIDE_REASON
               })
             });
@@ -36943,8 +36943,8 @@
       var _types2 = require_types3();
       var _utils = require_utils();
       var _version = require_version();
-      var _excluded = ["sdkKey", "environment", "updateUserCompletionCallback", "perimeter"];
-      function ownKeys10(e, r) {
+      var _excluded15 = ["sdkKey", "environment", "updateUserCompletionCallback", "perimeter"];
+      function ownKeys23(e, r) {
         var t = Object.keys(e);
         if (Object.getOwnPropertySymbols) {
           var o = Object.getOwnPropertySymbols(e);
@@ -36954,12 +36954,12 @@
         }
         return t;
       }
-      function _objectSpread10(e) {
+      function _objectSpread23(e) {
         for (var r = 1; r < arguments.length; r++) {
           var t = null != arguments[r] ? arguments[r] : {};
-          r % 2 ? ownKeys10(Object(t), true).forEach(function(r2) {
+          r % 2 ? ownKeys23(Object(t), true).forEach(function(r2) {
             (0, _defineProperty2.default)(e, r2, t[r2]);
-          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys10(Object(t)).forEach(function(r2) {
+          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys23(Object(t)).forEach(function(r2) {
             Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
           });
         }
@@ -37099,7 +37099,7 @@
             var _analyticsWebClient, _this4 = this;
             var apiKey = arguments.length > 4 && arguments[4] !== void 0 ? arguments[4] : void 0;
             (_analyticsWebClient = this.initOptions.analyticsWebClient) === null || _analyticsWebClient === void 0 || _analyticsWebClient.then(function(analyticsWebClient) {
-              var attributes = _objectSpread10({
+              var attributes = _objectSpread23({
                 targetApp: _this4.initOptions.targetApp,
                 clientVersion: _version.CLIENT_VERSION,
                 success,
@@ -37295,10 +37295,10 @@
         }, {
           key: "checkGate",
           value: function checkGate(gateName) {
-            var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+            var options2 = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
             try {
               this.assertInitialized(this.statsigClient);
-              var _options$fireGateExpo = options.fireGateExposure, fireGateExposure = _options$fireGateExpo === void 0 ? true : _options$fireGateExpo;
+              var _options$fireGateExpo = options2.fireGateExposure, fireGateExposure = _options$fireGateExpo === void 0 ? true : _options$fireGateExpo;
               return this.statsigClient.checkGate(gateName, {
                 disableExposureLog: !fireGateExposure
               });
@@ -37372,10 +37372,10 @@
         }, {
           key: "getExperiment",
           value: function getExperiment(experimentName) {
-            var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+            var options2 = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
             try {
               this.assertInitialized(this.statsigClient);
-              var _options$fireExperime = options.fireExperimentExposure, fireExperimentExposure = _options$fireExperime === void 0 ? true : _options$fireExperime;
+              var _options$fireExperime = options2.fireExperimentExposure, fireExperimentExposure = _options$fireExperime === void 0 ? true : _options$fireExperime;
               return _DynamicConfig.DynamicConfig.fromExperiment(this.statsigClient.getExperiment(experimentName, {
                 disableExposureLog: !fireExperimentExposure
               }));
@@ -37432,10 +37432,10 @@
         }, {
           key: "getExperimentValue",
           value: function getExperimentValue(experimentName, parameterName, defaultValue) {
-            var options = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : {};
-            var experiment = this.getExperiment(experimentName, options);
+            var options2 = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : {};
+            var experiment = this.getExperiment(experimentName, options2);
             try {
-              var typeGuard = options.typeGuard;
+              var typeGuard = options2.typeGuard;
               return experiment.get(parameterName, defaultValue, typeGuard);
             } catch (error) {
               if (!this.hasGetExperimentValueErrorOccurred) {
@@ -37443,7 +37443,7 @@
                   msg: "An error has occurred getting the experiment value. Only the first occurrence of this error is logged.",
                   experimentName,
                   defaultValue,
-                  options,
+                  options: options2,
                   error
                 });
                 this.hasGetExperimentValueErrorOccurred = true;
@@ -37613,9 +37613,9 @@
           key: "onGateUpdated",
           value: function onGateUpdated(gateName, callback) {
             var _this7 = this;
-            var options = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : {};
+            var options2 = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : {};
             var wrapCallback = function wrapCallback2(value) {
-              var _options$fireGateExpo2 = options.fireGateExposure, fireGateExposure = _options$fireGateExpo2 === void 0 ? true : _options$fireGateExpo2;
+              var _options$fireGateExpo2 = options2.fireGateExposure, fireGateExposure = _options$fireGateExpo2 === void 0 ? true : _options$fireGateExpo2;
               if (fireGateExposure) {
                 _this7.manuallyLogGateExposure(gateName);
               }
@@ -37625,7 +37625,7 @@
                 console.warn("Error calling callback for gate ".concat(gateName, " with value ").concat(value), error);
               }
             };
-            return this.subscriptions.onGateUpdated(gateName, wrapCallback, this.checkGate.bind(this), options);
+            return this.subscriptions.onGateUpdated(gateName, wrapCallback, this.checkGate.bind(this), options2);
           }
           /**
            * Subscribe to updates where the given callback will be called with the current experiment value
@@ -37640,9 +37640,9 @@
           key: "onExperimentValueUpdated",
           value: function onExperimentValueUpdated(experimentName, parameterName, defaultValue, callback) {
             var _this8 = this;
-            var options = arguments.length > 4 && arguments[4] !== void 0 ? arguments[4] : {};
+            var options2 = arguments.length > 4 && arguments[4] !== void 0 ? arguments[4] : {};
             var wrapCallback = function wrapCallback2(value) {
-              var _options$fireExperime2 = options.fireExperimentExposure, fireExperimentExposure = _options$fireExperime2 === void 0 ? true : _options$fireExperime2;
+              var _options$fireExperime2 = options2.fireExperimentExposure, fireExperimentExposure = _options$fireExperime2 === void 0 ? true : _options$fireExperime2;
               if (fireExperimentExposure) {
                 _this8.manuallyLogExperimentExposure(experimentName);
               }
@@ -37652,7 +37652,7 @@
                 console.warn("Error calling callback for experiment ".concat(experimentName, " with value ").concat(value), error);
               }
             };
-            return this.subscriptions.onExperimentValueUpdated(experimentName, parameterName, defaultValue, wrapCallback, this.getExperimentValue.bind(this), options);
+            return this.subscriptions.onExperimentValueUpdated(experimentName, parameterName, defaultValue, wrapCallback, this.getExperimentValue.bind(this), options2);
           }
           /**
            * Subscribe so on any update the callback will be called.
@@ -37683,7 +37683,7 @@
               return _regenerator.default.wrap(function _callee7$(_context7) {
                 while (1) switch (_context7.prev = _context7.next) {
                   case 0:
-                    fromValuesClientOptions = _objectSpread10({}, clientOptions);
+                    fromValuesClientOptions = _objectSpread23({}, clientOptions);
                     _context7.prev = 1;
                     clientSdkKeyPromise = _fetcher.default.fetchClientSdk(clientOptions).then(function(value) {
                       return fromValuesClientOptions.sdkKey = value.clientSdkKey;
@@ -37731,7 +37731,7 @@
               return _regenerator.default.wrap(function _callee8$(_context8) {
                 while (1) switch (_context8.prev = _context8.next) {
                   case 0:
-                    fromValuesClientOptions = _objectSpread10(_objectSpread10({}, baseClientOptions), {}, {
+                    fromValuesClientOptions = _objectSpread23(_objectSpread23({}, baseClientOptions), {}, {
                       disableCurrentPageLogging: true
                     });
                     _context8.prev = 1;
@@ -37804,16 +37804,16 @@
                       newClientOptions.sdkKey = DEFAULT_CLIENT_KEY;
                     }
                     if (!((_newClientOptions$net = newClientOptions.networkConfig) !== null && _newClientOptions$net !== void 0 && _newClientOptions$net.logEventUrl)) {
-                      newClientOptions.networkConfig = _objectSpread10(_objectSpread10({}, newClientOptions.networkConfig), {}, {
+                      newClientOptions.networkConfig = _objectSpread23(_objectSpread23({}, newClientOptions.networkConfig), {}, {
                         logEventUrl: DEFAULT_EVENT_LOGGING_API
                       });
                     }
                     if (newClientOptions.perimeter === _types2.PerimeterType.FEDRAMP_MODERATE) {
                       newClientOptions.disableLogging = true;
                     }
-                    sdkKey = newClientOptions.sdkKey, environment = newClientOptions.environment, _updateUserCompletionCallback = newClientOptions.updateUserCompletionCallback, _perimeter = newClientOptions.perimeter, restClientOptions = (0, _objectWithoutProperties2.default)(newClientOptions, _excluded);
+                    sdkKey = newClientOptions.sdkKey, environment = newClientOptions.environment, _updateUserCompletionCallback = newClientOptions.updateUserCompletionCallback, _perimeter = newClientOptions.perimeter, restClientOptions = (0, _objectWithoutProperties2.default)(newClientOptions, _excluded15);
                     this.user = (0, _utils.toStatsigUser)(identifiers, customAttributes);
-                    statsigOptions = _objectSpread10(_objectSpread10({}, restClientOptions), {}, {
+                    statsigOptions = _objectSpread23(_objectSpread23({}, restClientOptions), {}, {
                       environment: {
                         tier: environment
                       },
@@ -38020,10 +38020,10 @@
         }, {
           key: "getLayer",
           value: function getLayer(layerName) {
-            var options = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
+            var options2 = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : {};
             try {
               this.assertInitialized(this.statsigClient);
-              var _options$fireLayerExp = options.fireLayerExposure, fireLayerExposure = _options$fireLayerExp === void 0 ? true : _options$fireLayerExp;
+              var _options$fireLayerExp = options2.fireLayerExposure, fireLayerExposure = _options$fireLayerExp === void 0 ? true : _options$fireLayerExp;
               return _Layer.Layer.fromLayer(this.statsigClient.getLayer(layerName, {
                 disableExposureLog: !fireLayerExposure
               }));
@@ -38076,10 +38076,10 @@
         }, {
           key: "getLayerValue",
           value: function getLayerValue(layerName, parameterName, defaultValue) {
-            var options = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : {};
-            var layer2 = this.getLayer(layerName, options);
+            var options2 = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : {};
+            var layer2 = this.getLayer(layerName, options2);
             try {
-              var typeGuard = options.typeGuard;
+              var typeGuard = options2.typeGuard;
               return layer2.get(parameterName, defaultValue, typeGuard);
             } catch (error) {
               if (!this.hasGetLayerValueErrorOccurred) {
@@ -38087,7 +38087,7 @@
                   msg: "An error has occurred getting the layer value. Only the first occurrence of this error is logged.",
                   layerName,
                   defaultValue,
-                  options,
+                  options: options2,
                   error
                 });
                 this.hasGetLayerValueErrorOccurred = true;
@@ -38168,7 +38168,7 @@
       (0, _defineProperty2.default)(FeatureGates, "client", new _Client.Client());
       (0, _defineProperty2.default)(FeatureGates, "hasCheckGateErrorOccurred", false);
       (0, _defineProperty2.default)(FeatureGates, "hasGetExperimentValueErrorOccurred", false);
-      (0, _defineProperty2.default)(FeatureGates, "checkGate", function(gateName, options) {
+      (0, _defineProperty2.default)(FeatureGates, "checkGate", function(gateName, options2) {
         try {
           if (typeof window !== "undefined" && window.__CRITERION__ && typeof window.__CRITERION__.getFeatureFlagOverride === "function") {
             var overrideValue = window.__CRITERION__.getFeatureFlagOverride(gateName);
@@ -38186,9 +38186,9 @@
             _FeatureGates.hasCheckGateErrorOccurred = true;
           }
         }
-        return _FeatureGates.client.checkGate(gateName, options);
+        return _FeatureGates.client.checkGate(gateName, options2);
       });
-      (0, _defineProperty2.default)(FeatureGates, "getExperimentValue", function(experimentName, parameterName, defaultValue, options) {
+      (0, _defineProperty2.default)(FeatureGates, "getExperimentValue", function(experimentName, parameterName, defaultValue, options2) {
         try {
           if (typeof window !== "undefined" && window.__CRITERION__ && typeof window.__CRITERION__.getExperimentValueOverride === "function") {
             var overrideValue = window.__CRITERION__.getExperimentValueOverride(experimentName, parameterName);
@@ -38202,14 +38202,14 @@
               msg: "An error has occurred getting the experiment value from criterion override. Only the first occurrence of this error is logged.",
               experimentName,
               defaultValue,
-              options,
+              options: options2,
               error
             });
             _FeatureGates.hasGetExperimentValueErrorOccurred = true;
           }
           return defaultValue;
         }
-        return _FeatureGates.client.getExperimentValue(experimentName, parameterName, defaultValue, options);
+        return _FeatureGates.client.getExperimentValue(experimentName, parameterName, defaultValue, options2);
       });
       (0, _defineProperty2.default)(FeatureGates, "initializeCalled", _FeatureGates.client.initializeCalled.bind(_FeatureGates.client));
       (0, _defineProperty2.default)(FeatureGates, "initializeCompleted", _FeatureGates.client.initializeCompleted.bind(_FeatureGates.client));
@@ -38415,7 +38415,7 @@
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
-      exports.fg = fg7;
+      exports.fg = fg12;
       exports.getBooleanFF = getBooleanFF;
       exports.setBooleanFeatureFlagResolver = setBooleanFeatureFlagResolver;
       var _resolvers = require_resolvers();
@@ -38425,7 +38425,7 @@
       function getBooleanFF(name) {
         return (0, _resolvers.resolveBooleanFlag)(name);
       }
-      function fg7(name) {
+      function fg12(name) {
         return (0, _resolvers.resolveBooleanFlag)(name);
       }
     }
@@ -38500,7 +38500,7 @@
           var ContextProvider = REACT_PROVIDER_TYPE;
           var Element2 = REACT_ELEMENT_TYPE;
           var ForwardRef = REACT_FORWARD_REF_TYPE;
-          var Fragment3 = REACT_FRAGMENT_TYPE;
+          var Fragment6 = REACT_FRAGMENT_TYPE;
           var Lazy = REACT_LAZY_TYPE;
           var Memo = REACT_MEMO_TYPE;
           var Portal2 = REACT_PORTAL_TYPE;
@@ -38526,7 +38526,7 @@
           function isContextProvider(object2) {
             return typeOf(object2) === REACT_PROVIDER_TYPE;
           }
-          function isElement2(object2) {
+          function isElement3(object2) {
             return typeof object2 === "object" && object2 !== null && object2.$$typeof === REACT_ELEMENT_TYPE;
           }
           function isForwardRef(object2) {
@@ -38559,7 +38559,7 @@
           exports.ContextProvider = ContextProvider;
           exports.Element = Element2;
           exports.ForwardRef = ForwardRef;
-          exports.Fragment = Fragment3;
+          exports.Fragment = Fragment6;
           exports.Lazy = Lazy;
           exports.Memo = Memo;
           exports.Portal = Portal2;
@@ -38570,7 +38570,7 @@
           exports.isConcurrentMode = isConcurrentMode;
           exports.isContextConsumer = isContextConsumer;
           exports.isContextProvider = isContextProvider;
-          exports.isElement = isElement2;
+          exports.isElement = isElement3;
           exports.isForwardRef = isForwardRef;
           exports.isFragment = isFragment;
           exports.isLazy = isLazy;
@@ -39020,7 +39020,7 @@
         }
         function createNodeChecker() {
           function validate(props, propName, componentName, location2, propFullName) {
-            if (!isNode2(props[propName])) {
+            if (!isNode3(props[propName])) {
               return new PropTypeError("Invalid " + location2 + " `" + propFullName + "` supplied to " + ("`" + componentName + "`, expected a ReactNode."));
             }
             return null;
@@ -39080,7 +39080,7 @@
           }
           return createChainableTypeChecker(validate);
         }
-        function isNode2(propValue) {
+        function isNode3(propValue) {
           switch (typeof propValue) {
             case "number":
             case "string":
@@ -39090,7 +39090,7 @@
               return !propValue;
             case "object":
               if (Array.isArray(propValue)) {
-                return propValue.every(isNode2);
+                return propValue.every(isNode3);
               }
               if (propValue === null || isValidElement(propValue)) {
                 return true;
@@ -39101,7 +39101,7 @@
                 var step;
                 if (iteratorFn !== propValue.entries) {
                   while (!(step = iterator.next()).done) {
-                    if (!isNode2(step.value)) {
+                    if (!isNode3(step.value)) {
                       return false;
                     }
                   }
@@ -39109,7 +39109,7 @@
                   while (!(step = iterator.next()).done) {
                     var entry = step.value;
                     if (entry) {
-                      if (!isNode2(entry[1])) {
+                      if (!isNode3(entry[1])) {
                         return false;
                       }
                     }
@@ -39271,7 +39271,7 @@
         }
         return a !== a && b !== b;
       }
-      module2.exports = function isEqual2(a, b) {
+      module2.exports = function isEqual3(a, b) {
         try {
           return equal2(a, b);
         } catch (error) {
@@ -39290,12 +39290,12 @@
     "node_modules/exenv/index.js"(exports, module2) {
       (function() {
         "use strict";
-        var canUseDOM2 = !!(typeof window !== "undefined" && window.document && window.document.createElement);
+        var canUseDOM3 = !!(typeof window !== "undefined" && window.document && window.document.createElement);
         var ExecutionEnvironment = {
-          canUseDOM: canUseDOM2,
+          canUseDOM: canUseDOM3,
           canUseWorkers: typeof Worker !== "undefined",
-          canUseEventListeners: canUseDOM2 && !!(window.addEventListener || window.attachEvent),
-          canUseViewport: canUseDOM2 && !!window.screen
+          canUseEventListeners: canUseDOM3 && !!(window.addEventListener || window.attachEvent),
+          canUseViewport: canUseDOM3 && !!window.screen
         };
         if (typeof define === "function" && typeof define.amd === "object" && define.amd) {
           define(function() {
@@ -39318,10 +39318,10 @@
         value: true
       });
       exports.pipe = exports.listenerOptions = void 0;
-      exports.preventTouchMove = preventTouchMove;
-      exports.allowTouchMove = allowTouchMove;
-      exports.preventInertiaScroll = preventInertiaScroll;
-      exports.isTouchDevice = isTouchDevice;
+      exports.preventTouchMove = preventTouchMove2;
+      exports.allowTouchMove = allowTouchMove2;
+      exports.preventInertiaScroll = preventInertiaScroll2;
+      exports.isTouchDevice = isTouchDevice2;
       exports.camelToKebab = camelToKebab;
       exports.parse = parse4;
       exports.getPadding = getPadding;
@@ -39331,15 +39331,15 @@
       exports.injectStyles = injectStyles;
       exports.insertStyleTag = insertStyleTag;
       var _exenv = require_exenv();
-      var listenerOptions = exports.listenerOptions = {
+      var listenerOptions2 = exports.listenerOptions = {
         capture: false,
         passive: false
       };
-      function preventTouchMove(e) {
+      function preventTouchMove2(e) {
         e.preventDefault();
         return false;
       }
-      function allowTouchMove(e) {
+      function allowTouchMove2(e) {
         var target = e.currentTarget;
         if (target.scrollHeight > target.clientHeight) {
           e.stopPropagation();
@@ -39348,7 +39348,7 @@
         e.preventDefault();
         return false;
       }
-      function preventInertiaScroll() {
+      function preventInertiaScroll2() {
         var top2 = this.scrollTop;
         var totalScroll = this.scrollHeight;
         var currentScroll = top2 + this.offsetHeight;
@@ -39358,7 +39358,7 @@
           this.scrollTop = top2 - 1;
         }
       }
-      function isTouchDevice() {
+      function isTouchDevice2() {
         if (!_exenv.canUseDOM) return false;
         return "ontouchstart" in window || navigator.maxTouchPoints;
       }
@@ -39403,12 +39403,12 @@
         tag.setAttribute("data-react-scrolllock", "");
         return tag;
       }
-      function injectStyles(tag, css) {
+      function injectStyles(tag, css6) {
         if (!_exenv.canUseDOM) return;
         if (tag.styleSheet) {
-          tag.styleSheet.cssText = css;
+          tag.styleSheet.cssText = css6;
         } else {
-          tag.appendChild(document.createTextNode(css));
+          tag.appendChild(document.createTextNode(css6));
         }
       }
       function insertStyleTag(tag) {
@@ -39457,7 +39457,7 @@
       var _react = require_react();
       var _exenv = require_exenv();
       var _utils = require_utils2();
-      function _objectWithoutProperties(obj, keys) {
+      function _objectWithoutProperties2(obj, keys) {
         var target = {};
         for (var i in obj) {
           if (keys.indexOf(i) >= 0) continue;
@@ -39514,7 +39514,7 @@
         }, {
           key: "render",
           value: function render() {
-            var _props = this.props, children = _props.children, rest = _objectWithoutProperties(_props, ["children"]);
+            var _props = this.props, children = _props.children, rest = _objectWithoutProperties2(_props, ["children"]);
             return typeof children === "function" ? children(this.getScrollableArea) : (0, _react.cloneElement)(children, _extends2({ ref: this.getScrollableArea }, rest));
           }
         }]);
@@ -39582,18 +39582,18 @@
               args[_key] = arguments[_key];
             }
             return _ret = (_temp = (_this = _possibleConstructorReturn2(this, (_ref2 = SheetProvider.__proto__ || Object.getPrototypeOf(SheetProvider)).call.apply(_ref2, [this].concat(args))), _this), _this.addSheet = function() {
-              var styles = _this.getStyles();
+              var styles9 = _this.getStyles();
               var sheet = (0, _utils.makeStyleTag)();
               if (!sheet) return;
-              (0, _utils.injectStyles)(sheet, styles);
+              (0, _utils.injectStyles)(sheet, styles9);
               (0, _utils.insertStyleTag)(sheet);
               _this.sheet = sheet;
             }, _this.getStyles = function() {
               var accountForScrollbars = _this.props.accountForScrollbars;
               var height = (0, _utils.getDocumentHeight)();
               var paddingRight = accountForScrollbars ? (0, _utils.getPadding)() : null;
-              var styles = "body {\n        box-sizing: border-box !important;\n        overflow: hidden !important;\n        position: relative !important;\n        " + (height ? "height: " + height + "px !important;" : "") + "\n        " + (paddingRight ? "padding-right: " + paddingRight + "px !important;" : "") + "\n      }";
-              return styles;
+              var styles9 = "body {\n        box-sizing: border-box !important;\n        overflow: hidden !important;\n        position: relative !important;\n        " + (height ? "height: " + height + "px !important;" : "") + "\n        " + (paddingRight ? "padding-right: " + paddingRight + "px !important;" : "") + "\n      }";
+              return styles9;
             }, _temp), _possibleConstructorReturn2(_this, _ret);
           }
           _createClass3(SheetProvider, [{
@@ -39773,9 +39773,9 @@
         }, {
           key: "componentWillUnmount",
           value: function componentWillUnmount() {
-            var offset2 = window.innerHeight - this.initialHeight;
-            if (offset2) {
-              window.scrollTo(0, window.pageYOffset + offset2);
+            var offset3 = window.innerHeight - this.initialHeight;
+            if (offset3) {
+              window.scrollTo(0, window.pageYOffset + offset3);
             }
             this.initialHeight = window.innerHeight;
           }
@@ -39833,12 +39833,1178 @@
     }
   });
 
+  // node_modules/@atlaskit/icon/dist/cjs/components/icon-new.compiled.css
+  var require_icon_new_compiled = __commonJS({
+    "node_modules/@atlaskit/icon/dist/cjs/components/icon-new.compiled.css"(exports, module2) {
+      module2.exports = {};
+    }
+  });
+
+  // node_modules/@compiled/react/dist/cjs/runtime/dev-warnings.js
+  var require_dev_warnings = __commonJS({
+    "node_modules/@compiled/react/dist/cjs/runtime/dev-warnings.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.analyzeCssInDev = void 0;
+      var selectorsToWarn = [":first-child", ":nth-child"];
+      var hasWarned = {};
+      var warn = (str, ...args) => console.error(`
+ \u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2588\u2557   \u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2557\u2588\u2588\u2557     \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2557
+\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255D\u2588\u2588\u2554\u2550\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2551\u2588\u2588\u2551     \u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255D\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557
+\u2588\u2588\u2551     \u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2554\u2588\u2588\u2588\u2588\u2554\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255D\u2588\u2588\u2551\u2588\u2588\u2551     \u2588\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2551  \u2588\u2588\u2551
+\u2588\u2588\u2551     \u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2551\u255A\u2588\u2588\u2554\u255D\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2550\u255D \u2588\u2588\u2551\u2588\u2588\u2551     \u2588\u2588\u2554\u2550\u2550\u255D  \u2588\u2588\u2551  \u2588\u2588\u2551
+\u255A\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u255A\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255D\u2588\u2588\u2551 \u255A\u2550\u255D \u2588\u2588\u2551\u2588\u2588\u2551     \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255D
+ \u255A\u2550\u2550\u2550\u2550\u2550\u255D \u255A\u2550\u2550\u2550\u2550\u2550\u255D \u255A\u2550\u255D     \u255A\u2550\u255D\u255A\u2550\u255D     \u255A\u2550\u255D\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u255D\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u255D\u255A\u2550\u2550\u2550\u2550\u2550\u255D
+
+  @compiled/react/runtime - DEV WARNING
+
+  ${str}
+`, ...args);
+      var analyzeCssInDev = (sheet) => {
+        if (hasWarned[sheet]) {
+          return;
+        }
+        const shouldWarnAboutSelectors = selectorsToWarn.map((selector) => sheet.includes(selector)).filter(Boolean).length > 0;
+        if (shouldWarnAboutSelectors) {
+          warn(`Selectors "${selectorsToWarn.join(", ")}" are dangerous to use when server side rendering.
+  Alternatively try and use ":nth-of-type", or placing data attributes and targetting those instead.
+  Read https://compiledcssinjs.com/docs/server-side-rendering for more advice.`);
+        }
+        hasWarned[sheet] = true;
+      };
+      exports.analyzeCssInDev = analyzeCssInDev;
+    }
+  });
+
+  // node_modules/@compiled/react/dist/cjs/runtime/is-server-environment.js
+  var require_is_server_environment = __commonJS({
+    "node_modules/@compiled/react/dist/cjs/runtime/is-server-environment.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.isServerEnvironment = void 0;
+      var isJsDomEnvironment = () => window.name === "nodejs" || (navigator === null || navigator === void 0 ? void 0 : navigator.userAgent.includes("Node.js")) || (navigator === null || navigator === void 0 ? void 0 : navigator.userAgent.includes("jsdom"));
+      var isServerEnvironment = () => {
+        if (typeof window === "undefined" || typeof process !== "undefined" && process.versions != null && process.versions.node != null) {
+          return true;
+        }
+        if (isJsDomEnvironment()) {
+          return true;
+        }
+        return false;
+      };
+      exports.isServerEnvironment = isServerEnvironment;
+    }
+  });
+
+  // node_modules/@compiled/react/dist/cjs/runtime/cache.js
+  var require_cache = __commonJS({
+    "node_modules/@compiled/react/dist/cjs/runtime/cache.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.isCacheDisabled = void 0;
+      var isCacheDisabled = () => {
+        return false;
+      };
+      exports.isCacheDisabled = isCacheDisabled;
+    }
+  });
+
+  // node_modules/@compiled/react/dist/cjs/runtime/shorthand.js
+  var require_shorthand = __commonJS({
+    "node_modules/@compiled/react/dist/cjs/runtime/shorthand.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.getShorthandDepth = void 0;
+      var shorthandBuckets = {
+        all: 0,
+        animation: 1,
+        "animation-range": 1,
+        background: 1,
+        border: 1,
+        "border-color": 2,
+        "border-style": 2,
+        "border-width": 2,
+        "border-block": 3,
+        "border-inline": 3,
+        "border-top": 4,
+        "border-right": 4,
+        "border-bottom": 4,
+        "border-left": 4,
+        "border-block-start": 5,
+        "border-block-end": 5,
+        "border-inline-start": 5,
+        "border-inline-end": 5,
+        "border-image": 1,
+        "border-radius": 1,
+        "column-rule": 1,
+        columns: 1,
+        "contain-intrinsic-size": 1,
+        container: 1,
+        flex: 1,
+        "flex-flow": 1,
+        font: 1,
+        "font-synthesis": 1,
+        "font-variant": 2,
+        gap: 1,
+        grid: 1,
+        "grid-area": 1,
+        "grid-column": 2,
+        "grid-row": 2,
+        "grid-template": 2,
+        inset: 1,
+        "inset-block": 2,
+        "inset-inline": 2,
+        "list-style": 1,
+        margin: 1,
+        "margin-block": 2,
+        "margin-inline": 2,
+        mask: 1,
+        "mask-border": 1,
+        offset: 1,
+        outline: 1,
+        overflow: 1,
+        "overscroll-behavior": 1,
+        padding: 1,
+        "padding-block": 2,
+        "padding-inline": 2,
+        "place-content": 1,
+        "place-items": 1,
+        "place-self": 1,
+        "position-try": 1,
+        "scroll-margin": 1,
+        "scroll-margin-block": 2,
+        "scroll-margin-inline": 2,
+        "scroll-padding": 1,
+        "scroll-padding-block": 2,
+        "scroll-padding-inline": 2,
+        "scroll-timeline": 1,
+        "text-decoration": 1,
+        "text-emphasis": 1,
+        "text-wrap": 1,
+        transition: 1,
+        "view-timeline": 1
+      };
+      var getShorthandDepth = (shorthand) => {
+        var _a2;
+        return (_a2 = shorthandBuckets[shorthand]) !== null && _a2 !== void 0 ? _a2 : null;
+      };
+      exports.getShorthandDepth = getShorthandDepth;
+    }
+  });
+
+  // node_modules/@compiled/react/dist/cjs/runtime/sheet.js
+  var require_sheet = __commonJS({
+    "node_modules/@compiled/react/dist/cjs/runtime/sheet.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.getStyleBucketName = exports.styleBucketOrdering = void 0;
+      var cache_1 = require_cache();
+      var shorthand_1 = require_shorthand();
+      exports.styleBucketOrdering = [
+        // shorthand properties
+        "s-0",
+        "s-1",
+        "s-2",
+        "s-3",
+        "s-4",
+        "s-5",
+        // catch-all
+        "",
+        // link
+        "l",
+        // visited
+        "v",
+        // focus-within
+        "w",
+        // focus
+        "f",
+        // focus-visible
+        "i",
+        // hover
+        "h",
+        // active
+        "a",
+        // at-rules
+        "m"
+      ];
+      var styleBucketsInHead = {};
+      var pseudosMap = {
+        // link
+        k: "l",
+        // visited
+        ited: "v",
+        // focus-within
+        "us-within": "w",
+        // focus
+        us: "f",
+        // focus-visible
+        "us-visible": "i",
+        // hover
+        er: "h",
+        // active
+        ive: "a"
+      };
+      function lazyAddStyleBucketToHead(bucketName, opts) {
+        if (!styleBucketsInHead[bucketName]) {
+          let currentBucketIndex = exports.styleBucketOrdering.indexOf(bucketName) + 1;
+          let nextBucketFromCache = null;
+          for (; currentBucketIndex < exports.styleBucketOrdering.length; currentBucketIndex++) {
+            const nextBucket = styleBucketsInHead[exports.styleBucketOrdering[currentBucketIndex]];
+            if (nextBucket) {
+              nextBucketFromCache = nextBucket;
+              break;
+            }
+          }
+          const tag = document.createElement("style");
+          opts.nonce && tag.setAttribute("nonce", opts.nonce);
+          tag.appendChild(document.createTextNode(""));
+          document.head.insertBefore(tag, nextBucketFromCache);
+          if (false) {
+            return tag;
+          }
+          styleBucketsInHead[bucketName] = tag;
+        }
+        return styleBucketsInHead[bucketName];
+      }
+      var getStyleBucketName = (sheet) => {
+        if (sheet.charCodeAt(0) === 64) {
+          return "m";
+        }
+        const firstBracket = sheet.indexOf("{");
+        if (sheet.charCodeAt(10) === 58) {
+          const mapped = pseudosMap[sheet.slice(14, firstBracket)];
+          if (mapped)
+            return mapped;
+        }
+        const property = sheet.slice(firstBracket + 1, sheet.indexOf(":", firstBracket)).trim();
+        const shorthandDepth = (0, shorthand_1.getShorthandDepth)(property);
+        if (typeof shorthandDepth === "number") {
+          return `s-${shorthandDepth}`;
+        }
+        return "";
+      };
+      exports.getStyleBucketName = getStyleBucketName;
+      function insertRule(css6, opts) {
+        const bucketName = (0, exports.getStyleBucketName)(css6);
+        const style = lazyAddStyleBucketToHead(bucketName, opts);
+        if (false) {
+          const sheet = style.sheet;
+          try {
+            sheet.insertRule(css6, sheet.cssRules.length);
+          } catch (_a2) {
+          }
+        } else {
+          style.appendChild(document.createTextNode(css6));
+        }
+      }
+      exports.default = insertRule;
+    }
+  });
+
+  // node_modules/@compiled/react/dist/cjs/runtime/style-cache.js
+  var require_style_cache = __commonJS({
+    "node_modules/@compiled/react/dist/cjs/runtime/style-cache.js"(exports) {
+      "use strict";
+      var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
+        if (k2 === void 0) k2 = k;
+        var desc = Object.getOwnPropertyDescriptor(m, k);
+        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+          desc = { enumerable: true, get: function() {
+            return m[k];
+          } };
+        }
+        Object.defineProperty(o, k2, desc);
+      }) : (function(o, m, k, k2) {
+        if (k2 === void 0) k2 = k;
+        o[k2] = m[k];
+      }));
+      var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? (function(o, v) {
+        Object.defineProperty(o, "default", { enumerable: true, value: v });
+      }) : function(o, v) {
+        o["default"] = v;
+      });
+      var __importStar = exports && exports.__importStar || function(mod) {
+        if (mod && mod.__esModule) return mod;
+        var result2 = {};
+        if (mod != null) {
+          for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result2, mod, k);
+        }
+        __setModuleDefault(result2, mod);
+        return result2;
+      };
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.useCache = void 0;
+      var React70 = __importStar(require_react());
+      var react_1 = require_react();
+      var cache_1 = require_cache();
+      var is_server_environment_1 = require_is_server_environment();
+      var Cache2 = (0, is_server_environment_1.isServerEnvironment)() ? (0, react_1.createContext)(null) : {};
+      if (!(0, is_server_environment_1.isServerEnvironment)() && typeof document !== "undefined") {
+        const ssrStyles = document.querySelectorAll("style[data-cmpld]");
+        for (let i = 0; i < ssrStyles.length; i++) {
+          document.head.appendChild(ssrStyles[i]);
+        }
+      }
+      var useCache = () => {
+        if (false) {
+          return {};
+        }
+        if ((0, is_server_environment_1.isServerEnvironment)()) {
+          return (0, react_1.useContext)(Cache2) || {};
+        }
+        return Cache2;
+      };
+      exports.useCache = useCache;
+      var StyleCacheProvider = (props) => {
+        if ((0, is_server_environment_1.isServerEnvironment)()) {
+          const inserted = (0, exports.useCache)();
+          return React70.createElement(Cache2.Provider, { value: inserted }, props.children);
+        }
+        return props.children;
+      };
+      exports.default = StyleCacheProvider;
+    }
+  });
+
+  // node_modules/@compiled/react/dist/cjs/runtime/style.js
+  var require_style = __commonJS({
+    "node_modules/@compiled/react/dist/cjs/runtime/style.js"(exports) {
+      "use strict";
+      var __createBinding = exports && exports.__createBinding || (Object.create ? (function(o, m, k, k2) {
+        if (k2 === void 0) k2 = k;
+        var desc = Object.getOwnPropertyDescriptor(m, k);
+        if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+          desc = { enumerable: true, get: function() {
+            return m[k];
+          } };
+        }
+        Object.defineProperty(o, k2, desc);
+      }) : (function(o, m, k, k2) {
+        if (k2 === void 0) k2 = k;
+        o[k2] = m[k];
+      }));
+      var __setModuleDefault = exports && exports.__setModuleDefault || (Object.create ? (function(o, v) {
+        Object.defineProperty(o, "default", { enumerable: true, value: v });
+      }) : function(o, v) {
+        o["default"] = v;
+      });
+      var __importStar = exports && exports.__importStar || function(mod) {
+        if (mod && mod.__esModule) return mod;
+        var result2 = {};
+        if (mod != null) {
+          for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result2, mod, k);
+        }
+        __setModuleDefault(result2, mod);
+        return result2;
+      };
+      var __importDefault = exports && exports.__importDefault || function(mod) {
+        return mod && mod.__esModule ? mod : { "default": mod };
+      };
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var react_1 = __importDefault(require_react());
+      var dev_warnings_1 = require_dev_warnings();
+      var is_server_environment_1 = require_is_server_environment();
+      var sheet_1 = __importStar(require_sheet());
+      var style_cache_1 = require_style_cache();
+      function Style2(props) {
+        const inserted = (0, style_cache_1.useCache)();
+        if (true) {
+          props.children.forEach(dev_warnings_1.analyzeCssInDev);
+        }
+        if (props.children.length) {
+          if ((0, is_server_environment_1.isServerEnvironment)()) {
+            const bucketedSheets = {};
+            let hasSheets = false;
+            for (let i = 0; i < props.children.length; i++) {
+              const sheet = props.children[i];
+              if (inserted[sheet]) {
+                continue;
+              } else {
+                inserted[sheet] = true;
+                hasSheets = true;
+              }
+              const bucketName = (0, sheet_1.getStyleBucketName)(sheet);
+              bucketedSheets[bucketName] = (bucketedSheets[bucketName] || "") + sheet;
+            }
+            if (!hasSheets) {
+              return null;
+            }
+            return react_1.default.createElement("style", { "data-cmpld": true, nonce: props.nonce, dangerouslySetInnerHTML: {
+              __html: sheet_1.styleBucketOrdering.map((bucket) => bucketedSheets[bucket]).join("")
+            } });
+          } else {
+            for (let i = 0; i < props.children.length; i++) {
+              const sheet = props.children[i];
+              if (inserted[sheet]) {
+                continue;
+              }
+              inserted[sheet] = true;
+              (0, sheet_1.default)(sheet, props);
+            }
+          }
+        }
+        return null;
+      }
+      exports.default = Style2;
+    }
+  });
+
+  // node_modules/@compiled/react/dist/cjs/runtime/ax.js
+  var require_ax = __commonJS({
+    "node_modules/@compiled/react/dist/cjs/runtime/ax.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      var ATOMIC_GROUP_LENGTH2 = 5;
+      function ax2(classNames2) {
+        if (!classNames2.length) {
+          return;
+        }
+        if (classNames2.length === 1 && classNames2[0] && // checking to see if `classNames[0]` is a string that contains other classnames
+        !classNames2[0].includes(" ")) {
+          return classNames2[0];
+        }
+        const map = {};
+        for (const value of classNames2) {
+          if (!value) {
+            continue;
+          }
+          const list = value.split(" ");
+          for (const className of list) {
+            const key = className.startsWith("_") ? className.slice(0, ATOMIC_GROUP_LENGTH2) : className;
+            map[key] = className;
+          }
+        }
+        let result2 = "";
+        for (const key in map) {
+          result2 += map[key] + " ";
+        }
+        if (!result2) {
+          return;
+        }
+        return result2.trimEnd();
+      }
+      exports.default = ax2;
+    }
+  });
+
+  // node_modules/@compiled/react/dist/cjs/runtime/ac.js
+  var require_ac = __commonJS({
+    "node_modules/@compiled/react/dist/cjs/runtime/ac.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.getCache = exports.clearCache = exports.memoizedAc = exports.ac = void 0;
+      var is_server_environment_1 = require_is_server_environment();
+      var UNDERSCORE_UNICODE = 95;
+      var ATOMIC_GROUP_LENGTH2 = 5;
+      var cache = /* @__PURE__ */ new Map();
+      var AtomicGroups = class {
+        constructor(values) {
+          this.values = values;
+        }
+        toString() {
+          let str = "";
+          for (const [, value] of this.values) {
+            str += value + " ";
+          }
+          return str.slice(0, -1);
+        }
+      };
+      function ac(classNames2) {
+        if (classNames2.length <= 1 && !classNames2[0])
+          return void 0;
+        const atomicGroups = /* @__PURE__ */ new Map();
+        for (let i = 0; i < classNames2.length; i++) {
+          const cls = classNames2[i];
+          if (!cls) {
+            continue;
+          }
+          if (typeof cls === "string") {
+            const groups = cls.split(" ");
+            for (let x = 0; x < groups.length; x++) {
+              const atomic = groups[x];
+              const isAtomic = atomic.charCodeAt(0) === UNDERSCORE_UNICODE;
+              const isCompressed = isAtomic && atomic.charCodeAt(5) === UNDERSCORE_UNICODE;
+              const atomicGroupName = isAtomic ? atomic.slice(0, ATOMIC_GROUP_LENGTH2) : atomic;
+              atomicGroups.set(atomicGroupName, isCompressed ? atomic.slice(ATOMIC_GROUP_LENGTH2 + 1) : atomic);
+            }
+          } else {
+            for (const [key, value] of cls.values) {
+              atomicGroups.set(key, value);
+            }
+          }
+        }
+        return new AtomicGroups(atomicGroups);
+      }
+      exports.ac = ac;
+      function memoizedAc(classNames2) {
+        if (classNames2.length <= 1 && !classNames2[0])
+          return void 0;
+        let cacheKey = "";
+        for (let i = 0; i < classNames2.length; i += 1) {
+          const current = classNames2[i];
+          if (!current)
+            continue;
+          cacheKey += current + " ";
+        }
+        cacheKey = cacheKey.slice(0, -1);
+        if (cache.has(cacheKey))
+          return cache.get(cacheKey);
+        const result2 = ac(classNames2);
+        cache.set(cacheKey, result2);
+        return result2;
+      }
+      exports.memoizedAc = memoizedAc;
+      exports.default = (0, is_server_environment_1.isServerEnvironment)() ? ac : memoizedAc;
+      function clearCache2() {
+        cache.clear();
+      }
+      exports.clearCache = clearCache2;
+      function getCache() {
+        return cache;
+      }
+      exports.getCache = getCache;
+    }
+  });
+
+  // node_modules/@compiled/react/dist/cjs/runtime/css-custom-property.js
+  var require_css_custom_property = __commonJS({
+    "node_modules/@compiled/react/dist/cjs/runtime/css-custom-property.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      function cssCustomPropertyValue2(value, suffix, prefix2) {
+        if (value != void 0) {
+          if (suffix) {
+            if (prefix2) {
+              return prefix2 + value + suffix;
+            }
+            return value + suffix;
+          }
+          return value;
+        }
+        return "var(--c-, )";
+      }
+      exports.default = cssCustomPropertyValue2;
+    }
+  });
+
+  // node_modules/@compiled/react/dist/cjs/runtime/index.js
+  var require_runtime = __commonJS({
+    "node_modules/@compiled/react/dist/cjs/runtime/index.js"(exports) {
+      "use strict";
+      var __importDefault = exports && exports.__importDefault || function(mod) {
+        return mod && mod.__esModule ? mod : { "default": mod };
+      };
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.ix = exports.clearAcCache = exports.ac = exports.ax = exports.CC = exports.CS = void 0;
+      var style_1 = require_style();
+      Object.defineProperty(exports, "CS", { enumerable: true, get: function() {
+        return __importDefault(style_1).default;
+      } });
+      var style_cache_1 = require_style_cache();
+      Object.defineProperty(exports, "CC", { enumerable: true, get: function() {
+        return __importDefault(style_cache_1).default;
+      } });
+      var ax_1 = require_ax();
+      Object.defineProperty(exports, "ax", { enumerable: true, get: function() {
+        return __importDefault(ax_1).default;
+      } });
+      var ac_1 = require_ac();
+      Object.defineProperty(exports, "ac", { enumerable: true, get: function() {
+        return __importDefault(ac_1).default;
+      } });
+      Object.defineProperty(exports, "clearAcCache", { enumerable: true, get: function() {
+        return ac_1.clearCache;
+      } });
+      var css_custom_property_1 = require_css_custom_property();
+      Object.defineProperty(exports, "ix", { enumerable: true, get: function() {
+        return __importDefault(css_custom_property_1).default;
+      } });
+    }
+  });
+
+  // node_modules/@compiled/react/dist/cjs/runtime.js
+  var require_runtime2 = __commonJS({
+    "node_modules/@compiled/react/dist/cjs/runtime.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", { value: true });
+      exports.ix = exports.clearAcCache = exports.ac = exports.ax = exports.CS = exports.CC = void 0;
+      var index_1 = require_runtime();
+      Object.defineProperty(exports, "CC", { enumerable: true, get: function() {
+        return index_1.CC;
+      } });
+      Object.defineProperty(exports, "CS", { enumerable: true, get: function() {
+        return index_1.CS;
+      } });
+      Object.defineProperty(exports, "ax", { enumerable: true, get: function() {
+        return index_1.ax;
+      } });
+      Object.defineProperty(exports, "ac", { enumerable: true, get: function() {
+        return index_1.ac;
+      } });
+      Object.defineProperty(exports, "clearAcCache", { enumerable: true, get: function() {
+        return index_1.clearAcCache;
+      } });
+      Object.defineProperty(exports, "ix", { enumerable: true, get: function() {
+        return index_1.ix;
+      } });
+    }
+  });
+
+  // node_modules/@atlaskit/icon/dist/cjs/components/icon-new.js
+  var require_icon_new = __commonJS({
+    "node_modules/@atlaskit/icon/dist/cjs/components/icon-new.js"(exports) {
+      "use strict";
+      var _typeof2 = require_typeof();
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = exports.Icon = void 0;
+      require_icon_new_compiled();
+      var _react = _interopRequireWildcard(require_react());
+      var React70 = _react;
+      var _runtime = require_runtime2();
+      var _platformFeatureFlags = require_cjs3();
+      function _interopRequireWildcard(e, t) {
+        if ("function" == typeof WeakMap) var r = /* @__PURE__ */ new WeakMap(), n = /* @__PURE__ */ new WeakMap();
+        return (_interopRequireWildcard = function _interopRequireWildcard2(e2, t2) {
+          if (!t2 && e2 && e2.__esModule) return e2;
+          var o, i, f = { __proto__: null, default: e2 };
+          if (null === e2 || "object" != _typeof2(e2) && "function" != typeof e2) return f;
+          if (o = t2 ? n : r) {
+            if (o.has(e2)) return o.get(e2);
+            o.set(e2, f);
+          }
+          for (var _t in e2) "default" !== _t && {}.hasOwnProperty.call(e2, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e2, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e2[_t]);
+          return f;
+        })(e, t);
+      }
+      var coreSizeMedium = {
+        none: "_1bsbpxbi _4t3ipxbi",
+        compact: "_1bsb1ejb _4t3i1ejb",
+        spacious: "_1bsb1ejb _4t3i1ejb"
+      };
+      var coreSizeSmall = {
+        none: "_1bsbutpp _4t3iutpp",
+        compact: "_1bsbpxbi _4t3ipxbi",
+        spacious: "_1bsb1ejb _4t3i1ejb"
+      };
+      var utilSizes = {
+        none: "_1bsbutpp _4t3iutpp",
+        compact: "_1bsbpxbi _4t3ipxbi",
+        spacious: "_1bsb1ejb _4t3i1ejb"
+      };
+      var baseSizeMap = {
+        core: 16,
+        utility: 12
+      };
+      var paddingMap = {
+        core: {
+          medium: {
+            none: 0,
+            compact: 4,
+            spacious: 4
+          },
+          small: {
+            none: 0,
+            compact: 2.66,
+            spacious: 8
+          }
+        },
+        utility: {
+          medium: {
+            none: 0,
+            compact: 2,
+            spacious: 6
+          },
+          small: {
+            none: 0,
+            compact: 2,
+            spacious: 6
+          }
+        }
+      };
+      var Icon = exports.Icon = /* @__PURE__ */ (0, _react.memo)(function Icon2(props) {
+        var _props$type;
+        var _ref2 = props, _ref$color = _ref2.color, color = _ref$color === void 0 ? "currentColor" : _ref$color, testId = _ref2.testId, label = _ref2.label, LEGACY_primaryColor = _ref2.LEGACY_primaryColor, LEGACY_secondaryColor = _ref2.LEGACY_secondaryColor, LEGACY_size = _ref2.LEGACY_size, FallbackIcon = _ref2.LEGACY_fallbackIcon, dangerouslySetGlyph = _ref2.dangerouslySetGlyph, shouldScale = _ref2.shouldScale, LEGACY_margin = _ref2.LEGACY_margin, _ref$spacing = _ref2.spacing, spacing = _ref$spacing === void 0 ? "none" : _ref$spacing;
+        var dangerouslySetInnerHTML = dangerouslySetGlyph ? {
+          __html: dangerouslySetGlyph
+        } : void 0;
+        if (FallbackIcon && !(0, _platformFeatureFlags.fg)("platform-visual-refresh-icons")) {
+          return /* @__PURE__ */ React70.createElement(FallbackIcon, {
+            primaryColor: LEGACY_primaryColor !== null && LEGACY_primaryColor !== void 0 ? LEGACY_primaryColor : color,
+            secondaryColor: LEGACY_secondaryColor,
+            size: LEGACY_size,
+            label,
+            testId,
+            UNSAFE_margin: LEGACY_margin
+          });
+        }
+        var type = (_props$type = props.type) !== null && _props$type !== void 0 ? _props$type : "core";
+        var size2 = "size" in props && props.size !== void 0 && // This prevents invalid sizes being passed in, which is required
+        // for handling unsupported legacy icon sizes which can
+        // cause errors.
+        (props.size === "small" || props.size === "medium") ? props.size : "medium";
+        var baseSize = baseSizeMap[type];
+        var viewBoxPadding = paddingMap[type][size2][spacing];
+        var viewBoxSize = baseSize + 2 * viewBoxPadding;
+        return /* @__PURE__ */ React70.createElement("span", {
+          "data-testid": testId,
+          role: label ? "img" : void 0,
+          "aria-label": label ? label : void 0,
+          "aria-hidden": label ? void 0 : true,
+          style: {
+            color
+          },
+          className: (0, _runtime.ax)(["_1e0c1o8l _vchhusvi _1o9zidpf _vwz4kb7n _y4ti1igz _bozg1mb9", "_12va1onz _jcxd1r8n", shouldScale && "_1bsb1kw7 _4t3i1kw7", (type === "utility" || size2 === "small") && "_vwz4utpp"])
+        }, /* @__PURE__ */ React70.createElement("svg", {
+          fill: "none",
+          viewBox: "".concat(0 - viewBoxPadding, " ").concat(0 - viewBoxPadding, " ").concat(viewBoxSize, " ").concat(viewBoxSize),
+          role: "presentation",
+          dangerouslySetInnerHTML,
+          className: (0, _runtime.ax)(["_1reo15vq _18m915vq _syaz1r31 _lcxvglyw _s7n4yfq0 _vc881r31", shouldScale ? "_1bsb1kw7 _4t3i1kw7" : type === "utility" ? utilSizes[spacing] : size2 === "small" ? coreSizeSmall[spacing] : coreSizeMedium[spacing]])
+        }));
+      });
+      var _default = exports.default = Icon;
+    }
+  });
+
+  // node_modules/@atlaskit/icon/dist/cjs/entry-points/base-new.js
+  var require_base_new = __commonJS({
+    "node_modules/@atlaskit/icon/dist/cjs/entry-points/base-new.js"(exports) {
+      "use strict";
+      var _typeof2 = require_typeof();
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      Object.defineProperty(exports, "Icon", {
+        enumerable: true,
+        get: function get() {
+          return _iconNew.Icon;
+        }
+      });
+      Object.defineProperty(exports, "default", {
+        enumerable: true,
+        get: function get() {
+          return _iconNew.default;
+        }
+      });
+      var _iconNew = _interopRequireWildcard(require_icon_new());
+      function _interopRequireWildcard(e, t) {
+        if ("function" == typeof WeakMap) var r = /* @__PURE__ */ new WeakMap(), n = /* @__PURE__ */ new WeakMap();
+        return (_interopRequireWildcard = function _interopRequireWildcard2(e2, t2) {
+          if (!t2 && e2 && e2.__esModule) return e2;
+          var o, i, f = { __proto__: null, default: e2 };
+          if (null === e2 || "object" != _typeof2(e2) && "function" != typeof e2) return f;
+          if (o = t2 ? n : r) {
+            if (o.has(e2)) return o.get(e2);
+            o.set(e2, f);
+          }
+          for (var _t in e2) "default" !== _t && {}.hasOwnProperty.call(e2, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e2, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e2[_t]);
+          return f;
+        })(e, t);
+      }
+    }
+  });
+
+  // node_modules/@atlaskit/icon/core/chevron-down.js
+  var require_chevron_down = __commonJS({
+    "node_modules/@atlaskit/icon/core/chevron-down.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
+      var _react = _interopRequireDefault(require_react());
+      var _baseNew = _interopRequireDefault(require_base_new());
+      function _interopRequireDefault(e) {
+        return e && e.__esModule ? e : { default: e };
+      }
+      var ChevronDownIcon = (props) => /* @__PURE__ */ _react.default.createElement(_baseNew.default, Object.assign({
+        dangerouslySetGlyph: `<path fill="currentcolor" d="m14.53 6.03-6 6a.75.75 0 0 1-1.004.052l-.056-.052-6-6 1.06-1.06L8 10.44l5.47-5.47z"/>`
+        // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
+      }, props));
+      ChevronDownIcon.displayName = "ChevronDownIcon";
+      var _default = exports.default = ChevronDownIcon;
+    }
+  });
+
+  // node_modules/@atlaskit/icon/dist/cjs/components/icon.compiled.css
+  var require_icon_compiled = __commonJS({
+    "node_modules/@atlaskit/icon/dist/cjs/components/icon.compiled.css"(exports, module2) {
+      module2.exports = {};
+    }
+  });
+
+  // node_modules/@babel/runtime/helpers/extends.js
+  var require_extends = __commonJS({
+    "node_modules/@babel/runtime/helpers/extends.js"(exports, module2) {
+      function _extends2() {
+        return module2.exports = _extends2 = Object.assign ? Object.assign.bind() : function(n) {
+          for (var e = 1; e < arguments.length; e++) {
+            var t = arguments[e];
+            for (var r in t) ({}).hasOwnProperty.call(t, r) && (n[r] = t[r]);
+          }
+          return n;
+        }, module2.exports.__esModule = true, module2.exports["default"] = module2.exports, _extends2.apply(null, arguments);
+      }
+      module2.exports = _extends2, module2.exports.__esModule = true, module2.exports["default"] = module2.exports;
+    }
+  });
+
+  // node_modules/@atlaskit/icon/dist/cjs/components/icon.js
+  var require_icon = __commonJS({
+    "node_modules/@atlaskit/icon/dist/cjs/components/icon.js"(exports) {
+      "use strict";
+      var _interopRequireDefault = require_interopRequireDefault();
+      var _typeof2 = require_typeof();
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = exports.Icon = void 0;
+      require_icon_compiled();
+      var _react = _interopRequireWildcard(require_react());
+      var React70 = _react;
+      var _runtime = require_runtime2();
+      var _extends2 = _interopRequireDefault(require_extends());
+      var _defineProperty2 = _interopRequireDefault(require_defineProperty());
+      function _interopRequireWildcard(e, t) {
+        if ("function" == typeof WeakMap) var r = /* @__PURE__ */ new WeakMap(), n = /* @__PURE__ */ new WeakMap();
+        return (_interopRequireWildcard = function _interopRequireWildcard2(e2, t2) {
+          if (!t2 && e2 && e2.__esModule) return e2;
+          var o, i, f = { __proto__: null, default: e2 };
+          if (null === e2 || "object" != _typeof2(e2) && "function" != typeof e2) return f;
+          if (o = t2 ? n : r) {
+            if (o.has(e2)) return o.get(e2);
+            o.set(e2, f);
+          }
+          for (var _t in e2) "default" !== _t && {}.hasOwnProperty.call(e2, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e2, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e2[_t]);
+          return f;
+        })(e, t);
+      }
+      function ownKeys23(e, r) {
+        var t = Object.keys(e);
+        if (Object.getOwnPropertySymbols) {
+          var o = Object.getOwnPropertySymbols(e);
+          r && (o = o.filter(function(r2) {
+            return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+          })), t.push.apply(t, o);
+        }
+        return t;
+      }
+      function _objectSpread23(e) {
+        for (var r = 1; r < arguments.length; r++) {
+          var t = null != arguments[r] ? arguments[r] : {};
+          r % 2 ? ownKeys23(Object(t), true).forEach(function(r2) {
+            (0, _defineProperty2.default)(e, r2, t[r2]);
+          }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys23(Object(t)).forEach(function(r2) {
+            Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+          });
+        }
+        return e;
+      }
+      var sizeStyles = {
+        small: "_1bsb7vkz _4t3i7vkz _5fdi7vkz _zbji7vkz",
+        medium: "_1bsb1tcg _4t3i1tcg _5fdi1tcg _zbji1tcg",
+        large: "_1bsbzwfg _4t3izwfg _5fdizwfg _zbjizwfg",
+        xlarge: "_1bsbckbl _4t3ickbl _5fdickbl _zbjickbl"
+      };
+      var Icon = exports.Icon = /* @__PURE__ */ (0, _react.memo)(function Icon2(props) {
+        var _ref2 = props, Glyph = _ref2.glyph, dangerouslySetGlyph = _ref2.dangerouslySetGlyph, _ref$primaryColor = _ref2.primaryColor, primaryColor = _ref$primaryColor === void 0 ? "currentColor" : _ref$primaryColor, secondaryColor = _ref2.secondaryColor, size2 = _ref2.size, testId = _ref2.testId, label = _ref2.label, width2 = _ref2.width, height = _ref2.height, UNSAFE_margin = _ref2.UNSAFE_margin;
+        var glyphProps = dangerouslySetGlyph ? {
+          dangerouslySetInnerHTML: {
+            __html: dangerouslySetGlyph
+          }
+        } : {
+          children: Glyph ? /* @__PURE__ */ React70.createElement(Glyph, {
+            role: "presentation"
+          }) : null
+        };
+        var customDimensions = width2 && height ? {
+          width: width2 + "px",
+          height: height + "px"
+        } : null;
+        return /* @__PURE__ */ React70.createElement("span", (0, _extends2.default)({
+          "data-testid": testId,
+          "data-vc": "icon-".concat(testId),
+          role: label ? "img" : void 0,
+          "aria-label": label ? label : void 0,
+          "aria-hidden": label ? void 0 : true,
+          style: _objectSpread23(_objectSpread23({}, customDimensions), {}, {
+            "--icon-primary-color": primaryColor,
+            // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+            "--icon-secondary-color": secondaryColor,
+            // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
+            margin: UNSAFE_margin
+          })
+        }, glyphProps, {
+          className: (0, _runtime.ax)(["_1e0c1o8l _1o9zidpf _vyfuvuon _vwz4kb7n _1szv15vq _1tly15vq _rzyw1osq _17jb1osq _1ksvoz0e _3se1x1jp _re2rglyw _1veoyfq0 _1kg81r31", "_jcxd1r8n _gq0g1onz _1trkwc43", primaryColor === secondaryColor && "_18hbwc43", secondaryColor === "transparent" && "_4fyi1j28", size2 && sizeStyles[size2]])
+        }));
+      });
+      var _default = exports.default = Icon;
+    }
+  });
+
+  // node_modules/@atlaskit/icon/dist/cjs/components/icon-facade.js
+  var require_icon_facade = __commonJS({
+    "node_modules/@atlaskit/icon/dist/cjs/components/icon-facade.js"(exports) {
+      "use strict";
+      var _interopRequireDefault = require_interopRequireDefault();
+      var _typeof2 = require_typeof();
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.IconFacade = void 0;
+      var _extends2 = _interopRequireDefault(require_extends());
+      var _objectWithoutProperties2 = _interopRequireDefault(require_objectWithoutProperties());
+      var _react = _interopRequireWildcard(require_react());
+      var _platformFeatureFlags = require_cjs3();
+      var _icon = require_icon();
+      var _excluded15 = ["dangerouslySetGlyph", "size"];
+      function _interopRequireWildcard(e, t) {
+        if ("function" == typeof WeakMap) var r = /* @__PURE__ */ new WeakMap(), n = /* @__PURE__ */ new WeakMap();
+        return (_interopRequireWildcard = function _interopRequireWildcard2(e2, t2) {
+          if (!t2 && e2 && e2.__esModule) return e2;
+          var o, i, f = { __proto__: null, default: e2 };
+          if (null === e2 || "object" != _typeof2(e2) && "function" != typeof e2) return f;
+          if (o = t2 ? n : r) {
+            if (o.has(e2)) return o.get(e2);
+            o.set(e2, f);
+          }
+          for (var _t in e2) "default" !== _t && {}.hasOwnProperty.call(e2, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e2, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e2[_t]);
+          return f;
+        })(e, t);
+      }
+      var sizeSpacingMap = {
+        utility: {
+          small: "compact",
+          medium: "spacious"
+        },
+        core: {
+          small: "none",
+          medium: "spacious"
+        }
+      };
+      var IconFacade = exports.IconFacade = /* @__PURE__ */ (0, _react.memo)(function IconFacade2(_ref2) {
+        var dangerouslySetGlyph = _ref2.dangerouslySetGlyph, size2 = _ref2.size, props = (0, _objectWithoutProperties2.default)(_ref2, _excluded15);
+        var NewIcon = props.newIcon;
+        var iconSize = size2 !== null && size2 !== void 0 ? size2 : "medium";
+        var useNewIcon = !props.isFacadeDisabled && // eslint-disable-next-line @atlaskit/platform/ensure-feature-flag-prefix
+        (0, _platformFeatureFlags.fg)("platform-visual-refresh-icons-legacy-facade");
+        if (useNewIcon && NewIcon && (iconSize === "small" || iconSize === "medium") && !(0, _platformFeatureFlags.fg)("platform-visual-refresh-icons-facade-removal")) {
+          if (props.iconType === "utility") {
+            var Icon = NewIcon;
+            return /* @__PURE__ */ _react.default.createElement(Icon, (0, _extends2.default)({}, props, {
+              spacing: (0, _platformFeatureFlags.fg)("platform-visual-refresh-icons-facade-button-fix") ? sizeSpacingMap["utility"][iconSize] : "none",
+              color: props.primaryColor || "currentColor",
+              type: props.iconType
+            }));
+          } else {
+            var _Icon = NewIcon;
+            return /* @__PURE__ */ _react.default.createElement(_Icon, (0, _extends2.default)({}, props, {
+              size: iconSize,
+              spacing: sizeSpacingMap["core"][iconSize],
+              color: props.primaryColor || "currentColor",
+              type: props.iconType
+            }));
+          }
+        }
+        return /* @__PURE__ */ _react.default.createElement(_icon.Icon, (0, _extends2.default)({
+          dangerouslySetGlyph,
+          size: size2
+        }, props));
+      });
+    }
+  });
+
+  // node_modules/@atlaskit/icon/dist/cjs/entry-points/base.js
+  var require_base = __commonJS({
+    "node_modules/@atlaskit/icon/dist/cjs/entry-points/base.js"(exports) {
+      "use strict";
+      var _typeof2 = require_typeof();
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      Object.defineProperty(exports, "Icon", {
+        enumerable: true,
+        get: function get() {
+          return _icon.Icon;
+        }
+      });
+      Object.defineProperty(exports, "IconFacade", {
+        enumerable: true,
+        get: function get() {
+          return _iconFacade.IconFacade;
+        }
+      });
+      Object.defineProperty(exports, "default", {
+        enumerable: true,
+        get: function get() {
+          return _icon.default;
+        }
+      });
+      var _icon = _interopRequireWildcard(require_icon());
+      var _iconFacade = require_icon_facade();
+      function _interopRequireWildcard(e, t) {
+        if ("function" == typeof WeakMap) var r = /* @__PURE__ */ new WeakMap(), n = /* @__PURE__ */ new WeakMap();
+        return (_interopRequireWildcard = function _interopRequireWildcard2(e2, t2) {
+          if (!t2 && e2 && e2.__esModule) return e2;
+          var o, i, f = { __proto__: null, default: e2 };
+          if (null === e2 || "object" != _typeof2(e2) && "function" != typeof e2) return f;
+          if (o = t2 ? n : r) {
+            if (o.has(e2)) return o.get(e2);
+            o.set(e2, f);
+          }
+          for (var _t in e2) "default" !== _t && {}.hasOwnProperty.call(e2, _t) && ((i = (o = Object.defineProperty) && Object.getOwnPropertyDescriptor(e2, _t)) && (i.get || i.set) ? o(f, _t, i) : f[_t] = e2[_t]);
+          return f;
+        })(e, t);
+      }
+    }
+  });
+
+  // node_modules/@atlaskit/icon/glyph/chevron-down.js
+  var require_chevron_down2 = __commonJS({
+    "node_modules/@atlaskit/icon/glyph/chevron-down.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
+      var _react = _interopRequireDefault(require_react());
+      var _base = require_base();
+      var _chevronDown = _interopRequireDefault(require_chevron_down());
+      function _interopRequireDefault(e) {
+        return e && e.__esModule ? e : { default: e };
+      }
+      var ChevronDownIcon = (props) => /* @__PURE__ */ _react.default.createElement(_base.IconFacade, Object.assign({
+        dangerouslySetGlyph: `<svg width="24" height="24" viewBox="0 0 24 24" role="presentation"><path fill="currentcolor" fill-rule="evenodd" d="M8.292 10.293a1.01 1.01 0 0 0 0 1.419l2.939 2.965c.218.215.5.322.779.322s.556-.107.769-.322l2.93-2.955a1.01 1.01 0 0 0 0-1.419.987.987 0 0 0-1.406 0l-2.298 2.317-2.307-2.327a.99.99 0 0 0-1.406 0"/></svg>`
+      }, props, {
+        newIcon: _chevronDown.default
+      }));
+      ChevronDownIcon.displayName = "ChevronDownIcon";
+      var _default = exports.default = ChevronDownIcon;
+    }
+  });
+
+  // node_modules/@atlaskit/icon/core/migration/chevron-down.js
+  var require_chevron_down3 = __commonJS({
+    "node_modules/@atlaskit/icon/core/migration/chevron-down.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
+      var _react = _interopRequireDefault(require_react());
+      var _chevronDown = _interopRequireDefault(require_chevron_down());
+      var _chevronDown2 = _interopRequireDefault(require_chevron_down2());
+      function _interopRequireDefault(e) {
+        return e && e.__esModule ? e : { default: e };
+      }
+      var ChevronDownIcon = (props) => /* @__PURE__ */ _react.default.createElement(_chevronDown.default, Object.assign({
+        LEGACY_fallbackIcon: _chevronDown2.default
+        // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
+      }, props));
+      ChevronDownIcon.Name = "ChevronDownIconMigration";
+      var _default = exports.default = ChevronDownIcon;
+    }
+  });
+
+  // node_modules/@atlaskit/icon/core/cross-circle.js
+  var require_cross_circle = __commonJS({
+    "node_modules/@atlaskit/icon/core/cross-circle.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
+      var _react = _interopRequireDefault(require_react());
+      var _baseNew = _interopRequireDefault(require_base_new());
+      function _interopRequireDefault(e) {
+        return e && e.__esModule ? e : { default: e };
+      }
+      var CrossCircleIcon = (props) => /* @__PURE__ */ _react.default.createElement(_baseNew.default, Object.assign({
+        dangerouslySetGlyph: `<path fill="currentcolor" fill-rule="evenodd" d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0m4.03 5.03L9.06 8l2.97 2.97-1.06 1.06L8 9.06l-2.97 2.97-1.06-1.06L6.94 8 3.97 5.03l1.06-1.06L8 6.94l2.97-2.97z" clip-rule="evenodd"/>`
+        // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
+      }, props));
+      CrossCircleIcon.displayName = "CrossCircleIcon";
+      var _default = exports.default = CrossCircleIcon;
+    }
+  });
+
+  // node_modules/@atlaskit/icon/glyph/select-clear.js
+  var require_select_clear = __commonJS({
+    "node_modules/@atlaskit/icon/glyph/select-clear.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
+      var _react = _interopRequireDefault(require_react());
+      var _base = require_base();
+      var _crossCircle = _interopRequireDefault(require_cross_circle());
+      function _interopRequireDefault(e) {
+        return e && e.__esModule ? e : { default: e };
+      }
+      var SelectClearIcon = (props) => /* @__PURE__ */ _react.default.createElement(_base.IconFacade, Object.assign({
+        dangerouslySetGlyph: `<svg width="24" height="24" viewBox="0 0 24 24" role="presentation"><g fill-rule="evenodd"><circle cx="12" cy="12" r="9" fill="currentcolor"/><path fill="inherit" d="M16.155 14.493a1.174 1.174 0 1 1-1.662 1.663L12 13.662l-2.494 2.494a1.17 1.17 0 0 1-1.662 0 1.176 1.176 0 0 1 0-1.663L10.337 12 7.844 9.507a1.176 1.176 0 0 1 1.662-1.662L12 10.338l2.493-2.493a1.174 1.174 0 1 1 1.662 1.662L13.662 12z"/></g></svg>`
+      }, props, {
+        newIcon: _crossCircle.default
+      }));
+      SelectClearIcon.displayName = "SelectClearIcon";
+      var _default = exports.default = SelectClearIcon;
+    }
+  });
+
+  // node_modules/@atlaskit/icon/core/migration/cross-circle--select-clear.js
+  var require_cross_circle_select_clear = __commonJS({
+    "node_modules/@atlaskit/icon/core/migration/cross-circle--select-clear.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
+      var _react = _interopRequireDefault(require_react());
+      var _crossCircle = _interopRequireDefault(require_cross_circle());
+      var _selectClear = _interopRequireDefault(require_select_clear());
+      function _interopRequireDefault(e) {
+        return e && e.__esModule ? e : { default: e };
+      }
+      var CrossCircleIcon = (props) => /* @__PURE__ */ _react.default.createElement(_crossCircle.default, Object.assign({
+        LEGACY_fallbackIcon: _selectClear.default
+        // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
+      }, props));
+      CrossCircleIcon.Name = "CrossCircleIconMigration";
+      var _default = exports.default = CrossCircleIcon;
+    }
+  });
+
+  // node_modules/@atlaskit/icon/core/cross.js
+  var require_cross = __commonJS({
+    "node_modules/@atlaskit/icon/core/cross.js"(exports) {
+      "use strict";
+      Object.defineProperty(exports, "__esModule", {
+        value: true
+      });
+      exports.default = void 0;
+      var _react = _interopRequireDefault(require_react());
+      var _baseNew = _interopRequireDefault(require_base_new());
+      function _interopRequireDefault(e) {
+        return e && e.__esModule ? e : { default: e };
+      }
+      var CrossIcon3 = (props) => /* @__PURE__ */ _react.default.createElement(_baseNew.default, Object.assign({
+        dangerouslySetGlyph: `<path fill="currentcolor" d="M14.03 3.03 9.06 8l4.97 4.97-1.06 1.06L8 9.06l-4.97 4.97-1.06-1.06L6.94 8 1.97 3.03l1.06-1.06L8 6.94l4.97-4.97z"/>`
+        // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
+      }, props));
+      CrossIcon3.displayName = "CrossIcon";
+      var _default = exports.default = CrossIcon3;
+    }
+  });
+
   // src/floatingButtonContentScript.js
-  var import_react62 = __toESM(require_react());
+  var import_react101 = __toESM(require_react());
   var import_client3 = __toESM(require_client());
 
   // src/components/FloatingButton.jsx
-  var import_react61 = __toESM(require_react());
+  var import_react100 = __toESM(require_react());
 
   // node_modules/dexie/import-wrapper.mjs
   var import_dexie = __toESM(require_dexie(), 1);
@@ -40013,10 +41179,10 @@
   }
 
   // src/components/ProjectList.jsx
-  var import_react36 = __toESM(require_react());
+  var import_react42 = __toESM(require_react());
 
   // src/components/ProjectTimeline.jsx
-  var import_react34 = __toESM(require_react());
+  var import_react40 = __toESM(require_react());
 
   // node_modules/chrono-node/dist/esm/results.js
   var import_quarterOfYear = __toESM(require_quarterOfYear(), 1);
@@ -40390,75 +41556,75 @@
       delete duration["ms"];
     }
     if ("year" in duration) {
-      const floor = Math.floor(duration["year"]);
-      date.setFullYear(date.getFullYear() + floor);
-      const remainingFraction = duration["year"] - floor;
+      const floor2 = Math.floor(duration["year"]);
+      date.setFullYear(date.getFullYear() + floor2);
+      const remainingFraction = duration["year"] - floor2;
       if (remainingFraction > 0) {
         duration.month = duration?.month ?? 0;
         duration.month += remainingFraction * 12;
       }
     }
     if ("quarter" in duration) {
-      const floor = Math.floor(duration["quarter"]);
-      date.setMonth(date.getMonth() + floor * 3);
+      const floor2 = Math.floor(duration["quarter"]);
+      date.setMonth(date.getMonth() + floor2 * 3);
     }
     if ("month" in duration) {
-      const floor = Math.floor(duration["month"]);
-      date.setMonth(date.getMonth() + floor);
-      const remainingFraction = duration["month"] - floor;
+      const floor2 = Math.floor(duration["month"]);
+      date.setMonth(date.getMonth() + floor2);
+      const remainingFraction = duration["month"] - floor2;
       if (remainingFraction > 0) {
         duration.week = duration?.week ?? 0;
         duration.week += remainingFraction * 4;
       }
     }
     if ("week" in duration) {
-      const floor = Math.floor(duration["week"]);
-      date.setDate(date.getDate() + floor * 7);
-      const remainingFraction = duration["week"] - floor;
+      const floor2 = Math.floor(duration["week"]);
+      date.setDate(date.getDate() + floor2 * 7);
+      const remainingFraction = duration["week"] - floor2;
       if (remainingFraction > 0) {
         duration.day = duration?.day ?? 0;
         duration.day += Math.round(remainingFraction * 7);
       }
     }
     if ("day" in duration) {
-      const floor = Math.floor(duration["day"]);
-      date.setDate(date.getDate() + floor);
-      const remainingFraction = duration["day"] - floor;
+      const floor2 = Math.floor(duration["day"]);
+      date.setDate(date.getDate() + floor2);
+      const remainingFraction = duration["day"] - floor2;
       if (remainingFraction > 0) {
         duration.hour = duration?.hour ?? 0;
         duration.hour += Math.round(remainingFraction * 24);
       }
     }
     if ("hour" in duration) {
-      const floor = Math.floor(duration["hour"]);
-      date.setHours(date.getHours() + floor);
-      const remainingFraction = duration["hour"] - floor;
+      const floor2 = Math.floor(duration["hour"]);
+      date.setHours(date.getHours() + floor2);
+      const remainingFraction = duration["hour"] - floor2;
       if (remainingFraction > 0) {
         duration.minute = duration?.minute ?? 0;
         duration.minute += Math.round(remainingFraction * 60);
       }
     }
     if ("minute" in duration) {
-      const floor = Math.floor(duration["minute"]);
-      date.setMinutes(date.getMinutes() + floor);
-      const remainingFraction = duration["minute"] - floor;
+      const floor2 = Math.floor(duration["minute"]);
+      date.setMinutes(date.getMinutes() + floor2);
+      const remainingFraction = duration["minute"] - floor2;
       if (remainingFraction > 0) {
         duration.second = duration?.second ?? 0;
         duration.second += Math.round(remainingFraction * 60);
       }
     }
     if ("second" in duration) {
-      const floor = Math.floor(duration["second"]);
-      date.setSeconds(date.getSeconds() + floor);
-      const remainingFraction = duration["second"] - floor;
+      const floor2 = Math.floor(duration["second"]);
+      date.setSeconds(date.getSeconds() + floor2);
+      const remainingFraction = duration["second"] - floor2;
       if (remainingFraction > 0) {
         duration.millisecond = duration?.millisecond ?? 0;
         duration.millisecond += Math.round(remainingFraction * 1e3);
       }
     }
     if ("millisecond" in duration) {
-      const floor = Math.floor(duration["millisecond"]);
-      date.setMilliseconds(date.getMilliseconds() + floor);
+      const floor2 = Math.floor(duration["millisecond"]);
+      date.setMilliseconds(date.getMilliseconds() + floor2);
     }
     return date;
   }
@@ -40636,42 +41802,42 @@
     }
     static createRelativeFromReference(reference2, duration) {
       let date = addDuration(reference2.getDateWithAdjustedTimezone(), duration);
-      const components = new _ParsingComponents(reference2);
-      components.addTag("result/relativeDate");
+      const components2 = new _ParsingComponents(reference2);
+      components2.addTag("result/relativeDate");
       if (duration["hour"] || duration["minute"] || duration["second"]) {
-        components.addTag("result/relativeDateAndTime");
-        assignSimilarTime(components, date);
-        assignSimilarDate(components, date);
-        components.assign("timezoneOffset", reference2.getTimezoneOffset());
+        components2.addTag("result/relativeDateAndTime");
+        assignSimilarTime(components2, date);
+        assignSimilarDate(components2, date);
+        components2.assign("timezoneOffset", reference2.getTimezoneOffset());
       } else {
-        implySimilarTime(components, date);
-        components.imply("timezoneOffset", reference2.getTimezoneOffset());
+        implySimilarTime(components2, date);
+        components2.imply("timezoneOffset", reference2.getTimezoneOffset());
         if (duration["day"]) {
-          components.assign("day", date.getDate());
-          components.assign("month", date.getMonth() + 1);
-          components.assign("year", date.getFullYear());
-          components.assign("weekday", date.getDay());
+          components2.assign("day", date.getDate());
+          components2.assign("month", date.getMonth() + 1);
+          components2.assign("year", date.getFullYear());
+          components2.assign("weekday", date.getDay());
         } else if (duration["week"]) {
-          components.assign("day", date.getDate());
-          components.assign("month", date.getMonth() + 1);
-          components.assign("year", date.getFullYear());
-          components.imply("weekday", date.getDay());
+          components2.assign("day", date.getDate());
+          components2.assign("month", date.getMonth() + 1);
+          components2.assign("year", date.getFullYear());
+          components2.imply("weekday", date.getDay());
         } else {
-          components.imply("day", date.getDate());
+          components2.imply("day", date.getDate());
           if (duration["month"]) {
-            components.assign("month", date.getMonth() + 1);
-            components.assign("year", date.getFullYear());
+            components2.assign("month", date.getMonth() + 1);
+            components2.assign("year", date.getFullYear());
           } else {
-            components.imply("month", date.getMonth() + 1);
+            components2.imply("month", date.getMonth() + 1);
             if (duration["year"]) {
-              components.assign("year", date.getFullYear());
+              components2.assign("year", date.getFullYear());
             } else {
-              components.imply("year", date.getFullYear());
+              components2.imply("year", date.getFullYear());
             }
           }
         }
       }
-      return components;
+      return components2;
     }
   };
   var ParsingResult = class _ParsingResult {
@@ -40681,10 +41847,10 @@
     reference;
     start;
     end;
-    constructor(reference2, index, text, start3, end2) {
+    constructor(reference2, index2, text, start3, end2) {
       this.reference = reference2;
       this.refDate = reference2.instant;
-      this.index = index;
+      this.index = index2;
       this.text = text;
       this.start = start3 || new ParsingComponents(reference2);
       this.end = end2;
@@ -40728,9 +41894,9 @@
   };
 
   // node_modules/chrono-node/dist/esm/utils/pattern.js
-  function repeatedTimeunitPattern(prefix, singleTimeunitPattern, connectorPattern = "\\s{0,5},?\\s{0,5}") {
+  function repeatedTimeunitPattern(prefix2, singleTimeunitPattern, connectorPattern = "\\s{0,5},?\\s{0,5}") {
     const singleTimeunitPatternNoCapture = singleTimeunitPattern.replace(/\((?!\?)/g, "(?:");
-    return `${prefix}${singleTimeunitPatternNoCapture}(?:${connectorPattern}${singleTimeunitPatternNoCapture}){0,10}`;
+    return `${prefix2}${singleTimeunitPatternNoCapture}(?:${connectorPattern}${singleTimeunitPatternNoCapture}){0,10}`;
   }
   function extractTerms(dictionary) {
     let keys;
@@ -41153,24 +42319,24 @@
           return null;
         }
       }
-      const components = context.createParsingComponents({
+      const components2 = context.createParsingComponents({
         day,
         month
       }).addTag("parser/ENMonthNameMiddleEndianParser");
       if (match2[YEAR_GROUP2]) {
         const year = parseYear(match2[YEAR_GROUP2]);
-        components.assign("year", year);
+        components2.assign("year", year);
       } else {
         const year = findYearClosestToRef(context.refDate, day, month);
-        components.imply("year", year);
+        components2.imply("year", year);
       }
       if (!match2[DATE_TO_GROUP2]) {
-        return components;
+        return components2;
       }
       const endDate = parseOrdinalNumberPattern(match2[DATE_TO_GROUP2]);
       const result2 = context.createParsingResult(match2.index, match2[0]);
-      result2.start = components;
-      result2.end = components.clone();
+      result2.start = components2;
+      result2.end = components2.clone();
       result2.end.assign("day", endDate);
       return result2;
     }
@@ -41301,9 +42467,9 @@
         match2.index += match2[0].length;
         return null;
       }
-      const index = match2.index + match2[1].length;
+      const index2 = match2.index + match2[1].length;
       const text = match2[0].substring(match2[1].length);
-      const result2 = context.createParsingResult(index, text, startComponents);
+      const result2 = context.createParsingResult(index2, text, startComponents);
       match2.index += match2[0].length;
       const remainingText = context.text.substring(match2.index);
       const followingPattern = this.getFollowingTimePatternThroughCache();
@@ -41326,7 +42492,7 @@
       return this.checkAndReturnWithFollowingPattern(result2);
     }
     extractPrimaryTimeComponents(context, match2, strict2 = false) {
-      const components = context.createParsingComponents();
+      const components2 = context.createParsingComponents();
       let minute = 0;
       let meridiem = null;
       let hour = parseInt(match2[HOUR_GROUP]);
@@ -41369,44 +42535,44 @@
           }
         }
       }
-      components.assign("hour", hour);
-      components.assign("minute", minute);
+      components2.assign("hour", hour);
+      components2.assign("minute", minute);
       if (meridiem !== null) {
-        components.assign("meridiem", meridiem);
+        components2.assign("meridiem", meridiem);
       } else {
         if (hour < 12) {
-          components.imply("meridiem", Meridiem.AM);
+          components2.imply("meridiem", Meridiem.AM);
         } else {
-          components.imply("meridiem", Meridiem.PM);
+          components2.imply("meridiem", Meridiem.PM);
         }
       }
       if (match2[MILLI_SECOND_GROUP] != null) {
         const millisecond = parseInt(match2[MILLI_SECOND_GROUP].substring(0, 3));
         if (millisecond >= 1e3)
           return null;
-        components.assign("millisecond", millisecond);
+        components2.assign("millisecond", millisecond);
       }
       if (match2[SECOND_GROUP] != null) {
         const second = parseInt(match2[SECOND_GROUP]);
         if (second >= 60)
           return null;
-        components.assign("second", second);
+        components2.assign("second", second);
       }
-      return components;
+      return components2;
     }
     extractFollowingTimeComponents(context, match2, result2) {
-      const components = context.createParsingComponents();
+      const components2 = context.createParsingComponents();
       if (match2[MILLI_SECOND_GROUP] != null) {
         const millisecond = parseInt(match2[MILLI_SECOND_GROUP].substring(0, 3));
         if (millisecond >= 1e3)
           return null;
-        components.assign("millisecond", millisecond);
+        components2.assign("millisecond", millisecond);
       }
       if (match2[SECOND_GROUP] != null) {
         const second = parseInt(match2[SECOND_GROUP]);
         if (second >= 60)
           return null;
-        components.assign("second", second);
+        components2.assign("second", second);
       }
       let hour = parseInt(match2[HOUR_GROUP]);
       let minute = 0;
@@ -41432,8 +42598,8 @@
           meridiem = Meridiem.AM;
           if (hour == 12) {
             hour = 0;
-            if (!components.isCertain("day")) {
-              components.imply("day", components.get("day") + 1);
+            if (!components2.isCertain("day")) {
+              components2.imply("day", components2.get("day") + 1);
             }
           }
         }
@@ -41456,29 +42622,29 @@
           }
         }
       }
-      components.assign("hour", hour);
-      components.assign("minute", minute);
+      components2.assign("hour", hour);
+      components2.assign("minute", minute);
       if (meridiem >= 0) {
-        components.assign("meridiem", meridiem);
+        components2.assign("meridiem", meridiem);
       } else {
         const startAtPM = result2.start.isCertain("meridiem") && result2.start.get("hour") > 12;
         if (startAtPM) {
           if (result2.start.get("hour") - 12 > hour) {
-            components.imply("meridiem", Meridiem.AM);
+            components2.imply("meridiem", Meridiem.AM);
           } else if (hour <= 12) {
-            components.assign("hour", hour + 12);
-            components.assign("meridiem", Meridiem.PM);
+            components2.assign("hour", hour + 12);
+            components2.assign("meridiem", Meridiem.PM);
           }
         } else if (hour > 12) {
-          components.imply("meridiem", Meridiem.PM);
+          components2.imply("meridiem", Meridiem.PM);
         } else if (hour <= 12) {
-          components.imply("meridiem", Meridiem.AM);
+          components2.imply("meridiem", Meridiem.AM);
         }
       }
-      if (components.date().getTime() < result2.start.date().getTime()) {
-        components.imply("day", components.get("day") + 1);
+      if (components2.date().getTime() < result2.start.date().getTime()) {
+        components2.imply("day", components2.get("day") + 1);
       }
-      return components;
+      return components2;
     }
     checkAndReturnWithoutFollowingPattern(result2) {
       if (result2.text.match(/^\d$/)) {
@@ -41573,34 +42739,34 @@
       return "(?:\\s*(?:o\\W*clock|at\\s*night|in\\s*the\\s*(?:morning|afternoon)))?(?!/)(?=\\W|$)";
     }
     extractPrimaryTimeComponents(context, match2) {
-      const components = super.extractPrimaryTimeComponents(context, match2);
-      if (!components) {
-        return components;
+      const components2 = super.extractPrimaryTimeComponents(context, match2);
+      if (!components2) {
+        return components2;
       }
       if (match2[0].endsWith("night")) {
-        const hour = components.get("hour");
+        const hour = components2.get("hour");
         if (hour >= 6 && hour < 12) {
-          components.assign("hour", components.get("hour") + 12);
-          components.assign("meridiem", Meridiem.PM);
+          components2.assign("hour", components2.get("hour") + 12);
+          components2.assign("meridiem", Meridiem.PM);
         } else if (hour < 6) {
-          components.assign("meridiem", Meridiem.AM);
+          components2.assign("meridiem", Meridiem.AM);
         }
       }
       if (match2[0].endsWith("afternoon")) {
-        components.assign("meridiem", Meridiem.PM);
-        const hour = components.get("hour");
+        components2.assign("meridiem", Meridiem.PM);
+        const hour = components2.get("hour");
         if (hour >= 0 && hour <= 6) {
-          components.assign("hour", components.get("hour") + 12);
+          components2.assign("hour", components2.get("hour") + 12);
         }
       }
       if (match2[0].endsWith("morning")) {
-        components.assign("meridiem", Meridiem.AM);
-        const hour = components.get("hour");
+        components2.assign("meridiem", Meridiem.AM);
+        const hour = components2.get("hour");
         if (hour < 12) {
-          components.assign("hour", components.get("hour"));
+          components2.assign("hour", components2.get("hour"));
         }
       }
-      return components.addTag("parser/ENTimeExpressionParser");
+      return components2.addTag("parser/ENTimeExpressionParser");
     }
     extractFollowingTimeComponents(context, match2, result2) {
       const followingComponents = super.extractFollowingTimeComponents(context, match2, result2);
@@ -42124,39 +43290,39 @@
       return PATTERN8;
     }
     innerExtract(context, match2) {
-      const components = context.createParsingComponents({
+      const components2 = context.createParsingComponents({
         "year": parseInt(match2[YEAR_NUMBER_GROUP2]),
         "month": parseInt(match2[MONTH_NUMBER_GROUP2]),
         "day": parseInt(match2[DATE_NUMBER_GROUP2])
       });
       if (match2[HOUR_NUMBER_GROUP] != null) {
-        components.assign("hour", parseInt(match2[HOUR_NUMBER_GROUP]));
-        components.assign("minute", parseInt(match2[MINUTE_NUMBER_GROUP]));
+        components2.assign("hour", parseInt(match2[HOUR_NUMBER_GROUP]));
+        components2.assign("minute", parseInt(match2[MINUTE_NUMBER_GROUP]));
         if (match2[SECOND_NUMBER_GROUP] != null) {
-          components.assign("second", parseInt(match2[SECOND_NUMBER_GROUP]));
+          components2.assign("second", parseInt(match2[SECOND_NUMBER_GROUP]));
         }
         if (match2[MILLISECOND_NUMBER_GROUP] != null) {
-          components.assign("millisecond", parseInt(match2[MILLISECOND_NUMBER_GROUP]));
+          components2.assign("millisecond", parseInt(match2[MILLISECOND_NUMBER_GROUP]));
         }
         if (match2[TZD_GROUP] != null) {
-          let offset2 = 0;
+          let offset3 = 0;
           if (match2[TZD_HOUR_OFFSET_GROUP]) {
             const hourOffset = parseInt(match2[TZD_HOUR_OFFSET_GROUP]);
             let minuteOffset = 0;
             if (match2[TZD_MINUTE_OFFSET_GROUP] != null) {
               minuteOffset = parseInt(match2[TZD_MINUTE_OFFSET_GROUP]);
             }
-            offset2 = hourOffset * 60;
-            if (offset2 < 0) {
-              offset2 -= minuteOffset;
+            offset3 = hourOffset * 60;
+            if (offset3 < 0) {
+              offset3 -= minuteOffset;
             } else {
-              offset2 += minuteOffset;
+              offset3 += minuteOffset;
             }
           }
-          components.assign("timezoneOffset", offset2);
+          components2.assign("timezoneOffset", offset3);
         }
       }
-      return components.addTag("parser/ISOFormatParser");
+      return components2.addTag("parser/ISOFormatParser");
     }
   };
 
@@ -42378,9 +43544,9 @@
     }
     return reversed;
   }
-  function addImpliedTimeUnits(components, timeUnits) {
-    const output = components.clone();
-    let date = components.dayjs();
+  function addImpliedTimeUnits(components2, timeUnits) {
+    const output = components2.clone();
+    let date = components2.dayjs();
     for (const key in timeUnits) {
       date = date.add(timeUnits[key], key);
     }
@@ -42401,10 +43567,10 @@
   function createParsingComponentsAtWeekday(reference2, weekday, modifier) {
     const refDate = reference2.getDateWithAdjustedTimezone();
     const daysToWeekday = getDaysToWeekday(refDate, weekday, modifier);
-    let components = new ParsingComponents(reference2);
-    components = addImpliedTimeUnits(components, { "day": daysToWeekday });
-    components.assign("weekday", weekday);
-    return components;
+    let components2 = new ParsingComponents(reference2);
+    components2 = addImpliedTimeUnits(components2, { "day": daysToWeekday });
+    components2.assign("weekday", weekday);
+    return components2;
   }
   function getDaysToWeekday(refDate, weekday, modifier) {
     const refWeekday = refDate.getDay();
@@ -42464,9 +43630,9 @@
       return PATTERN11;
     }
     innerExtract(context, match2) {
-      const prefix = match2[PREFIX_GROUP2];
+      const prefix2 = match2[PREFIX_GROUP2];
       const postfix = match2[POSTFIX_GROUP];
-      let modifierWord = prefix || postfix;
+      let modifierWord = prefix2 || postfix;
       modifierWord = modifierWord || "";
       modifierWord = modifierWord.toLowerCase();
       let modifier = null;
@@ -42522,26 +43688,26 @@
         timeUnits[timeunit] = -1;
         return ParsingComponents.createRelativeFromReference(context.reference, timeUnits);
       }
-      const components = context.createParsingComponents();
+      const components2 = context.createParsingComponents();
       let date = (0, import_dayjs10.default)(context.reference.instant);
       if (unitWord.match(/week/i)) {
         date = date.add(-date.get("d"), "d");
-        components.imply("day", date.date());
-        components.imply("month", date.month() + 1);
-        components.imply("year", date.year());
+        components2.imply("day", date.date());
+        components2.imply("month", date.month() + 1);
+        components2.imply("year", date.year());
       } else if (unitWord.match(/month/i)) {
         date = date.add(-date.date() + 1, "d");
-        components.imply("day", date.date());
-        components.assign("year", date.year());
-        components.assign("month", date.month() + 1);
+        components2.imply("day", date.date());
+        components2.assign("year", date.year());
+        components2.assign("month", date.month() + 1);
       } else if (unitWord.match(/year/i)) {
         date = date.add(-date.date() + 1, "d");
         date = date.add(-date.month(), "month");
-        components.imply("day", date.date());
-        components.imply("month", date.month() + 1);
-        components.assign("year", date.year());
+        components2.imply("day", date.date());
+        components2.imply("month", date.month() + 1);
+        components2.assign("year", date.year());
       }
-      return components;
+      return components2;
     }
   };
 
@@ -42563,10 +43729,10 @@
       return PATTERN13;
     }
     extract(context, match2) {
-      const index = match2.index + match2[OPENING_GROUP].length;
+      const index2 = match2.index + match2[OPENING_GROUP].length;
       const indexEnd = match2.index + match2[0].length - match2[ENDING_GROUP].length;
-      if (index > 0) {
-        const textBefore = context.text.substring(0, index);
+      if (index2 > 0) {
+        const textBefore = context.text.substring(0, index2);
         if (textBefore.match("\\d/?$")) {
           return;
         }
@@ -42577,14 +43743,14 @@
           return;
         }
       }
-      const text = context.text.substring(index, indexEnd);
+      const text = context.text.substring(index2, indexEnd);
       if (text.match(/^\d\.\d$/) || text.match(/^\d\.\d{1,2}\.\d{1,2}\s*$/)) {
         return;
       }
       if (!match2[YEAR_GROUP5] && text.indexOf("/") < 0) {
         return;
       }
-      const result2 = context.createParsingResult(index, text);
+      const result2 = context.createParsingResult(index2, text);
       let month = parseInt(match2[this.groupNumberMonth]);
       let day = parseInt(match2[this.groupNumberDay]);
       if (month < 1 || month > 12) {
@@ -42626,12 +43792,12 @@
       return this.allowAbbreviations ? PATTERN14 : PATTERN_NO_ABBR;
     }
     innerExtract(context, match2) {
-      const prefix = match2[1].toLowerCase();
+      const prefix2 = match2[1].toLowerCase();
       let duration = parseTimeUnits(match2[2]);
       if (!duration) {
         return null;
       }
-      switch (prefix) {
+      switch (prefix2) {
         case "last":
         case "past":
         case "-":
@@ -42661,8 +43827,8 @@
       if (IsNegativeFollowingReference(nextResult)) {
         timeUnits = reverseTimeUnits(timeUnits);
       }
-      const components = ParsingComponents.createRelativeFromReference(ReferenceWithTimezone.fromDate(currentResult.start.date()), timeUnits);
-      return new ParsingResult(currentResult.reference, currentResult.index, `${currentResult.text}${textBetween}${nextResult.text}`, components);
+      const components2 = ParsingComponents.createRelativeFromReference(ReferenceWithTimezone.fromDate(currentResult.start.date()), timeUnits);
+      return new ParsingResult(currentResult.reference, currentResult.index, `${currentResult.text}${textBetween}${nextResult.text}`, components2);
     }
   };
 
@@ -42691,8 +43857,8 @@
       if (hasImpliedEarlierReferenceDate(currentResult)) {
         duration = reverseDuration(duration);
       }
-      const components = ParsingComponents.createRelativeFromReference(ReferenceWithTimezone.fromDate(nextResult.start.date()), duration);
-      return new ParsingResult(nextResult.reference, currentResult.index, `${currentResult.text}${textBetween}${nextResult.text}`, components);
+      const components2 = ParsingComponents.createRelativeFromReference(ReferenceWithTimezone.fromDate(nextResult.start.date()), duration);
+      return new ParsingResult(nextResult.reference, currentResult.index, `${currentResult.text}${textBetween}${nextResult.text}`, components2);
     }
   };
 
@@ -42772,7 +43938,7 @@
       return option;
     }
     createConfiguration(strictMode = true, littleEndian = false) {
-      const options = includeCommonConfiguration({
+      const options2 = includeCommonConfiguration({
         parsers: [
           new SlashDateFormatParser(littleEndian),
           new ENTimeUnitWithinFormatParser(strictMode),
@@ -42786,14 +43952,14 @@
         ],
         refiners: [new ENMergeDateTimeRefiner()]
       }, strictMode);
-      options.parsers.unshift(new ENYearMonthDayParser(strictMode));
-      options.refiners.unshift(new ENMergeRelativeFollowByDateRefiner());
-      options.refiners.unshift(new ENMergeRelativeAfterDateRefiner());
-      options.refiners.unshift(new OverlapRemovalRefiner());
-      options.refiners.push(new ENMergeDateTimeRefiner());
-      options.refiners.push(new ENExtractYearSuffixRefiner());
-      options.refiners.push(new ENMergeDateRangeRefiner());
-      return options;
+      options2.parsers.unshift(new ENYearMonthDayParser(strictMode));
+      options2.refiners.unshift(new ENMergeRelativeFollowByDateRefiner());
+      options2.refiners.unshift(new ENMergeRelativeAfterDateRefiner());
+      options2.refiners.unshift(new OverlapRemovalRefiner());
+      options2.refiners.push(new ENMergeDateTimeRefiner());
+      options2.refiners.push(new ENExtractYearSuffixRefiner());
+      options2.refiners.push(new ENMergeDateRangeRefiner());
+      return options2;
     }
   };
 
@@ -42839,8 +44005,8 @@
       let remainingText = context.text;
       let match2 = pattern.exec(remainingText);
       while (match2) {
-        const index = match2.index + originalText.length - remainingText.length;
-        match2.index = index;
+        const index2 = match2.index + originalText.length - remainingText.length;
+        match2.index = index2;
         const result2 = parser.extract(context, match2);
         if (!result2) {
           remainingText = originalText.substring(match2.index + 1);
@@ -42877,17 +44043,17 @@
       this.reference = ReferenceWithTimezone.fromInput(refDate, this.option.timezones);
       this.refDate = this.reference.instant;
     }
-    createParsingComponents(components) {
-      if (components instanceof ParsingComponents) {
-        return components;
+    createParsingComponents(components2) {
+      if (components2 instanceof ParsingComponents) {
+        return components2;
       }
-      return new ParsingComponents(this.reference, components);
+      return new ParsingComponents(this.reference, components2);
     }
-    createParsingResult(index, textOrEndIndex, startComponents, endComponents) {
-      const text = typeof textOrEndIndex === "string" ? textOrEndIndex : this.text.substring(index, textOrEndIndex);
+    createParsingResult(index2, textOrEndIndex, startComponents, endComponents) {
+      const text = typeof textOrEndIndex === "string" ? textOrEndIndex : this.text.substring(index2, textOrEndIndex);
       const start3 = startComponents ? this.createParsingComponents(startComponents) : null;
       const end2 = endComponents ? this.createParsingComponents(endComponents) : null;
-      return new ParsingResult(this.reference, index, text, start3, end2);
+      return new ParsingResult(this.reference, index2, text, start3, end2);
     }
     debug(block2) {
       if (this.option.debug) {
@@ -42944,9 +44110,9 @@
   }
 
   // node_modules/date-fns/addDays.js
-  function addDays(date, amount, options) {
-    const _date = toDate(date, options?.in);
-    if (isNaN(amount)) return constructFrom(options?.in || date, NaN);
+  function addDays(date, amount, options2) {
+    const _date = toDate(date, options2?.in);
+    if (isNaN(amount)) return constructFrom(options2?.in || date, NaN);
     if (!amount) return _date;
     _date.setDate(_date.getDate() + amount);
     return _date;
@@ -42959,10 +44125,10 @@
   }
 
   // node_modules/date-fns/startOfWeek.js
-  function startOfWeek(date, options) {
+  function startOfWeek(date, options2) {
     const defaultOptions4 = getDefaultOptions();
-    const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions4.weekStartsOn ?? defaultOptions4.locale?.options?.weekStartsOn ?? 0;
-    const _date = toDate(date, options?.in);
+    const weekStartsOn = options2?.weekStartsOn ?? options2?.locale?.options?.weekStartsOn ?? defaultOptions4.weekStartsOn ?? defaultOptions4.locale?.options?.weekStartsOn ?? 0;
+    const _date = toDate(date, options2?.in);
     const day = _date.getDay();
     const diff = (day < weekStartsOn ? 7 : 0) + day - weekStartsOn;
     _date.setDate(_date.getDate() - diff);
@@ -42971,13 +44137,13 @@
   }
 
   // node_modules/date-fns/startOfISOWeek.js
-  function startOfISOWeek(date, options) {
-    return startOfWeek(date, { ...options, weekStartsOn: 1 });
+  function startOfISOWeek(date, options2) {
+    return startOfWeek(date, { ...options2, weekStartsOn: 1 });
   }
 
   // node_modules/date-fns/getISOWeekYear.js
-  function getISOWeekYear(date, options) {
-    const _date = toDate(date, options?.in);
+  function getISOWeekYear(date, options2) {
+    const _date = toDate(date, options2?.in);
     const year = _date.getFullYear();
     const fourthOfJanuaryOfNextYear = constructFrom(_date, 0);
     fourthOfJanuaryOfNextYear.setFullYear(year + 1, 0, 4);
@@ -43024,16 +44190,16 @@
   }
 
   // node_modules/date-fns/startOfDay.js
-  function startOfDay(date, options) {
-    const _date = toDate(date, options?.in);
+  function startOfDay(date, options2) {
+    const _date = toDate(date, options2?.in);
     _date.setHours(0, 0, 0, 0);
     return _date;
   }
 
   // node_modules/date-fns/differenceInCalendarDays.js
-  function differenceInCalendarDays(laterDate, earlierDate, options) {
+  function differenceInCalendarDays(laterDate, earlierDate, options2) {
     const [laterDate_, earlierDate_] = normalizeDates(
-      options?.in,
+      options2?.in,
       laterDate,
       earlierDate
     );
@@ -43045,17 +44211,17 @@
   }
 
   // node_modules/date-fns/startOfISOWeekYear.js
-  function startOfISOWeekYear(date, options) {
-    const year = getISOWeekYear(date, options);
-    const fourthOfJanuary = constructFrom(options?.in || date, 0);
+  function startOfISOWeekYear(date, options2) {
+    const year = getISOWeekYear(date, options2);
+    const fourthOfJanuary = constructFrom(options2?.in || date, 0);
     fourthOfJanuary.setFullYear(year, 0, 4);
     fourthOfJanuary.setHours(0, 0, 0, 0);
     return startOfISOWeek(fourthOfJanuary);
   }
 
   // node_modules/date-fns/addWeeks.js
-  function addWeeks(date, amount, options) {
-    return addDays(date, amount * 7, options);
+  function addWeeks(date, amount, options2) {
+    return addDays(date, amount * 7, options2);
   }
 
   // node_modules/date-fns/isDate.js
@@ -43069,8 +44235,8 @@
   }
 
   // node_modules/date-fns/startOfYear.js
-  function startOfYear(date, options) {
-    const date_ = toDate(date, options?.in);
+  function startOfYear(date, options2) {
+    const date_ = toDate(date, options2?.in);
     date_.setFullYear(date_.getFullYear(), 0, 1);
     date_.setHours(0, 0, 0, 0);
     return date_;
@@ -43140,7 +44306,7 @@
       other: "almost {{count}} years"
     }
   };
-  var formatDistance = (token, count, options) => {
+  var formatDistance = (token, count, options2) => {
     let result2;
     const tokenValue = formatDistanceLocale[token];
     if (typeof tokenValue === "string") {
@@ -43150,8 +44316,8 @@
     } else {
       result2 = tokenValue.other.replace("{{count}}", count.toString());
     }
-    if (options?.addSuffix) {
-      if (options.comparison && options.comparison > 0) {
+    if (options2?.addSuffix) {
+      if (options2.comparison && options2.comparison > 0) {
         return "in " + result2;
       } else {
         return result2 + " ago";
@@ -43162,8 +44328,8 @@
 
   // node_modules/date-fns/locale/_lib/buildFormatLongFn.js
   function buildFormatLongFn(args) {
-    return (options = {}) => {
-      const width2 = options.width ? String(options.width) : args.defaultWidth;
+    return (options2 = {}) => {
+      const width2 = options2.width ? String(options2.width) : args.defaultWidth;
       const format2 = args.formats[width2] || args.formats[args.defaultWidth];
       return format2;
     };
@@ -43216,20 +44382,20 @@
 
   // node_modules/date-fns/locale/_lib/buildLocalizeFn.js
   function buildLocalizeFn(args) {
-    return (value, options) => {
-      const context = options?.context ? String(options.context) : "standalone";
+    return (value, options2) => {
+      const context = options2?.context ? String(options2.context) : "standalone";
       let valuesArray;
       if (context === "formatting" && args.formattingValues) {
         const defaultWidth = args.defaultFormattingWidth || args.defaultWidth;
-        const width2 = options?.width ? String(options.width) : defaultWidth;
+        const width2 = options2?.width ? String(options2.width) : defaultWidth;
         valuesArray = args.formattingValues[width2] || args.formattingValues[defaultWidth];
       } else {
         const defaultWidth = args.defaultWidth;
-        const width2 = options?.width ? String(options.width) : args.defaultWidth;
+        const width2 = options2?.width ? String(options2.width) : args.defaultWidth;
         valuesArray = args.values[width2] || args.values[defaultWidth];
       }
-      const index = args.argumentCallback ? args.argumentCallback(value) : value;
-      return valuesArray[index];
+      const index2 = args.argumentCallback ? args.argumentCallback(value) : value;
+      return valuesArray[index2];
     };
   }
 
@@ -43397,8 +44563,8 @@
 
   // node_modules/date-fns/locale/_lib/buildMatchFn.js
   function buildMatchFn(args) {
-    return (string2, options = {}) => {
-      const width2 = options.width;
+    return (string2, options2 = {}) => {
+      const width2 = options2.width;
       const matchPattern = width2 && args.matchPatterns[width2] || args.matchPatterns[args.defaultMatchWidth];
       const matchResult = string2.match(matchPattern);
       if (!matchResult) {
@@ -43412,9 +44578,9 @@
       );
       let value;
       value = args.valueCallback ? args.valueCallback(key) : key;
-      value = options.valueCallback ? (
+      value = options2.valueCallback ? (
         // [TODO] -- I challenge you to fix the type
-        options.valueCallback(value)
+        options2.valueCallback(value)
       ) : value;
       const rest = string2.slice(matchedString.length);
       return { value, rest };
@@ -43439,14 +44605,14 @@
 
   // node_modules/date-fns/locale/_lib/buildMatchPatternFn.js
   function buildMatchPatternFn(args) {
-    return (string2, options = {}) => {
+    return (string2, options2 = {}) => {
       const matchResult = string2.match(args.matchPattern);
       if (!matchResult) return null;
       const matchedString = matchResult[0];
       const parseResult = string2.match(args.parsePattern);
       if (!parseResult) return null;
       let value = args.valueCallback ? args.valueCallback(parseResult[0]) : parseResult[0];
-      value = options.valueCallback ? options.valueCallback(value) : value;
+      value = options2.valueCallback ? options2.valueCallback(value) : value;
       const rest = string2.slice(matchedString.length);
       return { value, rest };
     };
@@ -43549,7 +44715,7 @@
       defaultMatchWidth: "wide",
       parsePatterns: parseQuarterPatterns,
       defaultParseWidth: "any",
-      valueCallback: (index) => index + 1
+      valueCallback: (index2) => index2 + 1
     }),
     month: buildMatchFn({
       matchPatterns: matchMonthPatterns,
@@ -43586,34 +44752,34 @@
   };
 
   // node_modules/date-fns/getDayOfYear.js
-  function getDayOfYear(date, options) {
-    const _date = toDate(date, options?.in);
+  function getDayOfYear(date, options2) {
+    const _date = toDate(date, options2?.in);
     const diff = differenceInCalendarDays(_date, startOfYear(_date));
     const dayOfYear = diff + 1;
     return dayOfYear;
   }
 
   // node_modules/date-fns/getISOWeek.js
-  function getISOWeek(date, options) {
-    const _date = toDate(date, options?.in);
+  function getISOWeek(date, options2) {
+    const _date = toDate(date, options2?.in);
     const diff = +startOfISOWeek(_date) - +startOfISOWeekYear(_date);
     return Math.round(diff / millisecondsInWeek) + 1;
   }
 
   // node_modules/date-fns/getWeekYear.js
-  function getWeekYear(date, options) {
-    const _date = toDate(date, options?.in);
+  function getWeekYear(date, options2) {
+    const _date = toDate(date, options2?.in);
     const year = _date.getFullYear();
     const defaultOptions4 = getDefaultOptions();
-    const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions4.firstWeekContainsDate ?? defaultOptions4.locale?.options?.firstWeekContainsDate ?? 1;
-    const firstWeekOfNextYear = constructFrom(options?.in || date, 0);
+    const firstWeekContainsDate = options2?.firstWeekContainsDate ?? options2?.locale?.options?.firstWeekContainsDate ?? defaultOptions4.firstWeekContainsDate ?? defaultOptions4.locale?.options?.firstWeekContainsDate ?? 1;
+    const firstWeekOfNextYear = constructFrom(options2?.in || date, 0);
     firstWeekOfNextYear.setFullYear(year + 1, 0, firstWeekContainsDate);
     firstWeekOfNextYear.setHours(0, 0, 0, 0);
-    const startOfNextYear = startOfWeek(firstWeekOfNextYear, options);
-    const firstWeekOfThisYear = constructFrom(options?.in || date, 0);
+    const startOfNextYear = startOfWeek(firstWeekOfNextYear, options2);
+    const firstWeekOfThisYear = constructFrom(options2?.in || date, 0);
     firstWeekOfThisYear.setFullYear(year, 0, firstWeekContainsDate);
     firstWeekOfThisYear.setHours(0, 0, 0, 0);
-    const startOfThisYear = startOfWeek(firstWeekOfThisYear, options);
+    const startOfThisYear = startOfWeek(firstWeekOfThisYear, options2);
     if (+_date >= +startOfNextYear) {
       return year + 1;
     } else if (+_date >= +startOfThisYear) {
@@ -43624,21 +44790,21 @@
   }
 
   // node_modules/date-fns/startOfWeekYear.js
-  function startOfWeekYear(date, options) {
+  function startOfWeekYear(date, options2) {
     const defaultOptions4 = getDefaultOptions();
-    const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions4.firstWeekContainsDate ?? defaultOptions4.locale?.options?.firstWeekContainsDate ?? 1;
-    const year = getWeekYear(date, options);
-    const firstWeek = constructFrom(options?.in || date, 0);
+    const firstWeekContainsDate = options2?.firstWeekContainsDate ?? options2?.locale?.options?.firstWeekContainsDate ?? defaultOptions4.firstWeekContainsDate ?? defaultOptions4.locale?.options?.firstWeekContainsDate ?? 1;
+    const year = getWeekYear(date, options2);
+    const firstWeek = constructFrom(options2?.in || date, 0);
     firstWeek.setFullYear(year, 0, firstWeekContainsDate);
     firstWeek.setHours(0, 0, 0, 0);
-    const _date = startOfWeek(firstWeek, options);
+    const _date = startOfWeek(firstWeek, options2);
     return _date;
   }
 
   // node_modules/date-fns/getWeek.js
-  function getWeek(date, options) {
-    const _date = toDate(date, options?.in);
-    const diff = +startOfWeek(_date, options) - +startOfWeekYear(_date, options);
+  function getWeek(date, options2) {
+    const _date = toDate(date, options2?.in);
+    const diff = +startOfWeek(_date, options2) - +startOfWeekYear(_date, options2);
     return Math.round(diff / millisecondsInWeek) + 1;
   }
 
@@ -43749,8 +44915,8 @@
       return lightFormatters.y(date, token);
     },
     // Local week-numbering year
-    Y: function(date, token, localize2, options) {
-      const signedWeekYear = getWeekYear(date, options);
+    Y: function(date, token, localize2, options2) {
+      const signedWeekYear = getWeekYear(date, options2);
       const weekYear = signedWeekYear > 0 ? signedWeekYear : 1 - signedWeekYear;
       if (token === "YY") {
         const twoDigitYear = weekYear % 100;
@@ -43907,8 +45073,8 @@
       }
     },
     // Local week of year
-    w: function(date, token, localize2, options) {
-      const week = getWeek(date, options);
+    w: function(date, token, localize2, options2) {
+      const week = getWeek(date, options2);
       if (token === "wo") {
         return localize2.ordinalNumber(week, { unit: "week" });
       }
@@ -43971,9 +45137,9 @@
       }
     },
     // Local day of week
-    e: function(date, token, localize2, options) {
+    e: function(date, token, localize2, options2) {
       const dayOfWeek = date.getDay();
-      const localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
+      const localDayOfWeek = (dayOfWeek - options2.weekStartsOn + 8) % 7 || 7;
       switch (token) {
         // Numerical value (Nth day of week with current locale or weekStartsOn)
         case "e":
@@ -44011,9 +45177,9 @@
       }
     },
     // Stand-alone local day of week
-    c: function(date, token, localize2, options) {
+    c: function(date, token, localize2, options2) {
       const dayOfWeek = date.getDay();
-      const localDayOfWeek = (dayOfWeek - options.weekStartsOn + 8) % 7 || 7;
+      const localDayOfWeek = (dayOfWeek - options2.weekStartsOn + 8) % 7 || 7;
       switch (token) {
         // Numerical value (same as in `e`)
         case "c":
@@ -44330,9 +45496,9 @@
       return addLeadingZeros(+date, token.length);
     }
   };
-  function formatTimezoneShort(offset2, delimiter = "") {
-    const sign = offset2 > 0 ? "-" : "+";
-    const absOffset = Math.abs(offset2);
+  function formatTimezoneShort(offset3, delimiter = "") {
+    const sign = offset3 > 0 ? "-" : "+";
+    const absOffset = Math.abs(offset3);
     const hours = Math.trunc(absOffset / 60);
     const minutes = absOffset % 60;
     if (minutes === 0) {
@@ -44340,16 +45506,16 @@
     }
     return sign + String(hours) + delimiter + addLeadingZeros(minutes, 2);
   }
-  function formatTimezoneWithOptionalMinutes(offset2, delimiter) {
-    if (offset2 % 60 === 0) {
-      const sign = offset2 > 0 ? "-" : "+";
-      return sign + addLeadingZeros(Math.abs(offset2) / 60, 2);
+  function formatTimezoneWithOptionalMinutes(offset3, delimiter) {
+    if (offset3 % 60 === 0) {
+      const sign = offset3 > 0 ? "-" : "+";
+      return sign + addLeadingZeros(Math.abs(offset3) / 60, 2);
     }
-    return formatTimezone(offset2, delimiter);
+    return formatTimezone(offset3, delimiter);
   }
-  function formatTimezone(offset2, delimiter = "") {
-    const sign = offset2 > 0 ? "-" : "+";
-    const absOffset = Math.abs(offset2);
+  function formatTimezone(offset3, delimiter = "") {
+    const sign = offset3 > 0 ? "-" : "+";
+    const absOffset = Math.abs(offset3);
     const hours = addLeadingZeros(Math.trunc(absOffset / 60), 2);
     const minutes = addLeadingZeros(absOffset % 60, 2);
     return sign + hours + delimiter + minutes;
@@ -44438,12 +45604,12 @@
   var escapedStringRegExp = /^'([^]*?)'?$/;
   var doubleQuoteRegExp = /''/g;
   var unescapedLatinCharacterRegExp = /[a-zA-Z]/;
-  function format(date, formatStr, options) {
+  function format(date, formatStr, options2) {
     const defaultOptions4 = getDefaultOptions();
-    const locale = options?.locale ?? defaultOptions4.locale ?? enUS;
-    const firstWeekContainsDate = options?.firstWeekContainsDate ?? options?.locale?.options?.firstWeekContainsDate ?? defaultOptions4.firstWeekContainsDate ?? defaultOptions4.locale?.options?.firstWeekContainsDate ?? 1;
-    const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions4.weekStartsOn ?? defaultOptions4.locale?.options?.weekStartsOn ?? 0;
-    const originalDate = toDate(date, options?.in);
+    const locale = options2?.locale ?? defaultOptions4.locale ?? enUS;
+    const firstWeekContainsDate = options2?.firstWeekContainsDate ?? options2?.locale?.options?.firstWeekContainsDate ?? defaultOptions4.firstWeekContainsDate ?? defaultOptions4.locale?.options?.firstWeekContainsDate ?? 1;
+    const weekStartsOn = options2?.weekStartsOn ?? options2?.locale?.options?.weekStartsOn ?? defaultOptions4.weekStartsOn ?? defaultOptions4.locale?.options?.weekStartsOn ?? 0;
+    const originalDate = toDate(date, options2?.in);
     if (!isValid(originalDate)) {
       throw new RangeError("Invalid time value");
     }
@@ -44483,7 +45649,7 @@
     return parts.map((part) => {
       if (!part.isToken) return part.value;
       const token = part.value;
-      if (!options?.useAdditionalWeekYearTokens && isProtectedWeekYearToken(token) || !options?.useAdditionalDayOfYearTokens && isProtectedDayOfYearToken(token)) {
+      if (!options2?.useAdditionalWeekYearTokens && isProtectedWeekYearToken(token) || !options2?.useAdditionalDayOfYearTokens && isProtectedDayOfYearToken(token)) {
         warnOrThrowProtectedError(token, formatStr, String(date));
       }
       const formatter = formatters[token[0]];
@@ -44509,9 +45675,9 @@
   }
 
   // node_modules/date-fns/parseISO.js
-  function parseISO(argument, options) {
-    const invalidDate = () => constructFrom(options?.in, NaN);
-    const additionalDigits = options?.additionalDigits ?? 2;
+  function parseISO(argument, options2) {
+    const invalidDate = () => constructFrom(options2?.in, NaN);
+    const additionalDigits = options2?.additionalDigits ?? 2;
     const dateStrings = splitDateString(argument);
     let date;
     if (dateStrings.date) {
@@ -44521,17 +45687,17 @@
     if (!date || isNaN(+date)) return invalidDate();
     const timestamp = +date;
     let time = 0;
-    let offset2;
+    let offset3;
     if (dateStrings.time) {
       time = parseTime(dateStrings.time);
       if (isNaN(time)) return invalidDate();
     }
     if (dateStrings.timezone) {
-      offset2 = parseTimezone(dateStrings.timezone);
-      if (isNaN(offset2)) return invalidDate();
+      offset3 = parseTimezone(dateStrings.timezone);
+      if (isNaN(offset3)) return invalidDate();
     } else {
       const tmpDate = new Date(timestamp + time);
-      const result2 = toDate(0, options?.in);
+      const result2 = toDate(0, options2?.in);
       result2.setFullYear(
         tmpDate.getUTCFullYear(),
         tmpDate.getUTCMonth(),
@@ -44545,7 +45711,7 @@
       );
       return result2;
     }
-    return toDate(timestamp + time + offset2, options?.in);
+    return toDate(timestamp + time + offset3, options2?.in);
   }
   var patterns = {
     dateTimeDelimiter: /[T ]/,
@@ -44739,7 +45905,7 @@
   }
 
   // src/components/ProjectTimelineRow.jsx
-  var import_react33 = __toESM(require_react());
+  var import_react39 = __toESM(require_react());
 
   // src/utils/linkUtils.js
   function buildProjectUrlFromKey(projectKey) {
@@ -44763,7 +45929,7 @@
   // node_modules/@atlaskit/tooltip/dist/esm/tooltip.js
   init_slicedToArray();
   init_defineProperty();
-  var import_react32 = __toESM(require_react());
+  var import_react38 = __toESM(require_react());
   var import_bind_event_listener3 = __toESM(require_dist());
 
   // node_modules/@atlaskit/analytics-next/dist/esm/events/AnalyticsEvent.js
@@ -44896,7 +46062,7 @@
       }));
     } catch (t2) {
     }
-    return (_isNativeReflectConstruct = function _isNativeReflectConstruct2() {
+    return (_isNativeReflectConstruct = function _isNativeReflectConstruct4() {
       return !!t;
     })();
   }
@@ -44960,6 +46126,10 @@
     }]);
   })(AnalyticsEvent);
 
+  // node_modules/@atlaskit/analytics-next/dist/esm/utils/isModernContextEnabledEnv.js
+  var _process$env;
+  var isModernContextEnabledEnv_default = typeof process !== "undefined" && process !== null && ((_process$env = process.env) === null || _process$env === void 0 ? void 0 : _process$env["ANALYTICS_NEXT_MODERN_CONTEXT"]);
+
   // node_modules/@atlaskit/analytics-next-stable-react-context/dist/esm/context.js
   var import_react2 = __toESM(require_react());
   var AnalyticsNextContext = (0, import_react2.createContext)({
@@ -44989,6 +46159,109 @@
     return ref;
   };
 
+  // node_modules/@atlaskit/analytics-next/dist/esm/components/AnalyticsContext/index.js
+  var import_react7 = __toESM(require_react());
+  var import_platform_feature_flags = __toESM(require_cjs3());
+
+  // node_modules/@atlaskit/analytics-next/dist/esm/components/AnalyticsContext/LegacyAnalyticsContext.js
+  init_toConsumableArray();
+  init_classCallCheck();
+  init_createClass();
+  init_defineProperty();
+  var import_react5 = __toESM(require_react());
+  var import_prop_types = __toESM(require_prop_types());
+  function _callSuper2(t, o, e) {
+    return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct2() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e));
+  }
+  function _isNativeReflectConstruct2() {
+    try {
+      var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+      }));
+    } catch (t2) {
+    }
+    return (_isNativeReflectConstruct2 = function _isNativeReflectConstruct4() {
+      return !!t;
+    })();
+  }
+  var ContextTypes = {
+    getAtlaskitAnalyticsContext: import_prop_types.default.func,
+    getAtlaskitAnalyticsEventHandlers: import_prop_types.default.func
+  };
+  var noop = function noop2() {
+    return [];
+  };
+  var AnalyticsContext = /* @__PURE__ */ (function(_Component) {
+    function AnalyticsContext4(props) {
+      var _this;
+      _classCallCheck(this, AnalyticsContext4);
+      _this = _callSuper2(this, AnalyticsContext4, [props]);
+      _defineProperty(_this, "getChildContext", function() {
+        return {
+          getAtlaskitAnalyticsContext: _this.getAnalyticsContext
+        };
+      });
+      _defineProperty(_this, "getAnalyticsContext", function() {
+        var data = _this.props.data;
+        var _this$context$getAtla = _this.context.getAtlaskitAnalyticsContext, getAtlaskitAnalyticsContext = _this$context$getAtla === void 0 ? noop : _this$context$getAtla;
+        return [].concat(_toConsumableArray(getAtlaskitAnalyticsContext()), [data]);
+      });
+      _defineProperty(_this, "getAnalyticsEventHandlers", function() {
+        var _this$context$getAtla2 = _this.context.getAtlaskitAnalyticsEventHandlers, getAtlaskitAnalyticsEventHandlers = _this$context$getAtla2 === void 0 ? noop : _this$context$getAtla2;
+        return getAtlaskitAnalyticsEventHandlers();
+      });
+      _this.contextValue = {
+        getAtlaskitAnalyticsContext: _this.getAnalyticsContext,
+        getAtlaskitAnalyticsEventHandlers: _this.getAnalyticsEventHandlers
+      };
+      return _this;
+    }
+    _inherits(AnalyticsContext4, _Component);
+    return _createClass(AnalyticsContext4, [{
+      key: "render",
+      value: function render() {
+        var children = this.props.children;
+        return /* @__PURE__ */ import_react5.default.createElement(esm_default.Provider, {
+          value: this.contextValue
+        }, children);
+      }
+    }]);
+  })(import_react5.Component);
+  _defineProperty(AnalyticsContext, "contextTypes", ContextTypes);
+  _defineProperty(AnalyticsContext, "childContextTypes", ContextTypes);
+  var LegacyAnalyticsContext_default = AnalyticsContext;
+
+  // node_modules/@atlaskit/analytics-next/dist/esm/components/AnalyticsContext/ModernAnalyticsContext.js
+  init_toConsumableArray();
+  var import_react6 = __toESM(require_react());
+  var AnalyticsContext2 = function AnalyticsContext3(_ref2) {
+    var data = _ref2.data, children = _ref2.children;
+    var dataRef = useTrackedRef(data);
+    var _useAnalyticsContext = useAnalyticsContext(), getAtlaskitAnalyticsEventHandlers = _useAnalyticsContext.getAtlaskitAnalyticsEventHandlers, getOriginalAnalyticsContext = _useAnalyticsContext.getAtlaskitAnalyticsContext;
+    var getAtlaskitAnalyticsContext = (0, import_react6.useCallback)(function() {
+      return [].concat(_toConsumableArray(getOriginalAnalyticsContext()), [dataRef.current]);
+    }, [getOriginalAnalyticsContext, dataRef]);
+    var value = (0, import_react6.useMemo)(function() {
+      return {
+        getAtlaskitAnalyticsContext,
+        getAtlaskitAnalyticsEventHandlers
+      };
+    }, [getAtlaskitAnalyticsContext, getAtlaskitAnalyticsEventHandlers]);
+    return /* @__PURE__ */ import_react6.default.createElement(esm_default.Provider, {
+      value
+    }, children);
+  };
+  var ModernAnalyticsContext_default = AnalyticsContext2;
+
+  // node_modules/@atlaskit/analytics-next/dist/esm/components/AnalyticsContext/index.js
+  var ExportedAnalyticsContext = function ExportedAnalyticsContext2(props) {
+    var isModernContext = isModernContextEnabledEnv_default || (0, import_platform_feature_flags.fg)("analytics-next-use-modern-context_jira");
+    return isModernContext ? /* @__PURE__ */ import_react7.default.createElement(ModernAnalyticsContext_default, props) : /* @__PURE__ */ import_react7.default.createElement(LegacyAnalyticsContext_default, props);
+  };
+  var AnalyticsContext_default = ExportedAnalyticsContext;
+
+  // node_modules/@atlaskit/analytics-next/dist/esm/hocs/withAnalyticsContext.js
+  init_defineProperty();
+
   // node_modules/@babel/runtime/helpers/esm/objectWithoutPropertiesLoose.js
   function _objectWithoutPropertiesLoose(r, e) {
     if (null == r) return {};
@@ -45000,8 +46273,65 @@
     return t;
   }
 
+  // node_modules/@babel/runtime/helpers/esm/objectWithoutProperties.js
+  function _objectWithoutProperties(e, t) {
+    if (null == e) return {};
+    var o, r, i = _objectWithoutPropertiesLoose(e, t);
+    if (Object.getOwnPropertySymbols) {
+      var n = Object.getOwnPropertySymbols(e);
+      for (r = 0; r < n.length; r++) o = n[r], -1 === t.indexOf(o) && {}.propertyIsEnumerable.call(e, o) && (i[o] = e[o]);
+    }
+    return i;
+  }
+
+  // node_modules/@atlaskit/analytics-next/dist/esm/hocs/withAnalyticsContext.js
+  var import_react8 = __toESM(require_react());
+  var _excluded = ["analyticsContext"];
+  function ownKeys2(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread2(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys2(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys2(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  var withAnalyticsContext = function withAnalyticsContext2(defaultData) {
+    return function(WrappedComponent) {
+      var WithAnalyticsContext = /* @__PURE__ */ (0, import_react8.forwardRef)(function(_ref2, ref) {
+        var analyticsContext = _ref2.analyticsContext, rest = _objectWithoutProperties(_ref2, _excluded);
+        var analyticsData = (0, import_react8.useMemo)(function() {
+          return _objectSpread2(_objectSpread2({}, defaultData), analyticsContext);
+        }, [analyticsContext]);
+        return /* @__PURE__ */ import_react8.default.createElement(AnalyticsContext_default, {
+          data: analyticsData
+        }, /* @__PURE__ */ import_react8.default.createElement(WrappedComponent, _extends({}, rest, {
+          ref
+        })));
+      });
+      WithAnalyticsContext.displayName = "WithAnalyticsContext(".concat(WrappedComponent.displayName || WrappedComponent.name, ")");
+      return WithAnalyticsContext;
+    };
+  };
+  var withAnalyticsContext_default = withAnalyticsContext;
+
+  // node_modules/@atlaskit/analytics-next/dist/esm/hocs/withAnalyticsEvents.js
+  var import_react11 = __toESM(require_react());
+
   // node_modules/use-memo-one/dist/use-memo-one.esm.js
-  var import_react5 = __toESM(require_react());
+  var import_react9 = __toESM(require_react());
   function areInputsEqual(newInputs, lastInputs) {
     if (newInputs.length !== lastInputs.length) {
       return false;
@@ -45014,20 +46344,20 @@
     return true;
   }
   function useMemoOne(getResult, inputs) {
-    var initial = (0, import_react5.useState)(function() {
+    var initial = (0, import_react9.useState)(function() {
       return {
         inputs,
         result: getResult()
       };
     })[0];
-    var isFirstRun = (0, import_react5.useRef)(true);
-    var committed = (0, import_react5.useRef)(initial);
+    var isFirstRun = (0, import_react9.useRef)(true);
+    var committed = (0, import_react9.useRef)(initial);
     var useCache = isFirstRun.current || Boolean(inputs && committed.current.inputs && areInputsEqual(inputs, committed.current.inputs));
     var cache = useCache ? committed.current : {
       inputs,
       result: getResult()
     };
-    (0, import_react5.useEffect)(function() {
+    (0, import_react9.useEffect)(function() {
       isFirstRun.current = false;
       committed.current = cache;
     }, [cache]);
@@ -45054,75 +46384,10 @@
     };
   }
 
-  // node_modules/@atlaskit/analytics-next/dist/esm/hooks/usePlatformLeafEventHandler.js
+  // node_modules/@atlaskit/analytics-next/dist/esm/hooks/usePatchedProps.js
   init_defineProperty();
-  var import_react6 = __toESM(require_react());
-  function ownKeys2(e, r) {
-    var t = Object.keys(e);
-    if (Object.getOwnPropertySymbols) {
-      var o = Object.getOwnPropertySymbols(e);
-      r && (o = o.filter(function(r2) {
-        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
-      })), t.push.apply(t, o);
-    }
-    return t;
-  }
-  function _objectSpread2(e) {
-    for (var r = 1; r < arguments.length; r++) {
-      var t = null != arguments[r] ? arguments[r] : {};
-      r % 2 ? ownKeys2(Object(t), true).forEach(function(r2) {
-        _defineProperty(e, r2, t[r2]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys2(Object(t)).forEach(function(r2) {
-        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
-      });
-    }
-    return e;
-  }
-  function usePlatformLeafEventHandler(_ref2) {
-    var fn2 = _ref2.fn, action = _ref2.action, componentName = _ref2.componentName, actionSubject = _ref2.actionSubject, packageName2 = _ref2.packageName, packageVersion2 = _ref2.packageVersion, analyticsData = _ref2.analyticsData;
-    var _useAnalyticsEvents = useAnalyticsEvents(), createAnalyticsEvent = _useAnalyticsEvents.createAnalyticsEvent;
-    var dataRef = useTrackedRef(analyticsData);
-    var fnRef = useTrackedRef(fn2);
-    var handler = (0, import_react6.useCallback)(function(value) {
-      var analyticsEvent = createAnalyticsEvent({
-        action,
-        actionSubject: actionSubject || componentName,
-        attributes: {
-          componentName,
-          packageName: packageName2,
-          packageVersion: packageVersion2
-        }
-      });
-      var context = _objectSpread2({
-        componentName,
-        packageName: packageName2,
-        packageVersion: packageVersion2
-      }, dataRef.current);
-      analyticsEvent.context.push(context);
-      var clone = analyticsEvent.clone();
-      if (clone) {
-        clone.fire("atlaskit");
-      }
-      fnRef.current(value, analyticsEvent);
-    }, [
-      // These are strings and won't change
-      action,
-      componentName,
-      actionSubject,
-      packageName2,
-      packageVersion2,
-      // This function is memoized in the context
-      createAnalyticsEvent,
-      // these are a stable ref because of the useTrackedRef hook
-      dataRef,
-      fnRef
-    ]);
-    return handler;
-  }
-
-  // node_modules/@atlaskit/analytics-next/dist/esm/hooks/usePlatformLeafSyntheticEventHandler.js
-  init_defineProperty();
-  var import_react7 = __toESM(require_react());
+  init_typeof();
+  var import_react10 = __toESM(require_react());
   function ownKeys3(e, r) {
     var t = Object.keys(e);
     if (Object.getOwnPropertySymbols) {
@@ -45144,25 +46409,176 @@
     }
     return e;
   }
-  function usePlatformLeafSyntheticEventHandler(_ref2) {
-    var fn2 = _ref2.fn, action = _ref2.action, componentName = _ref2.componentName, packageName2 = _ref2.packageName, packageVersion2 = _ref2.packageVersion, analyticsData = _ref2.analyticsData;
+  function usePatchedProps() {
+    var createEventMap = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+    var wrappedComponentProps = arguments.length > 1 ? arguments[1] : void 0;
+    var _useAnalyticsEvents = useAnalyticsEvents(), createAnalyticsEvent = _useAnalyticsEvents.createAnalyticsEvent;
+    var handlerCache = (0, import_react10.useRef)({});
+    var patchedProps = (0, import_react10.useMemo)(function() {
+      var cache = handlerCache.current;
+      Object.keys(cache).filter(function(key) {
+        return !(key in createEventMap);
+      }).forEach(function(key) {
+        return delete cache[key];
+      });
+      return Object.keys(createEventMap).reduce(function(p, k) {
+        var eventCreator = createEventMap[k];
+        if (!["object", "function"].includes(_typeof(eventCreator))) {
+          return p;
+        }
+        var propValue = wrappedComponentProps[k];
+        if (k in cache && cache[k].eventCreator === eventCreator && cache[k].propValue === propValue) {
+          return _objectSpread3(_objectSpread3({}, p), {}, _defineProperty({}, k, cache[k].wrappedCallback));
+        }
+        var wrappedCallback = function wrappedCallback2() {
+          var analyticsEvent = typeof eventCreator === "function" ? eventCreator(createAnalyticsEvent, wrappedComponentProps) : createAnalyticsEvent(eventCreator);
+          if (propValue && typeof propValue === "function") {
+            for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+              args[_key] = arguments[_key];
+            }
+            propValue.apply(void 0, args.concat([analyticsEvent]));
+          }
+        };
+        cache[k] = {
+          eventCreator,
+          wrappedCallback,
+          propValue
+        };
+        return _objectSpread3(_objectSpread3({}, p), {}, _defineProperty({}, k, wrappedCallback));
+      }, {});
+    }, [createEventMap, wrappedComponentProps, createAnalyticsEvent, handlerCache]);
+    return {
+      patchedEventProps: patchedProps
+    };
+  }
+
+  // node_modules/@atlaskit/analytics-next/dist/esm/hocs/withAnalyticsEvents.js
+  var withAnalyticsEvents = function withAnalyticsEvents2() {
+    var createEventMap = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+    return function(WrappedComponent) {
+      var WithAnalyticsEvents = /* @__PURE__ */ (0, import_react11.forwardRef)(function(props, ref) {
+        var _usePatchedProps = usePatchedProps(createEventMap, props), patchedEventProps = _usePatchedProps.patchedEventProps;
+        var _useAnalyticsEvents = useAnalyticsEvents(), createAnalyticsEvent = _useAnalyticsEvents.createAnalyticsEvent;
+        return /* @__PURE__ */ import_react11.default.createElement(WrappedComponent, _extends({}, props, patchedEventProps, {
+          createAnalyticsEvent,
+          ref
+        }));
+      });
+      WithAnalyticsEvents.displayName = "WithAnalyticsEvents(".concat(WrappedComponent.displayName || WrappedComponent.name, ")");
+      return WithAnalyticsEvents;
+    };
+  };
+  var withAnalyticsEvents_default = withAnalyticsEvents;
+
+  // node_modules/@atlaskit/analytics-next/dist/esm/hooks/usePlatformLeafEventHandler.js
+  init_defineProperty();
+  var import_react12 = __toESM(require_react());
+  function ownKeys4(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread4(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys4(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys4(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  function usePlatformLeafEventHandler(_ref2) {
+    var fn2 = _ref2.fn, action = _ref2.action, componentName = _ref2.componentName, actionSubject = _ref2.actionSubject, packageName3 = _ref2.packageName, packageVersion3 = _ref2.packageVersion, analyticsData = _ref2.analyticsData;
     var _useAnalyticsEvents = useAnalyticsEvents(), createAnalyticsEvent = _useAnalyticsEvents.createAnalyticsEvent;
     var dataRef = useTrackedRef(analyticsData);
     var fnRef = useTrackedRef(fn2);
-    var handler = (0, import_react7.useCallback)(function() {
+    var handler = (0, import_react12.useCallback)(function(value) {
+      var analyticsEvent = createAnalyticsEvent({
+        action,
+        actionSubject: actionSubject || componentName,
+        attributes: {
+          componentName,
+          packageName: packageName3,
+          packageVersion: packageVersion3
+        }
+      });
+      var context = _objectSpread4({
+        componentName,
+        packageName: packageName3,
+        packageVersion: packageVersion3
+      }, dataRef.current);
+      analyticsEvent.context.push(context);
+      var clone = analyticsEvent.clone();
+      if (clone) {
+        clone.fire("atlaskit");
+      }
+      fnRef.current(value, analyticsEvent);
+    }, [
+      // These are strings and won't change
+      action,
+      componentName,
+      actionSubject,
+      packageName3,
+      packageVersion3,
+      // This function is memoized in the context
+      createAnalyticsEvent,
+      // these are a stable ref because of the useTrackedRef hook
+      dataRef,
+      fnRef
+    ]);
+    return handler;
+  }
+
+  // node_modules/@atlaskit/analytics-next/dist/esm/hooks/usePlatformLeafSyntheticEventHandler.js
+  init_defineProperty();
+  var import_react13 = __toESM(require_react());
+  function ownKeys5(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread5(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys5(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys5(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  function usePlatformLeafSyntheticEventHandler(_ref2) {
+    var fn2 = _ref2.fn, action = _ref2.action, componentName = _ref2.componentName, packageName3 = _ref2.packageName, packageVersion3 = _ref2.packageVersion, analyticsData = _ref2.analyticsData;
+    var _useAnalyticsEvents = useAnalyticsEvents(), createAnalyticsEvent = _useAnalyticsEvents.createAnalyticsEvent;
+    var dataRef = useTrackedRef(analyticsData);
+    var fnRef = useTrackedRef(fn2);
+    var handler = (0, import_react13.useCallback)(function() {
       var analyticsEvent = createAnalyticsEvent({
         action,
         actionSubject: componentName,
         attributes: {
           componentName,
-          packageName: packageName2,
-          packageVersion: packageVersion2
+          packageName: packageName3,
+          packageVersion: packageVersion3
         }
       });
-      var context = _objectSpread3({
+      var context = _objectSpread5({
         componentName,
-        packageName: packageName2,
-        packageVersion: packageVersion2
+        packageName: packageName3,
+        packageVersion: packageVersion3
       }, dataRef.current);
       analyticsEvent.context.push(context);
       var clone = analyticsEvent.clone();
@@ -45174,8 +46590,8 @@
       // These are strings and won't change
       action,
       componentName,
-      packageName2,
-      packageVersion2,
+      packageName3,
+      packageVersion3,
       // This function is memoized in the context
       createAnalyticsEvent,
       // these are a stable ref because of the useTrackedRef hook
@@ -45185,14 +46601,28 @@
     return handler;
   }
 
+  // node_modules/@atlaskit/analytics-next/dist/esm/utils/createAndFireEvent.js
+  var createAndFireEvent_default = (function(channel) {
+    return function(payload) {
+      return function(createAnalyticsEvent) {
+        var consumerEvent = createAnalyticsEvent(payload);
+        var clonedEvent = consumerEvent.clone();
+        if (clonedEvent) {
+          clonedEvent.fire(channel);
+        }
+        return consumerEvent;
+      };
+    };
+  });
+
   // node_modules/@atlaskit/ds-lib/dist/esm/utils/noop.js
-  function noop() {
+  function noop3() {
   }
 
   // node_modules/@atlaskit/ds-lib/dist/esm/hooks/use-close-on-escape-press.js
-  var import_react8 = __toESM(require_react());
+  var import_react14 = __toESM(require_react());
   var import_bind_event_listener = __toESM(require_dist());
-  var import_platform_feature_flags = __toESM(require_cjs3());
+  var import_platform_feature_flags2 = __toESM(require_cjs3());
 
   // node_modules/@atlaskit/ds-lib/dist/esm/utils/keycodes.js
   var ESCAPE = "Escape";
@@ -45200,19 +46630,19 @@
   // node_modules/@atlaskit/ds-lib/dist/esm/hooks/use-close-on-escape-press.js
   function useCloseOnEscapePress(_ref2) {
     var onClose = _ref2.onClose, isDisabled = _ref2.isDisabled;
-    var escapePressed = (0, import_react8.useRef)(false);
-    var onKeyDown = (0, import_react8.useCallback)(function(e) {
+    var escapePressed = (0, import_react14.useRef)(false);
+    var onKeyDown = (0, import_react14.useCallback)(function(e) {
       if (isDisabled || escapePressed.current || e.key !== ESCAPE) {
         return;
       }
       escapePressed.current = true;
       onClose(e);
     }, [onClose, isDisabled]);
-    var onKeyUp = (0, import_react8.useCallback)(function() {
+    var onKeyUp = (0, import_react14.useCallback)(function() {
       escapePressed.current = false;
     }, []);
-    (0, import_react8.useEffect)(function() {
-      if (isDisabled && (0, import_platform_feature_flags.fg)("platform_only_attach_escape_handler_on_view")) {
+    (0, import_react14.useEffect)(function() {
+      if (isDisabled && (0, import_platform_feature_flags2.fg)("platform_only_attach_escape_handler_on_view")) {
         return;
       }
       return (0, import_bind_event_listener.bindAll)(document, [{
@@ -45228,41 +46658,56 @@
   }
 
   // node_modules/@atlaskit/ds-lib/dist/esm/hooks/use-stable-ref.js
-  var import_react9 = __toESM(require_react());
+  var import_react15 = __toESM(require_react());
   function useStableRef(value) {
-    var ref = (0, import_react9.useRef)(value);
-    (0, import_react9.useEffect)(function() {
+    var ref = (0, import_react15.useRef)(value);
+    (0, import_react15.useEffect)(function() {
       ref.current = value;
     }, [value]);
     return ref;
   }
 
+  // node_modules/tiny-invariant/dist/esm/tiny-invariant.js
+  var isProduction = false;
+  var prefix = "Invariant failed";
+  function invariant(condition, message2) {
+    if (condition) {
+      return;
+    }
+    if (isProduction) {
+      throw new Error(prefix);
+    }
+    var provided = typeof message2 === "function" ? message2() : message2;
+    var value = provided ? "".concat(prefix, ": ").concat(provided) : prefix;
+    throw new Error(value);
+  }
+
   // node_modules/@atlaskit/layering/dist/esm/components/open-layer-observer/open-layer-observer-context.js
-  var import_react10 = __toESM(require_react());
-  var OpenLayerObserverContext = /* @__PURE__ */ (0, import_react10.createContext)(null);
+  var import_react16 = __toESM(require_react());
+  var OpenLayerObserverContext = /* @__PURE__ */ (0, import_react16.createContext)(null);
 
   // node_modules/@atlaskit/layering/dist/esm/components/open-layer-observer/use-notify-open-layer-observer.js
-  var import_react13 = __toESM(require_react());
+  var import_react19 = __toESM(require_react());
 
   // node_modules/@atlaskit/layering/dist/esm/components/open-layer-observer/use-open-layer-observer-namespace.js
-  var import_react12 = __toESM(require_react());
+  var import_react18 = __toESM(require_react());
 
   // node_modules/@atlaskit/layering/dist/esm/components/open-layer-observer/open-layer-observer-namespace-context.js
-  var import_react11 = __toESM(require_react());
-  var OpenLayerObserverNamespaceContext = /* @__PURE__ */ (0, import_react11.createContext)(null);
+  var import_react17 = __toESM(require_react());
+  var OpenLayerObserverNamespaceContext = /* @__PURE__ */ (0, import_react17.createContext)(null);
 
   // node_modules/@atlaskit/layering/dist/esm/components/open-layer-observer/use-open-layer-observer-namespace.js
   function useOpenLayerObserverNamespace() {
-    var namespace = (0, import_react12.useContext)(OpenLayerObserverNamespaceContext);
+    var namespace = (0, import_react18.useContext)(OpenLayerObserverNamespaceContext);
     return namespace;
   }
 
   // node_modules/@atlaskit/layering/dist/esm/components/open-layer-observer/use-notify-open-layer-observer.js
   function useNotifyOpenLayerObserver(_ref2) {
     var isOpen = _ref2.isOpen, onClose = _ref2.onClose;
-    var context = (0, import_react13.useContext)(OpenLayerObserverContext);
+    var context = (0, import_react19.useContext)(OpenLayerObserverContext);
     var namespace = useOpenLayerObserverNamespace();
-    (0, import_react13.useEffect)(function() {
+    (0, import_react19.useEffect)(function() {
       if (context === null) {
         return;
       }
@@ -45295,7 +46740,7 @@
 
   // node_modules/@atlaskit/motion/dist/esm/utils/accessibility.js
   init_slicedToArray();
-  var import_react14 = __toESM(require_react());
+  var import_react20 = __toESM(require_react());
   var isMatchMediaAvailable = function isMatchMediaAvailable2() {
     return typeof window !== "undefined" && "matchMedia" in window;
   };
@@ -45308,24 +46753,24 @@
   };
 
   // node_modules/@atlaskit/motion/dist/esm/entering/fade-in.js
-  var import_react20 = __toESM(require_react());
+  var import_react26 = __toESM(require_react());
 
   // node_modules/@atlaskit/motion/dist/esm/entering/keyframes-motion.js
   init_slicedToArray();
-  var import_react19 = __toESM(require_react());
+  var import_react25 = __toESM(require_react());
 
   // node_modules/@compiled/react/dist/esm/runtime/ax.js
   var ATOMIC_GROUP_LENGTH = 5;
-  function ax(classNames) {
-    if (!classNames.length) {
+  function ax(classNames2) {
+    if (!classNames2.length) {
       return;
     }
-    if (classNames.length === 1 && classNames[0] && // checking to see if `classNames[0]` is a string that contains other classnames
-    !classNames[0].includes(" ")) {
-      return classNames[0];
+    if (classNames2.length === 1 && classNames2[0] && // checking to see if `classNames[0]` is a string that contains other classnames
+    !classNames2[0].includes(" ")) {
+      return classNames2[0];
     }
     const map = {};
-    for (const value of classNames) {
+    for (const value of classNames2) {
       if (!value) {
         continue;
       }
@@ -45346,11 +46791,11 @@
   }
 
   // node_modules/@compiled/react/dist/esm/runtime/css-custom-property.js
-  function cssCustomPropertyValue(value, suffix, prefix) {
+  function cssCustomPropertyValue(value, suffix, prefix2) {
     if (value != void 0) {
       if (suffix) {
-        if (prefix) {
-          return prefix + value + suffix;
+        if (prefix2) {
+          return prefix2 + value + suffix;
         }
         return value + suffix;
       }
@@ -45360,7 +46805,7 @@
   }
 
   // node_modules/@atlaskit/motion/dist/esm/utils/timer-hooks.js
-  var import_react15 = __toESM(require_react());
+  var import_react21 = __toESM(require_react());
   var getHookDeps = function getHookDeps2(opts) {
     switch (opts.cleanup) {
       case "next-effect":
@@ -45374,8 +46819,8 @@
     var opts = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {
       cleanup: "unmount"
     };
-    var timeouts = (0, import_react15.useRef)([]);
-    (0, import_react15.useEffect)(function() {
+    var timeouts = (0, import_react21.useRef)([]);
+    (0, import_react21.useEffect)(function() {
       return function() {
         if (timeouts.current.length) {
           timeouts.current.forEach(function(id) {
@@ -45385,7 +46830,7 @@
         }
       };
     }, getHookDeps(opts));
-    return (0, import_react15.useCallback)(function(handler, timeout) {
+    return (0, import_react21.useCallback)(function(handler, timeout) {
       for (var _len = arguments.length, args = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
         args[_key - 2] = arguments[_key];
       }
@@ -45401,23 +46846,23 @@
 
   // node_modules/@atlaskit/motion/dist/esm/entering/exiting-persistence.js
   init_slicedToArray();
-  var import_react16 = __toESM(require_react());
+  var import_react22 = __toESM(require_react());
   var emptyContext = {
     // Motions will always appear if not inside a exiting persistence component.
     appear: true,
     isExiting: false
   };
-  var ExitingContext = /* @__PURE__ */ (0, import_react16.createContext)(emptyContext);
+  var ExitingContext = /* @__PURE__ */ (0, import_react22.createContext)(emptyContext);
   var wrapChildWithContextProvider = function wrapChildWithContextProvider2(child) {
     var value = arguments.length > 1 && arguments[1] !== void 0 ? arguments[1] : emptyContext;
-    return /* @__PURE__ */ import_react16.default.createElement(ExitingContext.Provider, {
+    return /* @__PURE__ */ import_react22.default.createElement(ExitingContext.Provider, {
       key: "".concat(child.key, "-provider"),
       value
     }, child);
   };
   var childrenToArray = function childrenToArray2(children) {
     var childrenAsArray = [];
-    import_react16.Children.toArray(children).forEach(function(child) {
+    import_react22.Children.toArray(children).forEach(function(child) {
       if (typeof child !== "boolean" && Boolean(child)) {
         childrenAsArray.push(child);
       }
@@ -45456,17 +46901,17 @@
     }
     return missing;
   };
-  var ExitingPersistence = /* @__PURE__ */ (0, import_react16.memo)(function(_ref2) {
+  var ExitingPersistence = /* @__PURE__ */ (0, import_react22.memo)(function(_ref2) {
     var _ref$appear = _ref2.appear, appear = _ref$appear === void 0 ? false : _ref$appear, children = _ref2.children, exitThenEnter = _ref2.exitThenEnter;
-    var _useState = (0, import_react16.useState)([null, children]), _useState2 = _slicedToArray(_useState, 2), stateChildren = _useState2[0], setChildren = _useState2[1];
-    var _useState3 = (0, import_react16.useState)([]), _useState4 = _slicedToArray(_useState3, 2), exitingChildren = _useState4[0], setExitingChildren = _useState4[1];
-    var _useState5 = (0, import_react16.useState)(function() {
+    var _useState = (0, import_react22.useState)([null, children]), _useState2 = _slicedToArray(_useState, 2), stateChildren = _useState2[0], setChildren = _useState2[1];
+    var _useState3 = (0, import_react22.useState)([]), _useState4 = _slicedToArray(_useState3, 2), exitingChildren = _useState4[0], setExitingChildren = _useState4[1];
+    var _useState5 = (0, import_react22.useState)(function() {
       return {
         appear,
         isExiting: false
       };
     }), _useState6 = _slicedToArray(_useState5, 2), defaultContext = _useState6[0], setDefaultContext = _useState6[1];
-    (0, import_react16.useEffect)(function() {
+    (0, import_react22.useEffect)(function() {
       if (!defaultContext.appear) {
         setDefaultContext({
           appear: true,
@@ -45524,19 +46969,19 @@
     return visibleChildren;
   });
   var useExitingPersistence = function useExitingPersistence2() {
-    return (0, import_react16.useContext)(ExitingContext);
+    return (0, import_react22.useContext)(ExitingContext);
   };
   ExitingPersistence.displayName = "ExitingPersistence";
   var exiting_persistence_default = ExitingPersistence;
 
   // node_modules/@atlaskit/motion/dist/esm/entering/staggered-entrance.js
   init_slicedToArray();
-  var import_react18 = __toESM(require_react());
+  var import_react24 = __toESM(require_react());
 
   // node_modules/@atlaskit/motion/dist/esm/utils/use-unique-id.js
-  var import_react17 = __toESM(require_react());
+  var import_react23 = __toESM(require_react());
   function useUniqueId() {
-    var identifier = (0, import_react17.useRef)("");
+    var identifier = (0, import_react23.useRef)("");
     if (!identifier.current) {
       identifier.current = "_" + (Number(String(Math.random()).slice(2)) + Date.now() + Math.round(performance.now())).toString(36);
     }
@@ -45544,16 +46989,16 @@
   }
 
   // node_modules/@atlaskit/motion/dist/esm/entering/staggered-entrance.js
-  var StaggeredEntranceContext = /* @__PURE__ */ (0, import_react18.createContext)(function() {
+  var StaggeredEntranceContext = /* @__PURE__ */ (0, import_react24.createContext)(function() {
     return {
       isReady: true,
       delay: 0,
-      ref: noop
+      ref: noop3
     };
   });
   var useStaggeredEntrance = function useStaggeredEntrance2() {
     var indentifier = useUniqueId();
-    var context = (0, import_react18.useContext)(StaggeredEntranceContext);
+    var context = (0, import_react24.useContext)(StaggeredEntranceContext);
     return context(indentifier);
   };
 
@@ -45566,8 +47011,8 @@
     var paused = isPaused || !staggered.isReady;
     var delay = isExiting ? 0 : staggered.delay;
     var state = isExiting ? "exiting" : "entering";
-    var _useState = (0, import_react19.useState)(appear), _useState2 = _slicedToArray(_useState, 2), hasAnimationStyles = _useState2[0], setHasAnimationStyles = _useState2[1];
-    (0, import_react19.useEffect)(function() {
+    var _useState = (0, import_react25.useState)(appear), _useState2 = _slicedToArray(_useState, 2), hasAnimationStyles = _useState2[0], setHasAnimationStyles = _useState2[1];
+    (0, import_react25.useEffect)(function() {
       var isCancelled = false;
       if (paused) {
         return;
@@ -45617,7 +47062,7 @@
     var children = _ref2.children, _ref$duration = _ref2.duration, duration = _ref$duration === void 0 ? "large" : _ref$duration, entranceDirection = _ref2.entranceDirection, exitDirection = _ref2.exitDirection, _ref$distance = _ref2.distance, distance = _ref$distance === void 0 ? "proportional" : _ref$distance, onFinish = _ref2.onFinish, isPaused = _ref2.isPaused;
     var invertedEntranceDirection = entranceDirection !== void 0 ? invertedDirection[entranceDirection] : void 0;
     var isExitDirect = Boolean(exitDirection || invertedEntranceDirection) ? "fade-out-from-".concat(exitDirection || invertedEntranceDirection).concat(distance === "proportional" ? "" : "-constant") : "fade-out";
-    return /* @__PURE__ */ import_react20.default.createElement(keyframes_motion_default, {
+    return /* @__PURE__ */ import_react26.default.createElement(keyframes_motion_default, {
       duration,
       enteringAnimation: entranceDirection ? "fade-in-from-".concat(entranceDirection).concat(distance === "proportional" ? "" : "-constant") : "fade-in",
       exitingAnimation: isExitDirect,
@@ -45629,23 +47074,23 @@
   var fade_in_default = FadeIn;
 
   // node_modules/@atlaskit/tooltip/dist/esm/tooltip.js
-  var import_platform_feature_flags4 = __toESM(require_cjs3());
+  var import_platform_feature_flags5 = __toESM(require_cjs3());
 
   // node_modules/@atlaskit/popper/dist/esm/popper.js
   init_toConsumableArray();
   init_slicedToArray();
-  var import_react21 = __toESM(require_react());
+  var import_react27 = __toESM(require_react());
 
   // node_modules/react-popper/lib/esm/Popper.js
-  var React9 = __toESM(require_react());
+  var React14 = __toESM(require_react());
 
   // node_modules/react-popper/lib/esm/Manager.js
-  var React6 = __toESM(require_react());
-  var ManagerReferenceNodeContext = React6.createContext();
-  var ManagerReferenceNodeSetterContext = React6.createContext();
+  var React11 = __toESM(require_react());
+  var ManagerReferenceNodeContext = React11.createContext();
+  var ManagerReferenceNodeSetterContext = React11.createContext();
 
   // node_modules/react-popper/lib/esm/utils.js
-  var React7 = __toESM(require_react());
+  var React12 = __toESM(require_react());
   var unwrapArray = function unwrapArray2(arg) {
     return Array.isArray(arg) ? arg[0] : arg;
   };
@@ -45671,10 +47116,10 @@
       return acc;
     }, {});
   };
-  var useIsomorphicLayoutEffect = typeof window !== "undefined" && window.document && window.document.createElement ? React7.useLayoutEffect : React7.useEffect;
+  var useIsomorphicLayoutEffect = typeof window !== "undefined" && window.document && window.document.createElement ? React12.useLayoutEffect : React12.useEffect;
 
   // node_modules/react-popper/lib/esm/usePopper.js
-  var React8 = __toESM(require_react());
+  var React13 = __toESM(require_react());
   var ReactDOM = __toESM(require_react_dom());
 
   // node_modules/@popperjs/core/lib/enums.js
@@ -45905,7 +47350,7 @@
   }
 
   // node_modules/@popperjs/core/lib/dom-utils/getComputedStyle.js
-  function getComputedStyle(element) {
+  function getComputedStyle2(element) {
     return getWindow(element).getComputedStyle(element);
   }
 
@@ -45942,7 +47387,7 @@
   // node_modules/@popperjs/core/lib/dom-utils/getOffsetParent.js
   function getTrueOffsetParent(element) {
     if (!isHTMLElement(element) || // https://github.com/popperjs/popper-core/issues/837
-    getComputedStyle(element).position === "fixed") {
+    getComputedStyle2(element).position === "fixed") {
       return null;
     }
     return element.offsetParent;
@@ -45951,7 +47396,7 @@
     var isFirefox3 = /firefox/i.test(getUAString());
     var isIE = /Trident/i.test(getUAString());
     if (isIE && isHTMLElement(element)) {
-      var elementCss = getComputedStyle(element);
+      var elementCss = getComputedStyle2(element);
       if (elementCss.position === "fixed") {
         return null;
       }
@@ -45961,8 +47406,8 @@
       currentNode = currentNode.host;
     }
     while (isHTMLElement(currentNode) && ["html", "body"].indexOf(getNodeName(currentNode)) < 0) {
-      var css = getComputedStyle(currentNode);
-      if (css.transform !== "none" || css.perspective !== "none" || css.contain === "paint" || ["transform", "perspective"].indexOf(css.willChange) !== -1 || isFirefox3 && css.willChange === "filter" || isFirefox3 && css.filter && css.filter !== "none") {
+      var css6 = getComputedStyle2(currentNode);
+      if (css6.transform !== "none" || css6.perspective !== "none" || css6.contain === "paint" || ["transform", "perspective"].indexOf(css6.willChange) !== -1 || isFirefox3 && css6.willChange === "filter" || isFirefox3 && css6.filter && css6.filter !== "none") {
         return currentNode;
       } else {
         currentNode = currentNode.parentNode;
@@ -45973,10 +47418,10 @@
   function getOffsetParent(element) {
     var window2 = getWindow(element);
     var offsetParent = getTrueOffsetParent(element);
-    while (offsetParent && isTableElement(offsetParent) && getComputedStyle(offsetParent).position === "static") {
+    while (offsetParent && isTableElement(offsetParent) && getComputedStyle2(offsetParent).position === "static") {
       offsetParent = getTrueOffsetParent(offsetParent);
     }
-    if (offsetParent && (getNodeName(offsetParent) === "html" || getNodeName(offsetParent) === "body" && getComputedStyle(offsetParent).position === "static")) {
+    if (offsetParent && (getNodeName(offsetParent) === "html" || getNodeName(offsetParent) === "body" && getComputedStyle2(offsetParent).position === "static")) {
       return window2;
     }
     return offsetParent || getContainingBlock(element) || window2;
@@ -45988,12 +47433,12 @@
   }
 
   // node_modules/@popperjs/core/lib/utils/within.js
-  function within(min2, value, max2) {
-    return max(min2, min(value, max2));
+  function within(min3, value, max3) {
+    return max(min3, min(value, max3));
   }
-  function withinMaxClamp(min2, value, max2) {
-    var v = within(min2, value, max2);
-    return v > max2 ? max2 : v;
+  function withinMaxClamp(min3, value, max3) {
+    var v = within(min3, value, max3);
+    return v > max3 ? max3 : v;
   }
 
   // node_modules/@popperjs/core/lib/utils/getFreshSideObject.js
@@ -46028,7 +47473,7 @@
   };
   function arrow(_ref2) {
     var _state$modifiersData$;
-    var state = _ref2.state, name = _ref2.name, options = _ref2.options;
+    var state = _ref2.state, name = _ref2.name, options2 = _ref2.options;
     var arrowElement = state.elements.arrow;
     var popperOffsets2 = state.modifiersData.popperOffsets;
     var basePlacement = getBasePlacement(state.placement);
@@ -46038,7 +47483,7 @@
     if (!arrowElement || !popperOffsets2) {
       return;
     }
-    var paddingObject = toPaddingObject(options.padding, state);
+    var paddingObject = toPaddingObject(options2.padding, state);
     var arrowRect = getLayoutRect(arrowElement);
     var minProp = axis === "y" ? top : left;
     var maxProp = axis === "y" ? bottom : right;
@@ -46047,16 +47492,16 @@
     var arrowOffsetParent = getOffsetParent(arrowElement);
     var clientSize = arrowOffsetParent ? axis === "y" ? arrowOffsetParent.clientHeight || 0 : arrowOffsetParent.clientWidth || 0 : 0;
     var centerToReference = endDiff / 2 - startDiff / 2;
-    var min2 = paddingObject[minProp];
-    var max2 = clientSize - arrowRect[len] - paddingObject[maxProp];
+    var min3 = paddingObject[minProp];
+    var max3 = clientSize - arrowRect[len] - paddingObject[maxProp];
     var center = clientSize / 2 - arrowRect[len] / 2 + centerToReference;
-    var offset2 = within(min2, center, max2);
+    var offset3 = within(min3, center, max3);
     var axisProp = axis;
-    state.modifiersData[name] = (_state$modifiersData$ = {}, _state$modifiersData$[axisProp] = offset2, _state$modifiersData$.centerOffset = offset2 - center, _state$modifiersData$);
+    state.modifiersData[name] = (_state$modifiersData$ = {}, _state$modifiersData$[axisProp] = offset3, _state$modifiersData$.centerOffset = offset3 - center, _state$modifiersData$);
   }
   function effect2(_ref2) {
-    var state = _ref2.state, options = _ref2.options;
-    var _options$element = options.element, arrowElement = _options$element === void 0 ? "[data-popper-arrow]" : _options$element;
+    var state = _ref2.state, options2 = _ref2.options;
+    var _options$element = options2.element, arrowElement = _options$element === void 0 ? "[data-popper-arrow]" : _options$element;
     if (arrowElement == null) {
       return;
     }
@@ -46125,7 +47570,7 @@
       var widthProp = "clientWidth";
       if (offsetParent === getWindow(popper2)) {
         offsetParent = getDocumentElement(popper2);
-        if (getComputedStyle(offsetParent).position !== "static" && position === "absolute") {
+        if (getComputedStyle2(offsetParent).position !== "static" && position === "absolute") {
           heightProp = "scrollHeight";
           widthProp = "scrollWidth";
         }
@@ -46169,8 +47614,8 @@
     return Object.assign({}, commonStyles, (_Object$assign2 = {}, _Object$assign2[sideY] = hasY ? y + "px" : "", _Object$assign2[sideX] = hasX ? x + "px" : "", _Object$assign2.transform = "", _Object$assign2));
   }
   function computeStyles(_ref5) {
-    var state = _ref5.state, options = _ref5.options;
-    var _options$gpuAccelerat = options.gpuAcceleration, gpuAcceleration = _options$gpuAccelerat === void 0 ? true : _options$gpuAccelerat, _options$adaptive = options.adaptive, adaptive = _options$adaptive === void 0 ? true : _options$adaptive, _options$roundOffsets = options.roundOffsets, roundOffsets = _options$roundOffsets === void 0 ? true : _options$roundOffsets;
+    var state = _ref5.state, options2 = _ref5.options;
+    var _options$gpuAccelerat = options2.gpuAcceleration, gpuAcceleration = _options$gpuAccelerat === void 0 ? true : _options$gpuAccelerat, _options$adaptive = options2.adaptive, adaptive = _options$adaptive === void 0 ? true : _options$adaptive, _options$roundOffsets = options2.roundOffsets, roundOffsets = _options$roundOffsets === void 0 ? true : _options$roundOffsets;
     var commonStyles = {
       placement: getBasePlacement(state.placement),
       variation: getVariation(state.placement),
@@ -46212,8 +47657,8 @@
     passive: true
   };
   function effect3(_ref2) {
-    var state = _ref2.state, instance = _ref2.instance, options = _ref2.options;
-    var _options$scroll = options.scroll, scroll = _options$scroll === void 0 ? true : _options$scroll, _options$resize = options.resize, resize = _options$resize === void 0 ? true : _options$resize;
+    var state = _ref2.state, instance = _ref2.instance, options2 = _ref2.options;
+    var _options$scroll = options2.scroll, scroll = _options$scroll === void 0 ? true : _options$scroll, _options$resize = options2.resize, resize = _options$resize === void 0 ? true : _options$resize;
     var window2 = getWindow(state.elements.popper);
     var scrollParents = [].concat(state.scrollParents.reference, state.scrollParents.popper);
     if (scroll) {
@@ -46321,7 +47766,7 @@
     var height = max(html.scrollHeight, html.clientHeight, body ? body.scrollHeight : 0, body ? body.clientHeight : 0);
     var x = -winScroll.scrollLeft + getWindowScrollBarX(element);
     var y = -winScroll.scrollTop;
-    if (getComputedStyle(body || html).direction === "rtl") {
+    if (getComputedStyle2(body || html).direction === "rtl") {
       x += max(html.clientWidth, body ? body.clientWidth : 0) - width2;
     }
     return {
@@ -46334,7 +47779,7 @@
 
   // node_modules/@popperjs/core/lib/dom-utils/isScrollParent.js
   function isScrollParent(element) {
-    var _getComputedStyle = getComputedStyle(element), overflow = _getComputedStyle.overflow, overflowX = _getComputedStyle.overflowX, overflowY = _getComputedStyle.overflowY;
+    var _getComputedStyle = getComputedStyle2(element), overflow = _getComputedStyle.overflow, overflowX = _getComputedStyle.overflowX, overflowY = _getComputedStyle.overflowY;
     return /auto|scroll|overlay|hidden/.test(overflow + overflowY + overflowX);
   }
 
@@ -46394,7 +47839,7 @@
   }
   function getClippingParents(element) {
     var clippingParents2 = listScrollParents(getParentNode(element));
-    var canEscapeClipping = ["absolute", "fixed"].indexOf(getComputedStyle(element).position) >= 0;
+    var canEscapeClipping = ["absolute", "fixed"].indexOf(getComputedStyle2(element).position) >= 0;
     var clipperElement = canEscapeClipping && isHTMLElement(element) ? getOffsetParent(element) : element;
     if (!isElement(clipperElement)) {
       return [];
@@ -46478,11 +47923,11 @@
   }
 
   // node_modules/@popperjs/core/lib/utils/detectOverflow.js
-  function detectOverflow(state, options) {
-    if (options === void 0) {
-      options = {};
+  function detectOverflow(state, options2) {
+    if (options2 === void 0) {
+      options2 = {};
     }
-    var _options = options, _options$placement = _options.placement, placement = _options$placement === void 0 ? state.placement : _options$placement, _options$strategy = _options.strategy, strategy = _options$strategy === void 0 ? state.strategy : _options$strategy, _options$boundary = _options.boundary, boundary = _options$boundary === void 0 ? clippingParents : _options$boundary, _options$rootBoundary = _options.rootBoundary, rootBoundary = _options$rootBoundary === void 0 ? viewport : _options$rootBoundary, _options$elementConte = _options.elementContext, elementContext = _options$elementConte === void 0 ? popper : _options$elementConte, _options$altBoundary = _options.altBoundary, altBoundary = _options$altBoundary === void 0 ? false : _options$altBoundary, _options$padding = _options.padding, padding = _options$padding === void 0 ? 0 : _options$padding;
+    var _options = options2, _options$placement = _options.placement, placement = _options$placement === void 0 ? state.placement : _options$placement, _options$strategy = _options.strategy, strategy = _options$strategy === void 0 ? state.strategy : _options$strategy, _options$boundary = _options.boundary, boundary = _options$boundary === void 0 ? clippingParents : _options$boundary, _options$rootBoundary = _options.rootBoundary, rootBoundary = _options$rootBoundary === void 0 ? viewport : _options$rootBoundary, _options$elementConte = _options.elementContext, elementContext = _options$elementConte === void 0 ? popper : _options$elementConte, _options$altBoundary = _options.altBoundary, altBoundary = _options$altBoundary === void 0 ? false : _options$altBoundary, _options$padding = _options.padding, padding = _options$padding === void 0 ? 0 : _options$padding;
     var paddingObject = mergePaddingObject(typeof padding !== "number" ? padding : expandToHashMap(padding, basePlacements));
     var altContext = elementContext === popper ? reference : popper;
     var popperRect = state.rects.popper;
@@ -46505,22 +47950,22 @@
     };
     var offsetData = state.modifiersData.offset;
     if (elementContext === popper && offsetData) {
-      var offset2 = offsetData[placement];
+      var offset3 = offsetData[placement];
       Object.keys(overflowOffsets).forEach(function(key) {
         var multiply = [right, bottom].indexOf(key) >= 0 ? 1 : -1;
         var axis = [top, bottom].indexOf(key) >= 0 ? "y" : "x";
-        overflowOffsets[key] += offset2[axis] * multiply;
+        overflowOffsets[key] += offset3[axis] * multiply;
       });
     }
     return overflowOffsets;
   }
 
   // node_modules/@popperjs/core/lib/utils/computeAutoPlacement.js
-  function computeAutoPlacement(state, options) {
-    if (options === void 0) {
-      options = {};
+  function computeAutoPlacement(state, options2) {
+    if (options2 === void 0) {
+      options2 = {};
     }
-    var _options = options, placement = _options.placement, boundary = _options.boundary, rootBoundary = _options.rootBoundary, padding = _options.padding, flipVariations = _options.flipVariations, _options$allowedAutoP = _options.allowedAutoPlacements, allowedAutoPlacements = _options$allowedAutoP === void 0 ? placements : _options$allowedAutoP;
+    var _options = options2, placement = _options.placement, boundary = _options.boundary, rootBoundary = _options.rootBoundary, padding = _options.padding, flipVariations = _options.flipVariations, _options$allowedAutoP = _options.allowedAutoPlacements, allowedAutoPlacements = _options$allowedAutoP === void 0 ? placements : _options$allowedAutoP;
     var variation = getVariation(placement);
     var placements2 = variation ? flipVariations ? variationPlacements : variationPlacements.filter(function(placement2) {
       return getVariation(placement2) === variation;
@@ -46554,11 +47999,11 @@
     return [getOppositeVariationPlacement(placement), oppositePlacement, getOppositeVariationPlacement(oppositePlacement)];
   }
   function flip(_ref2) {
-    var state = _ref2.state, options = _ref2.options, name = _ref2.name;
+    var state = _ref2.state, options2 = _ref2.options, name = _ref2.name;
     if (state.modifiersData[name]._skip) {
       return;
     }
-    var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? true : _options$altAxis, specifiedFallbackPlacements = options.fallbackPlacements, padding = options.padding, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, _options$flipVariatio = options.flipVariations, flipVariations = _options$flipVariatio === void 0 ? true : _options$flipVariatio, allowedAutoPlacements = options.allowedAutoPlacements;
+    var _options$mainAxis = options2.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options2.altAxis, checkAltAxis = _options$altAxis === void 0 ? true : _options$altAxis, specifiedFallbackPlacements = options2.fallbackPlacements, padding = options2.padding, boundary = options2.boundary, rootBoundary = options2.rootBoundary, altBoundary = options2.altBoundary, _options$flipVariatio = options2.flipVariations, flipVariations = _options$flipVariatio === void 0 ? true : _options$flipVariatio, allowedAutoPlacements = options2.allowedAutoPlacements;
     var preferredPlacement = state.options.placement;
     var basePlacement = getBasePlacement(preferredPlacement);
     var isBasePlacement = basePlacement === preferredPlacement;
@@ -46705,12 +48150,12 @@
   };
 
   // node_modules/@popperjs/core/lib/modifiers/offset.js
-  function distanceAndSkiddingToXY(placement, rects, offset2) {
+  function distanceAndSkiddingToXY(placement, rects, offset3) {
     var basePlacement = getBasePlacement(placement);
     var invertDistance = [left, top].indexOf(basePlacement) >= 0 ? -1 : 1;
-    var _ref2 = typeof offset2 === "function" ? offset2(Object.assign({}, rects, {
+    var _ref2 = typeof offset3 === "function" ? offset3(Object.assign({}, rects, {
       placement
-    })) : offset2, skidding = _ref2[0], distance = _ref2[1];
+    })) : offset3, skidding = _ref2[0], distance = _ref2[1];
     skidding = skidding || 0;
     distance = (distance || 0) * invertDistance;
     return [left, right].indexOf(basePlacement) >= 0 ? {
@@ -46722,10 +48167,10 @@
     };
   }
   function offset(_ref2) {
-    var state = _ref2.state, options = _ref2.options, name = _ref2.name;
-    var _options$offset = options.offset, offset2 = _options$offset === void 0 ? [0, 0] : _options$offset;
+    var state = _ref2.state, options2 = _ref2.options, name = _ref2.name;
+    var _options$offset = options2.offset, offset3 = _options$offset === void 0 ? [0, 0] : _options$offset;
     var data = placements.reduce(function(acc, placement) {
-      acc[placement] = distanceAndSkiddingToXY(placement, state.rects, offset2);
+      acc[placement] = distanceAndSkiddingToXY(placement, state.rects, offset3);
       return acc;
     }, {});
     var _data$state$placement = data[state.placement], x = _data$state$placement.x, y = _data$state$placement.y;
@@ -46768,8 +48213,8 @@
 
   // node_modules/@popperjs/core/lib/modifiers/preventOverflow.js
   function preventOverflow(_ref2) {
-    var state = _ref2.state, options = _ref2.options, name = _ref2.name;
-    var _options$mainAxis = options.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options.altAxis, checkAltAxis = _options$altAxis === void 0 ? false : _options$altAxis, boundary = options.boundary, rootBoundary = options.rootBoundary, altBoundary = options.altBoundary, padding = options.padding, _options$tether = options.tether, tether = _options$tether === void 0 ? true : _options$tether, _options$tetherOffset = options.tetherOffset, tetherOffset = _options$tetherOffset === void 0 ? 0 : _options$tetherOffset;
+    var state = _ref2.state, options2 = _ref2.options, name = _ref2.name;
+    var _options$mainAxis = options2.mainAxis, checkMainAxis = _options$mainAxis === void 0 ? true : _options$mainAxis, _options$altAxis = options2.altAxis, checkAltAxis = _options$altAxis === void 0 ? false : _options$altAxis, boundary = options2.boundary, rootBoundary = options2.rootBoundary, altBoundary = options2.altBoundary, padding = options2.padding, _options$tether = options2.tether, tether = _options$tether === void 0 ? true : _options$tether, _options$tetherOffset = options2.tetherOffset, tetherOffset = _options$tetherOffset === void 0 ? 0 : _options$tetherOffset;
     var overflow = detectOverflow(state, {
       boundary,
       rootBoundary,
@@ -46807,9 +48252,9 @@
       var mainSide = mainAxis === "y" ? top : left;
       var altSide = mainAxis === "y" ? bottom : right;
       var len = mainAxis === "y" ? "height" : "width";
-      var offset2 = popperOffsets2[mainAxis];
-      var min2 = offset2 + overflow[mainSide];
-      var max2 = offset2 - overflow[altSide];
+      var offset3 = popperOffsets2[mainAxis];
+      var min3 = offset3 + overflow[mainSide];
+      var max3 = offset3 - overflow[altSide];
       var additive = tether ? -popperRect[len] / 2 : 0;
       var minLen = variation === start ? referenceRect[len] : popperRect[len];
       var maxLen = variation === start ? -popperRect[len] : -referenceRect[len];
@@ -46827,11 +48272,11 @@
       var arrowOffsetParent = state.elements.arrow && getOffsetParent(state.elements.arrow);
       var clientOffset = arrowOffsetParent ? mainAxis === "y" ? arrowOffsetParent.clientTop || 0 : arrowOffsetParent.clientLeft || 0 : 0;
       var offsetModifierValue = (_offsetModifierState$ = offsetModifierState == null ? void 0 : offsetModifierState[mainAxis]) != null ? _offsetModifierState$ : 0;
-      var tetherMin = offset2 + minOffset - offsetModifierValue - clientOffset;
-      var tetherMax = offset2 + maxOffset - offsetModifierValue;
-      var preventedOffset = within(tether ? min(min2, tetherMin) : min2, offset2, tether ? max(max2, tetherMax) : max2);
+      var tetherMin = offset3 + minOffset - offsetModifierValue - clientOffset;
+      var tetherMax = offset3 + maxOffset - offsetModifierValue;
+      var preventedOffset = within(tether ? min(min3, tetherMin) : min3, offset3, tether ? max(max3, tetherMax) : max3);
       popperOffsets2[mainAxis] = preventedOffset;
-      data[mainAxis] = preventedOffset - offset2;
+      data[mainAxis] = preventedOffset - offset3;
     }
     if (checkAltAxis) {
       var _offsetModifierState$2;
@@ -47007,9 +48452,9 @@
       generatorOptions = {};
     }
     var _generatorOptions = generatorOptions, _generatorOptions$def = _generatorOptions.defaultModifiers, defaultModifiers2 = _generatorOptions$def === void 0 ? [] : _generatorOptions$def, _generatorOptions$def2 = _generatorOptions.defaultOptions, defaultOptions4 = _generatorOptions$def2 === void 0 ? DEFAULT_OPTIONS : _generatorOptions$def2;
-    return function createPopper2(reference2, popper2, options) {
-      if (options === void 0) {
-        options = defaultOptions4;
+    return function createPopper2(reference2, popper2, options2) {
+      if (options2 === void 0) {
+        options2 = defaultOptions4;
       }
       var state = {
         placement: "bottom",
@@ -47028,9 +48473,9 @@
       var instance = {
         state,
         setOptions: function setOptions(setOptionsAction) {
-          var options2 = typeof setOptionsAction === "function" ? setOptionsAction(state.options) : setOptionsAction;
+          var options3 = typeof setOptionsAction === "function" ? setOptionsAction(state.options) : setOptionsAction;
           cleanupModifierEffects();
-          state.options = Object.assign({}, defaultOptions4, state.options, options2);
+          state.options = Object.assign({}, defaultOptions4, state.options, options3);
           state.scrollParents = {
             reference: isElement(reference2) ? listScrollParents(reference2) : reference2.contextElement ? listScrollParents(reference2.contextElement) : [],
             popper: listScrollParents(popper2)
@@ -47064,13 +48509,13 @@
           state.orderedModifiers.forEach(function(modifier) {
             return state.modifiersData[modifier.name] = Object.assign({}, modifier.data);
           });
-          for (var index = 0; index < state.orderedModifiers.length; index++) {
+          for (var index2 = 0; index2 < state.orderedModifiers.length; index2++) {
             if (state.reset === true) {
               state.reset = false;
-              index = -1;
+              index2 = -1;
               continue;
             }
-            var _state$orderedModifie = state.orderedModifiers[index], fn2 = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {} : _state$orderedModifie2, name = _state$orderedModifie.name;
+            var _state$orderedModifie = state.orderedModifiers[index2], fn2 = _state$orderedModifie.fn, _state$orderedModifie2 = _state$orderedModifie.options, _options = _state$orderedModifie2 === void 0 ? {} : _state$orderedModifie2, name = _state$orderedModifie.name;
             if (typeof fn2 === "function") {
               state = fn2({
                 state,
@@ -47097,20 +48542,20 @@
       if (!areValidElements(reference2, popper2)) {
         return instance;
       }
-      instance.setOptions(options).then(function(state2) {
-        if (!isDestroyed && options.onFirstUpdate) {
-          options.onFirstUpdate(state2);
+      instance.setOptions(options2).then(function(state2) {
+        if (!isDestroyed && options2.onFirstUpdate) {
+          options2.onFirstUpdate(state2);
         }
       });
       function runModifierEffects() {
         state.orderedModifiers.forEach(function(_ref2) {
-          var name = _ref2.name, _ref$options = _ref2.options, options2 = _ref$options === void 0 ? {} : _ref$options, effect4 = _ref2.effect;
+          var name = _ref2.name, _ref$options = _ref2.options, options3 = _ref$options === void 0 ? {} : _ref$options, effect4 = _ref2.effect;
           if (typeof effect4 === "function") {
             var cleanupFn = effect4({
               state,
               name,
               instance,
-              options: options2
+              options: options3
             });
             var noopFn = function noopFn2() {
             };
@@ -47137,18 +48582,18 @@
   // node_modules/react-popper/lib/esm/usePopper.js
   var import_react_fast_compare = __toESM(require_react_fast_compare());
   var EMPTY_MODIFIERS = [];
-  var usePopper = function usePopper2(referenceElement, popperElement, options) {
-    if (options === void 0) {
-      options = {};
+  var usePopper = function usePopper2(referenceElement, popperElement, options2) {
+    if (options2 === void 0) {
+      options2 = {};
     }
-    var prevOptions = React8.useRef(null);
+    var prevOptions = React13.useRef(null);
     var optionsWithDefaults = {
-      onFirstUpdate: options.onFirstUpdate,
-      placement: options.placement || "bottom",
-      strategy: options.strategy || "absolute",
-      modifiers: options.modifiers || EMPTY_MODIFIERS
+      onFirstUpdate: options2.onFirstUpdate,
+      placement: options2.placement || "bottom",
+      strategy: options2.strategy || "absolute",
+      modifiers: options2.modifiers || EMPTY_MODIFIERS
     };
-    var _React$useState = React8.useState({
+    var _React$useState = React13.useState({
       styles: {
         popper: {
           position: optionsWithDefaults.strategy,
@@ -47161,7 +48606,7 @@
       },
       attributes: {}
     }), state = _React$useState[0], setState = _React$useState[1];
-    var updateStateModifier = React8.useMemo(function() {
+    var updateStateModifier = React13.useMemo(function() {
       return {
         name: "updateState",
         enabled: true,
@@ -47183,7 +48628,7 @@
         requires: ["computeStyles"]
       };
     }, []);
-    var popperOptions = React8.useMemo(function() {
+    var popperOptions = React13.useMemo(function() {
       var newOptions = {
         onFirstUpdate: optionsWithDefaults.onFirstUpdate,
         placement: optionsWithDefaults.placement,
@@ -47200,7 +48645,7 @@
         return newOptions;
       }
     }, [optionsWithDefaults.onFirstUpdate, optionsWithDefaults.placement, optionsWithDefaults.strategy, optionsWithDefaults.modifiers, updateStateModifier]);
-    var popperInstanceRef = React8.useRef();
+    var popperInstanceRef = React13.useRef();
     useIsomorphicLayoutEffect(function() {
       if (popperInstanceRef.current) {
         popperInstanceRef.current.setOptions(popperOptions);
@@ -47210,14 +48655,14 @@
       if (referenceElement == null || popperElement == null) {
         return;
       }
-      var createPopper2 = options.createPopper || createPopper;
+      var createPopper2 = options2.createPopper || createPopper;
       var popperInstance = createPopper2(referenceElement, popperElement, popperOptions);
       popperInstanceRef.current = popperInstance;
       return function() {
         popperInstance.destroy();
         popperInstanceRef.current = null;
       };
-    }, [referenceElement, popperElement, options.createPopper]);
+    }, [referenceElement, popperElement, options2.createPopper]);
     return {
       state: popperInstanceRef.current ? popperInstanceRef.current.state : null,
       styles: state.styles,
@@ -47237,13 +48682,13 @@
   var EMPTY_MODIFIERS2 = [];
   function Popper(_ref2) {
     var _ref$placement = _ref2.placement, placement = _ref$placement === void 0 ? "bottom" : _ref$placement, _ref$strategy = _ref2.strategy, strategy = _ref$strategy === void 0 ? "absolute" : _ref$strategy, _ref$modifiers = _ref2.modifiers, modifiers = _ref$modifiers === void 0 ? EMPTY_MODIFIERS2 : _ref$modifiers, referenceElement = _ref2.referenceElement, onFirstUpdate = _ref2.onFirstUpdate, innerRef = _ref2.innerRef, children = _ref2.children;
-    var referenceNode = React9.useContext(ManagerReferenceNodeContext);
-    var _React$useState = React9.useState(null), popperElement = _React$useState[0], setPopperElement = _React$useState[1];
-    var _React$useState2 = React9.useState(null), arrowElement = _React$useState2[0], setArrowElement = _React$useState2[1];
-    React9.useEffect(function() {
+    var referenceNode = React14.useContext(ManagerReferenceNodeContext);
+    var _React$useState = React14.useState(null), popperElement = _React$useState[0], setPopperElement = _React$useState[1];
+    var _React$useState2 = React14.useState(null), arrowElement = _React$useState2[0], setArrowElement = _React$useState2[1];
+    React14.useEffect(function() {
       setRef(innerRef, popperElement);
     }, [innerRef, popperElement]);
-    var options = React9.useMemo(function() {
+    var options2 = React14.useMemo(function() {
       return {
         placement,
         strategy,
@@ -47257,22 +48702,22 @@
         }])
       };
     }, [placement, strategy, onFirstUpdate, modifiers, arrowElement]);
-    var _usePopper = usePopper(referenceElement || referenceNode, popperElement, options), state = _usePopper.state, styles = _usePopper.styles, forceUpdate = _usePopper.forceUpdate, update = _usePopper.update;
-    var childrenProps = React9.useMemo(function() {
+    var _usePopper = usePopper(referenceElement || referenceNode, popperElement, options2), state = _usePopper.state, styles9 = _usePopper.styles, forceUpdate = _usePopper.forceUpdate, update = _usePopper.update;
+    var childrenProps = React14.useMemo(function() {
       return {
         ref: setPopperElement,
-        style: styles.popper,
+        style: styles9.popper,
         placement: state ? state.placement : placement,
         hasPopperEscaped: state && state.modifiersData.hide ? state.modifiersData.hide.hasPopperEscaped : null,
         isReferenceHidden: state && state.modifiersData.hide ? state.modifiersData.hide.isReferenceHidden : null,
         arrowProps: {
-          style: styles.arrow,
+          style: styles9.arrow,
           ref: setArrowElement
         },
         forceUpdate: forceUpdate || NOOP,
         update: update || NOOP_PROMISE
       };
-    }, [setPopperElement, setArrowElement, placement, state, styles, update, forceUpdate]);
+    }, [setPopperElement, setArrowElement, placement, state, styles9, update, forceUpdate]);
     return unwrapArray(children)(childrenProps);
   }
 
@@ -47367,9 +48812,9 @@
   }
   var defaultOffset = [0, 8];
   function Popper2(_ref2) {
-    var _ref$children = _ref2.children, children = _ref$children === void 0 ? defaultChildrenFn : _ref$children, _ref$offset = _ref2.offset, offset2 = _ref$offset === void 0 ? defaultOffset : _ref$offset, _ref$placement = _ref2.placement, placement = _ref$placement === void 0 ? "bottom-start" : _ref$placement, _ref$referenceElement = _ref2.referenceElement, referenceElement = _ref$referenceElement === void 0 ? void 0 : _ref$referenceElement, modifiers = _ref2.modifiers, _ref$strategy = _ref2.strategy, strategy = _ref$strategy === void 0 ? "fixed" : _ref$strategy, _ref$shouldFitViewpor = _ref2.shouldFitViewport, shouldFitViewport = _ref$shouldFitViewpor === void 0 ? false : _ref$shouldFitViewpor;
-    var _offset = _slicedToArray(offset2, 2), offsetX = _offset[0], offsetY = _offset[1];
-    var internalModifiers = (0, import_react21.useMemo)(function() {
+    var _ref$children = _ref2.children, children = _ref$children === void 0 ? defaultChildrenFn : _ref$children, _ref$offset = _ref2.offset, offset3 = _ref$offset === void 0 ? defaultOffset : _ref$offset, _ref$placement = _ref2.placement, placement = _ref$placement === void 0 ? "bottom-start" : _ref$placement, _ref$referenceElement = _ref2.referenceElement, referenceElement = _ref$referenceElement === void 0 ? void 0 : _ref$referenceElement, modifiers = _ref2.modifiers, _ref$strategy = _ref2.strategy, strategy = _ref$strategy === void 0 ? "fixed" : _ref$strategy, _ref$shouldFitViewpor = _ref2.shouldFitViewport, shouldFitViewport = _ref$shouldFitViewpor === void 0 ? false : _ref$shouldFitViewpor;
+    var _offset = _slicedToArray(offset3, 2), offsetX = _offset[0], offsetY = _offset[1];
+    var internalModifiers = (0, import_react27.useMemo)(function() {
       var preventOverflowModifier = {
         name: "preventOverflow",
         options: {
@@ -47388,13 +48833,13 @@
       }) : [];
       return [].concat(constantModifiers, [preventOverflowModifier, offsetModifier], _toConsumableArray(maxSizeModifiers));
     }, [offsetX, offsetY, shouldFitViewport]);
-    var mergedModifiers = (0, import_react21.useMemo)(function() {
+    var mergedModifiers = (0, import_react27.useMemo)(function() {
       if (modifiers == null) {
         return internalModifiers;
       }
       return [].concat(_toConsumableArray(internalModifiers), _toConsumableArray(modifiers));
     }, [internalModifiers, modifiers]);
-    return /* @__PURE__ */ import_react21.default.createElement(
+    return /* @__PURE__ */ import_react27.default.createElement(
       Popper,
       {
         modifiers: mergedModifiers,
@@ -47407,11 +48852,11 @@
   }
 
   // node_modules/@atlaskit/portal/dist/esm/portal.js
-  var import_react27 = __toESM(require_react());
-  var import_platform_feature_flags2 = __toESM(require_cjs3());
+  var import_react33 = __toESM(require_react());
+  var import_platform_feature_flags3 = __toESM(require_cjs3());
 
   // node_modules/@atlaskit/portal/dist/esm/internal/components/internal-portal.js
-  var import_react22 = __toESM(require_react());
+  var import_react28 = __toESM(require_react());
   var import_react_dom = __toESM(require_react_dom());
 
   // node_modules/@atlaskit/portal/dist/esm/internal/constants.js
@@ -47478,11 +48923,11 @@
   // node_modules/@atlaskit/portal/dist/esm/internal/components/internal-portal.js
   function InternalPortal(props) {
     var zIndex = props.zIndex, children = props.children;
-    var container2 = (0, import_react22.useMemo)(function() {
+    var container2 = (0, import_react28.useMemo)(function() {
       return createContainer(zIndex);
     }, [zIndex]);
     appendPortalContainerIfNotAppended(container2);
-    (0, import_react22.useEffect)(function() {
+    (0, import_react28.useEffect)(function() {
       return function() {
         removePortalContainer(container2);
       };
@@ -47492,17 +48937,17 @@
 
   // node_modules/@atlaskit/portal/dist/esm/internal/components/internal-portal-new.js
   init_slicedToArray();
-  var import_react24 = __toESM(require_react());
+  var import_react30 = __toESM(require_react());
   var import_react_dom2 = __toESM(require_react_dom());
 
   // node_modules/@atlaskit/portal/dist/esm/internal/hooks/use-isomorphic-layout-effect.js
-  var import_react23 = __toESM(require_react());
-  var useIsomorphicLayoutEffect2 = typeof window !== "undefined" ? import_react23.useLayoutEffect : import_react23.useEffect;
+  var import_react29 = __toESM(require_react());
+  var useIsomorphicLayoutEffect2 = typeof window !== "undefined" ? import_react29.useLayoutEffect : import_react29.useEffect;
 
   // node_modules/@atlaskit/portal/dist/esm/internal/components/internal-portal-new.js
   function InternalPortalNew(props) {
     var zIndex = props.zIndex, children = props.children;
-    var _useState = (0, import_react24.useState)(null), _useState2 = _slicedToArray(_useState, 2), atlaskitPortal = _useState2[0], setAtlaskitPortal = _useState2[1];
+    var _useState = (0, import_react30.useState)(null), _useState2 = _slicedToArray(_useState, 2), atlaskitPortal = _useState2[0], setAtlaskitPortal = _useState2[1];
     useIsomorphicLayoutEffect2(function() {
       var tempPortalContainer = createAtlaskitPortal(zIndex);
       setAtlaskitPortal(tempPortalContainer);
@@ -47518,7 +48963,7 @@
         setAtlaskitPortal(null);
       };
     }, [zIndex]);
-    var suspendedChildren = /* @__PURE__ */ import_react24.default.createElement(import_react24.Suspense, {
+    var suspendedChildren = /* @__PURE__ */ import_react30.default.createElement(import_react30.Suspense, {
       fallback: null
     }, children);
     return atlaskitPortal ? /* @__PURE__ */ (0, import_react_dom2.createPortal)(suspendedChildren, atlaskitPortal) : null;
@@ -47526,11 +48971,11 @@
 
   // node_modules/@atlaskit/portal/dist/esm/internal/hooks/use-is-subsequent-render.js
   init_slicedToArray();
-  var import_react25 = __toESM(require_react());
+  var import_react31 = __toESM(require_react());
   var useIsSubsequentRender = function useIsSubsequentRender2(mountStrategy) {
-    var _useState = (0, import_react25.useState)(false), _useState2 = _slicedToArray(_useState, 2), isSubsequentRender = _useState2[0], setIsSubsequentRender = _useState2[1];
-    var _useState3 = (0, import_react25.useState)(function() {
-      return mountStrategy === "layoutEffect" ? useIsomorphicLayoutEffect2 : import_react25.useEffect;
+    var _useState = (0, import_react31.useState)(false), _useState2 = _slicedToArray(_useState, 2), isSubsequentRender = _useState2[0], setIsSubsequentRender = _useState2[1];
+    var _useState3 = (0, import_react31.useState)(function() {
+      return mountStrategy === "layoutEffect" ? useIsomorphicLayoutEffect2 : import_react31.useEffect;
     }), _useState4 = _slicedToArray(_useState3, 1), useMountEffect = _useState4[0];
     useMountEffect(function() {
       setIsSubsequentRender(true);
@@ -47540,7 +48985,7 @@
   var use_is_subsequent_render_default = useIsSubsequentRender;
 
   // node_modules/@atlaskit/portal/dist/esm/internal/hooks/use-portal-event.js
-  var import_react26 = __toESM(require_react());
+  var import_react32 = __toESM(require_react());
 
   // node_modules/@atlaskit/portal/dist/esm/constants.js
   var PORTAL_MOUNT_EVENT = "akPortalMount";
@@ -47578,7 +49023,7 @@
   // node_modules/@atlaskit/portal/dist/esm/internal/hooks/use-portal-event.js
   var useFirePortalEvent = function useFirePortalEvent2(zIndex) {
     var zIndexNumber = Number(zIndex);
-    (0, import_react26.useEffect)(function() {
+    (0, import_react32.useEffect)(function() {
       firePortalEvent(PORTAL_MOUNT_EVENT, zIndexNumber);
       return function() {
         firePortalEvent(PORTAL_UNMOUNT_EVENT, zIndexNumber);
@@ -47592,15 +49037,16 @@
     var _ref$zIndex = _ref2.zIndex, zIndex = _ref$zIndex === void 0 ? 0 : _ref$zIndex, children = _ref2.children, _ref$mountStrategy = _ref2.mountStrategy, mountStrategy = _ref$mountStrategy === void 0 ? "effect" : _ref$mountStrategy;
     var isSubsequentRender = use_is_subsequent_render_default(mountStrategy);
     use_portal_event_default(zIndex);
-    return !(0, import_platform_feature_flags2.fg)("platform_design_system_team_portal_logic_r18_fix") ? isSubsequentRender ? /* @__PURE__ */ import_react27.default.createElement(InternalPortal, {
+    return !(0, import_platform_feature_flags3.fg)("platform_design_system_team_portal_logic_r18_fix") ? isSubsequentRender ? /* @__PURE__ */ import_react33.default.createElement(InternalPortal, {
       zIndex
-    }, children) : null : /* @__PURE__ */ import_react27.default.createElement(InternalPortalNew, {
+    }, children) : null : /* @__PURE__ */ import_react33.default.createElement(InternalPortalNew, {
       zIndex
     }, children);
   }
 
   // node_modules/@atlaskit/theme/dist/esm/colors.js
   var N0 = "#FFFFFF";
+  var N500 = "#42526E";
   var N800 = "#172B4D";
   var N100A = "rgba(9, 30, 66, 0.54)";
 
@@ -47845,18 +49291,18 @@
 
   // node_modules/@atlaskit/ds-lib/dist/esm/utils/use-id.js
   init_typeof();
-  var import_react29 = __toESM(require_react());
+  var import_react35 = __toESM(require_react());
 
   // node_modules/react-uid/dist/es2015/context.js
-  var React13 = __toESM(require_react());
+  var React18 = __toESM(require_react());
 
   // node_modules/react-uid/dist/es2015/uid.js
   var generateUID = function() {
     var counter2 = 1;
     var map = /* @__PURE__ */ new WeakMap();
-    var uid2 = function(item, index) {
+    var uid2 = function(item, index2) {
       if (typeof item === "number" || typeof item === "string") {
-        return index ? "idx-".concat(index) : "val-".concat(item);
+        return index2 ? "idx-".concat(index2) : "val-".concat(item);
       }
       if (!map.has(item)) {
         map.set(item, counter2++);
@@ -47869,18 +49315,18 @@
   var uid = generateUID();
 
   // node_modules/react-uid/dist/es2015/context.js
-  var createSource = function(prefix) {
-    if (prefix === void 0) {
-      prefix = "";
+  var createSource = function(prefix2) {
+    if (prefix2 === void 0) {
+      prefix2 = "";
     }
     return {
       value: 1,
-      prefix,
+      prefix: prefix2,
       uid: generateUID()
     };
   };
   var counter = createSource();
-  var source = React13.createContext(createSource());
+  var source = React18.createContext(createSource());
   var getId = function(source2) {
     return source2.value++;
   };
@@ -47889,13 +49335,13 @@
   };
 
   // node_modules/react-uid/dist/es2015/hooks.js
-  var React14 = __toESM(require_react());
-  var import_react28 = __toESM(require_react());
+  var React19 = __toESM(require_react());
+  var import_react34 = __toESM(require_react());
   var generateUID2 = function(context) {
     var quartz = context || counter;
-    var prefix = getPrefix(quartz);
+    var prefix2 = getPrefix(quartz);
     var id = getId(quartz);
-    var uid2 = prefix + id;
+    var uid2 = prefix2 + id;
     var gen = function(item) {
       return uid2 + quartz.uid(item);
     };
@@ -47903,12 +49349,12 @@
   };
   var useUIDState = function() {
     if (true) {
-      if (!("useContext" in React14)) {
+      if (!("useContext" in React19)) {
         throw new Error("Hooks API requires React 16.8+");
       }
     }
-    var context = (0, import_react28.useContext)(source);
-    var uid2 = (0, import_react28.useState)(function() {
+    var context = (0, import_react34.useContext)(source);
+    var uid2 = (0, import_react34.useState)(function() {
       return generateUID2(context);
     })[0];
     return uid2;
@@ -47923,17 +49369,17 @@
   };
 
   // node_modules/@atlaskit/ds-lib/dist/esm/utils/use-id.js
-  var import_platform_feature_flags3 = __toESM(require_cjs3());
+  var import_platform_feature_flags4 = __toESM(require_cjs3());
   var _React$useId;
-  var react18UseId = (_React$useId = import_react29.default.useId) !== null && _React$useId !== void 0 ? _React$useId : void 0;
+  var react18UseId = (_React$useId = import_react35.default.useId) !== null && _React$useId !== void 0 ? _React$useId : void 0;
   function useId() {
-    if (react18UseId && (0, import_platform_feature_flags3.fg)("platform-dst-react-18-use-id")) {
+    if (react18UseId && (0, import_platform_feature_flags4.fg)("platform-dst-react-18-use-id")) {
       return react18UseId();
     }
     return "uid".concat(useUID());
   }
   function useIdSeed() {
-    if (react18UseId && (0, import_platform_feature_flags3.fg)("platform-dst-react-18-use-id")) {
+    if (react18UseId && (0, import_platform_feature_flags4.fg)("platform-dst-react-18-use-id")) {
       var uid2 = react18UseId();
       return function(id) {
         return "".concat(uid2, "-").concat(id.toString());
@@ -47943,26 +49389,26 @@
   }
 
   // node_modules/@atlaskit/tooltip/dist/esm/internal/use-unique-id.js
-  function useUniqueId2(prefix, shouldRenderId) {
+  function useUniqueId2(prefix2, shouldRenderId) {
     var seed = useIdSeed();
-    return shouldRenderId ? "".concat(seed(prefix)) : void 0;
+    return shouldRenderId ? "".concat(seed(prefix2)) : void 0;
   }
 
   // node_modules/@atlaskit/tooltip/dist/esm/tooltip-container.js
   init_defineProperty();
-  var React17 = __toESM(require_react());
-  var import_react31 = __toESM(require_react());
+  var React22 = __toESM(require_react());
+  var import_react37 = __toESM(require_react());
 
   // node_modules/@atlaskit/tooltip/dist/esm/tooltip-primitive.js
-  var React16 = __toESM(require_react());
-  var import_react30 = __toESM(require_react());
-  var TooltipPrimitive = /* @__PURE__ */ (0, import_react30.forwardRef)(function TooltipPrimitive2(_ref2, ref) {
+  var React21 = __toESM(require_react());
+  var import_react36 = __toESM(require_react());
+  var TooltipPrimitive = /* @__PURE__ */ (0, import_react36.forwardRef)(function TooltipPrimitive2(_ref2, ref) {
     var style = _ref2.style, className = _ref2.className, children = _ref2.children, placement = _ref2.placement, testId = _ref2.testId, onMouseOut = _ref2.onMouseOut, onMouseOver = _ref2.onMouseOver, id = _ref2.id;
-    return /* @__PURE__ */ React16.createElement("div", {
+    return /* @__PURE__ */ React21.createElement("div", {
       ref,
       style,
       "data-testid": testId ? "".concat(testId, "--wrapper") : void 0
-    }, /* @__PURE__ */ React16.createElement("div", {
+    }, /* @__PURE__ */ React21.createElement("div", {
       role: "tooltip",
       className: ax(["_80om73ad", className]),
       onMouseOut,
@@ -47976,7 +49422,7 @@
   var tooltip_primitive_default = TooltipPrimitive;
 
   // node_modules/@atlaskit/tooltip/dist/esm/tooltip-container.js
-  function ownKeys4(e, r) {
+  function ownKeys6(e, r) {
     var t = Object.keys(e);
     if (Object.getOwnPropertySymbols) {
       var o = Object.getOwnPropertySymbols(e);
@@ -47986,20 +49432,20 @@
     }
     return t;
   }
-  function _objectSpread4(e) {
+  function _objectSpread6(e) {
     for (var r = 1; r < arguments.length; r++) {
       var t = null != arguments[r] ? arguments[r] : {};
-      r % 2 ? ownKeys4(Object(t), true).forEach(function(r2) {
+      r % 2 ? ownKeys6(Object(t), true).forEach(function(r2) {
         _defineProperty(e, r2, t[r2]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys4(Object(t)).forEach(function(r2) {
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys6(Object(t)).forEach(function(r2) {
         Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
       });
     }
     return e;
   }
-  var TooltipContainer = /* @__PURE__ */ (0, import_react31.forwardRef)(function TooltipContainer2(_ref2, ref) {
+  var TooltipContainer = /* @__PURE__ */ (0, import_react37.forwardRef)(function TooltipContainer2(_ref2, ref) {
     var style = _ref2.style, className = _ref2.className, children = _ref2.children, truncate = _ref2.truncate, placement = _ref2.placement, testId = _ref2.testId, onMouseOut = _ref2.onMouseOut, onMouseOver = _ref2.onMouseOver, id = _ref2.id;
-    return /* @__PURE__ */ React17.createElement(tooltip_primitive_default, {
+    return /* @__PURE__ */ React22.createElement(tooltip_primitive_default, {
       ref,
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop -- Ignored via go/DSP-18766
       className: ax(["_2rko1sit _11c8dcr7 _vchhusvi _p12fp3fh _bfhkpioe _syaz1i9p _152tze3t _1e02ze3t _1i4q1hna _85i5v77o _1q51v77o _y4ti12x7 _bozg12x7 _slp31hna", truncate && "_1reo15vq _18m915vq _p12f1pna _1bto1l2s _o5721q9c", className]),
@@ -48008,7 +49454,7 @@
       id,
       onMouseOut,
       onMouseOver,
-      style: _objectSpread4(_objectSpread4({}, style), {}, {
+      style: _objectSpread6(_objectSpread6({}, style), {}, {
         "--_yr7xfv": cssCustomPropertyValue("var(--ds-background-neutral-bold, ".concat(N800, ")")),
         "--_ywovvi": cssCustomPropertyValue("var(--ds-text-inverse, ".concat(N0, ")"))
       })
@@ -48023,7 +49469,7 @@
       top: 0,
       left: 0
     };
-    var getBoundingClientRect2 = function getBoundingClientRect3() {
+    var getBoundingClientRect3 = function getBoundingClientRect4() {
       return {
         top: safeMouse.top,
         left: safeMouse.left,
@@ -48034,14 +49480,14 @@
       };
     };
     return {
-      getBoundingClientRect: getBoundingClientRect2,
+      getBoundingClientRect: getBoundingClientRect3,
       clientWidth: 0,
       clientHeight: 0
     };
   }
 
   // node_modules/@atlaskit/tooltip/dist/esm/tooltip.js
-  function ownKeys5(e, r) {
+  function ownKeys7(e, r) {
     var t = Object.keys(e);
     if (Object.getOwnPropertySymbols) {
       var o = Object.getOwnPropertySymbols(e);
@@ -48051,12 +49497,12 @@
     }
     return t;
   }
-  function _objectSpread5(e) {
+  function _objectSpread7(e) {
     for (var r = 1; r < arguments.length; r++) {
       var t = null != arguments[r] ? arguments[r] : {};
-      r % 2 ? ownKeys5(Object(t), true).forEach(function(r2) {
+      r % 2 ? ownKeys7(Object(t), true).forEach(function(r2) {
         _defineProperty(e, r2, t[r2]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys5(Object(t)).forEach(function(r2) {
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys7(Object(t)).forEach(function(r2) {
         Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
       });
     }
@@ -48078,27 +49524,27 @@
     return placement.split("-")[0];
   };
   function Tooltip(_ref2) {
-    var children = _ref2.children, _ref$position = _ref2.position, position = _ref$position === void 0 ? "bottom" : _ref$position, _ref$mousePosition = _ref2.mousePosition, mousePosition = _ref$mousePosition === void 0 ? "bottom" : _ref$mousePosition, content = _ref2.content, _ref$truncate = _ref2.truncate, truncate = _ref$truncate === void 0 ? false : _ref$truncate, _ref$component = _ref2.component, Container = _ref$component === void 0 ? tooltip_container_default : _ref$component, _ref$tag = _ref2.tag, TargetContainer = _ref$tag === void 0 ? "div" : _ref$tag, testId = _ref2.testId, _ref$delay = _ref2.delay, delay = _ref$delay === void 0 ? 300 : _ref$delay, _ref$onShow = _ref2.onShow, onShow = _ref$onShow === void 0 ? noop : _ref$onShow, _ref$onHide = _ref2.onHide, onHide = _ref$onHide === void 0 ? noop : _ref$onHide, canAppear = _ref2.canAppear, _ref$hideTooltipOnCli = _ref2.hideTooltipOnClick, hideTooltipOnClick = _ref$hideTooltipOnCli === void 0 ? false : _ref$hideTooltipOnCli, _ref$hideTooltipOnMou = _ref2.hideTooltipOnMouseDown, hideTooltipOnMouseDown = _ref$hideTooltipOnMou === void 0 ? false : _ref$hideTooltipOnMou, analyticsContext = _ref2.analyticsContext, _ref$strategy = _ref2.strategy, strategy = _ref$strategy === void 0 ? "fixed" : _ref$strategy, _ref$ignoreTooltipPoi = _ref2.ignoreTooltipPointerEvents, ignoreTooltipPointerEvents = _ref$ignoreTooltipPoi === void 0 ? false : _ref$ignoreTooltipPoi, _ref$isScreenReaderAn = _ref2.isScreenReaderAnnouncementDisabled, isScreenReaderAnnouncementDisabled = _ref$isScreenReaderAn === void 0 ? false : _ref$isScreenReaderAn;
+    var children = _ref2.children, _ref$position = _ref2.position, position = _ref$position === void 0 ? "bottom" : _ref$position, _ref$mousePosition = _ref2.mousePosition, mousePosition = _ref$mousePosition === void 0 ? "bottom" : _ref$mousePosition, content = _ref2.content, _ref$truncate = _ref2.truncate, truncate = _ref$truncate === void 0 ? false : _ref$truncate, _ref$component = _ref2.component, Container = _ref$component === void 0 ? tooltip_container_default : _ref$component, _ref$tag = _ref2.tag, TargetContainer = _ref$tag === void 0 ? "div" : _ref$tag, testId = _ref2.testId, _ref$delay = _ref2.delay, delay = _ref$delay === void 0 ? 300 : _ref$delay, _ref$onShow = _ref2.onShow, onShow = _ref$onShow === void 0 ? noop3 : _ref$onShow, _ref$onHide = _ref2.onHide, onHide = _ref$onHide === void 0 ? noop3 : _ref$onHide, canAppear = _ref2.canAppear, _ref$hideTooltipOnCli = _ref2.hideTooltipOnClick, hideTooltipOnClick = _ref$hideTooltipOnCli === void 0 ? false : _ref$hideTooltipOnCli, _ref$hideTooltipOnMou = _ref2.hideTooltipOnMouseDown, hideTooltipOnMouseDown = _ref$hideTooltipOnMou === void 0 ? false : _ref$hideTooltipOnMou, analyticsContext = _ref2.analyticsContext, _ref$strategy = _ref2.strategy, strategy = _ref$strategy === void 0 ? "fixed" : _ref$strategy, _ref$ignoreTooltipPoi = _ref2.ignoreTooltipPointerEvents, ignoreTooltipPointerEvents = _ref$ignoreTooltipPoi === void 0 ? false : _ref$ignoreTooltipPoi, _ref$isScreenReaderAn = _ref2.isScreenReaderAnnouncementDisabled, isScreenReaderAnnouncementDisabled = _ref$isScreenReaderAn === void 0 ? false : _ref$isScreenReaderAn;
     var tooltipPosition = position === "mouse" ? mousePosition : position;
-    var onShowHandler = usePlatformLeafSyntheticEventHandler(_objectSpread5({
+    var onShowHandler = usePlatformLeafSyntheticEventHandler(_objectSpread7({
       fn: onShow,
       action: "displayed",
       analyticsData: analyticsContext
     }, analyticsAttributes));
-    var onHideHandler = usePlatformLeafSyntheticEventHandler(_objectSpread5({
+    var onHideHandler = usePlatformLeafSyntheticEventHandler(_objectSpread7({
       fn: onHide,
       action: "hidden",
       analyticsData: analyticsContext
     }, analyticsAttributes));
-    var apiRef = (0, import_react32.useRef)(null);
-    var _useState = (0, import_react32.useState)("hide"), _useState2 = _slicedToArray(_useState, 2), state = _useState2[0], setState = _useState2[1];
-    var targetRef = (0, import_react32.useRef)(null);
-    var containerRef = (0, import_react32.useRef)(null);
+    var apiRef = (0, import_react38.useRef)(null);
+    var _useState = (0, import_react38.useState)("hide"), _useState2 = _slicedToArray(_useState, 2), state = _useState2[0], setState = _useState2[1];
+    var targetRef = (0, import_react38.useRef)(null);
+    var containerRef = (0, import_react38.useRef)(null);
     var setImplicitRefFromChildren = function setImplicitRefFromChildren2(node2) {
       containerRef.current = node2;
       targetRef.current = node2 ? node2.firstElementChild : null;
     };
-    var setDirectRef = (0, import_react32.useCallback)(function(node2) {
+    var setDirectRef = (0, import_react38.useCallback)(function(node2) {
       targetRef.current = node2;
     }, []);
     var stableState = useStableRef(state);
@@ -48106,12 +49552,12 @@
     var onHideHandlerStable = useStableRef(onHideHandler);
     var delayStable = useStableRef(delay);
     var canAppearStable = useStableRef(canAppear);
-    var hasCalledShowHandler = (0, import_react32.useRef)(false);
-    var start3 = (0, import_react32.useCallback)(function(api4) {
+    var hasCalledShowHandler = (0, import_react38.useRef)(false);
+    var start3 = (0, import_react38.useCallback)(function(api4) {
       apiRef.current = api4;
       hasCalledShowHandler.current = false;
     }, []);
-    var done = (0, import_react32.useCallback)(function() {
+    var done = (0, import_react38.useCallback)(function() {
       if (!apiRef.current) {
         return;
       }
@@ -48122,7 +49568,7 @@
       hasCalledShowHandler.current = false;
       setState("hide");
     }, [onHideHandlerStable]);
-    var abort = (0, import_react32.useCallback)(function() {
+    var abort = (0, import_react38.useCallback)(function() {
       if (!apiRef.current) {
         return;
       }
@@ -48132,15 +49578,15 @@
       }
       apiRef.current = null;
     }, [onHideHandlerStable]);
-    (0, import_react32.useEffect)(function mount4() {
+    (0, import_react38.useEffect)(function mount4() {
       return function unmount() {
         if (apiRef.current) {
           abort();
         }
       };
     }, [abort]);
-    var isDraggingRef = (0, import_react32.useRef)(false);
-    (0, import_react32.useEffect)(function() {
+    var isDraggingRef = (0, import_react38.useRef)(false);
+    (0, import_react38.useEffect)(function() {
       return register({
         onRegister: function onRegister(_ref22) {
           var isDragging = _ref22.isDragging;
@@ -48158,7 +49604,7 @@
         }
       });
     }, []);
-    var tryShowTooltip = (0, import_react32.useCallback)(function(source2) {
+    var tryShowTooltip = (0, import_react38.useCallback)(function(source2) {
       var _canAppearStable$curr;
       if (isDraggingRef.current) {
         return;
@@ -48184,7 +49630,7 @@
           }
           setState(isImmediate ? "show-immediate" : "fade-in");
         },
-        hide: function hide2(_ref4) {
+        hide: function hide3(_ref4) {
           var isImmediate = _ref4.isImmediate;
           if (isImmediate) {
             setState("hide");
@@ -48197,7 +49643,7 @@
       var api4 = show(entry);
       start3(api4);
     }, [canAppearStable, delayStable, done, start3, abort, onShowHandlerStable]);
-    var hideTooltipOnEsc = (0, import_react32.useCallback)(function() {
+    var hideTooltipOnEsc = (0, import_react38.useCallback)(function() {
       var _apiRef$current2;
       (_apiRef$current2 = apiRef.current) === null || _apiRef$current2 === void 0 || _apiRef$current2.requestHide({
         isImmediate: true
@@ -48207,9 +49653,9 @@
       onClose: hideTooltipOnEsc,
       isDisabled: state === "hide" || state === "fade-out"
     });
-    (0, import_react32.useEffect)(function() {
+    (0, import_react38.useEffect)(function() {
       if (state === "hide") {
-        return noop;
+        return noop3;
       }
       if (state === "before-fade-out") {
         setState("fade-out");
@@ -48231,21 +49677,21 @@
       });
       return unbind;
     }, [state]);
-    var onMouseDown = (0, import_react32.useCallback)(function() {
+    var onMouseDown = (0, import_react38.useCallback)(function() {
       if (hideTooltipOnMouseDown && apiRef.current) {
         apiRef.current.requestHide({
           isImmediate: true
         });
       }
     }, [hideTooltipOnMouseDown]);
-    var onClick = (0, import_react32.useCallback)(function() {
+    var onClick = (0, import_react38.useCallback)(function() {
       if (hideTooltipOnClick && apiRef.current) {
         apiRef.current.requestHide({
           isImmediate: true
         });
       }
     }, [hideTooltipOnClick]);
-    var onMouseOver = (0, import_react32.useCallback)(function(event) {
+    var onMouseOver = (0, import_react38.useCallback)(function(event) {
       if (containerRef.current && event.target === containerRef.current) {
         return;
       }
@@ -48265,7 +49711,7 @@
       };
       tryShowTooltip(source2);
     }, [position, tryShowTooltip]);
-    var onMouseOut = (0, import_react32.useCallback)(function(event) {
+    var onMouseOut = (0, import_react38.useCallback)(function(event) {
       if (containerRef.current && event.target === containerRef.current) {
         return;
       }
@@ -48288,15 +49734,15 @@
         });
       }
     } : void 0;
-    var onMouseOverTooltip = (0, import_react32.useCallback)(function() {
+    var onMouseOverTooltip = (0, import_react38.useCallback)(function() {
       if (apiRef.current && apiRef.current.isActive()) {
         apiRef.current.keep();
         return;
       }
     }, []);
-    var onFocus3 = (0, import_react32.useCallback)(function(e) {
+    var onFocus3 = (0, import_react38.useCallback)(function(e) {
       try {
-        if (!e.target.matches(":focus-visible") && (0, import_platform_feature_flags4.fg)("platform-tooltip-focus-visible-new")) {
+        if (!e.target.matches(":focus-visible") && (0, import_platform_feature_flags5.fg)("platform-tooltip-focus-visible-new")) {
           return;
         }
       } catch (_) {
@@ -48305,14 +49751,14 @@
         type: "keyboard"
       });
     }, [tryShowTooltip]);
-    var onBlur3 = (0, import_react32.useCallback)(function() {
+    var onBlur3 = (0, import_react38.useCallback)(function() {
       if (apiRef.current) {
         apiRef.current.requestHide({
           isImmediate: false
         });
       }
     }, []);
-    var onAnimationFinished = (0, import_react32.useCallback)(function(transition) {
+    var onAnimationFinished = (0, import_react38.useCallback)(function(transition) {
       if (transition === "exiting" && stableState.current === "fade-out" && apiRef.current) {
         apiRef.current.finishHideAnimation();
       }
@@ -48321,7 +49767,7 @@
     var shouldRenderTooltipPopup = state !== "hide" && Boolean(content);
     var shouldRenderHiddenContent = !isScreenReaderAnnouncementDisabled && shouldRenderTooltipPopup;
     var shouldRenderTooltipChildren = state !== "hide" && state !== "fade-out";
-    var handleOpenLayerObserverCloseSignal = (0, import_react32.useCallback)(function() {
+    var handleOpenLayerObserverCloseSignal = (0, import_react38.useCallback)(function() {
       var _apiRef$current4;
       (_apiRef$current4 = apiRef.current) === null || _apiRef$current4 === void 0 || _apiRef$current4.requestHide({
         isImmediate: true
@@ -48362,7 +49808,7 @@
       tooltipTriggerProps["data-testid"] = "".concat(testId, "--container");
     }
     var isChildrenAFunction = typeof children === "function";
-    (0, import_react32.useEffect)(function() {
+    (0, import_react38.useEffect)(function() {
       if (isChildrenAFunction) {
         return;
       }
@@ -48375,34 +49821,34 @@
         return target.removeAttribute("aria-describedby");
       };
     }, [isChildrenAFunction, tooltipIdForHiddenContent]);
-    var hiddenContent = shouldRenderHiddenContent ? /* @__PURE__ */ import_react32.default.createElement("span", {
+    var hiddenContent = shouldRenderHiddenContent ? /* @__PURE__ */ import_react38.default.createElement("span", {
       "data-testid": testId ? "".concat(testId, "-hidden") : void 0,
       hidden: true,
       id: tooltipIdForHiddenContent
     }, typeof content === "function" ? content({}) : content) : null;
-    return /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, typeof children === "function" ? (
+    return /* @__PURE__ */ import_react38.default.createElement(import_react38.default.Fragment, null, typeof children === "function" ? (
       // once we deprecate the wrapped approach, we can put the aria
       // attribute back into the tooltipTriggerProps and make it required
       // instead of optional in `types`
-      /* @__PURE__ */ import_react32.default.createElement(import_react32.default.Fragment, null, children(_objectSpread5(_objectSpread5({}, tooltipTriggerProps), {}, {
+      /* @__PURE__ */ import_react38.default.createElement(import_react38.default.Fragment, null, children(_objectSpread7(_objectSpread7({}, tooltipTriggerProps), {}, {
         "aria-describedby": tooltipIdForHiddenContent,
         ref: setDirectRef
       })), hiddenContent)
-    ) : /* @__PURE__ */ import_react32.default.createElement(CastTargetContainer, _extends({}, tooltipTriggerProps, {
+    ) : /* @__PURE__ */ import_react38.default.createElement(CastTargetContainer, _extends({}, tooltipTriggerProps, {
       ref: setImplicitRefFromChildren,
       role: "presentation"
-    }), children, hiddenContent), shouldRenderTooltipPopup ? /* @__PURE__ */ import_react32.default.createElement(Portal, {
+    }), children, hiddenContent), shouldRenderTooltipPopup ? /* @__PURE__ */ import_react38.default.createElement(Portal, {
       zIndex: tooltipZIndex
-    }, /* @__PURE__ */ import_react32.default.createElement(Popper2, {
+    }, /* @__PURE__ */ import_react38.default.createElement(Popper2, {
       placement: tooltipPosition,
       referenceElement: getReferenceElement(),
       strategy
     }, function(_ref5) {
       var ref = _ref5.ref, style = _ref5.style, update = _ref5.update, placement = _ref5.placement;
       var direction = position === "mouse" ? void 0 : invertedDirection2[getDirectionFromPlacement(placement)];
-      return /* @__PURE__ */ import_react32.default.createElement(exiting_persistence_default, {
+      return /* @__PURE__ */ import_react38.default.createElement(exiting_persistence_default, {
         appear: true
-      }, shouldRenderTooltipChildren && /* @__PURE__ */ import_react32.default.createElement(fade_in_default, {
+      }, shouldRenderTooltipChildren && /* @__PURE__ */ import_react38.default.createElement(fade_in_default, {
         distance: "constant",
         entranceDirection: direction,
         exitDirection: direction,
@@ -48410,10 +49856,10 @@
         duration: state !== "show-immediate" ? "medium" : "none"
       }, function(_ref6) {
         var className = _ref6.className;
-        return /* @__PURE__ */ import_react32.default.createElement(Container, {
+        return /* @__PURE__ */ import_react38.default.createElement(Container, {
           ref,
           className: "Tooltip ".concat(className),
-          style: _objectSpread5(_objectSpread5({}, style), ignoreTooltipPointerEvents && {
+          style: _objectSpread7(_objectSpread7({}, style), ignoreTooltipPointerEvents && {
             pointerEvents: "none"
           }),
           truncate,
@@ -48430,20 +49876,24 @@
   var tooltip_default = Tooltip;
 
   // src/components/ProjectTimelineRow.jsx
-  function ProjectTimelineRow({ project, weekRanges, updates }) {
+  function ProjectTimelineRow({ projectUpdate, weekRanges, updates }) {
+    if (!projectUpdate) {
+      console.warn("ProjectTimelineRow received undefined projectUpdate");
+      return null;
+    }
     const validUpdates = updates.filter((u) => u && typeof u.creationDate === "string");
-    return console.log("project", project), /* @__PURE__ */ import_react33.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react33.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react33.default.createElement(tooltip_default, { content: project.name, position: "bottom-start" }, /* @__PURE__ */ import_react33.default.createElement(
+    return console.log("project", projectUpdate), /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: projectUpdate.name, position: "bottom-start" }, /* @__PURE__ */ import_react39.default.createElement(
       "a",
       {
-        href: buildProjectUrlFromKey(project.projectKey),
+        href: buildProjectUrlFromKey(projectUpdate.projectKey),
         target: "_blank",
         rel: "noopener noreferrer",
         style: { color: "inherit", textDecoration: "underline" }
       },
-      project.name
-    )), /* @__PURE__ */ import_react33.default.createElement("small", null, project.projectKey)), weekRanges.map((w, i) => {
-      const weekStart = w.start;
-      const weekEnd = w.end;
+      projectUpdate.name
+    )), /* @__PURE__ */ import_react39.default.createElement("small", null, projectUpdate.projectKey)), weekRanges.map((w2, i) => {
+      const weekStart = w2.start;
+      const weekEnd = w2.end;
       const weekUpdates = validUpdates.filter((u) => {
         const d = safeParseDate(u.creationDate);
         return d && d >= weekStart && d < weekEnd;
@@ -48467,22 +49917,23 @@
         stateClass,
         oldStateClass
       ].filter(Boolean).join(" ");
-      return /* @__PURE__ */ import_react33.default.createElement("div", { key: i, className: cellClass }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react33.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react33.default.createElement(tooltip_default, { content: `${u.oldDueDate} \u2192 ${u.newDueDate}` }, /* @__PURE__ */ import_react33.default.createElement("span", null, daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate))))));
+      return /* @__PURE__ */ import_react39.default.createElement("div", { key: i, className: cellClass }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react39.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: `${u.oldDueDate} \u2192 ${u.newDueDate}` }, /* @__PURE__ */ import_react39.default.createElement("span", null, daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate))))));
     }));
   }
 
   // src/components/ProjectTimeline.jsx
-  var ProjectTimeline = ({ viewModel }) => {
+  var ProjectTimeline = ({ viewModel, weekLimit }) => {
     const { projects, updatesByProject } = viewModel;
     const { minDate, maxDate } = getAllProjectDates(projects, updatesByProject);
     if (!minDate || !maxDate) return null;
     const weekRanges = getWeekRanges(minDate, maxDate);
-    return /* @__PURE__ */ import_react34.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react34.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w, i) => /* @__PURE__ */ import_react34.default.createElement("div", { key: i, className: "timeline-x-label" }, /* @__PURE__ */ import_react34.default.createElement(tooltip_default, { content: w.label }, w.label)))), projects.map((proj, idx) => /* @__PURE__ */ import_react34.default.createElement(
+    const limitedWeekRanges = typeof weekLimit === "number" && isFinite(weekLimit) ? weekRanges.slice(-weekLimit) : weekRanges;
+    return /* @__PURE__ */ import_react40.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-y-label" }), limitedWeekRanges.map((w2, i) => /* @__PURE__ */ import_react40.default.createElement("div", { key: i, className: "timeline-x-label" }, /* @__PURE__ */ import_react40.default.createElement(tooltip_default, { content: w2.label }, w2.label)))), projects.filter(Boolean).map((proj, idx) => /* @__PURE__ */ import_react40.default.createElement(
       ProjectTimelineRow,
       {
         key: proj.projectKey || idx,
-        project: proj,
-        weekRanges,
+        projectUpdate: proj,
+        weekRanges: limitedWeekRanges,
         updates: updatesByProject[proj.projectKey] || []
       }
     )));
@@ -48490,7 +49941,7 @@
   var ProjectTimeline_default = ProjectTimeline;
 
   // src/components/ProjectListItem.jsx
-  var import_react35 = __toESM(require_react());
+  var import_react41 = __toESM(require_react());
 
   // src/components/ProjectList.jsx
   function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
@@ -48527,32 +49978,32 @@
     };
     return { projectViewModels, timelineViewModel };
   }
-  function ProjectList({ projects }) {
+  function ProjectList({ projects, weekLimit }) {
     const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []);
     const allStatusHistory = useLiveQuery(() => db.projectStatusHistory.toArray(), []);
-    const { projectViewModels, timelineViewModel } = (0, import_react36.useMemo)(
+    const { projectViewModels, timelineViewModel } = (0, import_react42.useMemo)(
       () => createProjectListViewModel(projects, allUpdates, allStatusHistory),
       [projects, allUpdates, allStatusHistory]
     );
-    return /* @__PURE__ */ import_react36.default.createElement(import_react36.default.Fragment, null, /* @__PURE__ */ import_react36.default.createElement(ProjectTimeline_default, { viewModel: timelineViewModel }));
+    return /* @__PURE__ */ import_react42.default.createElement(import_react42.default.Fragment, null, /* @__PURE__ */ import_react42.default.createElement(ProjectTimeline_default, { viewModel: timelineViewModel, weekLimit }));
   }
 
   // src/components/Modal.jsx
-  var import_react60 = __toESM(require_react());
+  var import_react99 = __toESM(require_react());
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/modal-dialog.js
-  var import_react58 = __toESM(require_react());
+  var import_react64 = __toESM(require_react());
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/components/modal-wrapper.js
-  var React34 = __toESM(require_react());
-  var import_react57 = __toESM(require_react());
+  var React39 = __toESM(require_react());
+  var import_react63 = __toESM(require_react());
 
   // node_modules/react-focus-lock/dist/es2015/Combination.js
-  var import_react43 = __toESM(require_react());
+  var import_react49 = __toESM(require_react());
 
   // node_modules/react-focus-lock/dist/es2015/Lock.js
-  var import_react40 = __toESM(require_react());
-  var import_prop_types2 = __toESM(require_prop_types());
+  var import_react46 = __toESM(require_react());
+  var import_prop_types3 = __toESM(require_prop_types());
 
   // node_modules/focus-lock/dist/es2015/constants.js
   var FOCUS_GROUP = "data-focus-lock";
@@ -48572,9 +50023,9 @@
   }
 
   // node_modules/use-callback-ref/dist/es2015/useRef.js
-  var import_react37 = __toESM(require_react());
+  var import_react43 = __toESM(require_react());
   function useCallbackRef(initialValue, callback) {
-    var ref = (0, import_react37.useState)(function() {
+    var ref = (0, import_react43.useState)(function() {
       return {
         // value
         value: initialValue,
@@ -48600,8 +50051,8 @@
   }
 
   // node_modules/use-callback-ref/dist/es2015/useMergeRef.js
-  var React23 = __toESM(require_react());
-  var useIsomorphicLayoutEffect3 = typeof window !== "undefined" ? React23.useLayoutEffect : React23.useEffect;
+  var React28 = __toESM(require_react());
+  var useIsomorphicLayoutEffect3 = typeof window !== "undefined" ? React28.useLayoutEffect : React28.useEffect;
   var currentValues = /* @__PURE__ */ new WeakMap();
   function useMergeRefs(refs, defaultValue) {
     var callbackRef = useCallbackRef(defaultValue || null, function(newValue) {
@@ -48632,8 +50083,8 @@
   }
 
   // node_modules/react-focus-lock/dist/es2015/FocusGuard.js
-  var import_react38 = __toESM(require_react());
-  var import_prop_types = __toESM(require_prop_types());
+  var import_react44 = __toESM(require_react());
+  var import_prop_types2 = __toESM(require_prop_types());
   var hiddenGuard = {
     width: "1px",
     height: "0px",
@@ -48645,12 +50096,12 @@
   };
   var InFocusGuard = function InFocusGuard2(_ref2) {
     var _ref$children = _ref2.children, children = _ref$children === void 0 ? null : _ref$children;
-    return /* @__PURE__ */ import_react38.default.createElement(import_react38.Fragment, null, /* @__PURE__ */ import_react38.default.createElement("div", {
+    return /* @__PURE__ */ import_react44.default.createElement(import_react44.Fragment, null, /* @__PURE__ */ import_react44.default.createElement("div", {
       key: "guard-first",
       "data-focus-guard": true,
       "data-focus-auto-guard": true,
       style: hiddenGuard
-    }), children, children && /* @__PURE__ */ import_react38.default.createElement("div", {
+    }), children, children && /* @__PURE__ */ import_react44.default.createElement("div", {
       key: "guard-last",
       "data-focus-guard": true,
       "data-focus-auto-guard": true,
@@ -48658,7 +50109,7 @@
     }));
   };
   InFocusGuard.propTypes = true ? {
-    children: import_prop_types.default.node
+    children: import_prop_types2.default.node
   } : {};
 
   // node_modules/tslib/tslib.es6.mjs
@@ -48889,12 +50340,12 @@
     }
     return innerCreateMedium(defaults, middleware);
   }
-  function createSidecarMedium(options) {
-    if (options === void 0) {
-      options = {};
+  function createSidecarMedium(options2) {
+    if (options2 === void 0) {
+      options2 = {};
     }
     var medium = innerCreateMedium(null);
-    medium.options = __assign({ async: true, ssr: false }, options);
+    medium.options = __assign({ async: true, ssr: false }, options2);
     return medium;
   }
 
@@ -48914,21 +50365,21 @@
   });
 
   // node_modules/react-focus-lock/dist/es2015/scope.js
-  var import_react39 = __toESM(require_react());
-  var focusScope = /* @__PURE__ */ (0, import_react39.createContext)(void 0);
+  var import_react45 = __toESM(require_react());
+  var focusScope = /* @__PURE__ */ (0, import_react45.createContext)(void 0);
 
   // node_modules/react-focus-lock/dist/es2015/Lock.js
   var emptyArray = [];
-  var FocusLock = /* @__PURE__ */ (0, import_react40.forwardRef)(function FocusLockUI(props, parentRef) {
+  var FocusLock = /* @__PURE__ */ (0, import_react46.forwardRef)(function FocusLockUI(props, parentRef) {
     var _extends2;
-    var _useState = (0, import_react40.useState)(), realObserved = _useState[0], setObserved = _useState[1];
-    var observed = (0, import_react40.useRef)();
-    var isActive = (0, import_react40.useRef)(false);
-    var originalFocusedElement = (0, import_react40.useRef)(null);
-    var _useState2 = (0, import_react40.useState)({}), update = _useState2[1];
+    var _useState = (0, import_react46.useState)(), realObserved = _useState[0], setObserved = _useState[1];
+    var observed = (0, import_react46.useRef)();
+    var isActive = (0, import_react46.useRef)(false);
+    var originalFocusedElement = (0, import_react46.useRef)(null);
+    var _useState2 = (0, import_react46.useState)({}), update = _useState2[1];
     var children = props.children, _props$disabled = props.disabled, disabled = _props$disabled === void 0 ? false : _props$disabled, _props$noFocusGuards = props.noFocusGuards, noFocusGuards = _props$noFocusGuards === void 0 ? false : _props$noFocusGuards, _props$persistentFocu = props.persistentFocus, persistentFocus = _props$persistentFocu === void 0 ? false : _props$persistentFocu, _props$crossFrame = props.crossFrame, crossFrame = _props$crossFrame === void 0 ? true : _props$crossFrame, _props$autoFocus = props.autoFocus, autoFocus = _props$autoFocus === void 0 ? true : _props$autoFocus, allowTextSelection = props.allowTextSelection, group = props.group, className = props.className, whiteList = props.whiteList, hasPositiveIndices = props.hasPositiveIndices, _props$shards = props.shards, shards = _props$shards === void 0 ? emptyArray : _props$shards, _props$as = props.as, Container = _props$as === void 0 ? "div" : _props$as, _props$lockProps = props.lockProps, containerProps = _props$lockProps === void 0 ? {} : _props$lockProps, SideCar = props.sideCar, _props$returnFocus = props.returnFocus, shouldReturnFocus = _props$returnFocus === void 0 ? false : _props$returnFocus, focusOptions = props.focusOptions, onActivationCallback = props.onActivation, onDeactivationCallback = props.onDeactivation;
-    var _useState3 = (0, import_react40.useState)({}), id = _useState3[0];
-    var onActivation = (0, import_react40.useCallback)(function(_ref2) {
+    var _useState3 = (0, import_react46.useState)({}), id = _useState3[0];
+    var onActivation = (0, import_react46.useCallback)(function(_ref2) {
       var captureFocusRestore2 = _ref2.captureFocusRestore;
       if (!originalFocusedElement.current) {
         var _document;
@@ -48944,14 +50395,14 @@
       isActive.current = true;
       update();
     }, [onActivationCallback]);
-    var onDeactivation = (0, import_react40.useCallback)(function() {
+    var onDeactivation = (0, import_react46.useCallback)(function() {
       isActive.current = false;
       if (onDeactivationCallback) {
         onDeactivationCallback(observed.current);
       }
       update();
     }, [onDeactivationCallback]);
-    var returnFocus = (0, import_react40.useCallback)(function(allowDefer) {
+    var returnFocus = (0, import_react46.useCallback)(function(allowDefer) {
       var focusRestore = originalFocusedElement.current;
       if (focusRestore) {
         var returnFocusTo = (typeof focusRestore === "function" ? focusRestore() : focusRestore) || document.body;
@@ -48969,13 +50420,13 @@
         }
       }
     }, [shouldReturnFocus]);
-    var onFocus3 = (0, import_react40.useCallback)(function(event) {
+    var onFocus3 = (0, import_react46.useCallback)(function(event) {
       if (isActive.current) {
         mediumFocus.useMedium(event);
       }
     }, []);
     var onBlur3 = mediumBlur.useMedium;
-    var setObserveNode = (0, import_react40.useCallback)(function(newObserved) {
+    var setObserveNode = (0, import_react46.useCallback)(function(newObserved) {
       if (observed.current !== newObserved) {
         observed.current = newObserved;
         setObserved(newObserved);
@@ -48985,7 +50436,7 @@
       if (typeof allowTextSelection !== "undefined") {
         console.warn("React-Focus-Lock: allowTextSelection is deprecated and enabled by default");
       }
-      (0, import_react40.useEffect)(function() {
+      (0, import_react46.useEffect)(function() {
         if (!observed.current && typeof Container !== "string") {
           console.error("FocusLock: could not obtain ref to internal node");
         }
@@ -48995,7 +50446,7 @@
     var hasLeadingGuards = noFocusGuards !== true;
     var hasTailingGuards = hasLeadingGuards && noFocusGuards !== "tail";
     var mergedRef = useMergeRefs([parentRef, setObserveNode]);
-    var focusScopeValue = (0, import_react40.useMemo)(function() {
+    var focusScopeValue = (0, import_react46.useMemo)(function() {
       return {
         observed,
         shards,
@@ -49003,20 +50454,20 @@
         active: isActive.current
       };
     }, [disabled, isActive.current, shards, realObserved]);
-    return /* @__PURE__ */ import_react40.default.createElement(import_react40.Fragment, null, hasLeadingGuards && [
-      /* @__PURE__ */ import_react40.default.createElement("div", {
+    return /* @__PURE__ */ import_react46.default.createElement(import_react46.Fragment, null, hasLeadingGuards && [
+      /* @__PURE__ */ import_react46.default.createElement("div", {
         key: "guard-first",
         "data-focus-guard": true,
         tabIndex: disabled ? -1 : 0,
         style: hiddenGuard
       }),
-      hasPositiveIndices ? /* @__PURE__ */ import_react40.default.createElement("div", {
+      hasPositiveIndices ? /* @__PURE__ */ import_react46.default.createElement("div", {
         key: "guard-nearest",
         "data-focus-guard": true,
         tabIndex: disabled ? -1 : 1,
         style: hiddenGuard
       }) : null
-    ], !disabled && /* @__PURE__ */ import_react40.default.createElement(SideCar, {
+    ], !disabled && /* @__PURE__ */ import_react46.default.createElement(SideCar, {
       id,
       sideCar: mediumSidecar,
       observed: realObserved,
@@ -49031,46 +50482,46 @@
       returnFocus,
       focusOptions,
       noFocusGuards
-    }), /* @__PURE__ */ import_react40.default.createElement(Container, _extends({
+    }), /* @__PURE__ */ import_react46.default.createElement(Container, _extends({
       ref: mergedRef
     }, lockProps, {
       className,
       onBlur: onBlur3,
       onFocus: onFocus3
-    }), /* @__PURE__ */ import_react40.default.createElement(focusScope.Provider, {
+    }), /* @__PURE__ */ import_react46.default.createElement(focusScope.Provider, {
       value: focusScopeValue
-    }, children)), hasTailingGuards && /* @__PURE__ */ import_react40.default.createElement("div", {
+    }, children)), hasTailingGuards && /* @__PURE__ */ import_react46.default.createElement("div", {
       "data-focus-guard": true,
       tabIndex: disabled ? -1 : 0,
       style: hiddenGuard
     }));
   });
   FocusLock.propTypes = true ? {
-    children: import_prop_types2.node,
-    disabled: import_prop_types2.bool,
-    returnFocus: (0, import_prop_types2.oneOfType)([import_prop_types2.bool, import_prop_types2.object, import_prop_types2.func]),
-    focusOptions: import_prop_types2.object,
-    noFocusGuards: import_prop_types2.bool,
-    hasPositiveIndices: import_prop_types2.bool,
-    allowTextSelection: import_prop_types2.bool,
-    autoFocus: import_prop_types2.bool,
-    persistentFocus: import_prop_types2.bool,
-    crossFrame: import_prop_types2.bool,
-    group: import_prop_types2.string,
-    className: import_prop_types2.string,
-    whiteList: import_prop_types2.func,
-    shards: (0, import_prop_types2.arrayOf)(import_prop_types2.any),
-    as: (0, import_prop_types2.oneOfType)([import_prop_types2.string, import_prop_types2.func, import_prop_types2.object]),
-    lockProps: import_prop_types2.object,
-    onActivation: import_prop_types2.func,
-    onDeactivation: import_prop_types2.func,
-    sideCar: import_prop_types2.any.isRequired
+    children: import_prop_types3.node,
+    disabled: import_prop_types3.bool,
+    returnFocus: (0, import_prop_types3.oneOfType)([import_prop_types3.bool, import_prop_types3.object, import_prop_types3.func]),
+    focusOptions: import_prop_types3.object,
+    noFocusGuards: import_prop_types3.bool,
+    hasPositiveIndices: import_prop_types3.bool,
+    allowTextSelection: import_prop_types3.bool,
+    autoFocus: import_prop_types3.bool,
+    persistentFocus: import_prop_types3.bool,
+    crossFrame: import_prop_types3.bool,
+    group: import_prop_types3.string,
+    className: import_prop_types3.string,
+    whiteList: import_prop_types3.func,
+    shards: (0, import_prop_types3.arrayOf)(import_prop_types3.any),
+    as: (0, import_prop_types3.oneOfType)([import_prop_types3.string, import_prop_types3.func, import_prop_types3.object]),
+    lockProps: import_prop_types3.object,
+    onActivation: import_prop_types3.func,
+    onDeactivation: import_prop_types3.func,
+    sideCar: import_prop_types3.any.isRequired
   } : {};
   var Lock_default = FocusLock;
 
   // node_modules/react-focus-lock/dist/es2015/Trap.js
-  var import_react42 = __toESM(require_react());
-  var import_prop_types3 = __toESM(require_prop_types());
+  var import_react48 = __toESM(require_react());
+  var import_prop_types4 = __toESM(require_prop_types());
 
   // node_modules/@babel/runtime/helpers/esm/inheritsLoose.js
   function _inheritsLoose(t, o) {
@@ -49079,7 +50530,7 @@
 
   // node_modules/react-clientside-effect/lib/index.es.js
   init_defineProperty();
-  var import_react41 = __toESM(require_react());
+  var import_react47 = __toESM(require_react());
   function withSideEffect(reducePropsToState2, handleStateChangeOnClient2) {
     if (true) {
       if (typeof reducePropsToState2 !== "function") {
@@ -49123,15 +50574,15 @@
           emitChange();
         };
         _proto.componentWillUnmount = function componentWillUnmount() {
-          var index = mountedInstances.indexOf(this);
-          mountedInstances.splice(index, 1);
+          var index2 = mountedInstances.indexOf(this);
+          mountedInstances.splice(index2, 1);
           emitChange();
         };
         _proto.render = function render() {
-          return /* @__PURE__ */ import_react41.default.createElement(WrappedComponent, this.props);
+          return /* @__PURE__ */ import_react47.default.createElement(WrappedComponent, this.props);
         };
         return SideEffect2;
-      })(import_react41.PureComponent);
+      })(import_react47.PureComponent);
       _defineProperty(SideEffect, "displayName", "SideEffect(" + getDisplayName(WrappedComponent) + ")");
       return SideEffect;
     };
@@ -49255,11 +50706,11 @@
     return node2.tabIndex;
   };
   var orderByTabIndex = function(nodes, filterNegative, keepGuards) {
-    return toArray(nodes).map(function(node2, index) {
+    return toArray(nodes).map(function(node2, index2) {
       var tabIndex = getTabIndex(node2);
       return {
         node: node2,
-        index,
+        index: index2,
         tabIndex: keepGuards && tabIndex === -1 ? (node2.dataset || {}).focusGuard ? 0 : -1 : tabIndex
       };
     }).filter(function(data) {
@@ -49390,8 +50841,8 @@
         }
       }
     }
-    return nodes.filter(function(_, index) {
-      return !contained.has(index);
+    return nodes.filter(function(_, index2) {
+      return !contained.has(index2);
     });
   };
   var getTopParent = function(node2) {
@@ -49709,10 +51160,10 @@
     var outerNodes = orderByTabIndex(getFocusables([commonParent], true), true, true);
     var innerElements = getFocusables(entries, false);
     return outerNodes.map(function(_a2) {
-      var node2 = _a2.node, index = _a2.index;
+      var node2 = _a2.node, index2 = _a2.index;
       return {
         node: node2,
-        index,
+        index: index2,
         lockItem: innerElements.indexOf(node2) >= 0,
         guard: isGuard(node2)
       };
@@ -49735,9 +51186,9 @@
   // node_modules/focus-lock/dist/es2015/moveFocusInside.js
   var guardCount = 0;
   var lockDisabled = false;
-  var moveFocusInside = function(topNode, lastNode, options) {
-    if (options === void 0) {
-      options = {};
+  var moveFocusInside = function(topNode, lastNode, options2) {
+    if (options2 === void 0) {
+      options2 = {};
     }
     var focusable = focusSolver(topNode, lastNode);
     if (lockDisabled) {
@@ -49753,7 +51204,7 @@
         return;
       }
       guardCount++;
-      focusOn(focusable.node, options.focusOptions);
+      focusOn(focusable.node, options2.focusOptions);
       guardCount--;
     }
   };
@@ -49767,9 +51218,9 @@
         return value || null;
       };
     }
-    var w = value ? new WeakRef(value) : null;
+    var w2 = value ? new WeakRef(value) : null;
     return function() {
-      return (w === null || w === void 0 ? void 0 : w.deref()) || null;
+      return (w2 === null || w2 === void 0 ? void 0 : w2.deref()) || null;
     };
   }
   var recordElementLocation = function(element) {
@@ -49880,18 +51331,18 @@
       last: set[set.length - 1]
     };
   };
-  var defaultOptions2 = function(options) {
+  var defaultOptions2 = function(options2) {
     return Object.assign({
       scope: document.body,
       cycle: true,
       onlyTabbable: true
-    }, options);
+    }, options2);
   };
-  var moveFocus = function(fromElement, options, cb) {
-    if (options === void 0) {
-      options = {};
+  var moveFocus = function(fromElement, options2, cb) {
+    if (options2 === void 0) {
+      options2 = {};
     }
-    var newOptions = defaultOptions2(options);
+    var newOptions = defaultOptions2(options2);
     var solution = getRelativeFocusable(fromElement, newOptions.scope, newOptions.onlyTabbable);
     if (!solution) {
       return;
@@ -49901,43 +51352,43 @@
       focusOn(target.node, newOptions.focusOptions);
     }
   };
-  var focusNextElement = function(fromElement, options) {
-    if (options === void 0) {
-      options = {};
+  var focusNextElement = function(fromElement, options2) {
+    if (options2 === void 0) {
+      options2 = {};
     }
-    moveFocus(fromElement, options, function(_a2, cycle) {
+    moveFocus(fromElement, options2, function(_a2, cycle) {
       var next = _a2.next, first = _a2.first;
       return next || cycle && first;
     });
   };
-  var focusPrevElement = function(fromElement, options) {
-    if (options === void 0) {
-      options = {};
+  var focusPrevElement = function(fromElement, options2) {
+    if (options2 === void 0) {
+      options2 = {};
     }
-    moveFocus(fromElement, options, function(_a2, cycle) {
+    moveFocus(fromElement, options2, function(_a2, cycle) {
       var prev = _a2.prev, last = _a2.last;
       return prev || cycle && last;
     });
   };
-  var pickBoundary = function(scope, options, what) {
+  var pickBoundary = function(scope, options2, what) {
     var _a2;
-    var boundary = getBoundary(scope, (_a2 = options.onlyTabbable) !== null && _a2 !== void 0 ? _a2 : true);
+    var boundary = getBoundary(scope, (_a2 = options2.onlyTabbable) !== null && _a2 !== void 0 ? _a2 : true);
     var node2 = boundary[what];
     if (node2) {
-      focusOn(node2.node, options.focusOptions);
+      focusOn(node2.node, options2.focusOptions);
     }
   };
-  var focusFirstElement = function(scope, options) {
-    if (options === void 0) {
-      options = {};
+  var focusFirstElement = function(scope, options2) {
+    if (options2 === void 0) {
+      options2 = {};
     }
-    pickBoundary(scope, options, "first");
+    pickBoundary(scope, options2, "first");
   };
-  var focusLastElement = function(scope, options) {
-    if (options === void 0) {
-      options = {};
+  var focusLastElement = function(scope, options2) {
+    if (options2 === void 0) {
+      options2 = {};
     }
-    pickBoundary(scope, options, "last");
+    pickBoundary(scope, options2, "last");
   };
 
   // node_modules/react-focus-lock/dist/es2015/util.js
@@ -50115,13 +51566,13 @@
   };
   var FocusTrap = function FocusTrap2(_ref5) {
     var children = _ref5.children;
-    return /* @__PURE__ */ import_react42.default.createElement("div", {
+    return /* @__PURE__ */ import_react48.default.createElement("div", {
       onBlur,
       onFocus
     }, children);
   };
   FocusTrap.propTypes = true ? {
-    children: import_prop_types3.default.node.isRequired
+    children: import_prop_types4.default.node.isRequired
   } : {};
   var onWindowFocus = function onWindowFocus2() {
     windowFocused = true;
@@ -50197,8 +51648,8 @@
   var Trap_default = index_es_default(reducePropsToState, handleStateChangeOnClient)(FocusWatcher);
 
   // node_modules/react-focus-lock/dist/es2015/Combination.js
-  var FocusLockCombination = /* @__PURE__ */ (0, import_react43.forwardRef)(function FocusLockUICombination(props, ref) {
-    return /* @__PURE__ */ import_react43.default.createElement(Lock_default, _extends({
+  var FocusLockCombination = /* @__PURE__ */ (0, import_react49.forwardRef)(function FocusLockUICombination(props, ref) {
+    return /* @__PURE__ */ import_react49.default.createElement(Lock_default, _extends({
       sideCar: Trap_default,
       ref
     }, props));
@@ -50217,9 +51668,9 @@
 
   // node_modules/@atlaskit/blanket/dist/esm/blanket.js
   init_defineProperty();
-  var React29 = __toESM(require_react());
-  var import_react44 = __toESM(require_react());
-  function ownKeys6(e, r) {
+  var React34 = __toESM(require_react());
+  var import_react50 = __toESM(require_react());
+  function ownKeys8(e, r) {
     var t = Object.keys(e);
     if (Object.getOwnPropertySymbols) {
       var o = Object.getOwnPropertySymbols(e);
@@ -50229,12 +51680,12 @@
     }
     return t;
   }
-  function _objectSpread6(e) {
+  function _objectSpread8(e) {
     for (var r = 1; r < arguments.length; r++) {
       var t = null != arguments[r] ? arguments[r] : {};
-      r % 2 ? ownKeys6(Object(t), true).forEach(function(r2) {
+      r % 2 ? ownKeys8(Object(t), true).forEach(function(r2) {
         _defineProperty(e, r2, t[r2]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys6(Object(t)).forEach(function(r2) {
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys8(Object(t)).forEach(function(r2) {
         Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
       });
     }
@@ -50247,22 +51698,22 @@
     packageName,
     packageVersion
   };
-  var Blanket = /* @__PURE__ */ (0, import_react44.memo)(/* @__PURE__ */ (0, import_react44.forwardRef)(function Blanket2(_ref2, ref) {
-    var _ref$shouldAllowClick = _ref2.shouldAllowClickThrough, shouldAllowClickThrough = _ref$shouldAllowClick === void 0 ? false : _ref$shouldAllowClick, _ref$isTinted = _ref2.isTinted, isTinted = _ref$isTinted === void 0 ? false : _ref$isTinted, _ref$onBlanketClicked = _ref2.onBlanketClicked, onBlanketClicked = _ref$onBlanketClicked === void 0 ? noop : _ref$onBlanketClicked, testId = _ref2.testId, children = _ref2.children, analyticsContext = _ref2.analyticsContext;
-    var mouseDownTarget = (0, import_react44.useRef)(null);
-    var onBlanketClickedWithAnalytics = usePlatformLeafEventHandler(_objectSpread6({
+  var Blanket = /* @__PURE__ */ (0, import_react50.memo)(/* @__PURE__ */ (0, import_react50.forwardRef)(function Blanket2(_ref2, ref) {
+    var _ref$shouldAllowClick = _ref2.shouldAllowClickThrough, shouldAllowClickThrough = _ref$shouldAllowClick === void 0 ? false : _ref$shouldAllowClick, _ref$isTinted = _ref2.isTinted, isTinted = _ref$isTinted === void 0 ? false : _ref$isTinted, _ref$onBlanketClicked = _ref2.onBlanketClicked, onBlanketClicked = _ref$onBlanketClicked === void 0 ? noop3 : _ref$onBlanketClicked, testId = _ref2.testId, children = _ref2.children, analyticsContext = _ref2.analyticsContext;
+    var mouseDownTarget = (0, import_react50.useRef)(null);
+    var onBlanketClickedWithAnalytics = usePlatformLeafEventHandler(_objectSpread8({
       fn: onBlanketClicked,
       action: "clicked",
       analyticsData: analyticsContext
     }, analyticsAttributes2));
-    var blanketClickOutsideChildren = (0, import_react44.useCallback)(function(e) {
+    var blanketClickOutsideChildren = (0, import_react50.useCallback)(function(e) {
       return e.currentTarget === e.target && mouseDownTarget.current === e.target ? onBlanketClickedWithAnalytics(e) : void 0;
     }, [onBlanketClickedWithAnalytics]);
     var onClick = shouldAllowClickThrough ? void 0 : blanketClickOutsideChildren;
-    var onMouseDown = (0, import_react44.useCallback)(function(e) {
+    var onMouseDown = (0, import_react50.useCallback)(function(e) {
       mouseDownTarget.current = e.target;
     }, []);
-    return /* @__PURE__ */ React29.createElement("div", {
+    return /* @__PURE__ */ React34.createElement("div", {
       role: "presentation",
       onClick,
       onMouseDown,
@@ -50278,15 +51729,15 @@
   var blanket_default = Blanket;
 
   // node_modules/@atlaskit/layering/dist/esm/components/layering-context.js
-  var import_react46 = __toESM(require_react());
+  var import_react52 = __toESM(require_react());
 
   // node_modules/@atlaskit/platform-feature-flags-react/dist/esm/utils/component-with-condition/index.js
-  var import_react45 = __toESM(require_react());
+  var import_react51 = __toESM(require_react());
   function componentWithCondition(condition, ComponentTrue, ComponentFalse) {
-    var ComponentWithCondition = /* @__PURE__ */ (0, import_react45.forwardRef)(function(props, ref) {
-      return condition() ? /* @__PURE__ */ import_react45.default.createElement(ComponentTrue, _extends({}, props, {
+    var ComponentWithCondition = /* @__PURE__ */ (0, import_react51.forwardRef)(function(props, ref) {
+      return condition() ? /* @__PURE__ */ import_react51.default.createElement(ComponentTrue, _extends({}, props, {
         ref
-      })) : /* @__PURE__ */ import_react45.default.createElement(ComponentFalse, _extends({}, props, {
+      })) : /* @__PURE__ */ import_react51.default.createElement(ComponentFalse, _extends({}, props, {
         ref
       }));
     });
@@ -50297,10 +51748,10 @@
   }
 
   // node_modules/@atlaskit/platform-feature-flags-react/dist/esm/utils/component-with-fg/index.js
-  var import_platform_feature_flags5 = __toESM(require_cjs3());
+  var import_platform_feature_flags6 = __toESM(require_cjs3());
   var componentWithFG = function componentWithFG2(featureFlagName, ComponentTrue, ComponentFalse) {
     return componentWithCondition(function() {
-      return (0, import_platform_feature_flags5.fg)(featureFlagName);
+      return (0, import_platform_feature_flags6.fg)(featureFlagName);
     }, ComponentTrue, ComponentFalse);
   };
 
@@ -50349,25 +51800,25 @@
   })();
 
   // node_modules/@atlaskit/layering/dist/esm/components/layering-context.js
-  var LevelContext = /* @__PURE__ */ (0, import_react46.createContext)(0);
-  var LevelNodeContext = /* @__PURE__ */ (0, import_react46.createContext)({
+  var LevelContext = /* @__PURE__ */ (0, import_react52.createContext)(0);
+  var LevelNodeContext = /* @__PURE__ */ (0, import_react52.createContext)({
     current: null
   });
-  var RootNodeContext = /* @__PURE__ */ (0, import_react46.createContext)({
+  var RootNodeContext = /* @__PURE__ */ (0, import_react52.createContext)({
     current: null
   });
-  var TopLevelContext = /* @__PURE__ */ (0, import_react46.createContext)({
+  var TopLevelContext = /* @__PURE__ */ (0, import_react52.createContext)({
     topLevelRef: {
       current: null
     },
     layerList: {
       current: null
     },
-    setTopLevel: noop
+    setTopLevel: noop3
   });
   var LevelProvider = function LevelProvider2(_ref2) {
     var children = _ref2.children, currentLevel = _ref2.currentLevel, levelNode = _ref2.node;
-    (0, import_react46.useEffect)(function() {
+    (0, import_react52.useEffect)(function() {
       var levelNodeSafe = levelNode.current;
       var parentNode = levelNodeSafe.parent;
       parentNode === null || parentNode === void 0 || parentNode.addChild(levelNodeSafe);
@@ -50375,17 +51826,17 @@
         parentNode === null || parentNode === void 0 || parentNode.removeChild(levelNodeSafe);
       };
     }, [levelNode]);
-    return /* @__PURE__ */ import_react46.default.createElement(LevelContext.Provider, {
+    return /* @__PURE__ */ import_react52.default.createElement(LevelContext.Provider, {
       value: currentLevel
-    }, /* @__PURE__ */ import_react46.default.createElement(LevelNodeContext.Provider, {
+    }, /* @__PURE__ */ import_react52.default.createElement(LevelNodeContext.Provider, {
       value: levelNode
     }, children));
   };
   var LevelProviderOld = function LevelProviderOld2(_ref2) {
     var children = _ref2.children, currentLevel = _ref2.currentLevel;
-    var _useContext = (0, import_react46.useContext)(TopLevelContext), layerList = _useContext.layerList;
-    var id = (0, import_react46.useRef)(Math.random().toString(36));
-    (0, import_react46.useEffect)(function() {
+    var _useContext = (0, import_react52.useContext)(TopLevelContext), layerList = _useContext.layerList;
+    var id = (0, import_react52.useRef)(Math.random().toString(36));
+    (0, import_react52.useEffect)(function() {
       var safeLayerList = layerList === null || layerList === void 0 ? void 0 : layerList.current;
       var safeId = id.current;
       if (!safeLayerList) {
@@ -50393,21 +51844,21 @@
       }
       safeLayerList.push(safeId);
       return function() {
-        var index = safeLayerList.indexOf(safeId);
-        if (index > -1) {
-          safeLayerList.splice(index, 1);
+        var index2 = safeLayerList.indexOf(safeId);
+        if (index2 > -1) {
+          safeLayerList.splice(index2, 1);
         }
       };
     }, [layerList, id]);
-    return /* @__PURE__ */ import_react46.default.createElement(LevelContext.Provider, {
+    return /* @__PURE__ */ import_react52.default.createElement(LevelContext.Provider, {
       value: currentLevel
     }, children);
   };
   var LayeringProvider = function LayeringProvider2(_ref3) {
     var children = _ref3.children;
-    var topLevelRef = (0, import_react46.useRef)(0);
-    var layerList = (0, import_react46.useRef)([]);
-    var value = (0, import_react46.useMemo)(function() {
+    var topLevelRef = (0, import_react52.useRef)(0);
+    var layerList = (0, import_react52.useRef)([]);
+    var value = (0, import_react52.useMemo)(function() {
       return {
         topLevelRef,
         setTopLevel: function setTopLevel(level) {
@@ -50416,51 +51867,51 @@
         layerList
       };
     }, [topLevelRef, layerList]);
-    return /* @__PURE__ */ import_react46.default.createElement(TopLevelContext.Provider, {
+    return /* @__PURE__ */ import_react52.default.createElement(TopLevelContext.Provider, {
       value
     }, children);
   };
   var LayeringOld = function LayeringOld2(_ref4) {
     var children = _ref4.children, _ref4$isDisabled = _ref4.isDisabled, isDisabled = _ref4$isDisabled === void 0 ? true : _ref4$isDisabled;
-    var currentLevel = (0, import_react46.useContext)(LevelContext);
+    var currentLevel = (0, import_react52.useContext)(LevelContext);
     if (isDisabled) {
-      return /* @__PURE__ */ import_react46.default.createElement(import_react46.default.Fragment, null, children);
+      return /* @__PURE__ */ import_react52.default.createElement(import_react52.default.Fragment, null, children);
     }
     var isNested = currentLevel > 0;
-    var content = /* @__PURE__ */ import_react46.default.createElement(LevelProviderOld, {
+    var content = /* @__PURE__ */ import_react52.default.createElement(LevelProviderOld, {
       currentLevel: currentLevel + 1
     }, children);
-    return isNested ? content : /* @__PURE__ */ import_react46.default.createElement(LayeringProvider, null, content);
+    return isNested ? content : /* @__PURE__ */ import_react52.default.createElement(LayeringProvider, null, content);
   };
   var LayeringNew = function LayeringNew2(_ref5) {
     var children = _ref5.children, _ref5$isDisabled = _ref5.isDisabled, isDisabled = _ref5$isDisabled === void 0 ? true : _ref5$isDisabled;
-    var currentLevel = (0, import_react46.useContext)(LevelContext);
-    var parentNode = (0, import_react46.useContext)(LevelNodeContext);
-    var newNode = (0, import_react46.useRef)(new LayerNode(Math.random().toString(36), parentNode.current));
+    var currentLevel = (0, import_react52.useContext)(LevelContext);
+    var parentNode = (0, import_react52.useContext)(LevelNodeContext);
+    var newNode = (0, import_react52.useRef)(new LayerNode(Math.random().toString(36), parentNode.current));
     if (isDisabled) {
-      return /* @__PURE__ */ import_react46.default.createElement(import_react46.default.Fragment, null, children);
+      return /* @__PURE__ */ import_react52.default.createElement(import_react52.default.Fragment, null, children);
     }
     var isNested = currentLevel > 0;
-    var content = /* @__PURE__ */ import_react46.default.createElement(LevelProvider, {
+    var content = /* @__PURE__ */ import_react52.default.createElement(LevelProvider, {
       currentLevel: currentLevel + 1,
       node: newNode
     }, children);
-    return isNested ? content : /* @__PURE__ */ import_react46.default.createElement(RootNodeContext.Provider, {
+    return isNested ? content : /* @__PURE__ */ import_react52.default.createElement(RootNodeContext.Provider, {
       value: newNode
     }, content);
   };
   var Layering = componentWithFG("layering-tree-graph", LayeringNew, LayeringOld);
 
   // node_modules/@atlaskit/layering/dist/esm/hooks/index.js
-  var import_react47 = __toESM(require_react());
+  var import_react53 = __toESM(require_react());
   var import_bind_event_listener4 = __toESM(require_dist());
-  var import_platform_feature_flags6 = __toESM(require_cjs3());
+  var import_platform_feature_flags7 = __toESM(require_cjs3());
   var ESCAPE2 = "Escape";
   function useCloseOnEscapePress2(_ref2) {
     var onClose = _ref2.onClose, isDisabled = _ref2.isDisabled;
-    var escapePressed = (0, import_react47.useRef)(false);
+    var escapePressed = (0, import_react53.useRef)(false);
     var _useLayering = useLayering(), isLayerDisabled = _useLayering.isLayerDisabled;
-    var onKeyDown = (0, import_react47.useCallback)(function(e) {
+    var onKeyDown = (0, import_react53.useCallback)(function(e) {
       var isDisabledLayer = isLayerDisabled();
       if (isDisabled || escapePressed.current || e.key !== ESCAPE2 || isDisabledLayer) {
         return;
@@ -50468,10 +51919,10 @@
       escapePressed.current = true;
       onClose(e);
     }, [onClose, isDisabled, isLayerDisabled]);
-    var onKeyUp = (0, import_react47.useCallback)(function() {
+    var onKeyUp = (0, import_react53.useCallback)(function() {
       escapePressed.current = false;
     }, []);
-    (0, import_react47.useEffect)(function() {
+    (0, import_react53.useEffect)(function() {
       return (0, import_bind_event_listener4.bindAll)(window, [{
         type: "keydown",
         listener: onKeyDown
@@ -50484,17 +51935,17 @@
     }, [onKeyDown, onKeyUp]);
   }
   function useLayering() {
-    var currentLevel = (0, import_react47.useContext)(LevelContext);
-    var _useContext = (0, import_react47.useContext)(TopLevelContext), topLevelRef = _useContext.topLevelRef, layerList = _useContext.layerList;
+    var currentLevel = (0, import_react53.useContext)(LevelContext);
+    var _useContext = (0, import_react53.useContext)(TopLevelContext), topLevelRef = _useContext.topLevelRef, layerList = _useContext.layerList;
     var layerNode;
     var rootNode;
-    if ((0, import_platform_feature_flags6.fg)("layering-tree-graph")) {
-      layerNode = (0, import_react47.useContext)(LevelNodeContext);
-      rootNode = (0, import_react47.useContext)(RootNodeContext);
+    if ((0, import_platform_feature_flags7.fg)("layering-tree-graph")) {
+      layerNode = (0, import_react53.useContext)(LevelNodeContext);
+      rootNode = (0, import_react53.useContext)(RootNodeContext);
     }
-    var isLayerDisabled = (0, import_react47.useCallback)(function() {
+    var isLayerDisabled = (0, import_react53.useCallback)(function() {
       var _layerList$current$le, _layerList$current;
-      if ((0, import_platform_feature_flags6.fg)("layering-tree-graph")) {
+      if ((0, import_platform_feature_flags7.fg)("layering-tree-graph")) {
         var _layerNode, _rootNode;
         if (!((_layerNode = layerNode) !== null && _layerNode !== void 0 && _layerNode.current) || !((_rootNode = rootNode) !== null && _rootNode !== void 0 && _rootNode.current)) {
           return false;
@@ -50503,11 +51954,11 @@
       }
       return ((_layerList$current$le = layerList === null || layerList === void 0 || (_layerList$current = layerList.current) === null || _layerList$current === void 0 ? void 0 : _layerList$current.length) !== null && _layerList$current$le !== void 0 ? _layerList$current$le : 0) !== currentLevel;
     }, [currentLevel, layerList, layerNode, rootNode]);
-    var getTopLevel = (0, import_react47.useCallback)(function() {
+    var getTopLevel = (0, import_react53.useCallback)(function() {
       var _rootNode2;
       return (_rootNode2 = rootNode) !== null && _rootNode2 !== void 0 && _rootNode2.current ? rootNode.current.getHeight() : null;
     }, [rootNode]);
-    return (0, import_platform_feature_flags6.fg)("layering-tree-graph") ? {
+    return (0, import_platform_feature_flags7.fg)("layering-tree-graph") ? {
       currentLevel,
       isLayerDisabled,
       getTopLevel
@@ -50521,13 +51972,13 @@
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/hooks/use-modal-stack.js
   init_slicedToArray();
-  var import_react51 = __toESM(require_react());
+  var import_react57 = __toESM(require_react());
 
   // node_modules/@atlaskit/ds-lib/dist/esm/hooks/use-lazy-ref.js
-  var import_react48 = __toESM(require_react());
+  var import_react54 = __toESM(require_react());
   var uniqueReferencedValue = {};
   function useLazyRef(initializer) {
-    var ref = (0, import_react48.useRef)(uniqueReferencedValue);
+    var ref = (0, import_react54.useRef)(uniqueReferencedValue);
     if (ref.current === uniqueReferencedValue) {
       ref.current = initializer();
     }
@@ -50543,10 +51994,10 @@
   }
 
   // node_modules/@atlaskit/ds-lib/dist/esm/hooks/use-previous-value.js
-  var import_react49 = __toESM(require_react());
+  var import_react55 = __toESM(require_react());
   function usePreviousValue(value) {
-    var ref = (0, import_react49.useRef)();
-    (0, import_react49.useEffect)(function() {
+    var ref = (0, import_react55.useRef)();
+    (0, import_react55.useEffect)(function() {
       ref.current = value;
     }, [value]);
     return ref.current;
@@ -50554,10 +52005,10 @@
 
   // node_modules/@atlaskit/ds-lib/dist/esm/hooks/use-state-ref.js
   init_slicedToArray();
-  var import_react50 = __toESM(require_react());
+  var import_react56 = __toESM(require_react());
   function useStateRef(initialState) {
-    var _useState = (0, import_react50.useState)(initialState), _useState2 = _slicedToArray(_useState, 2), value = _useState2[0], setValue = _useState2[1];
-    var valueRef = (0, import_react50.useRef)(value);
+    var _useState = (0, import_react56.useState)(initialState), _useState2 = _slicedToArray(_useState, 2), value = _useState2[0], setValue = _useState2[1];
+    var valueRef = (0, import_react56.useRef)(value);
     valueRef.current = value;
     return [valueRef, setValue];
   }
@@ -50577,7 +52028,7 @@
         stackIndexRef.current = newStackIndex;
       }
     });
-    (0, import_react51.useEffect)(function() {
+    (0, import_react57.useEffect)(function() {
       var currentStackIndex2 = modalStackRegister.indexOf(updateStack);
       if (!isExiting && currentStackIndex2 === -1) {
         modalStackRegister.unshift(updateStack);
@@ -50589,7 +52040,7 @@
         return cb();
       });
     }, [updateStack, isExiting]);
-    (0, import_react51.useEffect)(function() {
+    (0, import_react57.useEffect)(function() {
       return function() {
         var currentStackIndex2 = modalStackRegister.indexOf(updateStack);
         if (currentStackIndex2 !== -1) {
@@ -50600,7 +52051,7 @@
         }
       };
     }, [updateStack]);
-    (0, import_react51.useEffect)(function() {
+    (0, import_react57.useEffect)(function() {
       if (previousStackIndex === void 0) {
         return;
       }
@@ -50613,23 +52064,23 @@
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/hooks/use-prevent-programmatic-scroll.js
   init_slicedToArray();
-  var import_react52 = __toESM(require_react());
+  var import_react58 = __toESM(require_react());
   var import_bind_event_listener5 = __toESM(require_dist());
   function getScrollDistance() {
     var _document$documentEle, _document$body;
     return window.pageYOffset || ((_document$documentEle = document.documentElement) === null || _document$documentEle === void 0 ? void 0 : _document$documentEle.scrollTop) || ((_document$body = document.body) === null || _document$body === void 0 ? void 0 : _document$body.scrollTop) || 0;
   }
   function usePreventProgrammaticScroll() {
-    var _useState = (0, import_react52.useState)(0), _useState2 = _slicedToArray(_useState, 2), scrollTopOffset = _useState2[0], setScrollTopOffset = _useState2[1];
-    (0, import_react52.useLayoutEffect)(function() {
+    var _useState = (0, import_react58.useState)(0), _useState2 = _slicedToArray(_useState, 2), scrollTopOffset = _useState2[0], setScrollTopOffset = _useState2[1];
+    (0, import_react58.useLayoutEffect)(function() {
       setScrollTopOffset(getScrollDistance());
     }, []);
-    var onWindowScroll = (0, import_react52.useCallback)(function() {
+    var onWindowScroll = (0, import_react58.useCallback)(function() {
       if (getScrollDistance() !== scrollTopOffset) {
         window.scrollTo(window.pageXOffset, scrollTopOffset);
       }
     }, [scrollTopOffset]);
-    (0, import_react52.useEffect)(function() {
+    (0, import_react58.useEffect)(function() {
       return (0, import_bind_event_listener5.bind)(window, {
         type: "scroll",
         listener: onWindowScroll
@@ -50641,8 +52092,8 @@
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/components/modal-dialog.js
   init_slicedToArray();
   init_typeof();
-  var React33 = __toESM(require_react());
-  var import_react56 = __toESM(require_react());
+  var React38 = __toESM(require_react());
+  var import_react62 = __toESM(require_react());
 
   // node_modules/@atlaskit/ds-lib/dist/esm/utils/merge-refs.js
   function mergeRefs(refs) {
@@ -50658,10 +52109,10 @@
   }
 
   // node_modules/@atlaskit/ds-lib/dist/esm/hooks/use-auto-focus.js
-  var import_react53 = __toESM(require_react());
+  var import_react59 = __toESM(require_react());
   function useAutoFocus(ref, autoFocus) {
-    var initialMount = (0, import_react53.useRef)(true);
-    (0, import_react53.useEffect)(function() {
+    var initialMount = (0, import_react59.useRef)(true);
+    (0, import_react59.useEffect)(function() {
       if (ref && initialMount.current && autoFocus && ref.current) {
         ref.current.focus();
       }
@@ -50682,16 +52133,16 @@
   }
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/context.js
-  var import_react54 = __toESM(require_react());
-  var ModalContext = /* @__PURE__ */ (0, import_react54.createContext)(null);
-  var ScrollContext = /* @__PURE__ */ (0, import_react54.createContext)(null);
+  var import_react60 = __toESM(require_react());
+  var ModalContext = /* @__PURE__ */ (0, import_react60.createContext)(null);
+  var ScrollContext = /* @__PURE__ */ (0, import_react60.createContext)(null);
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/hooks/use-on-motion-finish.js
-  var import_react55 = __toESM(require_react());
+  var import_react61 = __toESM(require_react());
   function useOnMotionFinish(_ref2) {
     var onOpenComplete = _ref2.onOpenComplete, onCloseComplete = _ref2.onCloseComplete;
-    var motionRef = (0, import_react55.useRef)(null);
-    var onMotionFinish = (0, import_react55.useCallback)(function(state) {
+    var motionRef = (0, import_react61.useRef)(null);
+    var onMotionFinish = (0, import_react61.useCallback)(function(state) {
       if (state === "entering" && onOpenComplete) {
         onOpenComplete(motionRef.current, true);
       }
@@ -50740,7 +52191,7 @@
   var maxZIndex = 2147483647;
 
   // node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/honey-pot-fix/make-honey-pot-fix.js
-  function ownKeys7(e, r) {
+  function ownKeys9(e, r) {
     var t = Object.keys(e);
     if (Object.getOwnPropertySymbols) {
       var o = Object.getOwnPropertySymbols(e);
@@ -50750,12 +52201,12 @@
     }
     return t;
   }
-  function _objectSpread7(e) {
+  function _objectSpread9(e) {
     for (var r = 1; r < arguments.length; r++) {
       var t = null != arguments[r] ? arguments[r] : {};
-      r % 2 ? ownKeys7(Object(t), true).forEach(function(r2) {
+      r % 2 ? ownKeys9(Object(t), true).forEach(function(r2) {
         _defineProperty(e, r2, t[r2]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys7(Object(t)).forEach(function(r2) {
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys9(Object(t)).forEach(function(r2) {
         Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
       });
     }
@@ -50821,7 +52272,7 @@
     var clientRect = getHoneyPotRectFor({
       client: initial
     });
-    Object.assign(element.style, _objectSpread7(_objectSpread7({
+    Object.assign(element.style, _objectSpread9(_objectSpread9({
       // Setting a background color explicitly to avoid any inherited styles.
       // Looks like this could be `opacity: 0`, but worried that _might_
       // cause the element to be ignored on some platforms.
@@ -51597,7 +53048,7 @@
   }
 
   // node_modules/@atlaskit/pragmatic-drag-and-drop/dist/esm/make-adapter/make-drop-target.js
-  function ownKeys8(e, r) {
+  function ownKeys10(e, r) {
     var t = Object.keys(e);
     if (Object.getOwnPropertySymbols) {
       var o = Object.getOwnPropertySymbols(e);
@@ -51607,12 +53058,12 @@
     }
     return t;
   }
-  function _objectSpread8(e) {
+  function _objectSpread10(e) {
     for (var r = 1; r < arguments.length; r++) {
       var t = null != arguments[r] ? arguments[r] : {};
-      r % 2 ? ownKeys8(Object(t), true).forEach(function(r2) {
+      r % 2 ? ownKeys10(Object(t), true).forEach(function(r2) {
         _defineProperty(e, r2, t[r2]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys8(Object(t)).forEach(function(r2) {
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys10(Object(t)).forEach(function(r2) {
         Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
       });
     }
@@ -51758,7 +53209,7 @@
           var _entry$eventName;
           var record = _step.value;
           var entry = registry2.get(record.element);
-          var args = _objectSpread8(_objectSpread8({}, payload), {}, {
+          var args = _objectSpread10(_objectSpread10({}, payload), {}, {
             self: record
           });
           entry === null || entry === void 0 || (_entry$eventName = entry[eventName]) === null || _entry$eventName === void 0 || _entry$eventName.call(
@@ -51794,7 +53245,7 @@
             visited.add(record.element);
             var entry = registry2.get(record.element);
             var isOver = isCurrent.has(record.element);
-            var args = _objectSpread8(_objectSpread8({}, payload), {}, {
+            var args = _objectSpread10(_objectSpread10({}, payload), {}, {
               self: record
             });
             entry === null || entry === void 0 || (_entry$onDropTargetCh = entry.onDropTargetChange) === null || _entry$onDropTargetCh === void 0 || _entry$onDropTargetCh.call(entry, args);
@@ -51816,7 +53267,7 @@
             if (visited.has(_record.element)) {
               continue;
             }
-            var _args = _objectSpread8(_objectSpread8({}, payload), {}, {
+            var _args = _objectSpread10(_objectSpread10({}, payload), {}, {
               self: _record
             });
             var _entry = registry2.get(_record.element);
@@ -51846,16 +53297,16 @@
       var lastCaptureOrdered = copyReverse(current);
       var actualCaptureOrdered = copyReverse(actual);
       var resultCaptureOrdered = [];
-      for (var index = 0; index < lastCaptureOrdered.length; index++) {
+      for (var index2 = 0; index2 < lastCaptureOrdered.length; index2++) {
         var _argsForLast$getIsSti;
-        var last = lastCaptureOrdered[index];
-        var fresh = actualCaptureOrdered[index];
+        var last = lastCaptureOrdered[index2];
+        var fresh = actualCaptureOrdered[index2];
         if (fresh != null) {
           resultCaptureOrdered.push(fresh);
           continue;
         }
-        var parent = resultCaptureOrdered[index - 1];
-        var lastParent = lastCaptureOrdered[index - 1];
+        var parent = resultCaptureOrdered[index2 - 1];
+        var lastParent = lastCaptureOrdered[index2 - 1];
         if ((parent === null || parent === void 0 ? void 0 : parent.element) !== (lastParent === null || lastParent === void 0 ? void 0 : lastParent.element)) {
           break;
         }
@@ -51874,7 +53325,7 @@
         if (!((_argsForLast$getIsSti = argsForLast.getIsSticky) !== null && _argsForLast$getIsSti !== void 0 && _argsForLast$getIsSti.call(argsForLast, feedback))) {
           break;
         }
-        resultCaptureOrdered.push(_objectSpread8(_objectSpread8({}, last), {}, {
+        resultCaptureOrdered.push(_objectSpread10(_objectSpread10({}, last), {}, {
           // making it clear to consumers this drop target is active due to stickiness
           isActiveDueToStickiness: true
         }));
@@ -51933,7 +53384,7 @@
     for (var e = 0, n = Array(a); e < a; e++) n[e] = r[e];
     return n;
   }
-  function ownKeys9(e, r) {
+  function ownKeys11(e, r) {
     var t = Object.keys(e);
     if (Object.getOwnPropertySymbols) {
       var o = Object.getOwnPropertySymbols(e);
@@ -51943,12 +53394,12 @@
     }
     return t;
   }
-  function _objectSpread9(e) {
+  function _objectSpread11(e) {
     for (var r = 1; r < arguments.length; r++) {
       var t = null != arguments[r] ? arguments[r] : {};
-      r % 2 ? ownKeys9(Object(t), true).forEach(function(r2) {
+      r % 2 ? ownKeys11(Object(t), true).forEach(function(r2) {
         _defineProperty(e, r2, t[r2]);
-      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys9(Object(t)).forEach(function(r2) {
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys11(Object(t)).forEach(function(r2) {
         Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
       });
     }
@@ -51966,7 +53417,7 @@
       }
     }
     function monitorForConsumers(args) {
-      var entry = _objectSpread9({}, args);
+      var entry = _objectSpread11({}, args);
       registry2.add(entry);
       tryAddToActive(entry);
       function cleanup() {
@@ -52752,7 +54203,7 @@
   };
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/internal/components/positioner.js
-  var React32 = __toESM(require_react());
+  var React37 = __toESM(require_react());
   var gutter = 60;
   var maxWidthDimensions = "calc(100vw - ".concat(gutter * 2, "px)");
   var maxHeightDimensions = "calc(100vh - ".concat(gutter * 2 - 1, "px)");
@@ -52777,7 +54228,7 @@
       isFullScreen,
       shouldScrollInViewport
     });
-    return /* @__PURE__ */ React32.createElement("div", {
+    return /* @__PURE__ */ React37.createElement("div", {
       style: {
         "--modal-dialog-translate-y": "calc(".concat(stackIndex, "px * ", "var(--ds-space-100, 8px)", ")"),
         // eslint-disable-next-line @atlaskit/ui-styling-standard/no-imported-style-values -- Ignored via go/DSP-18766
@@ -52801,7 +54252,7 @@
     var id = useId();
     var titleId = "modal-dialog-title-".concat(id);
     var defaultTestId = testId || "modal-dialog";
-    (0, import_react56.useEffect)(function() {
+    (0, import_react62.useEffect)(function() {
       return combine(disableDraggingToCrossOriginIFramesForElement(), disableDraggingToCrossOriginIFramesForTextSelection(), disableDraggingToCrossOriginIFramesForExternal());
     }, []);
     useAutoFocus(
@@ -52813,7 +54264,7 @@
       onOpenComplete,
       onCloseComplete
     }), _useOnMotionFinish2 = _slicedToArray(_useOnMotionFinish, 2), motionRef = _useOnMotionFinish2[0], onMotionFinish = _useOnMotionFinish2[1];
-    var modalDialogContext = (0, import_react56.useMemo)(function() {
+    var modalDialogContext = (0, import_react62.useMemo)(function() {
       return {
         testId: defaultTestId,
         titleId,
@@ -52827,23 +54278,23 @@
       isDisabled: !shouldCloseOnEscapePress
     });
     var _useLayering = useLayering(), currentLevel = _useLayering.currentLevel;
-    return /* @__PURE__ */ React33.createElement(positioner_default, {
+    return /* @__PURE__ */ React38.createElement(positioner_default, {
       stackIndex,
       shouldScrollInViewport,
       testId: defaultTestId,
       isFullScreen
-    }, /* @__PURE__ */ React33.createElement(ModalContext.Provider, {
+    }, /* @__PURE__ */ React38.createElement(ModalContext.Provider, {
       value: modalDialogContext
-    }, /* @__PURE__ */ React33.createElement(ScrollContext.Provider, {
+    }, /* @__PURE__ */ React38.createElement(ScrollContext.Provider, {
       value: shouldScrollInViewport
-    }, /* @__PURE__ */ React33.createElement(
+    }, /* @__PURE__ */ React38.createElement(
       fade_in_default,
       {
         entranceDirection: isFullScreen ? void 0 : "bottom",
         onFinish: onMotionFinish
       },
       function(bottomFadeInProps) {
-        return /* @__PURE__ */ React33.createElement("section", _extends({}, bottomFadeInProps, {
+        return /* @__PURE__ */ React38.createElement("section", _extends({}, bottomFadeInProps, {
           "aria-label": label,
           ref: mergeRefs([bottomFadeInProps.ref, motionRef]),
           style: {
@@ -52878,7 +54329,7 @@
     return true;
   };
   var InternalModalWrapper = function InternalModalWrapper2(props) {
-    var _props$autoFocus = props.autoFocus, autoFocus = _props$autoFocus === void 0 ? true : _props$autoFocus, focusLockAllowlist = props.focusLockAllowlist, _props$shouldCloseOnE = props.shouldCloseOnEscapePress, shouldCloseOnEscapePress = _props$shouldCloseOnE === void 0 ? true : _props$shouldCloseOnE, _props$shouldCloseOnO = props.shouldCloseOnOverlayClick, shouldCloseOnOverlayClick = _props$shouldCloseOnO === void 0 ? true : _props$shouldCloseOnO, _props$shouldScrollIn = props.shouldScrollInViewport, shouldScrollInViewport = _props$shouldScrollIn === void 0 ? false : _props$shouldScrollIn, _props$shouldReturnFo = props.shouldReturnFocus, shouldReturnFocus = _props$shouldReturnFo === void 0 ? true : _props$shouldReturnFo, stackIndexOverride = props.stackIndex, providedOnClose = props.onClose, _props$onStackChange = props.onStackChange, onStackChange = _props$onStackChange === void 0 ? noop : _props$onStackChange, isBlanketHidden = props.isBlanketHidden, children = props.children, height = props.height, width2 = props.width, onCloseComplete = props.onCloseComplete, onOpenComplete = props.onOpenComplete, label = props.label, testId = props.testId, isFullScreen = props.isFullScreen;
+    var _props$autoFocus = props.autoFocus, autoFocus = _props$autoFocus === void 0 ? true : _props$autoFocus, focusLockAllowlist = props.focusLockAllowlist, _props$shouldCloseOnE = props.shouldCloseOnEscapePress, shouldCloseOnEscapePress = _props$shouldCloseOnE === void 0 ? true : _props$shouldCloseOnE, _props$shouldCloseOnO = props.shouldCloseOnOverlayClick, shouldCloseOnOverlayClick = _props$shouldCloseOnO === void 0 ? true : _props$shouldCloseOnO, _props$shouldScrollIn = props.shouldScrollInViewport, shouldScrollInViewport = _props$shouldScrollIn === void 0 ? false : _props$shouldScrollIn, _props$shouldReturnFo = props.shouldReturnFocus, shouldReturnFocus = _props$shouldReturnFo === void 0 ? true : _props$shouldReturnFo, stackIndexOverride = props.stackIndex, providedOnClose = props.onClose, _props$onStackChange = props.onStackChange, onStackChange = _props$onStackChange === void 0 ? noop3 : _props$onStackChange, isBlanketHidden = props.isBlanketHidden, children = props.children, height = props.height, width2 = props.width, onCloseComplete = props.onCloseComplete, onOpenComplete = props.onOpenComplete, label = props.label, testId = props.testId, isFullScreen = props.isFullScreen;
     var calculatedStackIndex = useModalStack({
       onStackChange
     });
@@ -52886,26 +54337,26 @@
     var isForeground = stackIndex === 0;
     var autoFocusLock = typeof autoFocus === "boolean" ? autoFocus : false;
     var onCloseHandler = usePlatformLeafEventHandler({
-      fn: providedOnClose || noop,
+      fn: providedOnClose || noop3,
       action: "closed",
       componentName: "modalDialog",
       packageName: "@atlaskit/modal-dialog",
       packageVersion: "14.3.3"
     });
-    var onBlanketClicked = (0, import_react57.useCallback)(function(e) {
+    var onBlanketClicked = (0, import_react63.useCallback)(function(e) {
       if (shouldCloseOnOverlayClick) {
         onCloseHandler(e);
       }
     }, [shouldCloseOnOverlayClick, onCloseHandler]);
-    var allowListCallback = (0, import_react57.useCallback)(function(element) {
+    var allowListCallback = (0, import_react63.useCallback)(function(element) {
       return allowlistElements(element, focusLockAllowlist);
     }, [focusLockAllowlist]);
     usePreventProgrammaticScroll();
-    var modalDialogWithBlanket = /* @__PURE__ */ React34.createElement(blanket_default, {
+    var modalDialogWithBlanket = /* @__PURE__ */ React39.createElement(blanket_default, {
       isTinted: !isBlanketHidden,
       onBlanketClicked,
       testId: testId && "".concat(testId, "--blanket")
-    }, /* @__PURE__ */ React34.createElement(modal_dialog_default, {
+    }, /* @__PURE__ */ React39.createElement(modal_dialog_default, {
       testId,
       label,
       autoFocus,
@@ -52932,37 +54383,37 @@
         }, 0);
       };
     }
-    return /* @__PURE__ */ React34.createElement(Layering, {
+    return /* @__PURE__ */ React39.createElement(Layering, {
       isDisabled: false
-    }, /* @__PURE__ */ React34.createElement(Portal, {
+    }, /* @__PURE__ */ React39.createElement(Portal, {
       zIndex: layers.modal()
-    }, /* @__PURE__ */ React34.createElement(fade_in_default, null, function(fadeInProps) {
-      return /* @__PURE__ */ React34.createElement("div", _extends({}, fadeInProps, {
+    }, /* @__PURE__ */ React39.createElement(fade_in_default, null, function(fadeInProps) {
+      return /* @__PURE__ */ React39.createElement("div", _extends({}, fadeInProps, {
         // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
         className: ax(["_1bsbauwl _4t3i1kxc _kqsw1n9t _152tze3t _1e02ze3t _18m91wug _8am5i4x0", fadeInProps.className]),
         "aria-hidden": !isForeground
-      }), /* @__PURE__ */ React34.createElement(es2015_default, {
+      }), /* @__PURE__ */ React39.createElement(es2015_default, {
         autoFocus: autoFocusLock,
         returnFocus,
         onDeactivation,
         whiteList: allowListCallback
-      }, /* @__PURE__ */ React34.createElement(import_react_scrolllock.default, null), shouldScrollInViewport ? /* @__PURE__ */ React34.createElement(import_react_scrolllock.TouchScrollable, null, modalDialogWithBlanket) : modalDialogWithBlanket));
+      }, /* @__PURE__ */ React39.createElement(import_react_scrolllock.default, null), shouldScrollInViewport ? /* @__PURE__ */ React39.createElement(import_react_scrolllock.TouchScrollable, null, modalDialogWithBlanket) : modalDialogWithBlanket));
     })));
   };
   var modal_wrapper_default = InternalModalWrapper;
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/modal-dialog.js
   function ModalWrapper(props) {
-    return /* @__PURE__ */ import_react58.default.createElement(modal_wrapper_default, _extends({}, props, {
+    return /* @__PURE__ */ import_react64.default.createElement(modal_wrapper_default, _extends({}, props, {
       isFullScreen: false
     }));
   }
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/modal-transition.js
-  var import_react59 = __toESM(require_react());
+  var import_react65 = __toESM(require_react());
   var ModalTransition = function ModalTransition2(props) {
     var _props$children;
-    return /* @__PURE__ */ import_react59.default.createElement(
+    return /* @__PURE__ */ import_react65.default.createElement(
       exiting_persistence_default,
       {
         appear: true
@@ -52973,9 +54424,4954 @@
   };
   var modal_transition_default = ModalTransition;
 
+  // node_modules/@atlaskit/primitives/dist/esm/utils/surface-provider.js
+  var import_react66 = __toESM(require_react());
+  var SurfaceContext = /* @__PURE__ */ (0, import_react66.createContext)("elevation.surface");
+  var useSurface = function useSurface2() {
+    return (0, import_react66.useContext)(SurfaceContext);
+  };
+  SurfaceContext.displayName = "SurfaceProvider";
+
+  // node_modules/@atlaskit/primitives/dist/esm/utils/has-text-ancestor-context.js
+  var import_react67 = __toESM(require_react());
+  var HasTextAncestorContext = /* @__PURE__ */ (0, import_react67.createContext)(false);
+  var useHasTextAncestor = function useHasTextAncestor2() {
+    return (0, import_react67.useContext)(HasTextAncestorContext);
+  };
+  var HasTextAncestorProvider = HasTextAncestorContext.Provider;
+
+  // node_modules/@atlaskit/interaction-context/dist/esm/index.js
+  var import_react68 = __toESM(require_react());
+  var esm_default2 = /* @__PURE__ */ (0, import_react68.createContext)(null);
+
+  // node_modules/@atlaskit/css/dist/esm/index.js
+  var React42 = __toESM(require_react());
+
+  // node_modules/@compiled/react/dist/esm/index.js
+  var import_react69 = __toESM(require_react());
+
+  // node_modules/@compiled/react/dist/esm/utils/error.js
+  var createStrictSetupError = () => {
+    return new Error(`
+ \u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2588\u2557   \u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2557\u2588\u2588\u2557     \u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2557
+\u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255D\u2588\u2588\u2554\u2550\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2557 \u2588\u2588\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557\u2588\u2588\u2551\u2588\u2588\u2551     \u2588\u2588\u2554\u2550\u2550\u2550\u2550\u255D\u2588\u2588\u2554\u2550\u2550\u2588\u2588\u2557
+\u2588\u2588\u2551     \u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2554\u2588\u2588\u2588\u2588\u2554\u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255D\u2588\u2588\u2551\u2588\u2588\u2551     \u2588\u2588\u2588\u2588\u2588\u2557  \u2588\u2588\u2551  \u2588\u2588\u2551
+\u2588\u2588\u2551     \u2588\u2588\u2551   \u2588\u2588\u2551\u2588\u2588\u2551\u255A\u2588\u2588\u2554\u255D\u2588\u2588\u2551\u2588\u2588\u2554\u2550\u2550\u2550\u255D \u2588\u2588\u2551\u2588\u2588\u2551     \u2588\u2588\u2554\u2550\u2550\u255D  \u2588\u2588\u2551  \u2588\u2588\u2551
+\u255A\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u255A\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255D\u2588\u2588\u2551 \u255A\u2550\u255D \u2588\u2588\u2551\u2588\u2588\u2551     \u2588\u2588\u2551\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2588\u2557\u2588\u2588\u2588\u2588\u2588\u2588\u2554\u255D
+ \u255A\u2550\u2550\u2550\u2550\u2550\u255D \u255A\u2550\u2550\u2550\u2550\u2550\u255D \u255A\u2550\u255D     \u255A\u2550\u255D\u255A\u2550\u255D     \u255A\u2550\u255D\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u255D\u255A\u2550\u2550\u2550\u2550\u2550\u2550\u255D\u255A\u2550\u2550\u2550\u2550\u2550\u255D
+
+  @compiled/react
+
+  Code was executed when it shouldn't have. To resolve make sure to:
+
+  1. Set up Compiled.
+  2. Configure importSources in your Compiled config to point to the module that exports the output of createStrictAPI().
+
+  For more information visit https://compiledcssinjs.com/docs/installation and follow the instructions.
+`);
+  };
+
+  // node_modules/@compiled/react/dist/esm/xcss-prop/index.js
+  var cx = (...styles9) => {
+    const actualStyles = styles9;
+    return ax(actualStyles);
+  };
+
+  // node_modules/@compiled/react/dist/esm/create-strict-api/index.js
+  function createStrictAPI() {
+    return {
+      css() {
+        throw createStrictSetupError();
+      },
+      cssMap() {
+        throw createStrictSetupError();
+      },
+      cx,
+      XCSSProp() {
+        throw createStrictSetupError();
+      }
+    };
+  }
+
+  // node_modules/@atlaskit/css/dist/esm/index.js
+  var _createStrictAPI = createStrictAPI();
+  var XCSSProp = _createStrictAPI.XCSSProp;
+  var css = _createStrictAPI.css;
+  var cssMap = _createStrictAPI.cssMap;
+  var cx2 = _createStrictAPI.cx;
+
+  // node_modules/@atlaskit/primitives/dist/esm/compiled/components/inline.js
+  var React44 = __toESM(require_react());
+  var import_react72 = __toESM(require_react());
+
+  // node_modules/@atlaskit/primitives/dist/esm/compiled/components/flex.js
+  var React43 = __toESM(require_react());
+  var import_react71 = __toESM(require_react());
+  var _excluded2 = ["as", "role", "alignItems", "justifyContent", "gap", "columnGap", "rowGap", "children", "testId", "direction", "wrap", "xcss"];
+  var rowGapMap = {
+    "space.0": "_1p57ze3t",
+    "space.025": "_1p57v77o",
+    "space.050": "_1p571b66",
+    "space.075": "_1p5712x7",
+    "space.100": "_1p57u2gc",
+    "space.150": "_1p57utpp",
+    "space.200": "_1p57pxbi",
+    "space.250": "_1p57v47k",
+    "space.300": "_1p571ejb",
+    "space.400": "_1p57xy5q",
+    "space.500": "_1p571jfw",
+    "space.600": "_1p57oahv",
+    "space.800": "_1p57xncg",
+    "space.1000": "_1p571epz"
+  };
+  var columnGapMap = {
+    "space.0": "_gy1pze3t",
+    "space.025": "_gy1pv77o",
+    "space.050": "_gy1p1b66",
+    "space.075": "_gy1p12x7",
+    "space.100": "_gy1pu2gc",
+    "space.150": "_gy1putpp",
+    "space.200": "_gy1ppxbi",
+    "space.250": "_gy1pv47k",
+    "space.300": "_gy1p1ejb",
+    "space.400": "_gy1pxy5q",
+    "space.500": "_gy1p1jfw",
+    "space.600": "_gy1poahv",
+    "space.800": "_gy1pxncg",
+    "space.1000": "_gy1p1epz"
+  };
+  var justifyContentMap = {
+    start: "_1bahv2br",
+    center: "_1bah1h6o",
+    end: "_1bahh9n0",
+    "space-between": "_1bah1yb4",
+    "space-around": "_1bah1b1v",
+    "space-evenly": "_1bahitcz",
+    stretch: "_1bah1fhb"
+  };
+  var flexDirectionMap = {
+    column: "_2lx21bp4",
+    row: "_2lx2vrvc"
+  };
+  var flexWrapMap = {
+    wrap: "_1n261g80",
+    nowrap: "_1n261q9c"
+  };
+  var alignItemsMap = {
+    start: "_4cvrv2br",
+    center: "_4cvr1h6o",
+    baseline: "_4cvr1q9y",
+    end: "_4cvrh9n0",
+    stretch: "_4cvr1fhb"
+  };
+  var styles = {
+    root: "_1e0c1txw _vchhusvi"
+  };
+  var Flex = /* @__PURE__ */ (0, import_react71.memo)(/* @__PURE__ */ (0, import_react71.forwardRef)(function(_ref2, ref) {
+    var _ref$as = _ref2.as, Component3 = _ref$as === void 0 ? "div" : _ref$as, role = _ref2.role, alignItems = _ref2.alignItems, justifyContent = _ref2.justifyContent, gap = _ref2.gap, columnGap = _ref2.columnGap, rowGap = _ref2.rowGap, children = _ref2.children, testId = _ref2.testId, direction = _ref2.direction, wrap4 = _ref2.wrap, xcss = _ref2.xcss, ariaAttributes = _objectWithoutProperties(_ref2, _excluded2);
+    return /* @__PURE__ */ React43.createElement(Component3, _extends({}, ariaAttributes, {
+      role,
+      className: ax([styles.root, gap && columnGapMap[gap], columnGap && columnGapMap[columnGap], gap && rowGapMap[gap], rowGap && rowGapMap[rowGap], alignItems && alignItemsMap[alignItems], direction && flexDirectionMap[direction], justifyContent && justifyContentMap[justifyContent], wrap4 && flexWrapMap[wrap4], xcss]),
+      "data-testid": testId,
+      ref
+    }), children);
+  }));
+  Flex.displayName = "Flex";
+  var flex_default = Flex;
+
+  // node_modules/@atlaskit/primitives/dist/esm/compiled/components/inline.js
+  var _excluded3 = ["as", "alignInline", "alignBlock", "shouldWrap", "spread", "grow", "space", "rowSpace", "separator", "xcss", "testId", "role", "children"];
+  var styles2 = {
+    separator: "_1mouze3t _195g1i6y _syazjjyb _lcxvglyw _uiztglyw",
+    hug: "_16jlidpf",
+    fill: "_1bsb1osq _16jlkb7n"
+  };
+  var Separator = function Separator2(_ref2) {
+    var children = _ref2.children;
+    return /* @__PURE__ */ React44.createElement("span", {
+      className: ax([styles2.separator])
+    }, children);
+  };
+  var Inline = /* @__PURE__ */ (0, import_react72.memo)(/* @__PURE__ */ (0, import_react72.forwardRef)(function(_ref2, ref) {
+    var as = _ref2.as, alignInline = _ref2.alignInline, _ref2$alignBlock = _ref2.alignBlock, alignItems = _ref2$alignBlock === void 0 ? "start" : _ref2$alignBlock, _ref2$shouldWrap = _ref2.shouldWrap, shouldWrap = _ref2$shouldWrap === void 0 ? false : _ref2$shouldWrap, spread = _ref2.spread, grow = _ref2.grow, space = _ref2.space, rowSpace = _ref2.rowSpace, separator = _ref2.separator, xcss = _ref2.xcss, testId = _ref2.testId, role = _ref2.role, rawChildren = _ref2.children, ariaAttributes = _objectWithoutProperties(_ref2, _excluded3);
+    var separatorComponent = typeof separator === "string" ? /* @__PURE__ */ React44.createElement(Separator, null, separator) : separator;
+    var children = separatorComponent ? import_react72.Children.toArray(rawChildren).filter(Boolean).map(function(child, index2) {
+      return /* @__PURE__ */ React44.createElement(import_react72.Fragment, {
+        key: index2
+      }, separator && index2 > 0 ? separatorComponent : null, child);
+    }) : rawChildren;
+    return /* @__PURE__ */ React44.createElement(flex_default, _extends({}, ariaAttributes, {
+      as,
+      role,
+      alignItems,
+      justifyContent: spread || alignInline,
+      direction: "row",
+      gap: space,
+      rowGap: rowSpace,
+      wrap: shouldWrap ? "wrap" : void 0,
+      xcss: cx2(grow === "hug" && styles2.hug, grow === "fill" && styles2.fill, xcss),
+      testId,
+      ref
+    }), children);
+  }));
+  Inline.displayName = "Inline";
+  var inline_default = Inline;
+
+  // node_modules/@atlaskit/primitives/dist/esm/compiled/components/text.js
+  var React45 = __toESM(require_react());
+  var import_react73 = __toESM(require_react());
+  var asAllowlist = ["span", "p", "strong", "em"];
+  var useColor = function useColor2(colorProp, hasTextAncestor) {
+    var surface = useSurface();
+    if (colorProp === "inherit") {
+      return void 0;
+    }
+    if (colorProp) {
+      return colorProp;
+    }
+    if (hasTextAncestor) {
+      return void 0;
+    }
+    if (inverseColorMap.hasOwnProperty(surface)) {
+      return inverseColorMap[surface];
+    }
+    return "color.text";
+  };
+  var styles3 = {
+    root: "_19pkidpf _2hwxidpf _otyridpf _18u0idpf _1i4qfg65",
+    "as.strong": "_k48pmoej",
+    "as.em": "_zg8l1m30",
+    "textAlign.center": "_y3gn1h6o",
+    "textAlign.end": "_y3gnh9n0",
+    "textAlign.start": "_y3gnv2br",
+    truncation: "_1reo15vq _18m915vq _1e0ccj1k _sudp1e54",
+    breakAll: "_1nmz9jpi"
+  };
+  var fontSizeMap = {
+    medium: "_11c82smr",
+    UNSAFE_small: "_11c8dcr7",
+    large: "_11c81ixg",
+    small: "_11c81o8v"
+  };
+  var fontWeightMap = {
+    bold: "_k48pmoej",
+    medium: "_k48p1wq8",
+    regular: "_k48pi7a9",
+    semibold: "_k48p1pd9"
+  };
+  var textColorMap = {
+    "color.text": "_syaz1fxt",
+    "color.text.accent.lime": "_syaz1tco",
+    "color.text.accent.lime.bolder": "_syaz1ik3",
+    "color.text.accent.red": "_syaz9lu1",
+    "color.text.accent.red.bolder": "_syazhwvp",
+    "color.text.accent.orange": "_syaz1q28",
+    "color.text.accent.orange.bolder": "_syaz1vps",
+    "color.text.accent.yellow": "_syazfb2s",
+    "color.text.accent.yellow.bolder": "_syazekll",
+    "color.text.accent.green": "_syazh55r",
+    "color.text.accent.green.bolder": "_syaz1y78",
+    "color.text.accent.teal": "_syaz17qg",
+    "color.text.accent.teal.bolder": "_syaz12v7",
+    "color.text.accent.blue": "_syazpnps",
+    "color.text.accent.blue.bolder": "_syazsc1o",
+    "color.text.accent.purple": "_syaz10m5",
+    "color.text.accent.purple.bolder": "_syaz2ibx",
+    "color.text.accent.magenta": "_syaz1s8m",
+    "color.text.accent.magenta.bolder": "_syaz1qur",
+    "color.text.accent.gray": "_syaz1dyx",
+    "color.text.accent.gray.bolder": "_syaz1x9z",
+    "color.text.disabled": "_syaz1lh4",
+    "color.text.inverse": "_syaz15cr",
+    "color.text.selected": "_syazaqb7",
+    "color.text.brand": "_syaz1e6v",
+    "color.text.danger": "_syaz1tmw",
+    "color.text.warning": "_syazwx40",
+    "color.text.warning.inverse": "_syazal3n",
+    "color.text.success": "_syazy73q",
+    "color.text.discovery": "_syazzjem",
+    "color.text.information": "_syaze0os",
+    "color.text.subtlest": "_syaz131l",
+    "color.text.subtle": "_syaz1gjq",
+    "color.link": "_syaz14q2",
+    "color.link.pressed": "_syaz16c2",
+    "color.link.visited": "_syazw7te",
+    "color.link.visited.pressed": "_syazg3x0"
+  };
+  var inverseColorMap = {
+    "color.background.neutral.bold": "color.text.inverse",
+    "color.background.neutral.bold.hovered": "color.text.inverse",
+    "color.background.neutral.bold.pressed": "color.text.inverse",
+    "color.background.selected.bold": "color.text.inverse",
+    "color.background.selected.bold.hovered": "color.text.inverse",
+    "color.background.selected.bold.pressed": "color.text.inverse",
+    "color.background.brand.bold": "color.text.inverse",
+    "color.background.brand.bold.hovered": "color.text.inverse",
+    "color.background.brand.bold.pressed": "color.text.inverse",
+    "color.background.brand.boldest": "color.text.inverse",
+    "color.background.brand.boldest.hovered": "color.text.inverse",
+    "color.background.brand.boldest.pressed": "color.text.inverse",
+    "color.background.danger.bold": "color.text.inverse",
+    "color.background.danger.bold.hovered": "color.text.inverse",
+    "color.background.danger.bold.pressed": "color.text.inverse",
+    "color.background.warning.bold": "color.text.warning.inverse",
+    "color.background.warning.bold.hovered": "color.text.warning.inverse",
+    "color.background.warning.bold.pressed": "color.text.warning.inverse",
+    "color.background.success.bold": "color.text.inverse",
+    "color.background.success.bold.hovered": "color.text.inverse",
+    "color.background.success.bold.pressed": "color.text.inverse",
+    "color.background.discovery.bold": "color.text.inverse",
+    "color.background.discovery.bold.hovered": "color.text.inverse",
+    "color.background.discovery.bold.pressed": "color.text.inverse",
+    "color.background.information.bold": "color.text.inverse",
+    "color.background.information.bold.hovered": "color.text.inverse",
+    "color.background.information.bold.pressed": "color.text.inverse"
+  };
+  var Text2 = /* @__PURE__ */ (0, import_react73.forwardRef)(function(_ref2, ref) {
+    var _ref$as = _ref2.as, Component3 = _ref$as === void 0 ? "span" : _ref$as, colorProp = _ref2.color, align = _ref2.align, testId = _ref2.testId, id = _ref2.id, size2 = _ref2.size, weight = _ref2.weight, maxLines = _ref2.maxLines, xcss = _ref2.xcss, children = _ref2.children;
+    invariant(asAllowlist.includes(Component3), '@atlaskit/primitives: Text received an invalid "as" value of "'.concat(Component3, '"'));
+    var hasTextAncestor = useHasTextAncestor();
+    var color = useColor(colorProp, hasTextAncestor);
+    if (!size2 && !hasTextAncestor) {
+      size2 = "medium";
+    }
+    var component = /* @__PURE__ */ React45.createElement(Component3, {
+      id,
+      className: ax([styles3.root, size2 && fontSizeMap[size2], color && textColorMap[color], maxLines && styles3.truncation, maxLines === 1 && styles3.breakAll, align && styles3["textAlign.".concat(align)], weight && fontWeightMap[weight], Component3 === "em" && styles3["as.em"], Component3 === "strong" && styles3["as.strong"], xcss]),
+      style: {
+        WebkitLineClamp: maxLines
+      },
+      "data-testid": testId,
+      ref
+    }, children);
+    if (hasTextAncestor) {
+      return component;
+    }
+    return /* @__PURE__ */ React45.createElement(HasTextAncestorProvider, {
+      value: true
+    }, component);
+  });
+  var text_default = Text2;
+
+  // node_modules/@atlaskit/primitives/dist/esm/compiled/components/pressable.js
+  var React47 = __toESM(require_react());
+  var import_react75 = __toESM(require_react());
+
+  // node_modules/@atlaskit/ds-lib/dist/esm/utils/device-check.js
+  function testPlatform(re) {
+    var _window$navigator$use;
+    return typeof window !== "undefined" && window.navigator != null ? (
+      //@ts-expect-error ignore userAgentData type issue
+      re.test(((_window$navigator$use = window.navigator["userAgentData"]) === null || _window$navigator$use === void 0 ? void 0 : _window$navigator$use.platform) || window.navigator.platform)
+    ) : false;
+  }
+  function isIPhone() {
+    return testPlatform(/^iPhone/i);
+  }
+  function isMac() {
+    return testPlatform(/^Mac/i);
+  }
+  function isIPad() {
+    return testPlatform(/^iPad/i) || // iPadOS 13 lies and says it's a Mac, but we can distinguish by detecting touch support.
+    isMac() && navigator.maxTouchPoints > 1;
+  }
+  function isIOS() {
+    return isIPhone() || isIPad();
+  }
+  function isSafari3() {
+    if (typeof window !== "undefined" && window.navigator != null) {
+      var _window$navigator$use2;
+      var ua = (_window$navigator$use2 = window.navigator.userAgent) === null || _window$navigator$use2 === void 0 ? void 0 : _window$navigator$use2.toLowerCase();
+      return ua ? ua.includes("safari") && !ua.includes("chrome") : false;
+    }
+    return false;
+  }
+  function isAppleDevice() {
+    return isMac() || isIOS();
+  }
+
+  // node_modules/@atlaskit/primitives/dist/esm/compiled/components/focusable.js
+  init_defineProperty();
+  var React46 = __toESM(require_react());
+  var import_react74 = __toESM(require_react());
+  var _excluded4 = ["as", "children", "isInset", "testId", "style", "xcss"];
+  var _excluded22 = ["className"];
+  function ownKeys12(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread12(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys12(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys12(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  var Focusable = /* @__PURE__ */ (0, import_react74.forwardRef)(function(_ref2, ref) {
+    var _ref$as = _ref2.as, Component3 = _ref$as === void 0 ? "button" : _ref$as, children = _ref2.children, isInset = _ref2.isInset, testId = _ref2.testId, style = _ref2.style, xcss = _ref2.xcss, htmlAttributes = _objectWithoutProperties(_ref2, _excluded4);
+    var _spreadClass = htmlAttributes.className, safeHtmlAttributes = _objectWithoutProperties(htmlAttributes, _excluded22);
+    return /* @__PURE__ */ React46.createElement(Component3, _extends({}, safeHtmlAttributes, {
+      // @ts-ignore Expression produces a union type that is too complex to represent. We may be able to narrow the type here but unsure.
+      ref,
+      className: ax(["_mizu194a _1ah31bk5 _ra3xnqa1 _128m1bk5 _1cvmnqa1 _4davt94y", isInset && "_1ah3115h _2mwq115h", xcss]),
+      "data-testid": testId,
+      style: _objectSpread12(_objectSpread12({}, style), {}, {
+        "--_1203r2w": cssCustomPropertyValue("calc(0px - ".concat("var(--ds-border-width-outline, 2px)", ")"))
+      })
+    }), children);
+  });
+  var focusable_default = Focusable;
+
+  // node_modules/@atlaskit/primitives/dist/esm/compiled/components/pressable.js
+  var _excluded5 = ["children", "isDisabled", "type", "onClick", "interactionName", "componentName", "analyticsContext", "style", "testId", "xcss", "tabIndex"];
+  var _excluded23 = ["className"];
+  var styles4 = {
+    root: "_19itglyw _vchhusvi _r06hglyw _80omtlke",
+    disabled: "_80om13gf"
+  };
+  var Pressable = /* @__PURE__ */ (0, import_react75.forwardRef)(function(_ref2, ref) {
+    var children = _ref2.children, isDisabled = _ref2.isDisabled, _ref$type = _ref2.type, type = _ref$type === void 0 ? "button" : _ref$type, _ref$onClick = _ref2.onClick, providedOnClick = _ref$onClick === void 0 ? noop3 : _ref$onClick, interactionName = _ref2.interactionName, componentName = _ref2.componentName, analyticsContext = _ref2.analyticsContext, style = _ref2.style, testId = _ref2.testId, xcss = _ref2.xcss, tabIndex = _ref2.tabIndex, htmlAttributes = _objectWithoutProperties(_ref2, _excluded5);
+    var interactionContext = (0, import_react75.useContext)(esm_default2);
+    var handleClick = (0, import_react75.useCallback)(function(e, analyticsEvent) {
+      interactionContext && interactionContext.tracePress(interactionName, e.timeStamp);
+      providedOnClick(e, analyticsEvent);
+    }, [providedOnClick, interactionContext, interactionName]);
+    var onClick = usePlatformLeafEventHandler({
+      fn: handleClick,
+      action: "clicked",
+      componentName: componentName || "Pressable",
+      packageName: "@atlaskit/primitives",
+      packageVersion: "14.11.2",
+      analyticsData: analyticsContext,
+      actionSubject: "button"
+    });
+    var _spreadClass = htmlAttributes.className, safeHtmlAttributes = _objectWithoutProperties(htmlAttributes, _excluded23);
+    return /* @__PURE__ */ React47.createElement(
+      focusable_default,
+      _extends({
+        as: "button",
+        tabIndex: tabIndex !== null && tabIndex !== void 0 ? tabIndex : isSafari3() && !isDisabled ? 0 : void 0,
+        style
+      }, safeHtmlAttributes, {
+        type,
+        onClick,
+        disabled: isDisabled,
+        xcss: cx(styles4.root, isDisabled && styles4.disabled, xcss),
+        testId,
+        ref
+      }),
+      children
+    );
+  });
+  var pressable_default = Pressable;
+
+  // node_modules/@atlaskit/spinner/dist/esm/spinner.js
+  var import_react77 = __toESM(require_react());
+
+  // node_modules/@atlaskit/spinner/dist/esm/constants.js
+  var presetSizes = {
+    xsmall: 12,
+    small: 16,
+    medium: 24,
+    large: 48,
+    xlarge: 96
+  };
+
+  // node_modules/@atlaskit/spinner/dist/esm/spinner.js
+  function getStrokeColor(appearance) {
+    return appearance === "inherit" ? "var(--ds-icon-subtle, ".concat(N500, ")") : "var(--ds-icon-inverse, ".concat(N0, ")");
+  }
+  var styles5 = {
+    rotateStyles: "_j7hqsf8s _5sag12kz _tip812c5 _1pgl2qsq _8hrz1h6o",
+    loadInStyles: "_j7hq1ky6 _5sag9cwz _1pgl1ytf _1o51q7pw",
+    wrapperStyles: "_1e0c116y _s7n4nkob",
+    circleStyles: "_lswuglyw _7ljx1dhp _1snbbs82 _jcxd7g3v _1tjm1onz"
+  };
+  var useLayoutEffect5 = typeof window === "undefined" ? import_react77.useEffect : import_react77.useLayoutEffect;
+  var Spinner = /* @__PURE__ */ import_react77.default.memo(/* @__PURE__ */ import_react77.default.forwardRef(function Spinner2(_ref2, ref) {
+    var _ref$appearance = _ref2.appearance, appearance = _ref$appearance === void 0 ? "inherit" : _ref$appearance, _ref$delay = _ref2.delay, delay = _ref$delay === void 0 ? 0 : _ref$delay, interactionName = _ref2.interactionName, label = _ref2.label, _ref$size = _ref2.size, providedSize = _ref$size === void 0 ? "medium" : _ref$size, testId = _ref2.testId;
+    var size2 = typeof providedSize === "number" ? providedSize : presetSizes[providedSize];
+    var animationDelay = "".concat(delay, "ms");
+    var stroke = getStrokeColor(appearance);
+    var context = (0, import_react77.useContext)(esm_default2);
+    useLayoutEffect5(function() {
+      if (context != null) {
+        return context.hold(interactionName);
+      }
+    }, [context, interactionName]);
+    return /* @__PURE__ */ import_react77.default.createElement("span", {
+      "data-testid": testId ? "".concat(testId, "-wrapper") : "spinner-wrapper",
+      style: {
+        animationDelay,
+        width: size2,
+        height: size2
+      },
+      className: ax([styles5.wrapperStyles, styles5.rotateStyles])
+    }, /* @__PURE__ */ import_react77.default.createElement("svg", {
+      height: size2,
+      width: size2,
+      viewBox: "0 0 16 16",
+      xmlns: "http://www.w3.org/2000/svg",
+      "data-testid": testId,
+      ref,
+      "aria-label": label || void 0,
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop -- Ignored via go/DSP-18766
+      style: {
+        animationDelay
+      },
+      role: label ? "img" : "none",
+      className: ax([styles5.loadInStyles])
+    }, /* @__PURE__ */ import_react77.default.createElement("circle", {
+      cx: "8",
+      cy: "8",
+      r: "7",
+      style: {
+        stroke
+      },
+      className: ax([styles5.circleStyles])
+    })));
+  }));
+  var spinner_default = Spinner;
+
+  // node_modules/@atlaskit/react-select/dist/esm/use-state-manager.js
+  init_defineProperty();
+  init_slicedToArray();
+  var import_react78 = __toESM(require_react());
+  var _excluded6 = ["defaultInputValue", "defaultMenuIsOpen", "defaultValue", "inputValue", "menuIsOpen", "onChange", "onInputChange", "onMenuClose", "onMenuOpen", "value"];
+  function ownKeys13(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread13(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys13(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys13(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  function useStateManager(_ref2) {
+    var _ref$defaultInputValu = _ref2.defaultInputValue, defaultInputValue = _ref$defaultInputValu === void 0 ? "" : _ref$defaultInputValu, _ref$defaultMenuIsOpe = _ref2.defaultMenuIsOpen, defaultMenuIsOpen = _ref$defaultMenuIsOpe === void 0 ? false : _ref$defaultMenuIsOpe, _ref$defaultValue = _ref2.defaultValue, defaultValue = _ref$defaultValue === void 0 ? null : _ref$defaultValue, propsInputValue = _ref2.inputValue, propsMenuIsOpen = _ref2.menuIsOpen, propsOnChange = _ref2.onChange, propsOnInputChange = _ref2.onInputChange, propsOnMenuClose = _ref2.onMenuClose, propsOnMenuOpen = _ref2.onMenuOpen, propsValue = _ref2.value, restSelectProps = _objectWithoutProperties(_ref2, _excluded6);
+    var _useState = (0, import_react78.useState)(propsInputValue !== void 0 ? propsInputValue : defaultInputValue), _useState2 = _slicedToArray(_useState, 2), stateInputValue = _useState2[0], setStateInputValue = _useState2[1];
+    var _useState3 = (0, import_react78.useState)(propsMenuIsOpen !== void 0 ? propsMenuIsOpen : defaultMenuIsOpen), _useState4 = _slicedToArray(_useState3, 2), stateMenuIsOpen = _useState4[0], setStateMenuIsOpen = _useState4[1];
+    var _useState5 = (0, import_react78.useState)(propsValue !== void 0 ? propsValue : defaultValue), _useState6 = _slicedToArray(_useState5, 2), stateValue = _useState6[0], setStateValue = _useState6[1];
+    var onChange2 = (0, import_react78.useCallback)(function(value2, actionMeta) {
+      if (typeof propsOnChange === "function") {
+        propsOnChange(value2, actionMeta);
+      }
+      setStateValue(value2);
+    }, [propsOnChange]);
+    var onInputChange = (0, import_react78.useCallback)(function(value2, actionMeta) {
+      var newValue;
+      if (typeof propsOnInputChange === "function") {
+        newValue = propsOnInputChange(value2, actionMeta);
+      }
+      setStateInputValue(newValue !== void 0 ? newValue : value2);
+    }, [propsOnInputChange]);
+    var onMenuOpen = (0, import_react78.useCallback)(function() {
+      if (typeof propsOnMenuOpen === "function") {
+        propsOnMenuOpen();
+      }
+      setStateMenuIsOpen(true);
+    }, [propsOnMenuOpen]);
+    var onMenuClose = (0, import_react78.useCallback)(function() {
+      if (typeof propsOnMenuClose === "function") {
+        propsOnMenuClose();
+      }
+      setStateMenuIsOpen(false);
+    }, [propsOnMenuClose]);
+    var inputValue = propsInputValue !== void 0 ? propsInputValue : stateInputValue;
+    var menuIsOpen = propsMenuIsOpen !== void 0 ? propsMenuIsOpen : stateMenuIsOpen;
+    var value = propsValue !== void 0 ? propsValue : stateValue;
+    return _objectSpread13(_objectSpread13({}, restSelectProps), {}, {
+      inputValue,
+      menuIsOpen,
+      onChange: onChange2,
+      onInputChange,
+      onMenuClose,
+      onMenuOpen,
+      value
+    });
+  }
+
+  // node_modules/@atlaskit/react-select/dist/esm/select.js
+  init_typeof();
+  init_classCallCheck();
+  init_createClass();
+  init_defineProperty();
+  init_toConsumableArray();
+  var import_react95 = __toESM(require_react());
+  var import_platform_feature_flags11 = __toESM(require_cjs3());
+
+  // node_modules/@atlaskit/react-select/dist/esm/builtins.js
+  var formatGroupLabel = function formatGroupLabel2(group) {
+    return group.label;
+  };
+  var getOptionLabel = function getOptionLabel2(option) {
+    return option.label;
+  };
+  var getOptionValue = function getOptionValue2(option) {
+    return option.value;
+  };
+  var isOptionDisabled = function isOptionDisabled2(option) {
+    return !!option.isDisabled;
+  };
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/index.js
+  init_defineProperty();
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/containers.js
+  var React49 = __toESM(require_react());
+  var import_platform_feature_flags8 = __toESM(require_cjs3());
+
+  // node_modules/@atlaskit/react-select/dist/esm/utils.js
+  init_slicedToArray();
+  init_defineProperty();
+  init_typeof();
+  var _excluded7 = ["className", "clearValue", "cx", "xcss", "getStyles", "getClassNames", "getValue", "hasValue", "isMulti", "isRtl", "options", "selectOption", "selectProps", "setValue"];
+  function ownKeys14(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread14(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys14(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys14(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  var noop4 = function noop5() {
+  };
+  function applyPrefixToName(prefix2, name) {
+    if (!name) {
+      return prefix2;
+    } else if (name[0] === "-") {
+      return prefix2 + name;
+    } else {
+      return prefix2 + "__" + name;
+    }
+  }
+  function classNames(prefix2, state) {
+    for (var _len = arguments.length, classNameList = new Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) {
+      classNameList[_key - 2] = arguments[_key];
+    }
+    var arr = [].concat(classNameList);
+    if (state && prefix2) {
+      for (var key in state) {
+        if (state.hasOwnProperty(key) && state[key]) {
+          arr.push("".concat(applyPrefixToName(prefix2, key)));
+        }
+      }
+    }
+    return arr.filter(function(i) {
+      return i;
+    }).map(function(i) {
+      return String(i).trim();
+    }).join(" ");
+  }
+  var cleanValue = function cleanValue2(value) {
+    if (isArray(value)) {
+      return value.filter(Boolean);
+    }
+    if (_typeof(value) === "object" && value !== null) {
+      return [value];
+    }
+    return [];
+  };
+  var cleanCommonProps = function cleanCommonProps2(props) {
+    var className = props.className, clearValue = props.clearValue, cx3 = props.cx, xcss = props.xcss, getStyles = props.getStyles, getClassNames = props.getClassNames, getValue = props.getValue, hasValue = props.hasValue, isMulti = props.isMulti, isRtl = props.isRtl, options2 = props.options, selectOption = props.selectOption, selectProps = props.selectProps, setValue = props.setValue, innerProps = _objectWithoutProperties(props, _excluded7);
+    return _objectSpread14({}, innerProps);
+  };
+  var getStyleProps = function getStyleProps2(props, name, classNamesState) {
+    var cx3 = props.cx, getStyles = props.getStyles, getClassNames = props.getClassNames, className = props.className;
+    return {
+      css: getStyles(name, props),
+      className: cx3(classNamesState !== null && classNamesState !== void 0 ? classNamesState : {}, getClassNames(name, props), className)
+    };
+  };
+  function handleInputChange(inputValue, actionMeta, onInputChange) {
+    if (onInputChange) {
+      var newValue = onInputChange(inputValue, actionMeta);
+      if (typeof newValue === "string") {
+        return newValue;
+      }
+    }
+    return inputValue;
+  }
+  function isDocumentElement(el) {
+    return [document.documentElement, document.body, window].indexOf(el) > -1;
+  }
+  function normalizedHeight(el) {
+    if (isDocumentElement(el)) {
+      return window.innerHeight;
+    }
+    return el.clientHeight;
+  }
+  function getScrollTop(el) {
+    if (isDocumentElement(el)) {
+      return window.pageYOffset;
+    }
+    return el.scrollTop;
+  }
+  function scrollTo(el, top2) {
+    if (isDocumentElement(el)) {
+      window.scrollTo(0, top2);
+      return;
+    }
+    el.scrollTop = top2;
+  }
+  function getScrollParent2(element) {
+    var style = getComputedStyle(element);
+    var excludeStaticParent = style.position === "absolute";
+    var overflowRx = /(auto|scroll)/;
+    if (style.position === "fixed") {
+      return document.documentElement;
+    }
+    for (var parent = element; parent = parent.parentElement; ) {
+      style = getComputedStyle(parent);
+      if (excludeStaticParent && style.position === "static") {
+        continue;
+      }
+      if (overflowRx.test(style.overflow + style.overflowY + style.overflowX)) {
+        return parent;
+      }
+    }
+    return document.documentElement;
+  }
+  function easeOutCubic(t, b, c, d) {
+    return c * ((t = t / d - 1) * t * t + 1) + b;
+  }
+  function animatedScrollTo(element, to) {
+    var duration = arguments.length > 2 && arguments[2] !== void 0 ? arguments[2] : 200;
+    var callback = arguments.length > 3 && arguments[3] !== void 0 ? arguments[3] : noop4;
+    var start3 = getScrollTop(element);
+    var change = to - start3;
+    var increment = 10;
+    var currentTime = 0;
+    function animateScroll() {
+      currentTime += increment;
+      var val = easeOutCubic(currentTime, start3, change, duration);
+      scrollTo(element, val);
+      if (currentTime < duration) {
+        window.requestAnimationFrame(animateScroll);
+      } else {
+        callback(element);
+      }
+    }
+    animateScroll();
+  }
+  function scrollIntoView(menuEl, focusedEl) {
+    var menuRect = menuEl.getBoundingClientRect();
+    var focusedRect = focusedEl.getBoundingClientRect();
+    var overScroll = focusedEl.offsetHeight / 3;
+    if (focusedRect.bottom + overScroll > menuRect.bottom) {
+      scrollTo(menuEl, Math.min(focusedEl.offsetTop + focusedEl.clientHeight - menuEl.offsetHeight + overScroll, menuEl.scrollHeight));
+    } else if (focusedRect.top - overScroll < menuRect.top) {
+      scrollTo(menuEl, Math.max(focusedEl.offsetTop - overScroll, 0));
+    }
+  }
+  function getBoundingClientObj(element) {
+    var rect = element.getBoundingClientRect();
+    return {
+      bottom: rect.bottom,
+      height: rect.height,
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+      width: rect.width
+    };
+  }
+  function isTouchCapable() {
+    try {
+      document.createEvent("TouchEvent");
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+  function isMobileDevice() {
+    try {
+      return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    } catch (e) {
+      return false;
+    }
+  }
+  var passiveOptionAccessed = false;
+  var options = {
+    get passive() {
+      return passiveOptionAccessed = true;
+    }
+  };
+  var w = typeof window !== "undefined" ? window : {};
+  if (w.addEventListener && w.removeEventListener) {
+    w.addEventListener("p", noop4, options);
+    w.removeEventListener("p", noop4, false);
+  }
+  var supportsPassiveEvents = passiveOptionAccessed;
+  function notNullish(item) {
+    return item != null;
+  }
+  function isArray(arg) {
+    return Array.isArray(arg);
+  }
+  function valueTernary(isMulti, multiValue, singleValue) {
+    return isMulti ? multiValue : singleValue;
+  }
+  function singleValueAsValue(singleValue) {
+    return singleValue;
+  }
+  function multiValueAsValue(multiValue) {
+    return multiValue;
+  }
+  var removeProps = function removeProps2(propsObj) {
+    for (var _len2 = arguments.length, properties = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+      properties[_key2 - 1] = arguments[_key2];
+    }
+    var propsMap = Object.entries(propsObj).filter(function(_ref2) {
+      var _ref22 = _slicedToArray(_ref2, 1), key = _ref22[0];
+      return !properties.includes(key);
+    });
+    return propsMap.reduce(function(newProps, _ref3) {
+      var _ref4 = _slicedToArray(_ref3, 2), key = _ref4[0], val = _ref4[1];
+      newProps[key] = val;
+      return newProps;
+    }, {});
+  };
+  var filterUnsupportedSelectors = function filterUnsupportedSelectors2(styles9) {
+    var unsupportedSelectors = [
+      ":",
+      // pseudo-classes/elements
+      "[",
+      // attribute selectors
+      ">",
+      // child combinator
+      "+",
+      // adjacent sibling combinator
+      "~",
+      // general sibling combinator
+      " ",
+      // descendant combinator
+      "*",
+      // universal selector
+      "#",
+      // ID selector
+      ".",
+      // class selector
+      "@",
+      // at-rules
+      "&",
+      // parent selector
+      "|",
+      // namespace separator
+      "^",
+      // starts with
+      "$",
+      // ends with
+      "="
+      // equals
+    ];
+    return Object.keys(styles9).reduce(function(filteredStyles, key) {
+      if (!unsupportedSelectors.some(function(selector) {
+        return key.includes(selector);
+      })) {
+        filteredStyles[key] = styles9[key];
+      }
+      return filteredStyles;
+    }, {});
+  };
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/containers.js
+  var containerCSS = function containerCSS2() {
+    return {};
+  };
+  var containerStyles = {
+    default: "_11c82smr _kqswh2mm _lcxv1rj4",
+    rtl: "_1eim1xrj",
+    disabled: "_80om13gf",
+    ff_safari_input_fix: "_11c81ixg _1tn22smr"
+  };
+  var SelectContainer = function SelectContainer2(props) {
+    var children = props.children, innerProps = props.innerProps, isDisabled = props.isDisabled, isRtl = props.isRtl, xcss = props.xcss;
+    var _getStyleProps = getStyleProps(props, "container", {
+      "--is-disabled": isDisabled,
+      "--is-rtl": isRtl
+    }), className = _getStyleProps.className, css6 = _getStyleProps.css;
+    return /* @__PURE__ */ React49.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+      className: ax([containerStyles.default, isRtl && containerStyles.rtl, isDisabled && containerStyles.disabled, (0, import_platform_feature_flags8.fg)("platform_design_system_team_safari_input_fix") && containerStyles.ff_safari_input_fix, cx(className, xcss, "-container")]),
+      style: css6
+    }, innerProps), children);
+  };
+  var valueContainerCSS = function valueContainerCSS2() {
+    return {};
+  };
+  var valueContainerStyles = {
+    default: "_16jlkb7n _1o9zkb7n _i0dlf1ug _1reo15vq _18m915vq _4cvr1h6o _1e0c11p5 _1n261g80 _8am5i4x0 _kqswh2mm _ca0qv77o _u5f312x7 _n3tdv77o _19bv12x7",
+    flex: "_1e0c1txw",
+    compact: "_ca0qze3t _u5f312x7 _n3tdze3t _19bv12x7"
+  };
+  var ValueContainer = function ValueContainer2(props) {
+    var children = props.children, innerProps = props.innerProps, isMulti = props.isMulti, hasValue = props.hasValue, isCompact = props.isCompact, xcss = props.xcss, controlShouldRenderValue = props.selectProps.controlShouldRenderValue;
+    var _getStyleProps2 = getStyleProps(props, "valueContainer", {
+      "value-container": true,
+      "value-container--is-multi": isMulti,
+      "value-container--has-value": hasValue
+    }), css6 = _getStyleProps2.css, className = _getStyleProps2.className;
+    return /* @__PURE__ */ React49.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+      className: ax([valueContainerStyles.default, isMulti && hasValue && controlShouldRenderValue && valueContainerStyles.flex, isCompact && valueContainerStyles.compact, cx(className, xcss, "-ValueContainer")]),
+      style: css6
+    }, innerProps), children);
+  };
+  var indicatorsContainerCSS = function indicatorsContainerCSS2() {
+    return {};
+  };
+  var IndicatorsContainer = function IndicatorsContainer2(props) {
+    var children = props.children, innerProps = props.innerProps, xcss = props.xcss;
+    var _getStyleProps3 = getStyleProps(props, "indicatorsContainer", {
+      indicators: true
+    }), css6 = _getStyleProps3.css, className = _getStyleProps3.className;
+    return /* @__PURE__ */ React49.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+      style: css6,
+      className: ax(["_1e0c1txw _4cvr1h6o _1o9zidpf _1wpz1fhb _y4ti1b66", cx(className, xcss, "-IndicatorsContainer")])
+    }, innerProps), children);
+  };
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/control.js
+  var React50 = __toESM(require_react());
+  var styles6 = {
+    default: "_12ji1r31 _1qu2glyw _12y3idpf _2rkosqtm _v564r5cv _1h6d1elr _1dqonqa1 _189ee4h9 _4cvr1h6o _80om73ad _1e0c1txw _1n261g80 _1bah1yb4 _kqswh2mm _bfhk1j9a _1tke1ylp _ca0qze3t _u5f3ze3t _n3tdze3t _19bvze3t _15peftgi _1ke8ftgi _jaboglyw _1u6l1bml _4cvx1elr _123byq51 _d0altlke _irr31d5g _1ogl1caj",
+    compact: "_1tkezwfg",
+    invalid: "_1h6d1bqt _16qsizbr _1u6lizbr _4cvx1bqt",
+    focusedInvalid: "_16qsq049",
+    disabled: "_1h6dsyzs _lcxvglyw _bfhksyzs _1u6llkwx",
+    focused: "_1h6d1p6i _bfhkr01l _16qsq049 _1u6lq049 _4cvx1p6i _irr3r01l",
+    subtle: "_1h6d1j28 _bfhk1j28 _1u6l3sij",
+    subtleFocused: "_bfhkvuon",
+    none: "_1h6d1j28 _bfhk1j28 _1u6l3sij _4cvx1j28 _irr31j28"
+  };
+  var css2 = function css3() {
+    return {};
+  };
+  var Control = function Control2(props) {
+    var children = props.children, appearance = props.appearance, isCompact = props.isCompact, isDisabled = props.isDisabled, isFocused = props.isFocused, isInvalid = props.isInvalid, innerRef = props.innerRef, innerProps = props.innerProps, menuIsOpen = props.menuIsOpen, xcss = props.xcss;
+    var _getStyleProps = getStyleProps(props, "control", {
+      control: true,
+      "control--is-disabled": isDisabled,
+      "control--is-focused": isFocused,
+      "control--menu-is-open": menuIsOpen
+    }), css6 = _getStyleProps.css, className = _getStyleProps.className;
+    return /* @__PURE__ */ React50.createElement("div", _extends({
+      ref: innerRef,
+      className: ax([styles6.default, isDisabled && styles6.disabled, isInvalid && styles6.invalid, isCompact && styles6.compact, appearance === "subtle" && styles6.subtle, appearance === "subtle" && isFocused && styles6.subtleFocused, isFocused && styles6.focused, appearance === "none" && styles6.none, cx(className, xcss, "-control")]),
+      style: css6
+    }, innerProps, {
+      "aria-disabled": isDisabled || void 0
+    }), children);
+  };
+  var control_default = Control;
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/group.js
+  var React51 = __toESM(require_react());
+  var _excluded8 = ["data"];
+  var styles7 = {
+    root: "_n3tdu2gc _ca0qu2gc"
+  };
+  var groupCSS = function groupCSS2() {
+    return {};
+  };
+  var Group = function Group2(props) {
+    var children = props.children, builtinCX = props.cx, getStyles = props.getStyles, getClassNames = props.getClassNames, Heading = props.Heading, headingProps = props.headingProps, innerProps = props.innerProps, label = props.label, selectProps = props.selectProps, xcss = props.xcss;
+    var _getStyleProps = getStyleProps(props, "group", {
+      group: true
+    }), css6 = _getStyleProps.css, className = _getStyleProps.className;
+    return /* @__PURE__ */ React51.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+      style: css6
+    }, innerProps, {
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+      className: ax([styles7.root, cx(className, xcss, innerProps === null || innerProps === void 0 ? void 0 : innerProps.className, "-Group")])
+    }), label && /* @__PURE__ */ React51.createElement(Heading, _extends({}, headingProps, {
+      selectProps,
+      getStyles,
+      getClassNames,
+      cx: builtinCX
+    }), label), /* @__PURE__ */ React51.createElement("div", null, children));
+  };
+  var groupHeadingCSS = function groupHeadingCSS2() {
+    return {};
+  };
+  var GroupHeading = function GroupHeading2(props) {
+    var xcss = props.xcss;
+    var _cleanCommonProps = cleanCommonProps(props), data = _cleanCommonProps.data, innerProps = _objectWithoutProperties(_cleanCommonProps, _excluded8);
+    var _getStyleProps2 = getStyleProps(props, "groupHeading", {
+      "group-heading": true
+    }), css6 = _getStyleProps2.css, className = _getStyleProps2.className;
+    return /* @__PURE__ */ React51.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+      className: ax(["_11c81o8v _1e0c1ule _syaz1gjq _80om73ad _k48pmoej _6rthpd1z _y4tiutpp _bozgutpp _1p1dglyw", cx(className, xcss, "-group")]),
+      style: css6
+    }, innerProps));
+  };
+  var group_default = Group;
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/indicators.js
+  init_defineProperty();
+  var React52 = __toESM(require_react());
+  var import_chevron_down = __toESM(require_chevron_down3());
+  var import_cross_circle_select_clear = __toESM(require_cross_circle_select_clear());
+  var _excluded9 = ["innerProps", "isRtl", "size", "isCompact", "xcss"];
+  function ownKeys15(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread15(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys15(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys15(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  var iconContainerStyles = {
+    root: "_kkk2n7od _12ji1r31 _1qu219ly _12y31o36 _1e0c1txw _4cvr1h6o _1bah1h6o _ca0qv77o _u5f3v77o _n3tdv77o _19bvv77o"
+  };
+  var dropdownWrapperStyles = {
+    root: "_ca0q12x7 _u5f312x7 _n3td12x7 _19bv12x7"
+  };
+  var dropdownStyles = {
+    default: "_v564vrg3 _1e0c1txw _syaz1gjq _ca0q12x7 _u5f3v77o _n3td12x7 _19bvv77o _30l31gjq",
+    compact: "_ca0qidpf _n3tdidpf",
+    disabled: "_syaz1lh4"
+  };
+  var dropdownIndicatorCSS = function dropdownIndicatorCSS2() {
+    return {};
+  };
+  var DropdownIndicator = function DropdownIndicator2(props) {
+    var innerProps = props.innerProps, children = props.children, isDisabled = props.isDisabled, isCompact = props.isCompact, xcss = props.xcss;
+    var _getStyleProps = getStyleProps(props, "dropdownIndicator", {
+      indicator: true,
+      "dropdown-indicator": true
+    }), css6 = _getStyleProps.css, className = _getStyleProps.className;
+    return /* @__PURE__ */ React52.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+      style: css6,
+      className: ax([dropdownStyles.default, isDisabled && dropdownStyles.disabled, isCompact && dropdownStyles.compact, cx(className, xcss, "-indicatorContainer")])
+    }, innerProps), children ? children : /* @__PURE__ */ React52.createElement(inline_default, {
+      as: "span",
+      xcss: dropdownWrapperStyles.root
+    }, /* @__PURE__ */ React52.createElement(import_chevron_down.default, {
+      color: "currentColor",
+      label: "open",
+      LEGACY_margin: "var(--ds-space-negative-075, -0.375rem)",
+      size: "small"
+    })));
+  };
+  var clearIndicatorCSS = function clearIndicatorCSS2() {
+    return {};
+  };
+  var clearIndicatorStyles = {
+    default: "_v564vrg3 _1e0c1txw _syaz131l _ca0q12x7 _u5f3v77o _n3td12x7 _19bvv77o _30l31gjq",
+    compact: "_ca0qidpf _n3tdidpf"
+  };
+  var ClearIndicator = function ClearIndicator2(props) {
+    var innerProps = props.innerProps, _props$clearControlLa = props.clearControlLabel, clearControlLabel = _props$clearControlLa === void 0 ? "clear" : _props$clearControlLa, isCompact = props.isCompact, xcss = props.xcss;
+    var _getStyleProps2 = getStyleProps(props, "clearIndicator", {
+      indicator: true,
+      "clear-indicator": true
+    }), css6 = _getStyleProps2.css, className = _getStyleProps2.className;
+    return /* @__PURE__ */ React52.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+      style: css6,
+      className: ax([clearIndicatorStyles.default, isCompact && clearIndicatorStyles.compact, cx(className, xcss, "-indicatorContainer")])
+    }, innerProps), /* @__PURE__ */ React52.createElement(pressable_default, {
+      xcss: iconContainerStyles.root,
+      tabIndex: -1,
+      "aria-label": clearControlLabel
+    }, /* @__PURE__ */ React52.createElement(import_cross_circle_select_clear.default, {
+      label: "",
+      color: "currentColor",
+      LEGACY_size: "small",
+      LEGACY_margin: "var(--ds-space-negative-025, -0.125rem)",
+      size: "small"
+    })));
+  };
+  var loadingIndicatorCSS = function loadingIndicatorCSS2() {
+    return {};
+  };
+  var loadingIndicatorStyles = {
+    default: "_ca0q12x7 _u5f3u2gc _n3td12x7 _19bvu2gc",
+    compact: "_ca0qidpf _n3tdidpf"
+  };
+  var LoadingIndicator = function LoadingIndicator2(_ref2) {
+    var innerProps = _ref2.innerProps, isRtl = _ref2.isRtl, _ref$size = _ref2.size, size2 = _ref$size === void 0 ? 4 : _ref$size, isCompact = _ref2.isCompact, xcss = _ref2.xcss, restProps = _objectWithoutProperties(_ref2, _excluded9);
+    var _getStyleProps3 = getStyleProps(_objectSpread15(_objectSpread15({}, restProps), {}, {
+      innerProps,
+      isRtl,
+      size: size2
+    }), "loadingIndicator", {
+      indicator: true,
+      "loading-indicator": true
+    }), css6 = _getStyleProps3.css, className = _getStyleProps3.className;
+    return /* @__PURE__ */ React52.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+      style: css6,
+      className: ax([loadingIndicatorStyles.default, isCompact && loadingIndicatorStyles.compact, cx(className, xcss, "-loadingIndicator")])
+    }, innerProps), /* @__PURE__ */ React52.createElement(spinner_default, {
+      size: "small"
+    }));
+  };
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/input.js
+  var React53 = __toESM(require_react());
+  var import_platform_feature_flags9 = __toESM(require_cjs3());
+  var _excluded10 = ["innerRef", "isDisabled", "isHidden", "inputClassName", "testId"];
+  var inputCSS = function inputCSS2() {
+    return {};
+  };
+  var inputStylesOld = {
+    root: "_16jlkb7n _1o9zkb7n _i0dl1wug _nd5l1sux _1mouv77o _195gv77o _1rjcv77o _1e0c1n7u _yv0e12qd _syaz1fxt _j8d6idpf _1av2idpf _1doyidpf _pfztidpf _uoe3idpf _1recidpf _70xridpf _1k96idpf _eq43idpf _1h9u1kw7 _ckog1yjy _1x651r31 _1nn4glyw _1rzeidpf _1yd8yh40 _aetr11ps _uy7x15vq _1qjlqvpr",
+    disabled: "_3um015vq"
+  };
+  var inputStyles = {
+    root: "_16jlkb7n _1o9zkb7n _i0dl1wug _nd5l1sux _1mouv77o _195gv77o _1rjcv77o _kqswh2mm _1e0c1txw _yv0e12qd _syaz1fxt _j8d6idpf _1av2idpf _1doyidpf _pfztidpf _uoe3idpf _1recidpf _70xridpf _1k96idpf _eq43idpf _1h9u1kw7 _ckog1yjy _1x651r31 _1nn4glyw _1rzeidpf _1yd8yh40 _aetr11ps _uy7x15vq _1qjlqvpr",
+    disabled: "_3um015vq"
+  };
+  var Input = function Input2(props) {
+    var builtinCX = props.cx, value = props.value, xcss = props.xcss;
+    var _cleanCommonProps = cleanCommonProps(props), innerRef = _cleanCommonProps.innerRef, isDisabled = _cleanCommonProps.isDisabled, isHidden = _cleanCommonProps.isHidden, inputClassName = _cleanCommonProps.inputClassName, testId = _cleanCommonProps.testId, innerProps = _objectWithoutProperties(_cleanCommonProps, _excluded10);
+    var dataId = testId ? "".concat(testId, "-select--input") : null;
+    var _getStyleProps = getStyleProps(props, "input", {
+      "input-container": true
+    }), css6 = _getStyleProps.css, className = _getStyleProps.className;
+    if ((0, import_platform_feature_flags9.fg)("platform_do_not_clear_input_for_multiselect")) {
+      return /* @__PURE__ */ React53.createElement("div", {
+        // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+        style: css6,
+        className: ax([inputStyles.root, isDisabled && inputStyles.disabled, cx(className, xcss, "-Input")]),
+        "data-value": value || "",
+        "data-testid": dataId && "".concat(dataId, "-container")
+      }, /* @__PURE__ */ React53.createElement("input", _extends({
+        // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+        className: ax(["_19pkidpf _2hwxidpf _otyridpf _18u0idpf _ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _1r04idpf _11q7idpf _19itidpf _11c81kw7 _nd5l1yjy _12ji1r31 _1qu2glyw _12y3idpf _1bsb1osq _1ul9yh40 _kqswstnw _syaz1kw7 _tzy4kb7n", isHidden && "_tzy4idpf", builtinCX({
+          input: true
+        }, inputClassName, "-input")]),
+        ref: innerRef,
+        disabled: isDisabled,
+        "data-testid": dataId
+      }, innerProps)));
+    }
+    return /* @__PURE__ */ React53.createElement("div", {
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+      style: css6,
+      className: ax([inputStylesOld.root, isDisabled && inputStylesOld.disabled, cx(className, xcss, "-Input")]),
+      "data-value": value || "",
+      "data-testid": dataId && "".concat(dataId, "-container")
+    }, /* @__PURE__ */ React53.createElement("input", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+      className: ax(["_19pkidpf _2hwxidpf _otyridpf _18u0idpf _ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _11q7idpf _19itidpf _11c81kw7 _nd5l1yjy _12ji1r31 _1qu2glyw _12y3idpf _1bsb1osq _1ul9yh40 _syaz1kw7 _tzy4kb7n", isHidden && "_tzy4idpf", builtinCX({
+        input: true
+      }, inputClassName, "-input")]),
+      ref: innerRef,
+      disabled: isDisabled,
+      "data-testid": dataId
+    }, innerProps)));
+  };
+  var input_default = Input;
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/menu.js
+  init_defineProperty();
+  init_slicedToArray();
+  var React54 = __toESM(require_react());
+  var import_react85 = __toESM(require_react());
+
+  // node_modules/@floating-ui/utils/dist/floating-ui.utils.mjs
+  var min2 = Math.min;
+  var max2 = Math.max;
+  var round2 = Math.round;
+  var floor = Math.floor;
+  var createCoords = (v) => ({
+    x: v,
+    y: v
+  });
+  function rectToClientRect2(rect) {
+    const {
+      x,
+      y,
+      width: width2,
+      height
+    } = rect;
+    return {
+      width: width2,
+      height,
+      top: y,
+      left: x,
+      right: x + width2,
+      bottom: y + height,
+      x,
+      y
+    };
+  }
+
+  // node_modules/@floating-ui/utils/dist/floating-ui.utils.dom.mjs
+  function hasWindow() {
+    return typeof window !== "undefined";
+  }
+  function getNodeName2(node2) {
+    if (isNode(node2)) {
+      return (node2.nodeName || "").toLowerCase();
+    }
+    return "#document";
+  }
+  function getWindow2(node2) {
+    var _node$ownerDocument;
+    return (node2 == null || (_node$ownerDocument = node2.ownerDocument) == null ? void 0 : _node$ownerDocument.defaultView) || window;
+  }
+  function getDocumentElement2(node2) {
+    var _ref2;
+    return (_ref2 = (isNode(node2) ? node2.ownerDocument : node2.document) || window.document) == null ? void 0 : _ref2.documentElement;
+  }
+  function isNode(value) {
+    if (!hasWindow()) {
+      return false;
+    }
+    return value instanceof Node || value instanceof getWindow2(value).Node;
+  }
+  function isElement2(value) {
+    if (!hasWindow()) {
+      return false;
+    }
+    return value instanceof Element || value instanceof getWindow2(value).Element;
+  }
+  function isHTMLElement2(value) {
+    if (!hasWindow()) {
+      return false;
+    }
+    return value instanceof HTMLElement || value instanceof getWindow2(value).HTMLElement;
+  }
+  function isShadowRoot2(value) {
+    if (!hasWindow() || typeof ShadowRoot === "undefined") {
+      return false;
+    }
+    return value instanceof ShadowRoot || value instanceof getWindow2(value).ShadowRoot;
+  }
+  var invalidOverflowDisplayValues = /* @__PURE__ */ new Set(["inline", "contents"]);
+  function isOverflowElement(element) {
+    const {
+      overflow,
+      overflowX,
+      overflowY,
+      display
+    } = getComputedStyle3(element);
+    return /auto|scroll|overlay|hidden|clip/.test(overflow + overflowY + overflowX) && !invalidOverflowDisplayValues.has(display);
+  }
+  function isWebKit() {
+    if (typeof CSS === "undefined" || !CSS.supports) return false;
+    return CSS.supports("-webkit-backdrop-filter", "none");
+  }
+  var lastTraversableNodeNames = /* @__PURE__ */ new Set(["html", "body", "#document"]);
+  function isLastTraversableNode(node2) {
+    return lastTraversableNodeNames.has(getNodeName2(node2));
+  }
+  function getComputedStyle3(element) {
+    return getWindow2(element).getComputedStyle(element);
+  }
+  function getParentNode3(node2) {
+    if (getNodeName2(node2) === "html") {
+      return node2;
+    }
+    const result2 = (
+      // Step into the shadow DOM of the parent of a slotted node.
+      node2.assignedSlot || // DOM Element detected.
+      node2.parentNode || // ShadowRoot detected.
+      isShadowRoot2(node2) && node2.host || // Fallback.
+      getDocumentElement2(node2)
+    );
+    return isShadowRoot2(result2) ? result2.host : result2;
+  }
+  function getNearestOverflowAncestor(node2) {
+    const parentNode = getParentNode3(node2);
+    if (isLastTraversableNode(parentNode)) {
+      return node2.ownerDocument ? node2.ownerDocument.body : node2.body;
+    }
+    if (isHTMLElement2(parentNode) && isOverflowElement(parentNode)) {
+      return parentNode;
+    }
+    return getNearestOverflowAncestor(parentNode);
+  }
+  function getOverflowAncestors(node2, list, traverseIframes) {
+    var _node$ownerDocument2;
+    if (list === void 0) {
+      list = [];
+    }
+    if (traverseIframes === void 0) {
+      traverseIframes = true;
+    }
+    const scrollableAncestor = getNearestOverflowAncestor(node2);
+    const isBody = scrollableAncestor === ((_node$ownerDocument2 = node2.ownerDocument) == null ? void 0 : _node$ownerDocument2.body);
+    const win = getWindow2(scrollableAncestor);
+    if (isBody) {
+      const frameElement = getFrameElement(win);
+      return list.concat(win, win.visualViewport || [], isOverflowElement(scrollableAncestor) ? scrollableAncestor : [], frameElement && traverseIframes ? getOverflowAncestors(frameElement) : []);
+    }
+    return list.concat(scrollableAncestor, getOverflowAncestors(scrollableAncestor, [], traverseIframes));
+  }
+  function getFrameElement(win) {
+    return win.parent && Object.getPrototypeOf(win.parent) ? win.frameElement : null;
+  }
+
+  // node_modules/@floating-ui/dom/dist/floating-ui.dom.mjs
+  function getCssDimensions(element) {
+    const css6 = getComputedStyle3(element);
+    let width2 = parseFloat(css6.width) || 0;
+    let height = parseFloat(css6.height) || 0;
+    const hasOffset = isHTMLElement2(element);
+    const offsetWidth = hasOffset ? element.offsetWidth : width2;
+    const offsetHeight = hasOffset ? element.offsetHeight : height;
+    const shouldFallback = round2(width2) !== offsetWidth || round2(height) !== offsetHeight;
+    if (shouldFallback) {
+      width2 = offsetWidth;
+      height = offsetHeight;
+    }
+    return {
+      width: width2,
+      height,
+      $: shouldFallback
+    };
+  }
+  function unwrapElement(element) {
+    return !isElement2(element) ? element.contextElement : element;
+  }
+  function getScale(element) {
+    const domElement = unwrapElement(element);
+    if (!isHTMLElement2(domElement)) {
+      return createCoords(1);
+    }
+    const rect = domElement.getBoundingClientRect();
+    const {
+      width: width2,
+      height,
+      $
+    } = getCssDimensions(domElement);
+    let x = ($ ? round2(rect.width) : rect.width) / width2;
+    let y = ($ ? round2(rect.height) : rect.height) / height;
+    if (!x || !Number.isFinite(x)) {
+      x = 1;
+    }
+    if (!y || !Number.isFinite(y)) {
+      y = 1;
+    }
+    return {
+      x,
+      y
+    };
+  }
+  var noOffsets = /* @__PURE__ */ createCoords(0);
+  function getVisualOffsets(element) {
+    const win = getWindow2(element);
+    if (!isWebKit() || !win.visualViewport) {
+      return noOffsets;
+    }
+    return {
+      x: win.visualViewport.offsetLeft,
+      y: win.visualViewport.offsetTop
+    };
+  }
+  function shouldAddVisualOffsets(element, isFixed, floatingOffsetParent) {
+    if (isFixed === void 0) {
+      isFixed = false;
+    }
+    if (!floatingOffsetParent || isFixed && floatingOffsetParent !== getWindow2(element)) {
+      return false;
+    }
+    return isFixed;
+  }
+  function getBoundingClientRect2(element, includeScale, isFixedStrategy, offsetParent) {
+    if (includeScale === void 0) {
+      includeScale = false;
+    }
+    if (isFixedStrategy === void 0) {
+      isFixedStrategy = false;
+    }
+    const clientRect = element.getBoundingClientRect();
+    const domElement = unwrapElement(element);
+    let scale = createCoords(1);
+    if (includeScale) {
+      if (offsetParent) {
+        if (isElement2(offsetParent)) {
+          scale = getScale(offsetParent);
+        }
+      } else {
+        scale = getScale(element);
+      }
+    }
+    const visualOffsets = shouldAddVisualOffsets(domElement, isFixedStrategy, offsetParent) ? getVisualOffsets(domElement) : createCoords(0);
+    let x = (clientRect.left + visualOffsets.x) / scale.x;
+    let y = (clientRect.top + visualOffsets.y) / scale.y;
+    let width2 = clientRect.width / scale.x;
+    let height = clientRect.height / scale.y;
+    if (domElement) {
+      const win = getWindow2(domElement);
+      const offsetWin = offsetParent && isElement2(offsetParent) ? getWindow2(offsetParent) : offsetParent;
+      let currentWin = win;
+      let currentIFrame = getFrameElement(currentWin);
+      while (currentIFrame && offsetParent && offsetWin !== currentWin) {
+        const iframeScale = getScale(currentIFrame);
+        const iframeRect = currentIFrame.getBoundingClientRect();
+        const css6 = getComputedStyle3(currentIFrame);
+        const left2 = iframeRect.left + (currentIFrame.clientLeft + parseFloat(css6.paddingLeft)) * iframeScale.x;
+        const top2 = iframeRect.top + (currentIFrame.clientTop + parseFloat(css6.paddingTop)) * iframeScale.y;
+        x *= iframeScale.x;
+        y *= iframeScale.y;
+        width2 *= iframeScale.x;
+        height *= iframeScale.y;
+        x += left2;
+        y += top2;
+        currentWin = getWindow2(currentIFrame);
+        currentIFrame = getFrameElement(currentWin);
+      }
+    }
+    return rectToClientRect2({
+      width: width2,
+      height,
+      x,
+      y
+    });
+  }
+  function rectsAreEqual(a, b) {
+    return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+  }
+  function observeMove(element, onMove) {
+    let io = null;
+    let timeoutId;
+    const root2 = getDocumentElement2(element);
+    function cleanup() {
+      var _io;
+      clearTimeout(timeoutId);
+      (_io = io) == null || _io.disconnect();
+      io = null;
+    }
+    function refresh(skip, threshold) {
+      if (skip === void 0) {
+        skip = false;
+      }
+      if (threshold === void 0) {
+        threshold = 1;
+      }
+      cleanup();
+      const elementRectForRootMargin = element.getBoundingClientRect();
+      const {
+        left: left2,
+        top: top2,
+        width: width2,
+        height
+      } = elementRectForRootMargin;
+      if (!skip) {
+        onMove();
+      }
+      if (!width2 || !height) {
+        return;
+      }
+      const insetTop = floor(top2);
+      const insetRight = floor(root2.clientWidth - (left2 + width2));
+      const insetBottom = floor(root2.clientHeight - (top2 + height));
+      const insetLeft = floor(left2);
+      const rootMargin = -insetTop + "px " + -insetRight + "px " + -insetBottom + "px " + -insetLeft + "px";
+      const options2 = {
+        rootMargin,
+        threshold: max2(0, min2(1, threshold)) || 1
+      };
+      let isFirstUpdate = true;
+      function handleObserve(entries) {
+        const ratio = entries[0].intersectionRatio;
+        if (ratio !== threshold) {
+          if (!isFirstUpdate) {
+            return refresh();
+          }
+          if (!ratio) {
+            timeoutId = setTimeout(() => {
+              refresh(false, 1e-7);
+            }, 1e3);
+          } else {
+            refresh(false, ratio);
+          }
+        }
+        if (ratio === 1 && !rectsAreEqual(elementRectForRootMargin, element.getBoundingClientRect())) {
+          refresh();
+        }
+        isFirstUpdate = false;
+      }
+      try {
+        io = new IntersectionObserver(handleObserve, {
+          ...options2,
+          // Handle <iframe>s
+          root: root2.ownerDocument
+        });
+      } catch (_e) {
+        io = new IntersectionObserver(handleObserve, options2);
+      }
+      io.observe(element);
+    }
+    refresh(true);
+    return cleanup;
+  }
+  function autoUpdate(reference2, floating, update, options2) {
+    if (options2 === void 0) {
+      options2 = {};
+    }
+    const {
+      ancestorScroll = true,
+      ancestorResize = true,
+      elementResize = typeof ResizeObserver === "function",
+      layoutShift = typeof IntersectionObserver === "function",
+      animationFrame = false
+    } = options2;
+    const referenceEl = unwrapElement(reference2);
+    const ancestors = ancestorScroll || ancestorResize ? [...referenceEl ? getOverflowAncestors(referenceEl) : [], ...getOverflowAncestors(floating)] : [];
+    ancestors.forEach((ancestor) => {
+      ancestorScroll && ancestor.addEventListener("scroll", update, {
+        passive: true
+      });
+      ancestorResize && ancestor.addEventListener("resize", update);
+    });
+    const cleanupIo = referenceEl && layoutShift ? observeMove(referenceEl, update) : null;
+    let reobserveFrame = -1;
+    let resizeObserver = null;
+    if (elementResize) {
+      resizeObserver = new ResizeObserver((_ref2) => {
+        let [firstEntry] = _ref2;
+        if (firstEntry && firstEntry.target === referenceEl && resizeObserver) {
+          resizeObserver.unobserve(floating);
+          cancelAnimationFrame(reobserveFrame);
+          reobserveFrame = requestAnimationFrame(() => {
+            var _resizeObserver;
+            (_resizeObserver = resizeObserver) == null || _resizeObserver.observe(floating);
+          });
+        }
+        update();
+      });
+      if (referenceEl && !animationFrame) {
+        resizeObserver.observe(referenceEl);
+      }
+      resizeObserver.observe(floating);
+    }
+    let frameId;
+    let prevRefRect = animationFrame ? getBoundingClientRect2(reference2) : null;
+    if (animationFrame) {
+      frameLoop();
+    }
+    function frameLoop() {
+      const nextRefRect = getBoundingClientRect2(reference2);
+      if (prevRefRect && !rectsAreEqual(prevRefRect, nextRefRect)) {
+        update();
+      }
+      prevRefRect = nextRefRect;
+      frameId = requestAnimationFrame(frameLoop);
+    }
+    update();
+    return () => {
+      var _resizeObserver2;
+      ancestors.forEach((ancestor) => {
+        ancestorScroll && ancestor.removeEventListener("scroll", update);
+        ancestorResize && ancestor.removeEventListener("resize", update);
+      });
+      cleanupIo == null || cleanupIo();
+      (_resizeObserver2 = resizeObserver) == null || _resizeObserver2.disconnect();
+      resizeObserver = null;
+      if (animationFrame) {
+        cancelAnimationFrame(frameId);
+      }
+    };
+  }
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/menu.js
+  var import_react_dom3 = __toESM(require_react_dom());
+
+  // node_modules/use-isomorphic-layout-effect/dist/use-isomorphic-layout-effect.browser.esm.js
+  var import_react84 = __toESM(require_react());
+  var index = import_react84.useLayoutEffect;
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/menu.js
+  var _excluded11 = ["children", "innerProps", "xcss"];
+  var _excluded24 = ["children", "innerProps", "xcss"];
+  function ownKeys16(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread16(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys16(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys16(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  function getMenuPlacement(_ref2) {
+    var preferredMaxHeight = _ref2.maxHeight, menuEl = _ref2.menuEl, minHeight = _ref2.minHeight, preferredPlacement = _ref2.placement, shouldScroll = _ref2.shouldScroll, isFixedPosition = _ref2.isFixedPosition, controlHeight = _ref2.controlHeight;
+    var scrollParent = getScrollParent2(menuEl);
+    var defaultState = {
+      placement: "bottom",
+      maxHeight: preferredMaxHeight
+    };
+    if (!menuEl || !menuEl.offsetParent) {
+      return defaultState;
+    }
+    var _scrollParent$getBoun = scrollParent.getBoundingClientRect(), scrollHeight = _scrollParent$getBoun.height;
+    var _menuEl$getBoundingCl = menuEl.getBoundingClientRect(), menuBottom = _menuEl$getBoundingCl.bottom, menuHeight = _menuEl$getBoundingCl.height, menuTop = _menuEl$getBoundingCl.top;
+    var _menuEl$offsetParent$ = menuEl.offsetParent.getBoundingClientRect(), containerTop = _menuEl$offsetParent$.top;
+    var viewHeight = isFixedPosition ? window.innerHeight : normalizedHeight(scrollParent);
+    var scrollTop = getScrollTop(scrollParent);
+    var menuTopFromParent = menuTop;
+    var marginBottom = parseInt(getComputedStyle(menuEl).marginBottom, 10);
+    var marginTop = parseInt(getComputedStyle(menuEl).marginTop, 10);
+    var viewSpaceAbove = containerTop - marginTop;
+    var viewSpaceBelow = viewHeight - menuTopFromParent;
+    var scrollSpaceAbove = viewSpaceAbove + scrollTop;
+    var scrollSpaceBelow = scrollHeight - scrollTop - menuTopFromParent;
+    var scrollDown = menuBottom - viewHeight + scrollTop + marginBottom;
+    var scrollUp = scrollTop + menuTop - marginTop;
+    var scrollDuration = 160;
+    switch (preferredPlacement) {
+      case "auto":
+      case "bottom":
+        if (viewSpaceBelow >= menuHeight) {
+          return {
+            placement: "bottom",
+            maxHeight: preferredMaxHeight
+          };
+        }
+        if (scrollSpaceBelow >= menuHeight && !isFixedPosition) {
+          if (shouldScroll) {
+            animatedScrollTo(scrollParent, scrollDown, scrollDuration);
+          }
+          return {
+            placement: "bottom",
+            maxHeight: preferredMaxHeight
+          };
+        }
+        if (!isFixedPosition && scrollSpaceBelow >= minHeight || isFixedPosition && viewSpaceBelow >= minHeight) {
+          if (shouldScroll) {
+            animatedScrollTo(scrollParent, scrollDown, scrollDuration);
+          }
+          var constrainedHeight = isFixedPosition ? viewSpaceBelow - marginBottom : scrollSpaceBelow - marginBottom;
+          return {
+            placement: "bottom",
+            maxHeight: constrainedHeight
+          };
+        }
+        if (preferredPlacement === "auto" || isFixedPosition) {
+          var _constrainedHeight = preferredMaxHeight;
+          var spaceAbove = isFixedPosition ? viewSpaceAbove : scrollSpaceAbove;
+          if (spaceAbove >= minHeight) {
+            _constrainedHeight = Math.min(spaceAbove - marginBottom - controlHeight, preferredMaxHeight);
+          }
+          return {
+            placement: "top",
+            maxHeight: _constrainedHeight
+          };
+        }
+        if (preferredPlacement === "bottom") {
+          if (shouldScroll) {
+            scrollTo(scrollParent, scrollDown);
+          }
+          return {
+            placement: "bottom",
+            maxHeight: preferredMaxHeight
+          };
+        }
+        break;
+      case "top":
+        if (viewSpaceAbove >= menuHeight) {
+          return {
+            placement: "top",
+            maxHeight: preferredMaxHeight
+          };
+        }
+        if (scrollSpaceAbove >= menuHeight && !isFixedPosition) {
+          if (shouldScroll) {
+            animatedScrollTo(scrollParent, scrollUp, scrollDuration);
+          }
+          return {
+            placement: "top",
+            maxHeight: preferredMaxHeight
+          };
+        }
+        if (!isFixedPosition && scrollSpaceAbove >= minHeight || isFixedPosition && viewSpaceAbove >= minHeight) {
+          var _constrainedHeight2 = preferredMaxHeight;
+          if (!isFixedPosition && scrollSpaceAbove >= minHeight || isFixedPosition && viewSpaceAbove >= minHeight) {
+            _constrainedHeight2 = isFixedPosition ? viewSpaceAbove - marginTop : scrollSpaceAbove - marginTop;
+          }
+          if (shouldScroll) {
+            animatedScrollTo(scrollParent, scrollUp, scrollDuration);
+          }
+          return {
+            placement: "top",
+            maxHeight: _constrainedHeight2
+          };
+        }
+        return {
+          placement: "bottom",
+          maxHeight: preferredMaxHeight
+        };
+      default:
+        throw new Error('Invalid placement provided "'.concat(preferredPlacement, '".'));
+    }
+    return defaultState;
+  }
+  var coercePlacement = function coercePlacement2(p) {
+    return p === "auto" ? "bottom" : p;
+  };
+  var menuStyles = {
+    root: "_2rkoglpi _kqswstnw _1bsb1osq _1pbykb7n _otyru2gc _19pku2gc _bfhk1bhr _16qsd0yg",
+    bottom: "_154i1osq",
+    top: "_94n51osq"
+  };
+  var menuCSS = function menuCSS2() {
+    return {};
+  };
+  var PortalPlacementContext = /* @__PURE__ */ (0, import_react85.createContext)(null);
+  var MenuPlacer = function MenuPlacer2(props) {
+    var children = props.children, minMenuHeight = props.minMenuHeight, maxMenuHeight = props.maxMenuHeight, menuPlacement = props.menuPlacement, menuPosition = props.menuPosition, menuShouldScrollIntoView = props.menuShouldScrollIntoView;
+    var _ref2 = (0, import_react85.useContext)(PortalPlacementContext) || {}, setPortalPlacement = _ref2.setPortalPlacement;
+    var ref = (0, import_react85.useRef)(null);
+    var _useState = (0, import_react85.useState)(maxMenuHeight), _useState2 = _slicedToArray(_useState, 2), maxHeight = _useState2[0], setMaxHeight = _useState2[1];
+    var _useState3 = (0, import_react85.useState)(null), _useState4 = _slicedToArray(_useState3, 2), placement = _useState4[0], setPlacement = _useState4[1];
+    var controlHeight = 38;
+    index(function() {
+      var menuEl = ref.current;
+      if (!menuEl) {
+        return;
+      }
+      var isFixedPosition = menuPosition === "fixed";
+      var shouldScroll = menuShouldScrollIntoView && !isFixedPosition;
+      var state = getMenuPlacement({
+        maxHeight: maxMenuHeight,
+        menuEl,
+        minHeight: minMenuHeight,
+        placement: menuPlacement,
+        shouldScroll,
+        isFixedPosition,
+        controlHeight
+      });
+      setMaxHeight(state.maxHeight);
+      setPlacement(state.placement);
+      setPortalPlacement === null || setPortalPlacement === void 0 || setPortalPlacement(state.placement);
+    }, [maxMenuHeight, menuPlacement, menuPosition, menuShouldScrollIntoView, minMenuHeight, setPortalPlacement, controlHeight]);
+    return children({
+      ref,
+      placerProps: _objectSpread16(_objectSpread16({}, props), {}, {
+        placement: placement || coercePlacement(menuPlacement),
+        maxHeight
+      })
+    });
+  };
+  var Menu = function Menu2(props) {
+    var children = props.children, innerRef = props.innerRef, innerProps = props.innerProps, _props$placement = props.placement, placement = _props$placement === void 0 ? "bottom" : _props$placement, xcss = props.xcss;
+    var _getStyleProps = getStyleProps(props, "menu", {
+      menu: true
+    }), css6 = _getStyleProps.css, className = _getStyleProps.className;
+    return /* @__PURE__ */ React54.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+      className: ax([menuStyles.root, menuStyles[placement], cx(xcss, className, "-menu")]),
+      style: css6,
+      ref: innerRef
+    }, innerProps), children);
+  };
+  var menu_default = Menu;
+  var menuListCSS = function menuListCSS2() {
+    return {};
+  };
+  var MenuList = function MenuList2(props) {
+    var children = props.children, innerProps = props.innerProps, innerRef = props.innerRef, isMulti = props.isMulti, maxHeight = props.maxHeight, xcss = props.xcss;
+    var _getStyleProps2 = getStyleProps(props, "menuList", {
+      "menu-list": true,
+      "menu-list--is-multi": isMulti
+    }), css6 = _getStyleProps2.css, className = _getStyleProps2.className;
+    return /* @__PURE__ */ React54.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+      className: ax(["_kqswh2mm _18m91wug _85i5u2gc _1q51u2gc _8am5i4x0", cx(className, xcss, "-MenuList")]),
+      style: _objectSpread16(_objectSpread16({}, css6), {}, {
+        maxHeight
+      }),
+      ref: innerRef
+    }, innerProps, {
+      tabIndex: -1
+    }), children);
+  };
+  var noticeCSS = function noticeCSS2() {
+    return {};
+  };
+  var noOptionsMessageCSS = noticeCSS;
+  var loadingMessageCSS = noticeCSS;
+  var NoOptionsMessage = function NoOptionsMessage2(_ref3) {
+    var _ref3$children = _ref3.children, children = _ref3$children === void 0 ? "No options" : _ref3$children, innerProps = _ref3.innerProps, xcss = _ref3.xcss, restProps = _objectWithoutProperties(_ref3, _excluded11);
+    var _getStyleProps3 = getStyleProps(_objectSpread16(_objectSpread16({}, restProps), {}, {
+      children,
+      innerProps
+    }), "noOptionsMessage", {
+      "menu-notice": true,
+      "menu-notice--no-options": true
+    }), css6 = _getStyleProps3.css, className = _getStyleProps3.className;
+    return /* @__PURE__ */ React54.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+      className: ax(["_85i5u2gc _1q51u2gc _y4tiutpp _bozgutpp _y3gn1h6o", cx(className, xcss, "-NoOptionsMessage")]),
+      style: css6,
+      role: "option"
+    }, innerProps), /* @__PURE__ */ React54.createElement(text_default, {
+      color: "color.text.subtle"
+    }, children));
+  };
+  var LoadingMessage = function LoadingMessage2(_ref4) {
+    var _ref4$children = _ref4.children, children = _ref4$children === void 0 ? "Loading..." : _ref4$children, innerProps = _ref4.innerProps, xcss = _ref4.xcss, restProps = _objectWithoutProperties(_ref4, _excluded24);
+    var _getStyleProps4 = getStyleProps(_objectSpread16(_objectSpread16({}, restProps), {}, {
+      children,
+      innerProps
+    }), "loadingMessage", {
+      "menu-notice": true,
+      "menu-notice--loading": true
+    }), css6 = _getStyleProps4.css, className = _getStyleProps4.className;
+    return /* @__PURE__ */ React54.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+      className: ax(["_85i5u2gc _1q51u2gc _y4tiutpp _bozgutpp _y3gn1h6o", cx(className, xcss, "-LoadingMessage")]),
+      style: css6
+    }, innerProps, {
+      // eslint-disable-next-line jsx-a11y/role-has-required-aria-props
+      role: "option"
+    }), /* @__PURE__ */ React54.createElement(text_default, {
+      color: "color.text.subtle"
+    }, children));
+  };
+  var menuPortalCSS = function menuPortalCSS2() {
+    return {};
+  };
+  var menuPortalStyles = {
+    root: "_1pbykb7n _1ltva1vk _kqswcp1v _154i1nmo _1bsb1qxj"
+  };
+  var MenuPortal = function MenuPortal2(props) {
+    var appendTo = props.appendTo, children = props.children, controlElement = props.controlElement, innerProps = props.innerProps, menuPlacement = props.menuPlacement, menuPosition = props.menuPosition, xcss = props.xcss;
+    var menuPortalRef = (0, import_react85.useRef)(null);
+    var cleanupRef = (0, import_react85.useRef)(null);
+    var _useState5 = (0, import_react85.useState)(coercePlacement(menuPlacement)), _useState6 = _slicedToArray(_useState5, 2), placement = _useState6[0], setPortalPlacement = _useState6[1];
+    var portalPlacementContext = (0, import_react85.useMemo)(function() {
+      return {
+        setPortalPlacement
+      };
+    }, []);
+    var _useState7 = (0, import_react85.useState)(null), _useState8 = _slicedToArray(_useState7, 2), computedPosition = _useState8[0], setComputedPosition = _useState8[1];
+    var updateComputedPosition = (0, import_react85.useCallback)(function() {
+      if (!controlElement) {
+        return;
+      }
+      var rect = getBoundingClientObj(controlElement);
+      var scrollDistance = menuPosition === "fixed" ? 0 : window.pageYOffset;
+      var offset3 = rect[placement] + scrollDistance;
+      if (offset3 !== (computedPosition === null || computedPosition === void 0 ? void 0 : computedPosition.offset) || rect.left !== (computedPosition === null || computedPosition === void 0 ? void 0 : computedPosition.rect.left) || rect.width !== (computedPosition === null || computedPosition === void 0 ? void 0 : computedPosition.rect.width)) {
+        setComputedPosition({
+          offset: offset3,
+          rect
+        });
+      }
+    }, [controlElement, menuPosition, placement, computedPosition === null || computedPosition === void 0 ? void 0 : computedPosition.offset, computedPosition === null || computedPosition === void 0 ? void 0 : computedPosition.rect.left, computedPosition === null || computedPosition === void 0 ? void 0 : computedPosition.rect.width]);
+    index(function() {
+      updateComputedPosition();
+    }, [updateComputedPosition]);
+    var runAutoUpdate = (0, import_react85.useCallback)(function() {
+      if (typeof cleanupRef.current === "function") {
+        cleanupRef.current();
+        cleanupRef.current = null;
+      }
+      if (controlElement && menuPortalRef.current) {
+        cleanupRef.current = autoUpdate(controlElement, menuPortalRef.current, updateComputedPosition, {
+          elementResize: "ResizeObserver" in window
+        });
+      }
+    }, [controlElement, updateComputedPosition]);
+    index(function() {
+      runAutoUpdate();
+    }, [runAutoUpdate]);
+    var setMenuPortalElement = (0, import_react85.useCallback)(function(menuPortalElement) {
+      menuPortalRef.current = menuPortalElement;
+      runAutoUpdate();
+    }, [runAutoUpdate]);
+    if (!appendTo && menuPosition !== "fixed" || !computedPosition) {
+      return null;
+    }
+    var _getStyleProps5 = getStyleProps(_objectSpread16(_objectSpread16({}, props), {}, {
+      offset: computedPosition.offset,
+      position: menuPosition,
+      rect: computedPosition.rect
+    }), "menuPortal", {
+      "menu-portal": true
+    }), css6 = _getStyleProps5.css, className = _getStyleProps5.className;
+    var menuWrapper = /* @__PURE__ */ React54.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+      className: ax([menuPortalStyles.root, cx(className, xcss, "-MenuPortal")]),
+      ref: setMenuPortalElement,
+      style: _objectSpread16({
+        // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+        "--menu-left": "".concat(computedPosition.rect.left, "px"),
+        "--menu-position": menuPosition,
+        "--menu-top": "".concat(computedPosition.offset, "px"),
+        "--menu-width": "".concat(computedPosition.rect.width, "px")
+      }, css6)
+    }, innerProps), children);
+    return /* @__PURE__ */ React54.createElement(PortalPlacementContext.Provider, {
+      value: portalPlacementContext
+    }, appendTo ? /* @__PURE__ */ (0, import_react_dom3.createPortal)(menuWrapper, appendTo) : menuWrapper);
+  };
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/multi-value.js
+  init_defineProperty();
+  var React55 = __toESM(require_react());
+  var import_cross = __toESM(require_cross());
+  var import_select_clear = __toESM(require_select_clear());
+  var import_platform_feature_flags10 = __toESM(require_cjs3());
+  function ownKeys17(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread17(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys17(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys17(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  var multiValueStyles = {
+    root: "_2rkogqwt _1e0c1txw _1ul9ze3t _19pkv77o _2hwxv77o _otyrv77o _18u0v77o _bfhkm7j4 _p12f1osq _syazjpor _3yq3glyw",
+    disabled: "_syaz1lh4 _bfhkm7j4",
+    focused: "_syaz1wum _bfhkfg4m _16qs7ex6 _1aewe4h9 _6up51j28 _1xdnnqa1",
+    refresh: "_2rkoiti9 _1h6d14je _1dqonqa1 _189ee4h9 _bfhk1j9a"
+  };
+  var multiValueCSS = function multiValueCSS2() {
+    return {};
+  };
+  var multiValueLabelCSS = function multiValueLabelCSS2() {
+    return {};
+  };
+  var multiValueLabelStyles = {
+    root: "_1reo15vq _18m915vq _2rkogqwt _11c8dcr7 _o5721q9c _ca0qv77o _u5f3v77o _n3tdv77o _19bv12x7 _syaz1kw7",
+    disabled: "_syaz1lh4",
+    ellipsis: "_1bto1l2s",
+    refresh: "_11c82smr _ca0qidpf _n3tdidpf _19bv1b66"
+  };
+  var multiValueRemoveCSS = function multiValueRemoveCSS2() {
+    return {};
+  };
+  var multiValueRemoveStyles = {
+    focused: "_bfhkb1q9 _lswu1rrc",
+    root: "_2rkovtp2 _4cvr1h6o _1e0c1txw _lswu1dx5 _19bvv77o _u5f3v77o _irr31yvi _13br1jjn _1di61io2 _i5f81jjn",
+    refresh: "_19itglyw _2rkoglpi _bfhksm61 _4cvr1h6o _1bah1h6o _1wpz1h6o _r06hglyw _syaz1fxt _ca0qv77o _u5f3v77o _n3tdv77o _19bvv77o _2hwxv77o _1ah312gs _irr3166n _1di61dty"
+  };
+  var MultiValueContainer = function MultiValueContainer2(_ref2) {
+    var children = _ref2.children, innerProps = _ref2.innerProps, isFocused = _ref2.isFocused, isDisabled = _ref2.isDisabled, className = _ref2.className, xcss = _ref2.xcss;
+    return /* @__PURE__ */ React55.createElement("div", _extends({}, innerProps, {
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+      className: ax([multiValueStyles.root, isDisabled && multiValueStyles.disabled, isFocused && multiValueStyles.focused, (0, import_platform_feature_flags10.fg)("platform-component-visual-refresh") && multiValueStyles.refresh, cx(className, xcss, "-multiValue")])
+    }), children);
+  };
+  var MultiValueLabel = function MultiValueLabel2(_ref2) {
+    var children = _ref2.children, innerProps = _ref2.innerProps, isDisabled = _ref2.isDisabled, hasEllipsis = _ref2.hasEllipsis, className = _ref2.className, xcss = _ref2.xcss;
+    return /* @__PURE__ */ React55.createElement("div", _extends({}, innerProps, {
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+      className: ax([multiValueLabelStyles.root, isDisabled && multiValueLabelStyles.disabled, hasEllipsis && multiValueLabelStyles.ellipsis, (0, import_platform_feature_flags10.fg)("platform-component-visual-refresh") && multiValueLabelStyles.refresh, cx(className, xcss, "-MultiValueLabel")])
+    }), children);
+  };
+  function MultiValueRemove(_ref3) {
+    var isDisabled = _ref3.isDisabled, isFocused = _ref3.isFocused, innerProps = _ref3.innerProps, className = _ref3.className, xcss = _ref3.xcss;
+    return /* @__PURE__ */ React55.createElement("div", _extends({}, innerProps, {
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
+      className: ax([multiValueRemoveStyles.root, isFocused && multiValueRemoveStyles.focused, (0, import_platform_feature_flags10.fg)("platform-component-visual-refresh") && multiValueRemoveStyles.refresh, cx(className, xcss, "-MultiValueRemove")])
+    }), /* @__PURE__ */ React55.createElement("div", {
+      "data-testid": isDisabled ? "hide-clear-icon" : "show-clear-icon",
+      className: ax([isDisabled && "_1e0cglyw", !isDisabled && "_1e0c1kw7"])
+    }, /* @__PURE__ */ React55.createElement(import_cross.default, {
+      label: "",
+      color: "currentColor",
+      LEGACY_fallbackIcon: import_select_clear.default,
+      LEGACY_primaryColor: "transparent",
+      LEGACY_secondaryColor: "inherit",
+      LEGACY_size: "small",
+      size: "small"
+    })));
+  }
+  var MultiValue = function MultiValue2(props) {
+    var children = props.children, components2 = props.components, data = props.data, innerProps = props.innerProps, isDisabled = props.isDisabled, isFocused = props.isFocused, removeProps3 = props.removeProps, selectProps = props.selectProps, cropWithEllipsis = props.cropWithEllipsis;
+    var Container = components2.Container, Label = components2.Label, Remove = components2.Remove;
+    var ariaLabel = typeof children === "string" ? children : data.label;
+    var _getStyleProps = getStyleProps(props, "multiValue", {
+      "multi-value": true,
+      "multi-value--is-disabled": isDisabled
+    }), containerCss = _getStyleProps.css, containerClassName = _getStyleProps.className;
+    var _getStyleProps2 = getStyleProps(props, "multiValueLabel", {
+      "multi-value__label": true
+    }), labelCss = _getStyleProps2.css, labelClassName = _getStyleProps2.className;
+    var _getStyleProps3 = getStyleProps(props, "multiValueRemove", {
+      "multi-value__remove": true
+    }), removeCss = _getStyleProps3.css, removeClassName = _getStyleProps3.className;
+    return /* @__PURE__ */ React55.createElement(Container, {
+      data,
+      innerProps: _objectSpread17({
+        style: containerCss,
+        className: containerClassName
+      }, innerProps),
+      className: containerClassName,
+      isFocused,
+      isDisabled,
+      selectProps
+    }, /* @__PURE__ */ React55.createElement(Label, {
+      data,
+      innerProps: {
+        style: labelCss,
+        className: labelClassName
+      },
+      className: labelClassName,
+      hasEllipsis: cropWithEllipsis || cropWithEllipsis === void 0,
+      selectProps
+    }, children), /* @__PURE__ */ React55.createElement(Remove, {
+      data,
+      innerProps: _objectSpread17({
+        style: removeCss,
+        className: removeClassName,
+        role: "button",
+        tabIndex: -1,
+        "aria-label": "".concat(ariaLabel || "option", ", remove")
+      }, removeProps3),
+      className: removeClassName,
+      isDisabled,
+      selectProps
+    }));
+  };
+  var multi_value_default = MultiValue;
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/option.js
+  var React56 = __toESM(require_react());
+  var optionCSS = function optionCSS2() {
+    return {};
+  };
+  var optionStyles = {
+    root: "_1rjc12x7 _18zrutpp _syaz1fxt _80om73ad _1e0c1ule _1wyb1kw7 _1bsb1osq _uiztglyw _18ql1j7p _1di61dty",
+    disabled: "_syaz1lh4 _80om13gf _bfhk1j28 _16qsglyw _1di61j28 _1pknglyw",
+    focused: "_bfhk166n _16qsu4to _1pkn1vrj",
+    selected: "_syazaqb7 _bfhkfg4m _16qsu4to _1di619ru _1pkn1vrj",
+    focusedSelected: "_bfhki1yw"
+  };
+  var Option = function Option2(props) {
+    var children = props.children, isDisabled = props.isDisabled, isFocused = props.isFocused, isSelected = props.isSelected, innerRef = props.innerRef, innerProps = props.innerProps, xcss = props.xcss;
+    var _getStyleProps = getStyleProps(props, "option", {
+      option: true,
+      "option--is-disabled": isDisabled,
+      "option--is-focused": isFocused,
+      "option--is-selected": isSelected
+    }), css6 = _getStyleProps.css, className = _getStyleProps.className;
+    return /* @__PURE__ */ React56.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+      style: css6,
+      className: ax([optionStyles.root, isFocused && optionStyles.focused, isSelected && optionStyles.selected, isFocused && isSelected && optionStyles.focusedSelected, isDisabled && optionStyles.disabled, cx(className, xcss, "-option")]),
+      ref: innerRef
+    }, innerProps, {
+      tabIndex: -1
+    }), children);
+  };
+  var option_default = Option;
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/placeholder.js
+  var React57 = __toESM(require_react());
+  var placeholderCSS = function placeholderCSS2() {
+    return {};
+  };
+  var placeholderStyles = {
+    root: "_nd5l1sux _19pkidpf _2hwxv77o _otyridpf _18u0v77o _syaz131l",
+    disabled: "_syaz1lh4"
+  };
+  var Placeholder = function Placeholder2(props) {
+    var children = props.children, innerProps = props.innerProps, isDisabled = props.isDisabled, xcss = props.xcss;
+    var _getStyleProps = getStyleProps(props, "placeholder", {
+      placeholder: true
+    }), css6 = _getStyleProps.css, className = _getStyleProps.className;
+    return /* @__PURE__ */ React57.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+      style: css6,
+      className: ax([placeholderStyles.root, isDisabled && placeholderStyles.disabled, cx(className, xcss, "-placeholder")])
+    }, innerProps), children);
+  };
+  var placeholder_default = Placeholder;
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/single-value.js
+  var React58 = __toESM(require_react());
+  var css4 = function css5() {
+    return {};
+  };
+  var styles8 = {
+    root: "_nd5l1sux _1reo15vq _18m915vq _p12f1osq _1bto1l2s _o5721q9c _19pkidpf _2hwxv77o _otyridpf _18u0v77o _syaz1fxt",
+    disalbed: "_syaz1lh4"
+  };
+  var SingleValue = function SingleValue2(props) {
+    var children = props.children, isDisabled = props.isDisabled, innerProps = props.innerProps, xcss = props.xcss;
+    var _getStyleProps = getStyleProps(props, "singleValue", {
+      "single-value": true,
+      "single-value--is-disabled": isDisabled
+    }), css6 = _getStyleProps.css, className = _getStyleProps.className;
+    return /* @__PURE__ */ React58.createElement("div", _extends({
+      // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+      style: css6,
+      className: ax([styles8.root, isDisabled && styles8.disalbed, cx(className, xcss, "-singleValue")])
+    }, innerProps), children);
+  };
+  var single_value_default = SingleValue;
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/index.js
+  function ownKeys18(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread18(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys18(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys18(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  var components = {
+    ClearIndicator,
+    Control: control_default,
+    DropdownIndicator,
+    Group: group_default,
+    GroupHeading,
+    IndicatorsContainer,
+    Input: input_default,
+    LoadingIndicator,
+    Menu: menu_default,
+    MenuList,
+    MenuPortal,
+    LoadingMessage,
+    NoOptionsMessage,
+    MultiValue: multi_value_default,
+    MultiValueContainer,
+    MultiValueLabel,
+    MultiValueRemove,
+    Option: option_default,
+    Placeholder: placeholder_default,
+    SelectContainer,
+    SingleValue: single_value_default,
+    ValueContainer
+  };
+  var defaultComponents = function defaultComponents2(props) {
+    return _objectSpread18(_objectSpread18({}, components), props.components);
+  };
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/internal/a11y-text.js
+  var React59 = __toESM(require_react());
+  var A11yText = function A11yText2(props) {
+    return /* @__PURE__ */ React59.createElement("span", _extends({
+      // eslint-disable-next-line  @atlaskit/ui-styling-standard/no-classname-prop
+      className: ax(["_ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _19itidpf _1reo15vq _18m915vq _1bsbt94y _4t3it94y _kqswstnw _1pbydx66 _ogto7mnp _uiztglyw _o5721q9c", "-a11yText"])
+      // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
+    }, props));
+  };
+  var a11y_text_default = A11yText;
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/internal/dummy-input.js
+  var React60 = __toESM(require_react());
+  var _excluded12 = ["innerRef"];
+  function DummyInput(_ref2) {
+    var innerRef = _ref2.innerRef, props = _objectWithoutProperties(_ref2, _excluded12);
+    var filteredProps = removeProps(props, "onExited", "in", "enter", "exit", "appear");
+    return /* @__PURE__ */ React60.createElement("input", _extends({
+      ref: innerRef,
+      className: ax(["_ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _11q7idpf _19itidpf _nd5l1sux _12ji1r31 _1qu2glyw _12y3idpf _1bsbt94y _kqswh2mm _1n5d1j28 _syaz1j28 _1e02p1rm _tzy4idpf _t9ec1kuz", "-dummyInput"])
+    }, filteredProps));
+  }
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/internal/scroll-manager.js
+  var import_react93 = __toESM(require_react());
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/internal/use-scroll-capture.js
+  var import_react91 = __toESM(require_react());
+  var cancelScroll = function cancelScroll2(event) {
+    if (event.cancelable) {
+      event.preventDefault();
+    }
+    event.stopPropagation();
+  };
+  function useScrollCapture(_ref2) {
+    var isEnabled = _ref2.isEnabled, onBottomArrive = _ref2.onBottomArrive, onBottomLeave = _ref2.onBottomLeave, onTopArrive = _ref2.onTopArrive, onTopLeave = _ref2.onTopLeave;
+    var isBottom = (0, import_react91.useRef)(false);
+    var isTop = (0, import_react91.useRef)(false);
+    var touchStart = (0, import_react91.useRef)(0);
+    var scrollTarget = (0, import_react91.useRef)(null);
+    var handleEventDelta = (0, import_react91.useCallback)(function(event, delta) {
+      if (scrollTarget.current === null) {
+        return;
+      }
+      var _scrollTarget$current = scrollTarget.current, scrollTop = _scrollTarget$current.scrollTop, scrollHeight = _scrollTarget$current.scrollHeight, clientHeight = _scrollTarget$current.clientHeight;
+      var target = scrollTarget.current;
+      var isDeltaPositive = delta > 0;
+      var availableScroll = scrollHeight - clientHeight - scrollTop;
+      var shouldCancelScroll = false;
+      if (availableScroll > delta && isBottom.current) {
+        if (onBottomLeave) {
+          onBottomLeave(event);
+        }
+        isBottom.current = false;
+      }
+      if (isDeltaPositive && isTop.current) {
+        if (onTopLeave) {
+          onTopLeave(event);
+        }
+        isTop.current = false;
+      }
+      if (isDeltaPositive && delta > availableScroll) {
+        if (onBottomArrive && !isBottom.current) {
+          onBottomArrive(event);
+        }
+        target.scrollTop = scrollHeight;
+        shouldCancelScroll = true;
+        isBottom.current = true;
+      } else if (!isDeltaPositive && -delta > scrollTop) {
+        if (onTopArrive && !isTop.current) {
+          onTopArrive(event);
+        }
+        target.scrollTop = 0;
+        shouldCancelScroll = true;
+        isTop.current = true;
+      }
+      if (shouldCancelScroll) {
+        cancelScroll(event);
+      }
+    }, [onBottomArrive, onBottomLeave, onTopArrive, onTopLeave]);
+    var onWheel = (0, import_react91.useCallback)(function(event) {
+      handleEventDelta(event, event.deltaY);
+    }, [handleEventDelta]);
+    var onTouchStart = (0, import_react91.useCallback)(function(event) {
+      touchStart.current = event.changedTouches[0].clientY;
+    }, []);
+    var onTouchMove = (0, import_react91.useCallback)(function(event) {
+      var deltaY = touchStart.current - event.changedTouches[0].clientY;
+      handleEventDelta(event, deltaY);
+    }, [handleEventDelta]);
+    var startListening = (0, import_react91.useCallback)(function(el) {
+      if (!el) {
+        return;
+      }
+      var notPassive = supportsPassiveEvents ? {
+        passive: false
+      } : false;
+      el.addEventListener("wheel", onWheel, notPassive);
+      el.addEventListener("touchstart", onTouchStart, notPassive);
+      el.addEventListener("touchmove", onTouchMove, notPassive);
+    }, [onTouchMove, onTouchStart, onWheel]);
+    var stopListening = (0, import_react91.useCallback)(function(el) {
+      if (!el) {
+        return;
+      }
+      el.removeEventListener("wheel", onWheel, false);
+      el.removeEventListener("touchstart", onTouchStart, false);
+      el.removeEventListener("touchmove", onTouchMove, false);
+    }, [onTouchMove, onTouchStart, onWheel]);
+    (0, import_react91.useEffect)(function() {
+      if (!isEnabled) {
+        return;
+      }
+      var element = scrollTarget.current;
+      startListening(element);
+      return function() {
+        stopListening(element);
+      };
+    }, [isEnabled, startListening, stopListening]);
+    return function(element) {
+      scrollTarget.current = element;
+    };
+  }
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/internal/use-scroll-lock.js
+  var import_react92 = __toESM(require_react());
+  var STYLE_KEYS = ["boxSizing", "height", "overflow", "paddingRight", "position"];
+  var LOCK_STYLES = {
+    boxSizing: "border-box",
+    // account for possible declaration `width: 100%;` on body
+    overflow: "hidden",
+    position: "relative",
+    height: "100%"
+  };
+  function preventTouchMove(e) {
+    e.preventDefault();
+  }
+  function allowTouchMove(e) {
+    e.stopPropagation();
+  }
+  function preventInertiaScroll() {
+    var top2 = this.scrollTop;
+    var totalScroll = this.scrollHeight;
+    var currentScroll = top2 + this.offsetHeight;
+    if (top2 === 0) {
+      this.scrollTop = 1;
+    } else if (currentScroll === totalScroll) {
+      this.scrollTop = top2 - 1;
+    }
+  }
+  function isTouchDevice() {
+    return "ontouchstart" in window || navigator.maxTouchPoints;
+  }
+  var canUseDOM = !!(typeof window !== "undefined" && window.document && window.document.createElement);
+  var activeScrollLocks = 0;
+  var listenerOptions = {
+    capture: false,
+    passive: false
+  };
+  function useScrollLock(_ref2) {
+    var isEnabled = _ref2.isEnabled, _ref$accountForScroll = _ref2.accountForScrollbars, accountForScrollbars = _ref$accountForScroll === void 0 ? true : _ref$accountForScroll;
+    var originalStyles = (0, import_react92.useRef)({});
+    var scrollTarget = (0, import_react92.useRef)(null);
+    var addScrollLock = (0, import_react92.useCallback)(function(touchScrollTarget) {
+      if (!canUseDOM) {
+        return;
+      }
+      var target = document.body;
+      var targetStyle = target && target.style;
+      if (accountForScrollbars) {
+        STYLE_KEYS.forEach(function(key) {
+          var val = targetStyle && targetStyle[key];
+          originalStyles.current[key] = val;
+        });
+      }
+      if (accountForScrollbars && activeScrollLocks < 1) {
+        var currentPadding = parseInt(originalStyles.current.paddingRight, 10) || 0;
+        var clientWidth = document.body ? document.body.clientWidth : 0;
+        var adjustedPadding = window.innerWidth - clientWidth + currentPadding || 0;
+        Object.keys(LOCK_STYLES).forEach(function(key) {
+          var val = LOCK_STYLES[key];
+          if (targetStyle) {
+            targetStyle[key] = val;
+          }
+        });
+        if (targetStyle) {
+          targetStyle.paddingRight = "".concat(adjustedPadding, "px");
+        }
+      }
+      if (target && isTouchDevice()) {
+        target.addEventListener("touchmove", preventTouchMove, listenerOptions);
+        if (touchScrollTarget) {
+          touchScrollTarget.addEventListener("touchstart", preventInertiaScroll, listenerOptions);
+          touchScrollTarget.addEventListener("touchmove", allowTouchMove, listenerOptions);
+        }
+      }
+      activeScrollLocks += 1;
+    }, [accountForScrollbars]);
+    var removeScrollLock = (0, import_react92.useCallback)(function(touchScrollTarget) {
+      if (!canUseDOM) {
+        return;
+      }
+      var target = document.body;
+      var targetStyle = target && target.style;
+      activeScrollLocks = Math.max(activeScrollLocks - 1, 0);
+      if (accountForScrollbars && activeScrollLocks < 1) {
+        STYLE_KEYS.forEach(function(key) {
+          var val = originalStyles.current[key];
+          if (targetStyle) {
+            targetStyle[key] = val;
+          }
+        });
+      }
+      if (target && isTouchDevice()) {
+        target.removeEventListener("touchmove", preventTouchMove, listenerOptions);
+        if (touchScrollTarget) {
+          touchScrollTarget.removeEventListener("touchstart", preventInertiaScroll, listenerOptions);
+          touchScrollTarget.removeEventListener("touchmove", allowTouchMove, listenerOptions);
+        }
+      }
+    }, [accountForScrollbars]);
+    (0, import_react92.useEffect)(function() {
+      if (!isEnabled) {
+        return;
+      }
+      var element = scrollTarget.current;
+      addScrollLock(element);
+      return function() {
+        removeScrollLock(element);
+      };
+    }, [isEnabled, addScrollLock, removeScrollLock]);
+    return function(element) {
+      scrollTarget.current = element;
+    };
+  }
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/internal/scroll-manager.js
+  var blurSelectInput = function blurSelectInput2(event) {
+    var element = event.target;
+    return element.ownerDocument.activeElement && element.ownerDocument.activeElement.blur();
+  };
+  function ScrollManager(_ref2) {
+    var children = _ref2.children, lockEnabled = _ref2.lockEnabled, _ref$captureEnabled = _ref2.captureEnabled, captureEnabled = _ref$captureEnabled === void 0 ? true : _ref$captureEnabled, onBottomArrive = _ref2.onBottomArrive, onBottomLeave = _ref2.onBottomLeave, onTopArrive = _ref2.onTopArrive, onTopLeave = _ref2.onTopLeave;
+    var setScrollCaptureTarget = useScrollCapture({
+      isEnabled: captureEnabled,
+      onBottomArrive,
+      onBottomLeave,
+      onTopArrive,
+      onTopLeave
+    });
+    var setScrollLockTarget = useScrollLock({
+      isEnabled: lockEnabled
+    });
+    var targetRef = function targetRef2(element) {
+      setScrollCaptureTarget(element);
+      setScrollLockTarget(element);
+    };
+    return /* @__PURE__ */ import_react93.default.createElement(import_react93.Fragment, null, lockEnabled && // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, @atlassian/a11y/interactive-element-not-keyboard-focusable
+    /* @__PURE__ */ import_react93.default.createElement("div", {
+      onClick: blurSelectInput,
+      style: {
+        // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+        position: "fixed",
+        // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+        insetBlockEnd: 0,
+        // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+        insetBlockStart: 0,
+        // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+        insetInlineEnd: 0,
+        // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
+        insetInlineStart: 0
+      }
+    }), children(targetRef));
+  }
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/internal/required-input.js
+  var React62 = __toESM(require_react());
+  var RequiredInput = function RequiredInput2(_ref2) {
+    var name = _ref2.name, onFocus3 = _ref2.onFocus;
+    return /* @__PURE__ */ React62.createElement("input", {
+      required: true,
+      name,
+      tabIndex: -1,
+      "aria-hidden": "true",
+      className: ax(["_1bsb1osq _kqswstnw _u7coidpf _rjxpidpf _1e02idpf _tzy4idpf _lcxvglyw", "-requiredInput"]),
+      onFocus: onFocus3,
+      // Prevent `Switching from uncontrolled to controlled` error
+      value: "",
+      onChange: noop3
+    });
+  };
+  var required_input_default = RequiredInput;
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/internal/notify-open-layer-observer.js
+  function NotifyOpenLayerObserver(_ref2) {
+    var isOpen = _ref2.isOpen, onClose = _ref2.onClose;
+    useNotifyOpenLayerObserver({
+      isOpen,
+      onClose
+    });
+    return null;
+  }
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/live-region.js
+  init_defineProperty();
+  var import_react94 = __toESM(require_react());
+
+  // node_modules/@atlaskit/react-select/dist/esm/accessibility/index.js
+  var defaultAriaLiveMessages = {
+    onChange: function onChange(props) {
+      var action = props.action, _props$label = props.label, label = _props$label === void 0 ? "" : _props$label, isDisabled = props.isDisabled;
+      switch (action) {
+        case "deselect-option":
+        case "pop-value":
+        case "remove-value":
+          return label.length ? "option ".concat(label, ", deselected") : "";
+        case "clear":
+          return "All selected options have been cleared.";
+        case "select-option":
+          return label.length && !isDisabled ? "option ".concat(label, ", selected.") : "";
+        default:
+          return "";
+      }
+    },
+    onFilter: function onFilter(props) {
+      var inputValue = props.inputValue, resultsMessage = props.resultsMessage;
+      return inputValue ? "".concat(resultsMessage, " for search term ").concat(inputValue, ".") : "";
+    }
+  };
+
+  // node_modules/@atlaskit/react-select/dist/esm/components/live-region.js
+  function ownKeys19(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread19(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys19(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys19(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  var LiveRegion = function LiveRegion2(props) {
+    var ariaSelection = props.ariaSelection, focusableOptions = props.focusableOptions, isFocused = props.isFocused, selectValue = props.selectValue, selectProps = props.selectProps, id = props.id;
+    var ariaLiveMessages = selectProps.ariaLiveMessages, getOptionLabel5 = selectProps.getOptionLabel, inputValue = selectProps.inputValue, isOptionDisabled3 = selectProps.isOptionDisabled, menuIsOpen = selectProps.menuIsOpen, options2 = selectProps.options, screenReaderStatus2 = selectProps.screenReaderStatus, isLoading = selectProps.isLoading;
+    var ariaLive = selectProps["aria-live"];
+    var messages = (0, import_react94.useMemo)(function() {
+      return _objectSpread19(_objectSpread19({}, defaultAriaLiveMessages), ariaLiveMessages || {});
+    }, [ariaLiveMessages]);
+    var ariaSelected = (0, import_react94.useMemo)(function() {
+      var message2 = "";
+      if (menuIsOpen) {
+        return "";
+      }
+      if (ariaSelection && messages.onChange) {
+        var option = ariaSelection.option, selectedOptions = ariaSelection.options, removedValue = ariaSelection.removedValue, removedValues = ariaSelection.removedValues, value = ariaSelection.value;
+        var asOption = function asOption2(val) {
+          return !Array.isArray(val) ? val : null;
+        };
+        var selected = removedValue || option || asOption(value);
+        var label = selected ? getOptionLabel5(selected) : "";
+        var multiSelected = selectedOptions || removedValues || void 0;
+        var labels = multiSelected ? multiSelected.map(getOptionLabel5) : [];
+        if (!label && !labels.length) {
+          return "";
+        }
+        var onChangeProps = _objectSpread19({
+          // multiSelected items are usually items that have already been selected
+          // or set by the user as a default value so we assume they are not disabled
+          isDisabled: selected && isOptionDisabled3(selected, selectValue),
+          label,
+          labels
+        }, ariaSelection);
+        message2 = messages.onChange(onChangeProps);
+      }
+      return message2;
+    }, [ariaSelection, messages, isOptionDisabled3, selectValue, getOptionLabel5, menuIsOpen]);
+    var ariaResults = (0, import_react94.useMemo)(function() {
+      var resultsMsg = "";
+      if (isLoading) {
+        resultsMsg = "Loading. ";
+      }
+      if (menuIsOpen && options2.length && !isLoading && messages.onFilter) {
+        var resultsMessage = screenReaderStatus2({
+          count: focusableOptions.length
+        });
+        resultsMsg = messages.onFilter({
+          inputValue,
+          resultsMessage
+        });
+      }
+      if (options2 && options2.length === 0) {
+        resultsMsg = "No options. ";
+      }
+      return resultsMsg;
+    }, [focusableOptions, inputValue, menuIsOpen, messages, options2, screenReaderStatus2, isLoading]);
+    var isInitialFocus = (ariaSelection === null || ariaSelection === void 0 ? void 0 : ariaSelection.action) === "initial-input-focus";
+    var ScreenReaderText = /* @__PURE__ */ import_react94.default.createElement(import_react94.Fragment, null, /* @__PURE__ */ import_react94.default.createElement("span", {
+      id: "aria-selection"
+    }, ariaSelected), /* @__PURE__ */ import_react94.default.createElement("span", {
+      id: "aria-results"
+    }, ariaResults));
+    return /* @__PURE__ */ import_react94.default.createElement(import_react94.Fragment, null, /* @__PURE__ */ import_react94.default.createElement(a11y_text_default, {
+      id
+    }, isInitialFocus && ScreenReaderText), /* @__PURE__ */ import_react94.default.createElement(a11y_text_default, {
+      "aria-live": ariaLive,
+      role: "status"
+    }, isFocused && !isInitialFocus && ScreenReaderText));
+  };
+  var live_region_default = LiveRegion;
+
+  // node_modules/@atlaskit/react-select/dist/esm/filters.js
+  init_defineProperty();
+
+  // node_modules/memoize-one/dist/memoize-one.esm.js
+  var safeIsNaN = Number.isNaN || function ponyfill(value) {
+    return typeof value === "number" && value !== value;
+  };
+  function isEqual2(first, second) {
+    if (first === second) {
+      return true;
+    }
+    if (safeIsNaN(first) && safeIsNaN(second)) {
+      return true;
+    }
+    return false;
+  }
+  function areInputsEqual2(newInputs, lastInputs) {
+    if (newInputs.length !== lastInputs.length) {
+      return false;
+    }
+    for (var i = 0; i < newInputs.length; i++) {
+      if (!isEqual2(newInputs[i], lastInputs[i])) {
+        return false;
+      }
+    }
+    return true;
+  }
+  function memoizeOne(resultFn, isEqual3) {
+    if (isEqual3 === void 0) {
+      isEqual3 = areInputsEqual2;
+    }
+    var cache = null;
+    function memoized() {
+      var newArgs = [];
+      for (var _i = 0; _i < arguments.length; _i++) {
+        newArgs[_i] = arguments[_i];
+      }
+      if (cache && cache.lastThis === this && isEqual3(newArgs, cache.lastArgs)) {
+        return cache.lastResult;
+      }
+      var lastResult = resultFn.apply(this, newArgs);
+      cache = {
+        lastResult,
+        lastArgs: newArgs,
+        lastThis: this
+      };
+      return lastResult;
+    }
+    memoized.clear = function clear() {
+      cache = null;
+    };
+    return memoized;
+  }
+
+  // node_modules/@atlaskit/react-select/dist/esm/diacritics.js
+  var diacritics = [{
+    base: "A",
+    letters: "A\u24B6\uFF21\xC0\xC1\xC2\u1EA6\u1EA4\u1EAA\u1EA8\xC3\u0100\u0102\u1EB0\u1EAE\u1EB4\u1EB2\u0226\u01E0\xC4\u01DE\u1EA2\xC5\u01FA\u01CD\u0200\u0202\u1EA0\u1EAC\u1EB6\u1E00\u0104\u023A\u2C6F"
+  }, {
+    base: "AA",
+    letters: "\uA732"
+  }, {
+    base: "AE",
+    letters: "\xC6\u01FC\u01E2"
+  }, {
+    base: "AO",
+    letters: "\uA734"
+  }, {
+    base: "AU",
+    letters: "\uA736"
+  }, {
+    base: "AV",
+    letters: "\uA738\uA73A"
+  }, {
+    base: "AY",
+    letters: "\uA73C"
+  }, {
+    base: "B",
+    letters: "B\u24B7\uFF22\u1E02\u1E04\u1E06\u0243\u0182\u0181"
+  }, {
+    base: "C",
+    letters: "C\u24B8\uFF23\u0106\u0108\u010A\u010C\xC7\u1E08\u0187\u023B\uA73E"
+  }, {
+    base: "D",
+    letters: "D\u24B9\uFF24\u1E0A\u010E\u1E0C\u1E10\u1E12\u1E0E\u0110\u018B\u018A\u0189\uA779"
+  }, {
+    base: "DZ",
+    letters: "\u01F1\u01C4"
+  }, {
+    base: "Dz",
+    letters: "\u01F2\u01C5"
+  }, {
+    base: "E",
+    letters: "E\u24BA\uFF25\xC8\xC9\xCA\u1EC0\u1EBE\u1EC4\u1EC2\u1EBC\u0112\u1E14\u1E16\u0114\u0116\xCB\u1EBA\u011A\u0204\u0206\u1EB8\u1EC6\u0228\u1E1C\u0118\u1E18\u1E1A\u0190\u018E"
+  }, {
+    base: "F",
+    letters: "F\u24BB\uFF26\u1E1E\u0191\uA77B"
+  }, {
+    base: "G",
+    letters: "G\u24BC\uFF27\u01F4\u011C\u1E20\u011E\u0120\u01E6\u0122\u01E4\u0193\uA7A0\uA77D\uA77E"
+  }, {
+    base: "H",
+    letters: "H\u24BD\uFF28\u0124\u1E22\u1E26\u021E\u1E24\u1E28\u1E2A\u0126\u2C67\u2C75\uA78D"
+  }, {
+    base: "I",
+    letters: "I\u24BE\uFF29\xCC\xCD\xCE\u0128\u012A\u012C\u0130\xCF\u1E2E\u1EC8\u01CF\u0208\u020A\u1ECA\u012E\u1E2C\u0197"
+  }, {
+    base: "J",
+    letters: "J\u24BF\uFF2A\u0134\u0248"
+  }, {
+    base: "K",
+    letters: "K\u24C0\uFF2B\u1E30\u01E8\u1E32\u0136\u1E34\u0198\u2C69\uA740\uA742\uA744\uA7A2"
+  }, {
+    base: "L",
+    letters: "L\u24C1\uFF2C\u013F\u0139\u013D\u1E36\u1E38\u013B\u1E3C\u1E3A\u0141\u023D\u2C62\u2C60\uA748\uA746\uA780"
+  }, {
+    base: "LJ",
+    letters: "\u01C7"
+  }, {
+    base: "Lj",
+    letters: "\u01C8"
+  }, {
+    base: "M",
+    letters: "M\u24C2\uFF2D\u1E3E\u1E40\u1E42\u2C6E\u019C"
+  }, {
+    base: "N",
+    letters: "N\u24C3\uFF2E\u01F8\u0143\xD1\u1E44\u0147\u1E46\u0145\u1E4A\u1E48\u0220\u019D\uA790\uA7A4"
+  }, {
+    base: "NJ",
+    letters: "\u01CA"
+  }, {
+    base: "Nj",
+    letters: "\u01CB"
+  }, {
+    base: "O",
+    letters: "O\u24C4\uFF2F\xD2\xD3\xD4\u1ED2\u1ED0\u1ED6\u1ED4\xD5\u1E4C\u022C\u1E4E\u014C\u1E50\u1E52\u014E\u022E\u0230\xD6\u022A\u1ECE\u0150\u01D1\u020C\u020E\u01A0\u1EDC\u1EDA\u1EE0\u1EDE\u1EE2\u1ECC\u1ED8\u01EA\u01EC\xD8\u01FE\u0186\u019F\uA74A\uA74C"
+  }, {
+    base: "OI",
+    letters: "\u01A2"
+  }, {
+    base: "OO",
+    letters: "\uA74E"
+  }, {
+    base: "OU",
+    letters: "\u0222"
+  }, {
+    base: "P",
+    letters: "P\u24C5\uFF30\u1E54\u1E56\u01A4\u2C63\uA750\uA752\uA754"
+  }, {
+    base: "Q",
+    letters: "Q\u24C6\uFF31\uA756\uA758\u024A"
+  }, {
+    base: "R",
+    letters: "R\u24C7\uFF32\u0154\u1E58\u0158\u0210\u0212\u1E5A\u1E5C\u0156\u1E5E\u024C\u2C64\uA75A\uA7A6\uA782"
+  }, {
+    base: "S",
+    letters: "S\u24C8\uFF33\u1E9E\u015A\u1E64\u015C\u1E60\u0160\u1E66\u1E62\u1E68\u0218\u015E\u2C7E\uA7A8\uA784"
+  }, {
+    base: "T",
+    letters: "T\u24C9\uFF34\u1E6A\u0164\u1E6C\u021A\u0162\u1E70\u1E6E\u0166\u01AC\u01AE\u023E\uA786"
+  }, {
+    base: "TZ",
+    letters: "\uA728"
+  }, {
+    base: "U",
+    letters: "U\u24CA\uFF35\xD9\xDA\xDB\u0168\u1E78\u016A\u1E7A\u016C\xDC\u01DB\u01D7\u01D5\u01D9\u1EE6\u016E\u0170\u01D3\u0214\u0216\u01AF\u1EEA\u1EE8\u1EEE\u1EEC\u1EF0\u1EE4\u1E72\u0172\u1E76\u1E74\u0244"
+  }, {
+    base: "V",
+    letters: "V\u24CB\uFF36\u1E7C\u1E7E\u01B2\uA75E\u0245"
+  }, {
+    base: "VY",
+    letters: "\uA760"
+  }, {
+    base: "W",
+    letters: "W\u24CC\uFF37\u1E80\u1E82\u0174\u1E86\u1E84\u1E88\u2C72"
+  }, {
+    base: "X",
+    letters: "X\u24CD\uFF38\u1E8A\u1E8C"
+  }, {
+    base: "Y",
+    letters: "Y\u24CE\uFF39\u1EF2\xDD\u0176\u1EF8\u0232\u1E8E\u0178\u1EF6\u1EF4\u01B3\u024E\u1EFE"
+  }, {
+    base: "Z",
+    letters: "Z\u24CF\uFF3A\u0179\u1E90\u017B\u017D\u1E92\u1E94\u01B5\u0224\u2C7F\u2C6B\uA762"
+  }, {
+    base: "a",
+    letters: "a\u24D0\uFF41\u1E9A\xE0\xE1\xE2\u1EA7\u1EA5\u1EAB\u1EA9\xE3\u0101\u0103\u1EB1\u1EAF\u1EB5\u1EB3\u0227\u01E1\xE4\u01DF\u1EA3\xE5\u01FB\u01CE\u0201\u0203\u1EA1\u1EAD\u1EB7\u1E01\u0105\u2C65\u0250"
+  }, {
+    base: "aa",
+    letters: "\uA733"
+  }, {
+    base: "ae",
+    letters: "\xE6\u01FD\u01E3"
+  }, {
+    base: "ao",
+    letters: "\uA735"
+  }, {
+    base: "au",
+    letters: "\uA737"
+  }, {
+    base: "av",
+    letters: "\uA739\uA73B"
+  }, {
+    base: "ay",
+    letters: "\uA73D"
+  }, {
+    base: "b",
+    letters: "b\u24D1\uFF42\u1E03\u1E05\u1E07\u0180\u0183\u0253"
+  }, {
+    base: "c",
+    letters: "c\u24D2\uFF43\u0107\u0109\u010B\u010D\xE7\u1E09\u0188\u023C\uA73F\u2184"
+  }, {
+    base: "d",
+    letters: "d\u24D3\uFF44\u1E0B\u010F\u1E0D\u1E11\u1E13\u1E0F\u0111\u018C\u0256\u0257\uA77A"
+  }, {
+    base: "dz",
+    letters: "\u01F3\u01C6"
+  }, {
+    base: "e",
+    letters: "e\u24D4\uFF45\xE8\xE9\xEA\u1EC1\u1EBF\u1EC5\u1EC3\u1EBD\u0113\u1E15\u1E17\u0115\u0117\xEB\u1EBB\u011B\u0205\u0207\u1EB9\u1EC7\u0229\u1E1D\u0119\u1E19\u1E1B\u0247\u025B\u01DD"
+  }, {
+    base: "f",
+    letters: "f\u24D5\uFF46\u1E1F\u0192\uA77C"
+  }, {
+    base: "g",
+    letters: "g\u24D6\uFF47\u01F5\u011D\u1E21\u011F\u0121\u01E7\u0123\u01E5\u0260\uA7A1\u1D79\uA77F"
+  }, {
+    base: "h",
+    letters: "h\u24D7\uFF48\u0125\u1E23\u1E27\u021F\u1E25\u1E29\u1E2B\u1E96\u0127\u2C68\u2C76\u0265"
+  }, {
+    base: "hv",
+    letters: "\u0195"
+  }, {
+    base: "i",
+    letters: "i\u24D8\uFF49\xEC\xED\xEE\u0129\u012B\u012D\xEF\u1E2F\u1EC9\u01D0\u0209\u020B\u1ECB\u012F\u1E2D\u0268\u0131"
+  }, {
+    base: "j",
+    letters: "j\u24D9\uFF4A\u0135\u01F0\u0249"
+  }, {
+    base: "k",
+    letters: "k\u24DA\uFF4B\u1E31\u01E9\u1E33\u0137\u1E35\u0199\u2C6A\uA741\uA743\uA745\uA7A3"
+  }, {
+    base: "l",
+    letters: "l\u24DB\uFF4C\u0140\u013A\u013E\u1E37\u1E39\u013C\u1E3D\u1E3B\u017F\u0142\u019A\u026B\u2C61\uA749\uA781\uA747"
+  }, {
+    base: "lj",
+    letters: "\u01C9"
+  }, {
+    base: "m",
+    letters: "m\u24DC\uFF4D\u1E3F\u1E41\u1E43\u0271\u026F"
+  }, {
+    base: "n",
+    letters: "n\u24DD\uFF4E\u01F9\u0144\xF1\u1E45\u0148\u1E47\u0146\u1E4B\u1E49\u019E\u0272\u0149\uA791\uA7A5"
+  }, {
+    base: "nj",
+    letters: "\u01CC"
+  }, {
+    base: "o",
+    letters: "o\u24DE\uFF4F\xF2\xF3\xF4\u1ED3\u1ED1\u1ED7\u1ED5\xF5\u1E4D\u022D\u1E4F\u014D\u1E51\u1E53\u014F\u022F\u0231\xF6\u022B\u1ECF\u0151\u01D2\u020D\u020F\u01A1\u1EDD\u1EDB\u1EE1\u1EDF\u1EE3\u1ECD\u1ED9\u01EB\u01ED\xF8\u01FF\u0254\uA74B\uA74D\u0275"
+  }, {
+    base: "oi",
+    letters: "\u01A3"
+  }, {
+    base: "ou",
+    letters: "\u0223"
+  }, {
+    base: "oo",
+    letters: "\uA74F"
+  }, {
+    base: "p",
+    letters: "p\u24DF\uFF50\u1E55\u1E57\u01A5\u1D7D\uA751\uA753\uA755"
+  }, {
+    base: "q",
+    letters: "q\u24E0\uFF51\u024B\uA757\uA759"
+  }, {
+    base: "r",
+    letters: "r\u24E1\uFF52\u0155\u1E59\u0159\u0211\u0213\u1E5B\u1E5D\u0157\u1E5F\u024D\u027D\uA75B\uA7A7\uA783"
+  }, {
+    base: "s",
+    letters: "s\u24E2\uFF53\xDF\u015B\u1E65\u015D\u1E61\u0161\u1E67\u1E63\u1E69\u0219\u015F\u023F\uA7A9\uA785\u1E9B"
+  }, {
+    base: "t",
+    letters: "t\u24E3\uFF54\u1E6B\u1E97\u0165\u1E6D\u021B\u0163\u1E71\u1E6F\u0167\u01AD\u0288\u2C66\uA787"
+  }, {
+    base: "tz",
+    letters: "\uA729"
+  }, {
+    base: "u",
+    letters: "u\u24E4\uFF55\xF9\xFA\xFB\u0169\u1E79\u016B\u1E7B\u016D\xFC\u01DC\u01D8\u01D6\u01DA\u1EE7\u016F\u0171\u01D4\u0215\u0217\u01B0\u1EEB\u1EE9\u1EEF\u1EED\u1EF1\u1EE5\u1E73\u0173\u1E77\u1E75\u0289"
+  }, {
+    base: "v",
+    letters: "v\u24E5\uFF56\u1E7D\u1E7F\u028B\uA75F\u028C"
+  }, {
+    base: "vy",
+    letters: "\uA761"
+  }, {
+    base: "w",
+    letters: "w\u24E6\uFF57\u1E81\u1E83\u0175\u1E87\u1E85\u1E98\u1E89\u2C73"
+  }, {
+    base: "x",
+    letters: "x\u24E7\uFF58\u1E8B\u1E8D"
+  }, {
+    base: "y",
+    letters: "y\u24E8\uFF59\u1EF3\xFD\u0177\u1EF9\u0233\u1E8F\xFF\u1EF7\u1E99\u1EF5\u01B4\u024F\u1EFF"
+  }, {
+    base: "z",
+    letters: "z\u24E9\uFF5A\u017A\u1E91\u017C\u017E\u1E93\u1E95\u01B6\u0225\u0240\u2C6C\uA763"
+  }];
+  var anyDiacritic = new RegExp("[" + diacritics.map(function(d) {
+    return d.letters;
+  }).join("") + "]", "g");
+  var diacriticToBase = {};
+  for (i = 0; i < diacritics.length; i++) {
+    diacritic = diacritics[i];
+    for (j = 0; j < diacritic.letters.length; j++) {
+      diacriticToBase[diacritic.letters[j]] = diacritic.base;
+    }
+  }
+  var diacritic;
+  var j;
+  var i;
+  var stripDiacritics = function stripDiacritics2(str) {
+    return str.replace(anyDiacritic, function(match2) {
+      return diacriticToBase[match2];
+    });
+  };
+
+  // node_modules/@atlaskit/react-select/dist/esm/filters.js
+  function ownKeys20(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread20(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys20(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys20(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  var memoizedStripDiacriticsForInput = memoizeOne(stripDiacritics);
+  var trimString = function trimString2(str) {
+    return str.replace(/^\s+|\s+$/g, "");
+  };
+  var defaultStringify = function defaultStringify2(option) {
+    return "".concat(option.label, " ").concat(option.value);
+  };
+  var createFilter = function createFilter2(config) {
+    return function(option, rawInput) {
+      if (option.data.__isNew__) {
+        return true;
+      }
+      var _ignoreCase$ignoreAcc = _objectSpread20({
+        ignoreCase: true,
+        ignoreAccents: true,
+        stringify: defaultStringify,
+        trim: true,
+        matchFrom: "any"
+      }, config), ignoreCase = _ignoreCase$ignoreAcc.ignoreCase, ignoreAccents = _ignoreCase$ignoreAcc.ignoreAccents, stringify2 = _ignoreCase$ignoreAcc.stringify, trim = _ignoreCase$ignoreAcc.trim, matchFrom = _ignoreCase$ignoreAcc.matchFrom;
+      var input = trim ? trimString(rawInput) : rawInput;
+      var candidate = trim ? trimString(stringify2(option)) : stringify2(option);
+      if (ignoreCase) {
+        input = input.toLowerCase();
+        candidate = candidate.toLowerCase();
+      }
+      if (ignoreAccents) {
+        input = memoizedStripDiacriticsForInput(input);
+        candidate = stripDiacritics(candidate);
+      }
+      return matchFrom === "start" ? candidate.substr(0, input.length) === input : candidate.indexOf(input) > -1;
+    };
+  };
+
+  // node_modules/@atlaskit/react-select/dist/esm/styles.js
+  init_defineProperty();
+  var defaultStyles = {
+    clearIndicator: clearIndicatorCSS,
+    container: containerCSS,
+    control: css2,
+    dropdownIndicator: dropdownIndicatorCSS,
+    group: groupCSS,
+    groupHeading: groupHeadingCSS,
+    indicatorsContainer: indicatorsContainerCSS,
+    input: inputCSS,
+    loadingIndicator: loadingIndicatorCSS,
+    loadingMessage: loadingMessageCSS,
+    menu: menuCSS,
+    menuList: menuListCSS,
+    menuPortal: menuPortalCSS,
+    multiValue: multiValueCSS,
+    multiValueLabel: multiValueLabelCSS,
+    multiValueRemove: multiValueRemoveCSS,
+    noOptionsMessage: noOptionsMessageCSS,
+    option: optionCSS,
+    placeholder: placeholderCSS,
+    singleValue: css4,
+    valueContainer: valueContainerCSS
+  };
+
+  // node_modules/@atlaskit/react-select/dist/esm/select.js
+  function ownKeys21(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread21(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys21(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys21(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  function _callSuper3(t, o, e) {
+    return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct3() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e));
+  }
+  function _isNativeReflectConstruct3() {
+    try {
+      var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function() {
+      }));
+    } catch (t2) {
+    }
+    return (_isNativeReflectConstruct3 = function _isNativeReflectConstruct4() {
+      return !!t;
+    })();
+  }
+  var defaultProps = {
+    backspaceRemovesValue: true,
+    blurInputOnSelect: isTouchCapable(),
+    captureMenuScroll: !isTouchCapable(),
+    classNames: {},
+    closeMenuOnSelect: true,
+    closeMenuOnScroll: false,
+    components: {},
+    controlShouldRenderValue: true,
+    escapeClearsValue: false,
+    filterOption: createFilter(),
+    formatGroupLabel,
+    getOptionLabel,
+    getOptionValue,
+    isDisabled: false,
+    isLoading: false,
+    isMulti: false,
+    isRtl: false,
+    isSearchable: true,
+    isOptionDisabled,
+    loadingMessage: function loadingMessage() {
+      return "Loading...";
+    },
+    maxMenuHeight: 300,
+    minMenuHeight: 140,
+    menuIsOpen: false,
+    menuPlacement: "bottom",
+    menuPosition: "absolute",
+    menuShouldBlockScroll: false,
+    menuShouldScrollIntoView: !isMobileDevice(),
+    noOptionsMessage: function noOptionsMessage() {
+      return "No options";
+    },
+    openMenuOnFocus: false,
+    openMenuOnClick: true,
+    options: [],
+    pageSize: 5,
+    placeholder: "Select...",
+    screenReaderStatus: function screenReaderStatus(_ref2) {
+      var count = _ref2.count;
+      return "".concat(count, " result").concat(count !== 1 ? "s" : "", " available");
+    },
+    styles: {},
+    tabIndex: 0,
+    tabSelectsValue: true,
+    UNSAFE_is_experimental_generic: false
+  };
+  function toCategorizedOption(props, option, selectValue, index2) {
+    var isDisabled = _isOptionDisabled(props, option, selectValue);
+    var isSelected = _isOptionSelected(props, option, selectValue);
+    var label = getOptionLabel3(props, option);
+    var value = getOptionValue3(props, option);
+    return {
+      type: "option",
+      data: option,
+      isDisabled,
+      isSelected,
+      label,
+      value,
+      index: index2
+    };
+  }
+  function buildCategorizedOptions(props, selectValue) {
+    return props.options.map(function(groupOrOption, groupOrOptionIndex) {
+      if ("options" in groupOrOption) {
+        var categorizedOptions = groupOrOption.options.map(function(option, optionIndex) {
+          return toCategorizedOption(props, option, selectValue, optionIndex);
+        }).filter(function(categorizedOption2) {
+          return isFocusable(props, categorizedOption2);
+        });
+        return categorizedOptions.length > 0 ? {
+          type: "group",
+          data: groupOrOption,
+          options: categorizedOptions,
+          index: groupOrOptionIndex
+        } : void 0;
+      }
+      var categorizedOption = toCategorizedOption(props, groupOrOption, selectValue, groupOrOptionIndex);
+      return isFocusable(props, categorizedOption) ? categorizedOption : void 0;
+    }).filter(notNullish);
+  }
+  function buildFocusableOptionsFromCategorizedOptions(categorizedOptions) {
+    return categorizedOptions.reduce(function(optionsAccumulator, categorizedOption) {
+      if (categorizedOption.type === "group") {
+        optionsAccumulator.push.apply(optionsAccumulator, _toConsumableArray(categorizedOption.options.map(function(option) {
+          return option.data;
+        })));
+      } else {
+        optionsAccumulator.push(categorizedOption.data);
+      }
+      return optionsAccumulator;
+    }, []);
+  }
+  function buildFocusableOptionsWithIds(categorizedOptions, optionId) {
+    return categorizedOptions.reduce(function(optionsAccumulator, categorizedOption) {
+      if (categorizedOption.type === "group") {
+        optionsAccumulator.push.apply(optionsAccumulator, _toConsumableArray(categorizedOption.options.map(function(option) {
+          return {
+            data: option.data,
+            id: "".concat(optionId, "-").concat(categorizedOption.index, "-").concat(option.index)
+          };
+        })));
+      } else {
+        optionsAccumulator.push({
+          data: categorizedOption.data,
+          id: "".concat(optionId, "-").concat(categorizedOption.index)
+        });
+      }
+      return optionsAccumulator;
+    }, []);
+  }
+  function buildFocusableOptions(props, selectValue) {
+    return buildFocusableOptionsFromCategorizedOptions(buildCategorizedOptions(props, selectValue));
+  }
+  function isFocusable(props, categorizedOption) {
+    var _props$inputValue = props.inputValue, inputValue = _props$inputValue === void 0 ? "" : _props$inputValue;
+    var data = categorizedOption.data, isSelected = categorizedOption.isSelected, label = categorizedOption.label, value = categorizedOption.value;
+    return (!shouldHideSelectedOptions(props) || !isSelected) && _filterOption(props, {
+      label,
+      value,
+      data
+    }, inputValue);
+  }
+  function getNextFocusedValue(state, nextSelectValue) {
+    var focusedValue = state.focusedValue, lastSelectValue = state.selectValue;
+    var lastFocusedIndex = lastSelectValue.indexOf(focusedValue);
+    if (lastFocusedIndex > -1) {
+      var nextFocusedIndex = nextSelectValue.indexOf(focusedValue);
+      if (nextFocusedIndex > -1) {
+        return focusedValue;
+      } else if (lastFocusedIndex < nextSelectValue.length) {
+        return nextSelectValue[lastFocusedIndex];
+      }
+    }
+    return null;
+  }
+  function getNextFocusedOption(state, options2) {
+    var lastFocusedOption = state.focusedOption;
+    return lastFocusedOption && options2.indexOf(lastFocusedOption) > -1 ? lastFocusedOption : options2[0];
+  }
+  var getFocusedOptionId = function getFocusedOptionId2(focusableOptionsWithIds, focusedOption) {
+    var _focusableOptionsWith;
+    var focusedOptionId = (_focusableOptionsWith = focusableOptionsWithIds.find(function(option) {
+      return option.data === focusedOption;
+    })) === null || _focusableOptionsWith === void 0 ? void 0 : _focusableOptionsWith.id;
+    return focusedOptionId || null;
+  };
+  var getOptionLabel3 = function getOptionLabel4(props, data) {
+    return props.getOptionLabel(data);
+  };
+  var getOptionValue3 = function getOptionValue4(props, data) {
+    return props.getOptionValue(data);
+  };
+  function _isOptionDisabled(props, option, selectValue) {
+    return typeof props.isOptionDisabled === "function" ? props.isOptionDisabled(option, selectValue) : false;
+  }
+  function _isOptionSelected(props, option, selectValue) {
+    if (selectValue.indexOf(option) > -1) {
+      return true;
+    }
+    if (typeof props.isOptionSelected === "function") {
+      return props.isOptionSelected(option, selectValue);
+    }
+    var candidate = getOptionValue3(props, option);
+    return selectValue.some(function(i) {
+      return getOptionValue3(props, i) === candidate;
+    });
+  }
+  function _filterOption(props, option, inputValue) {
+    return props.filterOption ? props.filterOption(option, inputValue) : true;
+  }
+  var shouldHideSelectedOptions = function shouldHideSelectedOptions2(props) {
+    var hideSelectedOptions = props.hideSelectedOptions, isMulti = props.isMulti;
+    if (hideSelectedOptions === void 0) {
+      return isMulti;
+    }
+    return hideSelectedOptions;
+  };
+  var instanceId = 1;
+  var Select = /* @__PURE__ */ (function(_Component) {
+    function Select3(_props) {
+      var _this;
+      _classCallCheck(this, Select3);
+      _this = _callSuper3(this, Select3, [_props]);
+      _defineProperty(_this, "state", {
+        ariaSelection: null,
+        focusedOption: null,
+        focusedOptionId: null,
+        focusableOptionsWithIds: [],
+        focusedValue: null,
+        focusedValueId: null,
+        inputIsHidden: false,
+        isFocused: false,
+        selectValue: [],
+        clearFocusValueOnUpdate: false,
+        prevWasFocused: false,
+        inputIsHiddenAfterUpdate: void 0,
+        prevProps: void 0,
+        instancePrefix: ""
+      });
+      _defineProperty(_this, "blockOptionHover", false);
+      _defineProperty(_this, "isComposing", false);
+      _defineProperty(_this, "initialTouchX", 0);
+      _defineProperty(_this, "initialTouchY", 0);
+      _defineProperty(_this, "openAfterFocus", false);
+      _defineProperty(_this, "scrollToFocusedOptionOnUpdate", false);
+      _defineProperty(_this, "controlRef", null);
+      _defineProperty(_this, "getControlRef", function(ref) {
+        _this.controlRef = ref;
+      });
+      _defineProperty(_this, "focusedOptionRef", null);
+      _defineProperty(_this, "getFocusedOptionRef", function(ref) {
+        _this.focusedOptionRef = ref;
+      });
+      _defineProperty(_this, "menuListRef", null);
+      _defineProperty(_this, "getMenuListRef", function(ref) {
+        _this.menuListRef = ref;
+      });
+      _defineProperty(_this, "inputRef", null);
+      _defineProperty(_this, "getInputRef", function(ref) {
+        _this.inputRef = ref;
+      });
+      _defineProperty(_this, "focus", _this.focusInput);
+      _defineProperty(_this, "blur", _this.blurInput);
+      _defineProperty(_this, "onChange", function(newValue, actionMeta) {
+        var _this$props = _this.props, onChange2 = _this$props.onChange, name = _this$props.name;
+        actionMeta.name = name;
+        _this.ariaOnChange(newValue, actionMeta);
+        onChange2(newValue, actionMeta);
+      });
+      _defineProperty(_this, "setValue", function(newValue, action, option) {
+        var _this$props2 = _this.props, closeMenuOnSelect = _this$props2.closeMenuOnSelect, isMulti = _this$props2.isMulti, inputValue = _this$props2.inputValue;
+        if (isMulti && (0, import_platform_feature_flags11.fg)("platform_do_not_clear_input_for_multiselect")) {
+          _this.onInputChange(inputValue, {
+            action: "set-value",
+            prevInputValue: inputValue
+          });
+        } else {
+          _this.onInputChange("", {
+            action: "set-value",
+            prevInputValue: inputValue
+          });
+        }
+        if (closeMenuOnSelect) {
+          _this.setState({
+            inputIsHiddenAfterUpdate: !isMulti
+          });
+          _this.onMenuClose();
+        }
+        _this.setState({
+          clearFocusValueOnUpdate: true
+        });
+        _this.onChange(newValue, {
+          action,
+          option
+        });
+      });
+      _defineProperty(_this, "selectOption", function(newValue) {
+        var _this$props3 = _this.props, blurInputOnSelect = _this$props3.blurInputOnSelect, isMulti = _this$props3.isMulti, name = _this$props3.name;
+        var selectValue = _this.state.selectValue;
+        var deselected = isMulti && _this.isOptionSelected(newValue, selectValue);
+        var isDisabled = _this.isOptionDisabled(newValue, selectValue);
+        if (deselected) {
+          var candidate = _this.getOptionValue(newValue);
+          _this.setValue(multiValueAsValue(selectValue.filter(function(i) {
+            return _this.getOptionValue(i) !== candidate;
+          })), "deselect-option", newValue);
+        } else if (!isDisabled) {
+          if (isMulti) {
+            _this.setValue(multiValueAsValue([].concat(_toConsumableArray(selectValue), [newValue])), "select-option", newValue);
+          } else {
+            _this.setValue(singleValueAsValue(newValue), "select-option");
+          }
+        } else {
+          _this.ariaOnChange(singleValueAsValue(newValue), {
+            action: "select-option",
+            option: newValue,
+            name
+          });
+          return;
+        }
+        if (blurInputOnSelect) {
+          _this.blurInput();
+        }
+      });
+      _defineProperty(_this, "removeValue", function(removedValue) {
+        var isMulti = _this.props.isMulti;
+        var selectValue = _this.state.selectValue;
+        var candidate = _this.getOptionValue(removedValue);
+        var newValueArray = selectValue.filter(function(i) {
+          return _this.getOptionValue(i) !== candidate;
+        });
+        var newValue = valueTernary(isMulti, newValueArray, newValueArray[0] || null);
+        _this.onChange(newValue, {
+          action: "remove-value",
+          removedValue
+        });
+        _this.focusInput();
+      });
+      _defineProperty(_this, "clearValue", function() {
+        var selectValue = _this.state.selectValue;
+        _this.onChange(valueTernary(_this.props.isMulti, [], null), {
+          action: "clear",
+          removedValues: selectValue
+        });
+      });
+      _defineProperty(_this, "popValue", function() {
+        var isMulti = _this.props.isMulti;
+        var selectValue = _this.state.selectValue;
+        var lastSelectedValue = selectValue[selectValue.length - 1];
+        var newValueArray = selectValue.slice(0, selectValue.length - 1);
+        var newValue = valueTernary(isMulti, newValueArray, newValueArray[0] || null);
+        _this.onChange(newValue, {
+          action: "pop-value",
+          removedValue: lastSelectedValue
+        });
+      });
+      _defineProperty(_this, "getFocusedOptionId", function(focusedOption) {
+        return getFocusedOptionId(_this.state.focusableOptionsWithIds, focusedOption);
+      });
+      _defineProperty(_this, "getFocusableOptionsWithIds", function() {
+        return buildFocusableOptionsWithIds(buildCategorizedOptions(_this.props, _this.state.selectValue), _this.getElementId("option"));
+      });
+      _defineProperty(_this, "getValue", function() {
+        return _this.state.selectValue;
+      });
+      _defineProperty(_this, "cx", function() {
+        for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+        return classNames.apply(void 0, [_this.props.classNamePrefix].concat(args));
+      });
+      _defineProperty(_this, "getOptionLabel", function(data) {
+        return getOptionLabel3(_this.props, data);
+      });
+      _defineProperty(_this, "getOptionValue", function(data) {
+        return getOptionValue3(_this.props, data);
+      });
+      _defineProperty(_this, "getStyles", function(key, props) {
+        var base = defaultStyles[key](props);
+        base.boxSizing = "border-box";
+        var custom = _this.props.styles[key];
+        if (!custom) {
+          return base;
+        }
+        var customStyles = filterUnsupportedSelectors(custom(base, props));
+        return customStyles;
+      });
+      _defineProperty(_this, "getClassNames", function(key, props) {
+        var _this$props$className, _this$props$className2;
+        return (_this$props$className = (_this$props$className2 = _this.props.classNames)[key]) === null || _this$props$className === void 0 ? void 0 : _this$props$className.call(_this$props$className2, props);
+      });
+      _defineProperty(_this, "getElementId", function(element) {
+        return "".concat(_this.state.instancePrefix, "-").concat(element);
+      });
+      _defineProperty(_this, "getComponents", function() {
+        return defaultComponents(_this.props);
+      });
+      _defineProperty(_this, "buildCategorizedOptions", function() {
+        return buildCategorizedOptions(_this.props, _this.state.selectValue);
+      });
+      _defineProperty(_this, "getCategorizedOptions", function() {
+        return _this.props.menuIsOpen ? _this.buildCategorizedOptions() : [];
+      });
+      _defineProperty(_this, "buildFocusableOptions", function() {
+        return buildFocusableOptionsFromCategorizedOptions(_this.buildCategorizedOptions());
+      });
+      _defineProperty(_this, "getFocusableOptions", function() {
+        return _this.props.menuIsOpen ? _this.buildFocusableOptions() : [];
+      });
+      _defineProperty(_this, "ariaOnChange", function(value, actionMeta) {
+        _this.setState({
+          ariaSelection: _objectSpread21({
+            value
+          }, actionMeta)
+        });
+      });
+      _defineProperty(_this, "onMenuMouseDown", function(event) {
+        if (event.button !== 0) {
+          return;
+        }
+        event.stopPropagation();
+        event.preventDefault();
+        _this.focusInput();
+      });
+      _defineProperty(_this, "onMenuMouseMove", function(event) {
+        _this.blockOptionHover = false;
+      });
+      _defineProperty(_this, "onControlMouseDown", function(event) {
+        if (event.defaultPrevented) {
+          var _this$controlRef;
+          if (!((_this$controlRef = _this.controlRef) !== null && _this$controlRef !== void 0 && _this$controlRef.closest("[data-rbd-draggable-context-id]"))) {
+            return;
+          }
+        }
+        var openMenuOnClick = _this.props.openMenuOnClick;
+        if (!_this.state.isFocused) {
+          if (openMenuOnClick) {
+            _this.openAfterFocus = true;
+          }
+          _this.focusInput();
+        } else if (!_this.props.menuIsOpen) {
+          if (openMenuOnClick) {
+            _this.openMenu("first");
+          }
+        } else {
+          if (event.target.tagName !== "INPUT" && event.target.tagName !== "TEXTAREA") {
+            _this.onMenuClose();
+          }
+        }
+        if (event.target.tagName !== "INPUT" && event.target.tagName !== "TEXTAREA") {
+          event.preventDefault();
+        }
+      });
+      _defineProperty(_this, "onDropdownIndicatorMouseDown", function(event) {
+        if (event && event.type === "mousedown" && event.button !== 0) {
+          return;
+        }
+        if (_this.props.isDisabled) {
+          return;
+        }
+        var _this$props4 = _this.props, isMulti = _this$props4.isMulti, menuIsOpen = _this$props4.menuIsOpen;
+        _this.focusInput();
+        if (menuIsOpen) {
+          _this.setState({
+            inputIsHiddenAfterUpdate: !isMulti
+          });
+          _this.onMenuClose();
+        } else {
+          _this.openMenu("first");
+        }
+        event.preventDefault();
+      });
+      _defineProperty(_this, "onClearIndicatorMouseDown", function(event) {
+        if (event && event.type === "mousedown" && event.button !== 0) {
+          return;
+        }
+        _this.clearValue();
+        event.preventDefault();
+        _this.openAfterFocus = false;
+        if (event.type === "touchend") {
+          _this.focusInput();
+        } else {
+          setTimeout(function() {
+            return _this.focusInput();
+          });
+        }
+      });
+      _defineProperty(_this, "onScroll", function(event) {
+        if (typeof _this.props.closeMenuOnScroll === "boolean") {
+          if (event.target instanceof HTMLElement && isDocumentElement(event.target)) {
+            _this.props.onMenuClose();
+          }
+        } else if (typeof _this.props.closeMenuOnScroll === "function") {
+          if (_this.props.closeMenuOnScroll(event)) {
+            _this.props.onMenuClose();
+          }
+        }
+      });
+      _defineProperty(_this, "onCompositionStart", function() {
+        _this.isComposing = true;
+      });
+      _defineProperty(_this, "onCompositionEnd", function() {
+        _this.isComposing = false;
+      });
+      _defineProperty(_this, "onTouchStart", function(_ref2) {
+        var touches = _ref2.touches;
+        var touch = touches && touches.item(0);
+        if (!touch) {
+          return;
+        }
+        _this.initialTouchX = touch.clientX;
+        _this.initialTouchY = touch.clientY;
+        _this.userIsDragging = false;
+      });
+      _defineProperty(_this, "onTouchMove", function(_ref3) {
+        var touches = _ref3.touches;
+        var touch = touches && touches.item(0);
+        if (!touch) {
+          return;
+        }
+        var deltaX = Math.abs(touch.clientX - _this.initialTouchX);
+        var deltaY = Math.abs(touch.clientY - _this.initialTouchY);
+        var moveThreshold = 5;
+        _this.userIsDragging = deltaX > moveThreshold || deltaY > moveThreshold;
+      });
+      _defineProperty(_this, "onTouchEnd", function(event) {
+        if (_this.userIsDragging) {
+          return;
+        }
+        if (_this.controlRef && !_this.controlRef.contains(event.target) && _this.menuListRef && !_this.menuListRef.contains(event.target)) {
+          _this.blurInput();
+        }
+        _this.initialTouchX = 0;
+        _this.initialTouchY = 0;
+      });
+      _defineProperty(_this, "onControlTouchEnd", function(event) {
+        if (_this.userIsDragging) {
+          return;
+        }
+        _this.onControlMouseDown(event);
+      });
+      _defineProperty(_this, "onClearIndicatorTouchEnd", function(event) {
+        if (_this.userIsDragging) {
+          return;
+        }
+        _this.onClearIndicatorMouseDown(event);
+      });
+      _defineProperty(_this, "onDropdownIndicatorTouchEnd", function(event) {
+        if (_this.userIsDragging) {
+          return;
+        }
+        _this.onDropdownIndicatorMouseDown(event);
+      });
+      _defineProperty(_this, "handleInputChange", function(event) {
+        var prevInputValue = _this.props.inputValue;
+        var inputValue = event.currentTarget.value;
+        _this.setState({
+          inputIsHiddenAfterUpdate: false
+        });
+        _this.onInputChange(inputValue, {
+          action: "input-change",
+          prevInputValue
+        });
+        if (!_this.props.menuIsOpen) {
+          _this.onMenuOpen();
+        }
+      });
+      _defineProperty(_this, "onInputFocus", function(event) {
+        if (_this.props.onFocus) {
+          _this.props.onFocus(event);
+        }
+        _this.setState({
+          inputIsHiddenAfterUpdate: false,
+          isFocused: true
+        });
+        if (_this.openAfterFocus || _this.props.openMenuOnFocus) {
+          _this.openMenu("first");
+        }
+        _this.openAfterFocus = false;
+      });
+      _defineProperty(_this, "onInputBlur", function(event) {
+        var prevInputValue = _this.props.inputValue;
+        if (_this.menuListRef && _this.menuListRef.contains(document.activeElement)) {
+          _this.inputRef.focus();
+          return;
+        }
+        if (_this.props.onBlur) {
+          _this.props.onBlur(event);
+        }
+        _this.onInputChange("", {
+          action: "input-blur",
+          prevInputValue
+        });
+        if ((0, import_platform_feature_flags11.fg)("platform_dst_select_menu_close_on_blur")) {
+          _this.props.menuIsOpen && _this.onMenuClose();
+        } else {
+          _this.onMenuClose();
+        }
+        _this.setState({
+          focusedValue: null,
+          isFocused: false
+        });
+      });
+      _defineProperty(_this, "onOptionHover", function(focusedOption) {
+        if (_this.blockOptionHover || _this.state.focusedOption === focusedOption) {
+          return;
+        }
+        var options2 = _this.getFocusableOptions();
+        var focusedOptionIndex = options2.indexOf(focusedOption);
+        _this.setState({
+          focusedOption,
+          focusedOptionId: focusedOptionIndex > -1 ? _this.getFocusedOptionId(focusedOption) : null
+        });
+      });
+      _defineProperty(_this, "shouldHideSelectedOptions", function() {
+        return shouldHideSelectedOptions(_this.props);
+      });
+      _defineProperty(_this, "onValueInputFocus", function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        _this.focus();
+      });
+      _defineProperty(_this, "onKeyDown", function(event) {
+        var _this$props5 = _this.props, isMulti = _this$props5.isMulti, backspaceRemovesValue = _this$props5.backspaceRemovesValue, escapeClearsValue = _this$props5.escapeClearsValue, inputValue = _this$props5.inputValue, isClearable = _this$props5.isClearable, isDisabled = _this$props5.isDisabled, menuIsOpen = _this$props5.menuIsOpen, onKeyDown = _this$props5.onKeyDown, tabSelectsValue = _this$props5.tabSelectsValue, openMenuOnFocus = _this$props5.openMenuOnFocus;
+        var _this$state = _this.state, focusedOption = _this$state.focusedOption, focusedValue = _this$state.focusedValue, selectValue = _this$state.selectValue;
+        if (isDisabled) {
+          return;
+        }
+        if (typeof onKeyDown === "function") {
+          onKeyDown(event);
+          if (event.defaultPrevented) {
+            return;
+          }
+        }
+        _this.blockOptionHover = true;
+        switch (event.key) {
+          case "ArrowLeft":
+            if (!isMulti || inputValue) {
+              return;
+            }
+            _this.focusValue("previous");
+            break;
+          case "ArrowRight":
+            if (!isMulti || inputValue) {
+              return;
+            }
+            _this.focusValue("next");
+            break;
+          case "Delete":
+          case "Backspace":
+            if (inputValue) {
+              return;
+            }
+            if (focusedValue) {
+              _this.removeValue(focusedValue);
+            } else {
+              if (!backspaceRemovesValue) {
+                return;
+              }
+              if (isMulti) {
+                _this.popValue();
+              } else if (isClearable) {
+                _this.clearValue();
+              }
+            }
+            break;
+          case "Tab":
+            if (_this.isComposing) {
+              return;
+            }
+            if (event.shiftKey || !menuIsOpen || !tabSelectsValue || !focusedOption || // don't capture the event if the menu opens on focus and the focused
+            // option is already selected; it breaks the flow of navigation
+            openMenuOnFocus && _this.isOptionSelected(focusedOption, selectValue)) {
+              return;
+            }
+            _this.selectOption(focusedOption);
+            break;
+          case "Enter":
+            if (event.keyCode === 229) {
+              break;
+            }
+            if (focusedValue) {
+              _this.removeValue(focusedValue);
+            }
+            if (menuIsOpen) {
+              if (!focusedOption) {
+                return;
+              }
+              if (_this.isComposing) {
+                return;
+              }
+              _this.selectOption(focusedOption);
+              break;
+            }
+            return;
+          case "Escape":
+            if (menuIsOpen) {
+              _this.setState({
+                inputIsHiddenAfterUpdate: false
+              });
+              _this.onInputChange("", {
+                action: "menu-close",
+                prevInputValue: inputValue
+              });
+              _this.onMenuClose();
+            } else if (isClearable && escapeClearsValue) {
+              _this.clearValue();
+            }
+            break;
+          case " ":
+            if (inputValue) {
+              return;
+            }
+            if (!menuIsOpen) {
+              _this.openMenu("first");
+              break;
+            }
+            if (!focusedOption) {
+              return;
+            }
+            _this.selectOption(focusedOption);
+            break;
+          case "ArrowUp":
+            if (menuIsOpen) {
+              _this.focusOption("up");
+            } else {
+              _this.openMenu("last");
+            }
+            break;
+          case "ArrowDown":
+            if (menuIsOpen) {
+              _this.focusOption("down");
+            } else {
+              _this.openMenu("first");
+            }
+            break;
+          case "PageUp":
+            if (!menuIsOpen) {
+              return;
+            }
+            _this.focusOption("pageup");
+            break;
+          case "PageDown":
+            if (!menuIsOpen) {
+              return;
+            }
+            _this.focusOption("pagedown");
+            break;
+          case "Home":
+            if (!menuIsOpen) {
+              return;
+            }
+            _this.focusOption("first");
+            break;
+          case "End":
+            if (!menuIsOpen) {
+              return;
+            }
+            _this.focusOption("last");
+            break;
+          default:
+            return;
+        }
+        event.preventDefault();
+      });
+      _defineProperty(_this, "handleOpenLayerObserverCloseSignal", function() {
+        _this.onMenuClose();
+      });
+      _this.state.instancePrefix = "react-select-" + (_this.props.instanceId || ++instanceId);
+      _this.state.selectValue = cleanValue(_props.value);
+      if (_props.menuIsOpen) {
+        var focusableOptionsWithIds = _this.getFocusableOptionsWithIds();
+        var focusableOptions = _this.buildFocusableOptions();
+        var optionIndex = focusableOptions.indexOf(_this.state.selectValue[0]);
+        _this.state.focusableOptionsWithIds = focusableOptionsWithIds;
+        _this.state.focusedOption = focusableOptions[optionIndex];
+        _this.state.focusedOptionId = getFocusedOptionId(focusableOptionsWithIds, focusableOptions[optionIndex]);
+      }
+      return _this;
+    }
+    _inherits(Select3, _Component);
+    return _createClass(Select3, [{
+      key: "componentDidMount",
+      value: function componentDidMount() {
+        this.startListeningComposition();
+        this.startListeningToTouch();
+        if (this.props.closeMenuOnScroll && document && document.addEventListener) {
+          document.addEventListener("scroll", this.onScroll, true);
+        }
+        if (this.props.autoFocus) {
+          this.focusInput();
+        }
+        if (this.props.menuIsOpen && this.state.focusedOption && this.menuListRef && this.focusedOptionRef) {
+          scrollIntoView(this.menuListRef, this.focusedOptionRef);
+        }
+      }
+    }, {
+      key: "componentDidUpdate",
+      value: function componentDidUpdate(prevProps) {
+        var _this$props6 = this.props, isDisabled = _this$props6.isDisabled, menuIsOpen = _this$props6.menuIsOpen;
+        var isFocused = this.state.isFocused;
+        if (
+          // ensure focus is restored correctly when the control becomes enabled
+          isFocused && !isDisabled && prevProps.isDisabled || // ensure focus is on the Input when the menu opens
+          isFocused && menuIsOpen && !prevProps.menuIsOpen
+        ) {
+          this.focusInput();
+        }
+        if (isFocused && isDisabled && !prevProps.isDisabled) {
+          this.setState({
+            isFocused: false
+          }, this.onMenuClose);
+        } else if (!isFocused && !isDisabled && prevProps.isDisabled && this.inputRef === document.activeElement) {
+          this.setState({
+            isFocused: true
+          });
+        }
+        if (this.menuListRef && this.focusedOptionRef && this.scrollToFocusedOptionOnUpdate) {
+          scrollIntoView(this.menuListRef, this.focusedOptionRef);
+          this.scrollToFocusedOptionOnUpdate = false;
+        }
+      }
+    }, {
+      key: "componentWillUnmount",
+      value: function componentWillUnmount() {
+        this.stopListeningComposition();
+        this.stopListeningToTouch();
+        document.removeEventListener("scroll", this.onScroll, true);
+      }
+      // ==============================
+      // Consumer Handlers
+      // ==============================
+    }, {
+      key: "onMenuOpen",
+      value: function onMenuOpen() {
+        this.props.onMenuOpen();
+      }
+    }, {
+      key: "onMenuClose",
+      value: function onMenuClose() {
+        this.onInputChange("", {
+          action: "menu-close",
+          prevInputValue: this.props.inputValue
+        });
+        this.props.onMenuClose();
+      }
+    }, {
+      key: "onInputChange",
+      value: function onInputChange(newValue, actionMeta) {
+        this.props.onInputChange(newValue, actionMeta);
+      }
+      // ==============================
+      // Methods
+      // ==============================
+    }, {
+      key: "focusInput",
+      value: function focusInput() {
+        if (!this.inputRef) {
+          return;
+        }
+        this.inputRef.focus();
+      }
+    }, {
+      key: "blurInput",
+      value: function blurInput() {
+        if (!this.inputRef) {
+          return;
+        }
+        this.inputRef.blur();
+      }
+    }, {
+      key: "openMenu",
+      value: function openMenu(focusOption) {
+        var _this2 = this;
+        var _this$state2 = this.state, selectValue = _this$state2.selectValue, isFocused = _this$state2.isFocused;
+        var focusableOptions = this.buildFocusableOptions();
+        var openAtIndex = focusOption === "first" ? 0 : focusableOptions.length - 1;
+        if (!this.props.isMulti) {
+          var selectedIndex = focusableOptions.indexOf(selectValue[0]);
+          if (selectedIndex > -1) {
+            openAtIndex = selectedIndex;
+          }
+        }
+        var focusedOption = focusableOptions[openAtIndex];
+        this.scrollToFocusedOptionOnUpdate = !(isFocused && this.menuListRef);
+        this.setState({
+          inputIsHiddenAfterUpdate: false,
+          focusedValue: null,
+          focusedOption,
+          focusedOptionId: this.getFocusedOptionId(focusedOption)
+        }, function() {
+          return _this2.onMenuOpen();
+        });
+        isSafari3() && focusedOption && this.updateInputLabel(this.calculateInputLabel(focusedOption, openAtIndex));
+      }
+    }, {
+      key: "updateInputLabel",
+      value: function updateInputLabel(inputLabel) {
+        var _this3 = this;
+        if (inputLabel) {
+          var _this$inputRef;
+          (_this$inputRef = this.inputRef) === null || _this$inputRef === void 0 || _this$inputRef.setAttribute("aria-label", inputLabel);
+          setTimeout(function() {
+            var normalizedLabel = _this3.props["aria-label"] || _this3.props.label;
+            if (normalizedLabel) {
+              var _this3$inputRef;
+              (_this3$inputRef = _this3.inputRef) === null || _this3$inputRef === void 0 || _this3$inputRef.setAttribute("aria-label", normalizedLabel);
+            } else {
+              var _this3$inputRef2;
+              (_this3$inputRef2 = _this3.inputRef) === null || _this3$inputRef2 === void 0 || _this3$inputRef2.removeAttribute("aria-label");
+            }
+          }, 500);
+        }
+      }
+    }, {
+      key: "calculateInputLabel",
+      value: function calculateInputLabel(focusedOption, optionIndex) {
+        var _this4 = this;
+        var options2 = this.props.options;
+        var isOptionsGrouped = options2 === null || options2 === void 0 ? void 0 : options2.every(function(obj) {
+          return _typeof(obj) === "object" && obj !== null && "options" in obj;
+        });
+        var inputLabel = this.getOptionLabel(focusedOption);
+        var isOptionFocused = function isOptionFocused2(option) {
+          return _this4.getOptionLabel(option) === inputLabel;
+        };
+        var groupData = options2 === null || options2 === void 0 ? void 0 : options2.find(function(option) {
+          var _groupCandidate$optio, _groupCandidate$optio2;
+          var groupCandidate = option;
+          return (_groupCandidate$optio = (_groupCandidate$optio2 = groupCandidate.options) === null || _groupCandidate$optio2 === void 0 ? void 0 : _groupCandidate$optio2.some(isOptionFocused)) !== null && _groupCandidate$optio !== void 0 ? _groupCandidate$optio : false;
+        });
+        if (isOptionsGrouped) {
+          var _groupData$options$fi;
+          var groupOptionIndex = (_groupData$options$fi = groupData === null || groupData === void 0 ? void 0 : groupData.options.findIndex(isOptionFocused)) !== null && _groupData$options$fi !== void 0 ? _groupData$options$fi : 0;
+          var totalLength = options2 === null || options2 === void 0 ? void 0 : options2.reduce(function(acc, currentGroup) {
+            var _group$options;
+            var group = currentGroup;
+            acc += group === null || group === void 0 || (_group$options = group.options) === null || _group$options === void 0 ? void 0 : _group$options.length;
+            return acc;
+          }, 0);
+          inputLabel = "".concat(inputLabel, ", ").concat(groupData === null || groupData === void 0 ? void 0 : groupData.label, " (").concat(groupOptionIndex + 1, " of ").concat(totalLength, ")");
+        } else {
+          inputLabel = "".concat(inputLabel, " (").concat(optionIndex + 1, " of ").concat(options2 === null || options2 === void 0 ? void 0 : options2.length, ")");
+        }
+        return inputLabel;
+      }
+    }, {
+      key: "focusValue",
+      value: function focusValue(direction) {
+        var _this$state3 = this.state, selectValue = _this$state3.selectValue, focusedValue = _this$state3.focusedValue;
+        if (!this.props.isMulti) {
+          return;
+        }
+        this.setState({
+          focusedOption: null
+        });
+        var focusedIndex = selectValue.indexOf(focusedValue);
+        if (!focusedValue) {
+          focusedIndex = -1;
+        }
+        var lastIndex = selectValue.length - 1;
+        var nextFocus = -1;
+        if (!selectValue.length) {
+          return;
+        }
+        switch (direction) {
+          case "previous":
+            if (focusedIndex === 0) {
+              nextFocus = 0;
+            } else if (focusedIndex === -1) {
+              nextFocus = lastIndex;
+            } else {
+              nextFocus = focusedIndex - 1;
+            }
+            break;
+          case "next":
+            if (focusedIndex > -1 && focusedIndex < lastIndex) {
+              nextFocus = focusedIndex + 1;
+            }
+            break;
+        }
+        this.setState({
+          inputIsHidden: nextFocus !== -1,
+          focusedValue: selectValue[nextFocus],
+          focusedValueId: "".concat(this.getElementId("selected-value"), "-").concat(nextFocus, "-remove"),
+          focusedOption: null,
+          focusedOptionId: null
+        });
+      }
+    }, {
+      key: "focusOption",
+      value: function focusOption() {
+        var direction = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : "first";
+        var pageSize = this.props.pageSize;
+        var focusedOption = this.state.focusedOption;
+        var options2 = this.getFocusableOptions();
+        if (!options2.length) {
+          return;
+        }
+        var nextFocus = 0;
+        var focusedIndex = options2.indexOf(focusedOption);
+        if (!focusedOption) {
+          focusedIndex = -1;
+        }
+        if (direction === "up") {
+          nextFocus = focusedIndex > 0 ? focusedIndex - 1 : options2.length - 1;
+        } else if (direction === "down") {
+          nextFocus = (focusedIndex + 1) % options2.length;
+        } else if (direction === "pageup") {
+          nextFocus = focusedIndex - pageSize;
+          if (nextFocus < 0) {
+            nextFocus = 0;
+          }
+        } else if (direction === "pagedown") {
+          nextFocus = focusedIndex + pageSize;
+          if (nextFocus > options2.length - 1) {
+            nextFocus = options2.length - 1;
+          }
+        } else if (direction === "last") {
+          nextFocus = options2.length - 1;
+        }
+        this.scrollToFocusedOptionOnUpdate = true;
+        this.setState({
+          focusedOption: options2[nextFocus],
+          focusedValue: null,
+          focusedValueId: null,
+          focusedOptionId: this.getFocusedOptionId(options2[nextFocus])
+        });
+      }
+    }, {
+      key: "getCommonProps",
+      value: function getCommonProps() {
+        var clearValue = this.clearValue, cx3 = this.cx, getStyles = this.getStyles, getClassNames = this.getClassNames, getValue = this.getValue, selectOption = this.selectOption, setValue = this.setValue, props = this.props;
+        var isMulti = props.isMulti, isRtl = props.isRtl, options2 = props.options;
+        var hasValue = this.hasValue();
+        return {
+          clearValue,
+          cx: cx3,
+          getStyles,
+          getClassNames,
+          getValue,
+          hasValue,
+          isMulti,
+          isRtl,
+          options: options2,
+          selectOption,
+          selectProps: props,
+          setValue
+        };
+      }
+    }, {
+      key: "hasValue",
+      value: function hasValue() {
+        var selectValue = this.state.selectValue;
+        return selectValue.length > 0;
+      }
+    }, {
+      key: "hasOptions",
+      value: function hasOptions() {
+        return !!this.getFocusableOptions().length;
+      }
+    }, {
+      key: "isClearable",
+      value: function isClearable() {
+        var _this$props7 = this.props, isClearable2 = _this$props7.isClearable, isMulti = _this$props7.isMulti;
+        if (isClearable2 === void 0) {
+          return isMulti;
+        }
+        return isClearable2;
+      }
+    }, {
+      key: "isOptionDisabled",
+      value: function isOptionDisabled3(option, selectValue) {
+        return _isOptionDisabled(this.props, option, selectValue);
+      }
+    }, {
+      key: "isOptionSelected",
+      value: function isOptionSelected(option, selectValue) {
+        return _isOptionSelected(this.props, option, selectValue);
+      }
+    }, {
+      key: "filterOption",
+      value: function filterOption(option, inputValue) {
+        return _filterOption(this.props, option, inputValue);
+      }
+    }, {
+      key: "formatOptionLabel",
+      value: function formatOptionLabel(data, context) {
+        if (typeof this.props.formatOptionLabel === "function") {
+          var inputValue = this.props.inputValue;
+          var selectValue = this.state.selectValue;
+          return this.props.formatOptionLabel(data, {
+            context,
+            inputValue,
+            selectValue
+          });
+        } else {
+          return this.getOptionLabel(data);
+        }
+      }
+    }, {
+      key: "formatGroupLabel",
+      value: function formatGroupLabel3(data) {
+        return this.props.formatGroupLabel(data);
+      }
+    }, {
+      key: "calculateDescription",
+      value: function calculateDescription() {
+        var descriptionProp = this.props["aria-describedby"] || this.props.descriptionId;
+        var isMulti = this.props.isMulti;
+        var hasValue = this.state.selectValue.length > 0;
+        var baseDescriptionId = hasValue ? isMulti ? "" : this.getElementId("single-value") : this.getElementId("placeholder");
+        if (!isMulti && !descriptionProp) {
+          return {
+            "aria-describedby": baseDescriptionId
+          };
+        }
+        var describedBy = baseDescriptionId;
+        if (descriptionProp) {
+          describedBy = describedBy ? "".concat(descriptionProp, " ").concat(describedBy) : descriptionProp;
+        }
+        if (isMulti) {
+          var multiMessage = this.getElementId("multi-message");
+          describedBy = describedBy ? "".concat(describedBy, " ").concat(multiMessage) : multiMessage;
+        }
+        return {
+          "aria-describedby": describedBy
+        };
+      }
+    }, {
+      key: "startListeningComposition",
+      value: (
+        // ==============================
+        // Composition Handlers
+        // ==============================
+        function startListeningComposition() {
+          if (document && document.addEventListener) {
+            document.addEventListener("compositionstart", this.onCompositionStart, false);
+            document.addEventListener("compositionend", this.onCompositionEnd, false);
+          }
+        }
+      )
+    }, {
+      key: "stopListeningComposition",
+      value: function stopListeningComposition() {
+        if (document && document.removeEventListener) {
+          document.removeEventListener("compositionstart", this.onCompositionStart);
+          document.removeEventListener("compositionend", this.onCompositionEnd);
+        }
+      }
+    }, {
+      key: "startListeningToTouch",
+      value: (
+        // ==============================
+        // Touch Handlers
+        // ==============================
+        function startListeningToTouch() {
+          if (document && document.addEventListener) {
+            document.addEventListener("touchstart", this.onTouchStart, false);
+            document.addEventListener("touchmove", this.onTouchMove, false);
+            document.addEventListener("touchend", this.onTouchEnd, false);
+          }
+        }
+      )
+    }, {
+      key: "stopListeningToTouch",
+      value: function stopListeningToTouch() {
+        if (document && document.removeEventListener) {
+          document.removeEventListener("touchstart", this.onTouchStart);
+          document.removeEventListener("touchmove", this.onTouchMove);
+          document.removeEventListener("touchend", this.onTouchEnd);
+        }
+      }
+    }, {
+      key: "renderInput",
+      value: (
+        // ==============================
+        // Renderers
+        // ==============================
+        function renderInput() {
+          var _this$props8 = this.props, form = _this$props8.form, inputId = _this$props8.inputId, inputValue = _this$props8.inputValue, isDisabled = _this$props8.isDisabled, isInvalid = _this$props8.isInvalid, isRequired = _this$props8.isRequired, isSearchable = _this$props8.isSearchable, label = _this$props8.label, labelId = _this$props8.labelId, menuIsOpen = _this$props8.menuIsOpen, required = _this$props8.required, _this$props8$tabIndex = _this$props8.tabIndex, tabIndex = _this$props8$tabIndex === void 0 ? 0 : _this$props8$tabIndex, testId = _this$props8.testId;
+          var _this$getComponents = this.getComponents(), Input3 = _this$getComponents.Input;
+          var inputIsHidden = this.state.inputIsHidden;
+          var commonProps = this.commonProps;
+          var id = inputId || this.getElementId("input");
+          var ariaAttributes = _objectSpread21(_objectSpread21(_objectSpread21({
+            "aria-autocomplete": "both",
+            "aria-errormessage": this.props["aria-errormessage"],
+            "aria-expanded": menuIsOpen,
+            // TODO: aria-haspopup is implied as listbox with role="combobox" and was deprecated for aria 1.2, we still might need to keep it for back compat
+            "aria-haspopup": this.props["UNSAFE_is_experimental_generic"] ? "dialog" : "listbox",
+            "aria-invalid": this.props["aria-invalid"] || isInvalid,
+            "aria-label": this.props["aria-label"] || label,
+            "aria-labelledby": this.props["aria-labelledby"] || labelId,
+            "aria-required": required || isRequired,
+            role: "combobox",
+            "aria-activedescendant": this.props["UNSAFE_is_experimental_generic"] ? void 0 : this.state.focusedOptionId || this.state.focusedValueId || void 0
+          }, menuIsOpen && {
+            "aria-controls": this.getElementId("listbox")
+          }), !isSearchable && {
+            "aria-readonly": true
+          }), this.calculateDescription());
+          if (!isSearchable) {
+            return /* @__PURE__ */ import_react95.default.createElement(DummyInput, _extends({
+              id,
+              innerRef: this.getInputRef,
+              onBlur: this.onInputBlur,
+              onChange: noop4,
+              onFocus: this.onInputFocus,
+              disabled: isDisabled,
+              tabIndex,
+              inputMode: "none",
+              form,
+              value: "",
+              "data-testid": testId && "".concat(testId, "-select--input")
+            }, ariaAttributes));
+          }
+          return /* @__PURE__ */ import_react95.default.createElement(Input3, _extends({}, commonProps, {
+            autoCapitalize: "none",
+            autoComplete: "off",
+            autoCorrect: "off",
+            id,
+            testId,
+            innerRef: this.getInputRef,
+            isDisabled,
+            isHidden: inputIsHidden,
+            onBlur: this.onInputBlur,
+            onChange: this.handleInputChange,
+            onFocus: this.onInputFocus,
+            spellCheck: "false",
+            tabIndex,
+            form,
+            type: "text",
+            value: inputValue
+          }, ariaAttributes));
+        }
+      )
+    }, {
+      key: "renderPlaceholderOrValue",
+      value: function renderPlaceholderOrValue() {
+        var _this5 = this;
+        var _this$getComponents2 = this.getComponents(), MultiValue3 = _this$getComponents2.MultiValue, MultiValueContainer3 = _this$getComponents2.MultiValueContainer, MultiValueLabel3 = _this$getComponents2.MultiValueLabel, MultiValueRemove2 = _this$getComponents2.MultiValueRemove, SingleValue3 = _this$getComponents2.SingleValue, Placeholder3 = _this$getComponents2.Placeholder;
+        var commonProps = this.commonProps;
+        var _this$props9 = this.props, controlShouldRenderValue = _this$props9.controlShouldRenderValue, isDisabled = _this$props9.isDisabled, isMulti = _this$props9.isMulti, inputValue = _this$props9.inputValue, placeholder = _this$props9.placeholder, testId = _this$props9.testId;
+        var _this$state4 = this.state, selectValue = _this$state4.selectValue, focusedValue = _this$state4.focusedValue, isFocused = _this$state4.isFocused;
+        if (!this.hasValue() || !controlShouldRenderValue) {
+          return inputValue ? null : /* @__PURE__ */ import_react95.default.createElement(Placeholder3, _extends({}, commonProps, {
+            key: "placeholder",
+            isDisabled,
+            isFocused,
+            innerProps: _objectSpread21({
+              id: this.getElementId("placeholder")
+            }, testId && {
+              "data-testid": "".concat(testId, "-select--placeholder")
+            })
+          }), placeholder);
+        }
+        if (isMulti) {
+          return selectValue.map(function(opt, index2) {
+            var isOptionFocused = opt === focusedValue;
+            var key = "".concat(_this5.getOptionLabel(opt), "-").concat(_this5.getOptionValue(opt));
+            return /* @__PURE__ */ import_react95.default.createElement(MultiValue3, _extends({}, commonProps, {
+              components: {
+                Container: MultiValueContainer3,
+                Label: MultiValueLabel3,
+                Remove: MultiValueRemove2
+              },
+              isFocused: isOptionFocused,
+              isDisabled,
+              key,
+              index: index2,
+              removeProps: _objectSpread21(_objectSpread21({
+                onClick: function onClick() {
+                  return _this5.removeValue(opt);
+                },
+                onTouchEnd: function onTouchEnd() {
+                  return _this5.removeValue(opt);
+                },
+                onMouseDown: function onMouseDown(e) {
+                  e.preventDefault();
+                }
+              }, testId && {
+                "data-testid": "".concat(testId, "-select--multivalue-").concat(index2, "-remove")
+              }), {}, {
+                id: "".concat(_this5.getElementId("selected-value"), "-").concat(index2, "-remove")
+              }),
+              data: opt,
+              innerProps: _objectSpread21(_objectSpread21({}, testId && {
+                "data-testid": "".concat(testId, "-select--multivalue-").concat(index2)
+              }), {}, {
+                id: "".concat(_this5.getElementId("selected-value"), "-").concat(index2)
+              })
+            }), _this5.formatOptionLabel(opt, "value"));
+          });
+        }
+        if (inputValue) {
+          return null;
+        }
+        var singleValue = selectValue[0];
+        return /* @__PURE__ */ import_react95.default.createElement(SingleValue3, _extends({}, commonProps, {
+          data: singleValue,
+          isDisabled,
+          innerProps: {
+            id: this.getElementId("single-value")
+          }
+        }), this.formatOptionLabel(singleValue, "value"));
+      }
+    }, {
+      key: "renderClearIndicator",
+      value: function renderClearIndicator() {
+        var _this$getComponents3 = this.getComponents(), ClearIndicator3 = _this$getComponents3.ClearIndicator;
+        var commonProps = this.commonProps;
+        var _this$props0 = this.props, clearControlLabel = _this$props0.clearControlLabel, isDisabled = _this$props0.isDisabled, isLoading = _this$props0.isLoading, spacing = _this$props0.spacing, testId = _this$props0.testId;
+        var isFocused = this.state.isFocused;
+        if (!this.isClearable() || !ClearIndicator3 || isDisabled || !this.hasValue() || isLoading) {
+          return null;
+        }
+        var innerProps = _objectSpread21({
+          onMouseDown: this.onClearIndicatorMouseDown,
+          onTouchEnd: this.onClearIndicatorTouchEnd
+        }, testId && {
+          "data-testid": "".concat(testId, "-select--clear-indicator")
+        });
+        var isCompact = spacing === "compact";
+        return /* @__PURE__ */ import_react95.default.createElement(ClearIndicator3, _extends({
+          clearControlLabel
+        }, commonProps, {
+          innerProps,
+          isFocused,
+          isCompact
+        }));
+      }
+    }, {
+      key: "renderLoadingIndicator",
+      value: function renderLoadingIndicator() {
+        var _this$getComponents4 = this.getComponents(), LoadingIndicator3 = _this$getComponents4.LoadingIndicator;
+        var commonProps = this.commonProps;
+        var _this$props1 = this.props, isDisabled = _this$props1.isDisabled, isLoading = _this$props1.isLoading, spacing = _this$props1.spacing, testId = _this$props1.testId;
+        var isFocused = this.state.isFocused;
+        if (!LoadingIndicator3 || !isLoading) {
+          return null;
+        }
+        var isCompact = spacing === "compact";
+        var innerProps = {
+          "aria-hidden": "true"
+        };
+        return /* @__PURE__ */ import_react95.default.createElement(LoadingIndicator3, _extends({
+          "data-testid": testId && "".concat(testId, "-select--loading-indicator")
+        }, commonProps, {
+          innerProps,
+          isDisabled,
+          isFocused,
+          isCompact
+        }));
+      }
+    }, {
+      key: "renderDropdownIndicator",
+      value: function renderDropdownIndicator() {
+        var _this$getComponents5 = this.getComponents(), DropdownIndicator3 = _this$getComponents5.DropdownIndicator;
+        if (!DropdownIndicator3) {
+          return null;
+        }
+        var commonProps = this.commonProps;
+        var _this$props10 = this.props, isDisabled = _this$props10.isDisabled, spacing = _this$props10.spacing, testId = _this$props10.testId;
+        var isFocused = this.state.isFocused;
+        var isCompact = spacing === "compact";
+        var innerProps = _objectSpread21({
+          onMouseDown: this.onDropdownIndicatorMouseDown,
+          onTouchEnd: this.onDropdownIndicatorTouchEnd,
+          "aria-hidden": "true"
+        }, testId && {
+          "data-testid": "".concat(testId, "-select--dropdown-indicator")
+        });
+        return /* @__PURE__ */ import_react95.default.createElement(DropdownIndicator3, _extends({}, commonProps, {
+          innerProps,
+          isDisabled,
+          isFocused,
+          isCompact
+        }));
+      }
+    }, {
+      key: "renderMenu",
+      value: function renderMenu() {
+        var _this6 = this;
+        var _this$getComponents6 = this.getComponents(), Group3 = _this$getComponents6.Group, GroupHeading3 = _this$getComponents6.GroupHeading, Menu3 = _this$getComponents6.Menu, MenuList3 = _this$getComponents6.MenuList, MenuPortal3 = _this$getComponents6.MenuPortal, LoadingMessage3 = _this$getComponents6.LoadingMessage, NoOptionsMessage3 = _this$getComponents6.NoOptionsMessage, Option3 = _this$getComponents6.Option;
+        var commonProps = this.commonProps;
+        var focusedOption = this.state.focusedOption;
+        var _this$props11 = this.props, captureMenuScroll = _this$props11.captureMenuScroll, inputValue = _this$props11.inputValue, isLoading = _this$props11.isLoading, loadingMessage2 = _this$props11.loadingMessage, minMenuHeight = _this$props11.minMenuHeight, maxMenuHeight = _this$props11.maxMenuHeight, menuIsOpen = _this$props11.menuIsOpen, menuPlacement = _this$props11.menuPlacement, menuPosition = _this$props11.menuPosition, menuPortalTarget = _this$props11.menuPortalTarget, menuShouldBlockScroll = _this$props11.menuShouldBlockScroll, menuShouldScrollIntoView = _this$props11.menuShouldScrollIntoView, noOptionsMessage2 = _this$props11.noOptionsMessage, onMenuScrollToTop = _this$props11.onMenuScrollToTop, onMenuScrollToBottom = _this$props11.onMenuScrollToBottom, testId = _this$props11.testId;
+        if (!menuIsOpen) {
+          return null;
+        }
+        var render = function render2(props, id, headingId) {
+          var type = props.type, data = props.data, isDisabled = props.isDisabled, isSelected = props.isSelected, label = props.label, value = props.value;
+          var isFocused = focusedOption === data;
+          var onHover = isDisabled ? void 0 : function() {
+            return _this6.onOptionHover(data);
+          };
+          var onSelect = isDisabled ? void 0 : function() {
+            return _this6.selectOption(data);
+          };
+          var optionId = "".concat(_this6.getElementId("option"), "-").concat(id);
+          var innerProps = _objectSpread21({
+            id: optionId,
+            onClick: onSelect,
+            onMouseMove: onHover,
+            onMouseOver: onHover,
+            role: _this6.props["UNSAFE_is_experimental_generic"] ? "listitem" : "option",
+            "aria-selected": _this6.props["UNSAFE_is_experimental_generic"] ? void 0 : isSelected,
+            // We don't want aria-disabled if it's false. It's just noisy.
+            "aria-disabled": !isDisabled ? void 0 : isDisabled,
+            "aria-describedby": headingId
+          }, testId && {
+            "data-testid": "".concat(testId, "-select--option-").concat(id)
+          });
+          return /* @__PURE__ */ import_react95.default.createElement(Option3, _extends({}, commonProps, {
+            innerProps,
+            data,
+            isDisabled,
+            isSelected,
+            key: optionId,
+            label,
+            type,
+            value,
+            isFocused,
+            innerRef: isFocused ? _this6.getFocusedOptionRef : void 0
+          }), _this6.formatOptionLabel(props.data, "menu"));
+        };
+        var menuUI;
+        if (this.hasOptions()) {
+          var items = this.getCategorizedOptions();
+          menuUI = items.map(function(item) {
+            if (item.type === "group") {
+              var data = item.data, options2 = item.options, groupIndex = item.index;
+              var groupId = "".concat(_this6.getElementId("group"), "-").concat(groupIndex);
+              var headingId = "".concat(groupId, "-heading");
+              return /* @__PURE__ */ import_react95.default.createElement(Group3, _extends({}, commonProps, {
+                key: groupId,
+                data,
+                options: options2,
+                Heading: GroupHeading3,
+                headingProps: _objectSpread21({
+                  id: headingId,
+                  data: item.data
+                }, testId && {
+                  "data-testid": "".concat(testId, "-select--group-").concat(groupIndex, "-heading")
+                }),
+                label: _this6.formatGroupLabel(item.data)
+              }), item.options.map(function(option) {
+                return render(option, "".concat(groupIndex, "-").concat(option.index), headingId);
+              }));
+            } else if (item.type === "option") {
+              return render(item, "".concat(item.index));
+            }
+          });
+        } else if (isLoading) {
+          var message2 = loadingMessage2({
+            inputValue
+          });
+          if (message2 === null) {
+            return null;
+          }
+          menuUI = /* @__PURE__ */ import_react95.default.createElement(LoadingMessage3, commonProps, message2);
+        } else {
+          var _message = noOptionsMessage2({
+            inputValue
+          });
+          if (_message === null) {
+            return null;
+          }
+          menuUI = /* @__PURE__ */ import_react95.default.createElement(NoOptionsMessage3, _extends({}, commonProps, {
+            innerProps: _objectSpread21({}, testId && {
+              "data-testid": "".concat(testId, "-select--no-options")
+            })
+          }), _message);
+        }
+        var menuPlacementProps = {
+          minMenuHeight,
+          maxMenuHeight,
+          menuPlacement,
+          menuPosition,
+          menuShouldScrollIntoView
+        };
+        var menuElement = /* @__PURE__ */ import_react95.default.createElement(MenuPlacer, _extends({}, commonProps, menuPlacementProps), function(_ref4) {
+          var ref = _ref4.ref, _ref4$placerProps = _ref4.placerProps, placement = _ref4$placerProps.placement, maxHeight = _ref4$placerProps.maxHeight;
+          return /* @__PURE__ */ import_react95.default.createElement(Menu3, _extends({}, commonProps, menuPlacementProps, {
+            innerRef: ref,
+            innerProps: _objectSpread21({
+              onMouseDown: _this6.onMenuMouseDown,
+              onMouseMove: _this6.onMenuMouseMove,
+              id: _this6.props.components.Menu ? _this6.getElementId("listbox") : void 0
+            }, testId && {
+              "data-testid": "".concat(testId, "-select--listbox-container")
+            }),
+            isLoading,
+            placement
+          }), /* @__PURE__ */ import_react95.default.createElement(ScrollManager, {
+            captureEnabled: captureMenuScroll,
+            onTopArrive: onMenuScrollToTop,
+            onBottomArrive: onMenuScrollToBottom,
+            lockEnabled: menuShouldBlockScroll
+          }, function(scrollTargetRef) {
+            var _this6$inputRef, _this6$inputRef2;
+            return /* @__PURE__ */ import_react95.default.createElement(MenuList3, _extends({}, commonProps, {
+              innerRef: function innerRef(instance) {
+                _this6.getMenuListRef(instance);
+                scrollTargetRef(instance);
+              },
+              innerProps: _objectSpread21(_objectSpread21(_objectSpread21({
+                role: _this6.props["UNSAFE_is_experimental_generic"] ? "dialog" : "listbox"
+              }, _this6.props["UNSAFE_is_experimental_generic"] && {
+                "aria-labelledby": ((_this6$inputRef = _this6.inputRef) === null || _this6$inputRef === void 0 ? void 0 : _this6$inputRef.id) || _this6.getElementId("input")
+              }), {}, {
+                "aria-multiselectable": !commonProps.isMulti || _this6.props["UNSAFE_is_experimental_generic"] ? void 0 : commonProps.isMulti,
+                id: _this6.getElementId("listbox")
+              }, testId && {
+                "data-testid": "".concat(testId, "-select--listbox")
+              }), isSafari3() && !_this6.props["UNSAFE_is_experimental_generic"] && {
+                "aria-describedby": ((_this6$inputRef2 = _this6.inputRef) === null || _this6$inputRef2 === void 0 ? void 0 : _this6$inputRef2.id) || _this6.getElementId("input")
+              }),
+              isLoading,
+              maxHeight,
+              focusedOption
+            }), _this6.props["UNSAFE_is_experimental_generic"] ? /* @__PURE__ */ import_react95.default.createElement("div", {
+              role: "list"
+            }, menuUI) : menuUI);
+          }));
+        });
+        return menuPortalTarget || menuPosition === "fixed" ? /* @__PURE__ */ import_react95.default.createElement(MenuPortal3, _extends({}, commonProps, {
+          appendTo: menuPortalTarget,
+          controlElement: this.controlRef,
+          menuPlacement,
+          menuPosition
+        }), menuElement) : menuElement;
+      }
+    }, {
+      key: "renderFormField",
+      value: function renderFormField() {
+        var _this7 = this;
+        var _this$props12 = this.props, delimiter = _this$props12.delimiter, isDisabled = _this$props12.isDisabled, isMulti = _this$props12.isMulti, required = _this$props12.required, name = _this$props12.name;
+        var selectValue = this.state.selectValue;
+        if (required && !this.hasValue() && !isDisabled) {
+          return /* @__PURE__ */ import_react95.default.createElement(required_input_default, {
+            name,
+            onFocus: this.onValueInputFocus
+          });
+        }
+        if (!name || isDisabled) {
+          return;
+        }
+        if (isMulti) {
+          if (delimiter) {
+            var value = selectValue.map(function(opt) {
+              return _this7.getOptionValue(opt);
+            }).join(delimiter);
+            return /* @__PURE__ */ import_react95.default.createElement("input", {
+              name,
+              type: "hidden",
+              value
+            });
+          } else {
+            var input = selectValue.length > 0 ? selectValue.map(function(opt, i) {
+              return /* @__PURE__ */ import_react95.default.createElement("input", {
+                key: "i-".concat(i),
+                name,
+                type: "hidden",
+                value: _this7.getOptionValue(opt)
+              });
+            }) : /* @__PURE__ */ import_react95.default.createElement("input", {
+              name,
+              type: "hidden",
+              value: ""
+            });
+            return /* @__PURE__ */ import_react95.default.createElement("div", null, input);
+          }
+        } else {
+          var _value = selectValue[0] ? this.getOptionValue(selectValue[0]) : "";
+          return /* @__PURE__ */ import_react95.default.createElement("input", {
+            name,
+            type: "hidden",
+            value: _value
+          });
+        }
+      }
+    }, {
+      key: "renderLiveRegion",
+      value: function renderLiveRegion() {
+        var commonProps = this.commonProps;
+        var _this$state5 = this.state, ariaSelection = _this$state5.ariaSelection, isFocused = _this$state5.isFocused, selectValue = _this$state5.selectValue;
+        var focusableOptions = this.getFocusableOptions();
+        return /* @__PURE__ */ import_react95.default.createElement(live_region_default, _extends({}, commonProps, {
+          id: this.getElementId("live-region"),
+          ariaSelection,
+          isFocused,
+          selectValue,
+          focusableOptions
+        }));
+      }
+    }, {
+      key: "renderMultiselectMessage",
+      value: function renderMultiselectMessage() {
+        var msg = ", multiple selections available, ".concat(this.state.selectValue.length ? "Use left or right arrow keys to navigate selected items" : "");
+        return (
+          // eslint-disable-next-line @atlaskit/design-system/use-primitives-text
+          /* @__PURE__ */ import_react95.default.createElement("span", {
+            id: this.getElementId("multi-message"),
+            hidden: true
+          }, msg)
+        );
+      }
+    }, {
+      key: "render",
+      value: function render() {
+        var _this$getComponents7 = this.getComponents(), Control3 = _this$getComponents7.Control, IndicatorsContainer3 = _this$getComponents7.IndicatorsContainer, SelectContainer3 = _this$getComponents7.SelectContainer, ValueContainer3 = _this$getComponents7.ValueContainer;
+        var _this$props13 = this.props, className = _this$props13.className, id = _this$props13.id, isDisabled = _this$props13.isDisabled, menuIsOpen = _this$props13.menuIsOpen, isInvalid = _this$props13.isInvalid, testId = _this$props13.testId, _this$props13$appeara = _this$props13.appearance, appearance = _this$props13$appeara === void 0 ? "default" : _this$props13$appeara, _this$props13$spacing = _this$props13.spacing, spacing = _this$props13$spacing === void 0 ? "default" : _this$props13$spacing;
+        var isFocused = this.state.isFocused;
+        var commonProps = this.commonProps = this.getCommonProps();
+        var isCompact = spacing === "compact";
+        return /* @__PURE__ */ import_react95.default.createElement(SelectContainer3, _extends({}, commonProps, {
+          // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
+          className,
+          innerProps: _objectSpread21({
+            id,
+            onKeyDown: this.onKeyDown
+          }, testId && {
+            "data-testid": testId && "".concat(testId, "-select--container")
+          }),
+          isDisabled,
+          isFocused
+        }), this.renderLiveRegion(), commonProps.isMulti && this.renderMultiselectMessage(), /* @__PURE__ */ import_react95.default.createElement(Control3, _extends({}, commonProps, {
+          innerRef: this.getControlRef,
+          innerProps: _objectSpread21({
+            onMouseDown: this.onControlMouseDown,
+            onTouchEnd: this.onControlTouchEnd
+          }, testId && {
+            "data-testid": "".concat(testId, "-select--control")
+          }),
+          appearance,
+          isInvalid,
+          isDisabled,
+          isFocused,
+          menuIsOpen,
+          isCompact
+        }), /* @__PURE__ */ import_react95.default.createElement(ValueContainer3, _extends({}, commonProps, {
+          isDisabled,
+          isCompact,
+          innerProps: _objectSpread21(_objectSpread21({}, testId && {
+            "data-testid": "".concat(testId, "-select--value-container")
+          }), commonProps.isMulti && commonProps.hasValue && !isAppleDevice() && {
+            // Required to keep JAWS from popping out of forms mode when using LEFT/RIGHT arrow keys.
+            // This is Jedi Master level ARIA and not taken lightly. Do not modify without consulting
+            // DST Accessibility.
+            role: "application"
+          })
+        }), this.renderPlaceholderOrValue(), this.renderInput()), /* @__PURE__ */ import_react95.default.createElement(IndicatorsContainer3, _extends({}, commonProps, {
+          isDisabled,
+          innerProps: _objectSpread21({}, testId && {
+            "data-testid": "".concat(testId, "-select--indicators-container")
+          })
+        }), this.renderClearIndicator(), this.renderLoadingIndicator(), this.renderDropdownIndicator())), this.renderMenu(), this.renderFormField(), /* @__PURE__ */ import_react95.default.createElement(NotifyOpenLayerObserver, {
+          isOpen: this.props.menuIsOpen,
+          onClose: this.handleOpenLayerObserverCloseSignal
+        }));
+      }
+    }], [{
+      key: "getDerivedStateFromProps",
+      value: function getDerivedStateFromProps(props, state) {
+        var prevProps = state.prevProps, clearFocusValueOnUpdate = state.clearFocusValueOnUpdate, inputIsHiddenAfterUpdate = state.inputIsHiddenAfterUpdate, ariaSelection = state.ariaSelection, isFocused = state.isFocused, prevWasFocused = state.prevWasFocused, instancePrefix = state.instancePrefix;
+        var options2 = props.options, value = props.value, menuIsOpen = props.menuIsOpen, inputValue = props.inputValue, isMulti = props.isMulti;
+        var selectValue = cleanValue(value);
+        var newMenuOptionsState = {};
+        if (prevProps && (value !== prevProps.value || options2 !== prevProps.options || menuIsOpen !== prevProps.menuIsOpen || inputValue !== prevProps.inputValue)) {
+          var focusableOptions = menuIsOpen ? buildFocusableOptions(props, selectValue) : [];
+          var focusableOptionsWithIds = menuIsOpen ? buildFocusableOptionsWithIds(buildCategorizedOptions(props, selectValue), "".concat(instancePrefix, "-option")) : [];
+          var focusedValue = clearFocusValueOnUpdate ? getNextFocusedValue(state, selectValue) : null;
+          var focusedOption = getNextFocusedOption(state, focusableOptions);
+          var focusedOptionId = getFocusedOptionId(focusableOptionsWithIds, focusedOption);
+          newMenuOptionsState = {
+            selectValue,
+            focusedOption,
+            focusedOptionId,
+            focusableOptionsWithIds,
+            focusedValue,
+            clearFocusValueOnUpdate: false
+          };
+        }
+        var newInputIsHiddenState = inputIsHiddenAfterUpdate != null && props !== prevProps ? {
+          inputIsHidden: inputIsHiddenAfterUpdate,
+          inputIsHiddenAfterUpdate: void 0
+        } : {};
+        var newAriaSelection = ariaSelection;
+        var hasKeptFocus = isFocused && prevWasFocused;
+        if (isFocused && !hasKeptFocus) {
+          newAriaSelection = {
+            value: valueTernary(isMulti, selectValue, selectValue[0] || null),
+            options: selectValue,
+            action: "initial-input-focus"
+          };
+          hasKeptFocus = !prevWasFocused;
+        }
+        if ((ariaSelection === null || ariaSelection === void 0 ? void 0 : ariaSelection.action) === "initial-input-focus") {
+          newAriaSelection = null;
+        }
+        return _objectSpread21(_objectSpread21(_objectSpread21({}, newMenuOptionsState), newInputIsHiddenState), {}, {
+          prevProps: props,
+          ariaSelection: newAriaSelection,
+          prevWasFocused: hasKeptFocus
+        });
+      }
+    }]);
+  })(import_react95.Component);
+  _defineProperty(Select, "defaultProps", defaultProps);
+
+  // node_modules/@atlaskit/react-select/dist/esm/async.js
+  var import_react97 = __toESM(require_react());
+
+  // node_modules/@atlaskit/react-select/dist/esm/use-async.js
+  init_defineProperty();
+  init_slicedToArray();
+  var import_react96 = __toESM(require_react());
+  var _excluded13 = ["defaultOptions", "cacheOptions", "loadOptions", "options", "isLoading", "onInputChange", "filterOption"];
+  function ownKeys22(e, r) {
+    var t = Object.keys(e);
+    if (Object.getOwnPropertySymbols) {
+      var o = Object.getOwnPropertySymbols(e);
+      r && (o = o.filter(function(r2) {
+        return Object.getOwnPropertyDescriptor(e, r2).enumerable;
+      })), t.push.apply(t, o);
+    }
+    return t;
+  }
+  function _objectSpread22(e) {
+    for (var r = 1; r < arguments.length; r++) {
+      var t = null != arguments[r] ? arguments[r] : {};
+      r % 2 ? ownKeys22(Object(t), true).forEach(function(r2) {
+        _defineProperty(e, r2, t[r2]);
+      }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys22(Object(t)).forEach(function(r2) {
+        Object.defineProperty(e, r2, Object.getOwnPropertyDescriptor(t, r2));
+      });
+    }
+    return e;
+  }
+  function useAsync(_ref2) {
+    var _ref$defaultOptions = _ref2.defaultOptions, propsDefaultOptions = _ref$defaultOptions === void 0 ? false : _ref$defaultOptions, _ref$cacheOptions = _ref2.cacheOptions, cacheOptions = _ref$cacheOptions === void 0 ? false : _ref$cacheOptions, propsLoadOptions = _ref2.loadOptions, propsOptions = _ref2.options, _ref$isLoading = _ref2.isLoading, propsIsLoading = _ref$isLoading === void 0 ? false : _ref$isLoading, propsOnInputChange = _ref2.onInputChange, _ref$filterOption = _ref2.filterOption, filterOption = _ref$filterOption === void 0 ? null : _ref$filterOption, restSelectProps = _objectWithoutProperties(_ref2, _excluded13);
+    var propsInputValue = restSelectProps.inputValue;
+    var lastRequest = (0, import_react96.useRef)(void 0);
+    var mounted = (0, import_react96.useRef)(false);
+    var _useState = (0, import_react96.useState)(Array.isArray(propsDefaultOptions) ? propsDefaultOptions : void 0), _useState2 = _slicedToArray(_useState, 2), defaultOptions4 = _useState2[0], setDefaultOptions = _useState2[1];
+    var _useState3 = (0, import_react96.useState)(typeof propsInputValue !== "undefined" ? propsInputValue : ""), _useState4 = _slicedToArray(_useState3, 2), stateInputValue = _useState4[0], setStateInputValue = _useState4[1];
+    var _useState5 = (0, import_react96.useState)(propsDefaultOptions === true), _useState6 = _slicedToArray(_useState5, 2), isLoading = _useState6[0], setIsLoading = _useState6[1];
+    var _useState7 = (0, import_react96.useState)(void 0), _useState8 = _slicedToArray(_useState7, 2), loadedInputValue = _useState8[0], setLoadedInputValue = _useState8[1];
+    var _useState9 = (0, import_react96.useState)([]), _useState0 = _slicedToArray(_useState9, 2), loadedOptions = _useState0[0], setLoadedOptions = _useState0[1];
+    var _useState1 = (0, import_react96.useState)(false), _useState10 = _slicedToArray(_useState1, 2), passEmptyOptions = _useState10[0], setPassEmptyOptions = _useState10[1];
+    var _useState11 = (0, import_react96.useState)({}), _useState12 = _slicedToArray(_useState11, 2), optionsCache = _useState12[0], setOptionsCache = _useState12[1];
+    var _useState13 = (0, import_react96.useState)(void 0), _useState14 = _slicedToArray(_useState13, 2), prevDefaultOptions = _useState14[0], setPrevDefaultOptions = _useState14[1];
+    var _useState15 = (0, import_react96.useState)(void 0), _useState16 = _slicedToArray(_useState15, 2), prevCacheOptions = _useState16[0], setPrevCacheOptions = _useState16[1];
+    if (cacheOptions !== prevCacheOptions) {
+      setOptionsCache({});
+      setPrevCacheOptions(cacheOptions);
+    }
+    if (propsDefaultOptions !== prevDefaultOptions) {
+      setDefaultOptions(Array.isArray(propsDefaultOptions) ? propsDefaultOptions : void 0);
+      setPrevDefaultOptions(propsDefaultOptions);
+    }
+    (0, import_react96.useEffect)(function() {
+      mounted.current = true;
+      return function() {
+        mounted.current = false;
+      };
+    }, []);
+    var loadOptions = (0, import_react96.useCallback)(function(inputValue, callback) {
+      if (!propsLoadOptions) {
+        return callback();
+      }
+      var loader = propsLoadOptions(inputValue, callback);
+      if (loader && typeof loader.then === "function") {
+        loader.then(callback, function() {
+          return callback();
+        });
+      }
+    }, [propsLoadOptions]);
+    (0, import_react96.useEffect)(function() {
+      if (propsDefaultOptions === true) {
+        loadOptions(stateInputValue, function(options3) {
+          if (!mounted.current) {
+            return;
+          }
+          setDefaultOptions(options3 || []);
+          setIsLoading(!!lastRequest.current);
+        });
+      }
+    }, []);
+    var onInputChange = (0, import_react96.useCallback)(function(newValue, actionMeta) {
+      var inputValue = handleInputChange(newValue, actionMeta, propsOnInputChange);
+      if (!inputValue) {
+        lastRequest.current = void 0;
+        setStateInputValue("");
+        setLoadedInputValue("");
+        setLoadedOptions([]);
+        setIsLoading(false);
+        setPassEmptyOptions(false);
+        return;
+      }
+      if (cacheOptions && optionsCache[inputValue]) {
+        setStateInputValue(inputValue);
+        setLoadedInputValue(inputValue);
+        setLoadedOptions(optionsCache[inputValue]);
+        setIsLoading(false);
+        setPassEmptyOptions(false);
+      } else {
+        var request = lastRequest.current = {};
+        setStateInputValue(inputValue);
+        setIsLoading(true);
+        setPassEmptyOptions(!loadedInputValue);
+        loadOptions(inputValue, function(options3) {
+          if (!mounted) {
+            return;
+          }
+          if (request !== lastRequest.current) {
+            return;
+          }
+          lastRequest.current = void 0;
+          setIsLoading(false);
+          setLoadedInputValue(inputValue);
+          setLoadedOptions(options3 || []);
+          setPassEmptyOptions(false);
+          setOptionsCache(options3 ? _objectSpread22(_objectSpread22({}, optionsCache), {}, _defineProperty({}, inputValue, options3)) : optionsCache);
+        });
+      }
+    }, [cacheOptions, loadOptions, loadedInputValue, optionsCache, propsOnInputChange]);
+    var options2 = passEmptyOptions ? [] : stateInputValue && loadedInputValue ? loadedOptions : defaultOptions4 || [];
+    return _objectSpread22(_objectSpread22({}, restSelectProps), {}, {
+      options: options2,
+      isLoading: isLoading || propsIsLoading,
+      onInputChange,
+      filterOption
+    });
+  }
+
+  // node_modules/@atlaskit/react-select/dist/esm/async.js
+  var AsyncSelect = /* @__PURE__ */ (0, import_react97.forwardRef)(function(props, ref) {
+    var isAsyncEnabledInBaseSelect = props.isAsync && !props.options && (!!props.loadOptions || !!props.defaultOptions);
+    var stateManagedProps = useAsync(props);
+    var selectAsyncProps = !props.isAsync || isAsyncEnabledInBaseSelect ? stateManagedProps : props;
+    var selectProps = useStateManager(selectAsyncProps);
+    return /* @__PURE__ */ import_react97.default.createElement(Select, _extends({
+      ref
+    }, selectProps));
+  });
+  var async_default = AsyncSelect;
+
+  // node_modules/@atlaskit/select/dist/esm/createSelect.js
+  var import_react98 = __toESM(require_react());
+  var _excluded14 = ["ariaLiveMessages", "isInvalid", "onClickPreventDefault", "tabSelectsValue", "validationState"];
+  function createSelect(WrappedComponent) {
+    var AtlaskitSelect = /* @__PURE__ */ (0, import_react98.forwardRef)(function AtlaskitSelect2(props, forwardedRef) {
+      var ariaLiveMessages = props.ariaLiveMessages, isInvalid = props.isInvalid, _props$onClickPrevent = props.onClickPreventDefault, onClickPreventDefault = _props$onClickPrevent === void 0 ? true : _props$onClickPrevent, _props$tabSelectsValu = props.tabSelectsValue, tabSelectsValue = _props$tabSelectsValu === void 0 ? false : _props$tabSelectsValu, _props$validationStat = props.validationState, validationState = _props$validationStat === void 0 ? "default" : _props$validationStat, restProps = _objectWithoutProperties(props, _excluded14);
+      var internalSelectRef = (0, import_react98.useRef)(null);
+      (0, import_react98.useImperativeHandle)(forwardedRef, function() {
+        return {
+          select: internalSelectRef.current,
+          focus: function focus() {
+            var _internalSelectRef$cu;
+            return (_internalSelectRef$cu = internalSelectRef.current) === null || _internalSelectRef$cu === void 0 ? void 0 : _internalSelectRef$cu.focus();
+          },
+          blur: function blur() {
+            var _internalSelectRef$cu2;
+            return (_internalSelectRef$cu2 = internalSelectRef.current) === null || _internalSelectRef$cu2 === void 0 ? void 0 : _internalSelectRef$cu2.blur();
+          }
+        };
+      }, []);
+      return /* @__PURE__ */ import_react98.default.createElement(WrappedComponent, _extends({
+        ref: internalSelectRef,
+        ariaLiveMessages,
+        tabSelectsValue,
+        onClickPreventDefault,
+        isInvalid: isInvalid || validationState === "error"
+      }, restProps, {
+        // indicates react-select to be async by default using the base Select component
+        // so that makers can pass all async props on the base select to async load options.
+        isAsync: true
+      }));
+    });
+    AtlaskitSelect.displayName = "AtlaskitSelect";
+    return AtlaskitSelect;
+  }
+
+  // node_modules/@atlaskit/select/dist/esm/Select.js
+  var packageName2 = "@atlaskit/select";
+  var packageVersion2 = "21.2.3";
+  var SelectWithoutAnalytics = createSelect(async_default);
+  var createAndFireEventOnAtlaskit = createAndFireEvent_default("atlaskit");
+  var Select2 = withAnalyticsContext_default({
+    componentName: "select",
+    packageName: packageName2,
+    packageVersion: packageVersion2
+  })(withAnalyticsEvents_default({
+    onChange: createAndFireEventOnAtlaskit({
+      action: "changed",
+      actionSubject: "option",
+      attributes: {
+        componentName: "select",
+        packageName: packageName2,
+        packageVersion: packageVersion2
+      }
+    })
+  })(SelectWithoutAnalytics));
+  var Select_default = Select2;
+
   // src/components/Modal.jsx
   function Modal({ open, onClose, children }) {
-    return /* @__PURE__ */ import_react60.default.createElement(modal_transition_default, null, open && /* @__PURE__ */ import_react60.default.createElement(
+    const [weekLimit, setWeekLimit] = (0, import_react99.useState)(12);
+    const weekOptions = [
+      { label: "4 weeks", value: 4 },
+      { label: "8 weeks", value: 8 },
+      { label: "12 weeks", value: 12 },
+      { label: "24 weeks", value: 24 },
+      { label: "All", value: Infinity }
+    ];
+    return /* @__PURE__ */ import_react99.default.createElement(modal_transition_default, null, open && /* @__PURE__ */ import_react99.default.createElement(
       ModalWrapper,
       {
         onClose,
@@ -52986,7 +59382,17 @@
           { text: "Close", onClick: onClose, appearance: "subtle" }
         ]
       },
-      children
+      /* @__PURE__ */ import_react99.default.createElement("div", { style: { marginBottom: 16, maxWidth: 200 } }, /* @__PURE__ */ import_react99.default.createElement(
+        Select_default,
+        {
+          options: weekOptions,
+          value: weekOptions.find((opt) => opt.value === weekLimit),
+          onChange: (option) => setWeekLimit(option.value),
+          placeholder: "Weeks to show",
+          isSearchable: false
+        }
+      )),
+      typeof children === "function" ? children(weekLimit) : children
     ));
   }
 
@@ -53014,7 +59420,7 @@
       return InvariantError2;
     })(Error)
   );
-  function invariant(condition, message2) {
+  function invariant2(condition, message2) {
     if (!condition) {
       throw new InvariantError(message2);
     }
@@ -53029,12 +59435,12 @@
       }
     };
   }
-  (function(invariant5) {
-    invariant5.debug = wrapConsoleMethod("debug");
-    invariant5.log = wrapConsoleMethod("log");
-    invariant5.warn = wrapConsoleMethod("warn");
-    invariant5.error = wrapConsoleMethod("error");
-  })(invariant || (invariant = {}));
+  (function(invariant6) {
+    invariant6.debug = wrapConsoleMethod("debug");
+    invariant6.log = wrapConsoleMethod("log");
+    invariant6.warn = wrapConsoleMethod("warn");
+    invariant6.error = wrapConsoleMethod("error");
+  })(invariant2 || (invariant2 = {}));
   function setVerbosity(level) {
     var old = verbosityLevels[verbosityLevel];
     verbosityLevel = Math.max(0, verbosityLevels.indexOf(level));
@@ -53073,10 +59479,10 @@
 
   // node_modules/@apollo/client/utilities/common/makeUniqueId.js
   var prefixCounts = /* @__PURE__ */ new Map();
-  function makeUniqueId(prefix) {
-    var count = prefixCounts.get(prefix) || 1;
-    prefixCounts.set(prefix, count + 1);
-    return "".concat(prefix, ":").concat(count, ":").concat(Math.random().toString(36).slice(2));
+  function makeUniqueId(prefix2) {
+    var count = prefixCounts.get(prefix2) || 1;
+    prefixCounts.set(prefix2, count + 1);
+    return "".concat(prefix2, ":").concat(count, ":").concat(Math.random().toString(36).slice(2));
   }
 
   // node_modules/@apollo/client/utilities/common/stringifyForDisplay.js
@@ -53108,19 +59514,19 @@
       fn2.apply(void 0, [message2].concat(args));
     };
   }
-  var invariant2 = Object.assign(function invariant3(condition, message2) {
+  var invariant3 = Object.assign(function invariant4(condition, message2) {
     var args = [];
     for (var _i = 2; _i < arguments.length; _i++) {
       args[_i - 2] = arguments[_i];
     }
     if (!condition) {
-      invariant(condition, getHandledErrorMsg(message2, args) || getFallbackErrorMsg(message2, args));
+      invariant2(condition, getHandledErrorMsg(message2, args) || getFallbackErrorMsg(message2, args));
     }
   }, {
-    debug: wrap(invariant.debug),
-    log: wrap(invariant.log),
-    warn: wrap(invariant.warn),
-    error: wrap(invariant.error)
+    debug: wrap(invariant2.debug),
+    log: wrap(invariant2.log),
+    warn: wrap(invariant2.warn),
+    error: wrap(invariant2.error)
   });
   function newInvariantError(message2) {
     var optionalParams = [];
@@ -53178,7 +59584,7 @@
   }
 
   // node_modules/graphql/jsutils/invariant.mjs
-  function invariant4(condition, message2) {
+  function invariant5(condition, message2) {
     const booleanCondition = Boolean(condition);
     if (!booleanCondition) {
       throw new Error(
@@ -53193,7 +59599,7 @@
     let lastLineStart = 0;
     let line = 1;
     for (const match2 of source2.body.matchAll(LineRegExp)) {
-      typeof match2.index === "number" || invariant4(false);
+      typeof match2.index === "number" || invariant5(false);
       if (match2.index >= position) {
         break;
       }
@@ -53249,8 +59655,8 @@
   }
   function printPrefixedLines(lines) {
     const existingLines = lines.filter(([_, line]) => line !== void 0);
-    const padLen = Math.max(...existingLines.map(([prefix]) => prefix.length));
-    return existingLines.map(([prefix, line]) => prefix.padStart(padLen) + (line ? " " + line : "")).join("\n");
+    const padLen = Math.max(...existingLines.map(([prefix2]) => prefix2.length));
+    return existingLines.map(([prefix2, line]) => prefix2.padStart(padLen) + (line ? " " + line : "")).join("\n");
   }
 
   // node_modules/graphql/error/GraphQLError.mjs
@@ -53569,7 +59975,7 @@
     InputObjectTypeExtension: ["name", "directives", "fields"]
   };
   var kindValues = new Set(Object.keys(QueryDocumentKeys));
-  function isNode(maybeNode) {
+  function isNode2(maybeNode) {
     const maybeKind = maybeNode === null || maybeNode === void 0 ? void 0 : maybeNode.kind;
     return typeof maybeKind === "string" && kindValues.has(maybeKind);
   }
@@ -53701,7 +60107,7 @@
     }
     return i;
   }
-  function printBlockString(value, options) {
+  function printBlockString(value, options2) {
     const escapedValue = value.replace(/"""/g, '\\"""');
     const lines = escapedValue.split(/\r\n|[\n\r]/g);
     const isSingleLine = lines.length === 1;
@@ -53710,7 +60116,7 @@
     const hasTrailingQuote = value.endsWith('"') && !hasTrailingTripleQuotes;
     const hasTrailingSlash = value.endsWith("\\");
     const forceTrailingNewline = hasTrailingQuote || hasTrailingSlash;
-    const printAsMultipleLines = !(options !== null && options !== void 0 && options.minimize) && // add leading and trailing new lines only if it improves readability
+    const printAsMultipleLines = !(options2 !== null && options2 !== void 0 && options2.minimize) && // add leading and trailing new lines only if it improves readability
     (!isSingleLine || value.length > 70 || forceTrailingNewline || forceLeadingNewLine || hasTrailingTripleQuotes);
     let result2 = "";
     const skipLeadingNewLine = isSingleLine && isWhiteSpace(value.charCodeAt(0));
@@ -54089,16 +60495,16 @@
   function readEscapedUnicodeVariableWidth(lexer, position) {
     const body = lexer.source.body;
     let point = 0;
-    let size = 3;
-    while (size < 12) {
-      const code = body.charCodeAt(position + size++);
+    let size2 = 3;
+    while (size2 < 12) {
+      const code = body.charCodeAt(position + size2++);
       if (code === 125) {
-        if (size < 5 || !isUnicodeScalarValue(point)) {
+        if (size2 < 5 || !isUnicodeScalarValue(point)) {
           break;
         }
         return {
           value: String.fromCodePoint(point),
-          size
+          size: size2
         };
       }
       point = point << 4 | readHexDigit(code);
@@ -54111,7 +60517,7 @@
       position,
       `Invalid Unicode escape sequence: "${body.slice(
         position,
-        position + size
+        position + size2
       )}".`
     );
   }
@@ -54367,12 +60773,12 @@
   }
 
   // node_modules/graphql/jsutils/instanceOf.mjs
-  var isProduction = globalThis.process && // eslint-disable-next-line no-undef
+  var isProduction2 = globalThis.process && // eslint-disable-next-line no-undef
   false;
   var instanceOf = (
     /* c8 ignore next 6 */
     // FIXME: https://github.com/graphql/graphql-js/issues/2317
-    isProduction ? function instanceOf2(value, constructor) {
+    isProduction2 ? function instanceOf2(value, constructor) {
       return value instanceof constructor;
     } : function instanceOf3(value, constructor) {
       if (value instanceof constructor) {
@@ -54433,8 +60839,8 @@ spurious results.`);
   }
 
   // node_modules/graphql/language/parser.mjs
-  function parse3(source2, options) {
-    const parser = new Parser(source2, options);
+  function parse3(source2, options2) {
+    const parser = new Parser(source2, options2);
     const document2 = parser.parseDocument();
     Object.defineProperty(document2, "tokenCount", {
       enumerable: false,
@@ -54443,10 +60849,10 @@ spurious results.`);
     return document2;
   }
   var Parser = class {
-    constructor(source2, options = {}) {
+    constructor(source2, options2 = {}) {
       const sourceObj = isSource(source2) ? source2 : new Source(source2);
       this._lexer = new Lexer(sourceObj);
-      this._options = options;
+      this._options = options2;
       this._tokenCounter = 0;
     }
     get tokenCount() {
@@ -55875,7 +62281,7 @@ spurious results.`);
     let stack = void 0;
     let inArray = Array.isArray(root2);
     let keys = [root2];
-    let index = -1;
+    let index2 = -1;
     let edits = [];
     let node2 = root2;
     let key = void 0;
@@ -55883,8 +62289,8 @@ spurious results.`);
     const path = [];
     const ancestors = [];
     do {
-      index++;
-      const isLeaving = index === keys.length;
+      index2++;
+      const isLeaving = index2 === keys.length;
       const isEdited = isLeaving && edits.length !== 0;
       if (isLeaving) {
         key = ancestors.length === 0 ? void 0 : path[path.length - 1];
@@ -55910,13 +62316,13 @@ spurious results.`);
             }
           }
         }
-        index = stack.index;
+        index2 = stack.index;
         keys = stack.keys;
         edits = stack.edits;
         inArray = stack.inArray;
         stack = stack.prev;
       } else if (parent) {
-        key = inArray ? index : keys[index];
+        key = inArray ? index2 : keys[index2];
         node2 = parent[key];
         if (node2 === null || node2 === void 0) {
           continue;
@@ -55926,7 +62332,7 @@ spurious results.`);
       let result2;
       if (!Array.isArray(node2)) {
         var _enterLeaveMap$get, _enterLeaveMap$get2;
-        isNode(node2) || devAssert(false, `Invalid AST Node: ${inspect(node2)}.`);
+        isNode2(node2) || devAssert(false, `Invalid AST Node: ${inspect(node2)}.`);
         const visitFn = isLeaving ? (_enterLeaveMap$get = enterLeaveMap.get(node2.kind)) === null || _enterLeaveMap$get === void 0 ? void 0 : _enterLeaveMap$get.leave : (_enterLeaveMap$get2 = enterLeaveMap.get(node2.kind)) === null || _enterLeaveMap$get2 === void 0 ? void 0 : _enterLeaveMap$get2.enter;
         result2 = visitFn === null || visitFn === void 0 ? void 0 : visitFn.call(visitor, node2, key, parent, path, ancestors);
         if (result2 === BREAK) {
@@ -55940,7 +62346,7 @@ spurious results.`);
         } else if (result2 !== void 0) {
           edits.push([key, result2]);
           if (!isLeaving) {
-            if (isNode(result2)) {
+            if (isNode2(result2)) {
               node2 = result2;
             } else {
               path.pop();
@@ -55958,14 +62364,14 @@ spurious results.`);
         var _node$kind;
         stack = {
           inArray,
-          index,
+          index: index2,
           keys,
           edits,
           prev: stack
         };
         inArray = Array.isArray(node2);
         keys = inArray ? node2 : (_node$kind = visitorKeys[node2.kind]) !== null && _node$kind !== void 0 ? _node$kind : [];
-        index = -1;
+        index2 = -1;
         edits = [];
         if (parent) {
           ancestors.push(parent);
@@ -56013,7 +62419,7 @@ spurious results.`);
     OperationDefinition: {
       leave(node2) {
         const varDefs = wrap2("(", join(node2.variableDefinitions, ", "), ")");
-        const prefix = join(
+        const prefix2 = join(
           [
             node2.operation,
             join([node2.name, varDefs]),
@@ -56021,7 +62427,7 @@ spurious results.`);
           ],
           " "
         );
-        return (prefix === "query" ? "" : prefix + " ") + node2.selectionSet;
+        return (prefix2 === "query" ? "" : prefix2 + " ") + node2.selectionSet;
       }
     },
     VariableDefinition: {
@@ -56032,10 +62438,10 @@ spurious results.`);
     },
     Field: {
       leave({ alias, name, arguments: args, directives, selectionSet }) {
-        const prefix = wrap2("", alias, ": ") + name;
-        let argsLine = prefix + wrap2("(", join(args, ", "), ")");
+        const prefix2 = wrap2("", alias, ": ") + name;
+        let argsLine = prefix2 + wrap2("(", join(args, ", "), ")");
         if (argsLine.length > MAX_LINE_LENGTH) {
-          argsLine = prefix + wrap2("(\n", indent(join(args, "\n")), "\n)");
+          argsLine = prefix2 + wrap2("(\n", indent(join(args, "\n")), "\n)");
         }
         return join([argsLine, join(directives, " "), selectionSet], " ");
       }
@@ -56252,7 +62658,7 @@ spurious results.`);
       var evaledValue = false;
       if (ifArgument.value.kind === "Variable") {
         evaledValue = variables && variables[ifArgument.value.name.value];
-        invariant2(evaledValue !== void 0, 78, directive.name.value);
+        invariant3(evaledValue !== void 0, 78, directive.name.value);
       } else {
         evaledValue = ifArgument.value.value;
       }
@@ -56286,11 +62692,11 @@ spurious results.`);
           return;
         var directiveArguments = directive.arguments;
         var directiveName = directive.name.value;
-        invariant2(directiveArguments && directiveArguments.length === 1, 79, directiveName);
+        invariant3(directiveArguments && directiveArguments.length === 1, 79, directiveName);
         var ifArgument = directiveArguments[0];
-        invariant2(ifArgument.name && ifArgument.name.value === "if", 80, directiveName);
+        invariant3(ifArgument.name && ifArgument.name.value === "if", 80, directiveName);
         var ifValue = ifArgument.value;
-        invariant2(ifValue && (ifValue.kind === "Variable" || ifValue.kind === "BooleanValue"), 81, directiveName);
+        invariant3(ifValue && (ifValue.kind === "Variable" || ifValue.kind === "BooleanValue"), 81, directiveName);
         result2.push({ directive, ifArgument });
       });
     }
@@ -56312,11 +62718,11 @@ spurious results.`);
     if (globalThis.__DEV__ !== false) {
       if (modeArg) {
         if (modeArg.value.kind === Kind.VARIABLE) {
-          globalThis.__DEV__ !== false && invariant2.warn(82);
+          globalThis.__DEV__ !== false && invariant3.warn(82);
         } else if (modeArg.value.kind !== Kind.STRING) {
-          globalThis.__DEV__ !== false && invariant2.warn(83);
+          globalThis.__DEV__ !== false && invariant3.warn(83);
         } else if (modeArg.value.value !== "migrate") {
-          globalThis.__DEV__ !== false && invariant2.warn(84, modeArg.value.value);
+          globalThis.__DEV__ !== false && invariant3.warn(84, modeArg.value.value);
         }
       }
     }
@@ -56406,7 +62812,7 @@ spurious results.`);
   var canUseWeakSet = typeof WeakSet === "function";
   var canUseSymbol = typeof Symbol === "function" && typeof Symbol.for === "function";
   var canUseAsyncIteratorSymbol = canUseSymbol && Symbol.asyncIterator;
-  var canUseDOM = typeof maybe(function() {
+  var canUseDOM2 = typeof maybe(function() {
     return window.document.createElement;
   }) === "function";
   var usingJSDOM = (
@@ -56445,7 +62851,7 @@ spurious results.`);
       }
     });
     if (typeof actualFragmentName === "undefined") {
-      invariant2(fragments.length === 1, 86, fragments.length);
+      invariant3(fragments.length === 1, 86, fragments.length);
       actualFragmentName = fragments[0].name.value;
     }
     var query = __assign(__assign({}, document2), { definitions: __spreadArray([
@@ -56489,7 +62895,7 @@ spurious results.`);
           return fragmentMap(fragmentName);
         }
         var fragment = fragmentMap && fragmentMap[fragmentName];
-        invariant2(fragment, 87, fragmentName);
+        invariant3(fragment, 87, fragmentName);
         return fragment || null;
       }
       default:
@@ -56515,8 +62921,8 @@ spurious results.`);
   function defaultDispose() {
   }
   var StrongCache = class {
-    constructor(max2 = Infinity, dispose = defaultDispose) {
-      this.max = max2;
+    constructor(max3 = Infinity, dispose = defaultDispose) {
+      this.max = max3;
       this.dispose = dispose;
       this.map = /* @__PURE__ */ new Map();
       this.newest = null;
@@ -56600,23 +63006,23 @@ spurious results.`);
   };
 
   // node_modules/@wry/caches/lib/weak.js
-  function noop2() {
+  function noop6() {
   }
-  var defaultDispose2 = noop2;
+  var defaultDispose2 = noop6;
   var _WeakRef = typeof WeakRef !== "undefined" ? WeakRef : function(value) {
     return { deref: () => value };
   };
   var _WeakMap = typeof WeakMap !== "undefined" ? WeakMap : Map;
   var _FinalizationRegistry = typeof FinalizationRegistry !== "undefined" ? FinalizationRegistry : function() {
     return {
-      register: noop2,
-      unregister: noop2
+      register: noop6,
+      unregister: noop6
     };
   };
   var finalizationBatchSize = 10024;
   var WeakCache = class {
-    constructor(max2 = Infinity, dispose = defaultDispose2) {
-      this.max = max2;
+    constructor(max3 = Infinity, dispose = defaultDispose2) {
+      this.max = max3;
       this.dispose = dispose;
       this.map = new _WeakMap();
       this.newest = null;
@@ -56752,8 +63158,8 @@ spurious results.`);
       }, 100);
     }
   }
-  var AutoCleanedWeakCache = function(max2, dispose) {
-    var cache = new WeakCache(max2, dispose);
+  var AutoCleanedWeakCache = function(max3, dispose) {
+    var cache = new WeakCache(max3, dispose);
     cache.set = function(key, value) {
       var ret = WeakCache.prototype.set.call(this, key, value);
       schedule(this);
@@ -56761,8 +63167,8 @@ spurious results.`);
     };
     return cache;
   };
-  var AutoCleanedStrongCache = function(max2, dispose) {
-    var cache = new StrongCache(max2, dispose);
+  var AutoCleanedStrongCache = function(max3, dispose) {
+    var cache = new StrongCache(max3, dispose);
     cache.set = function(key, value) {
       var ret = StrongCache.prototype.set.call(this, key, value);
       schedule(this);
@@ -57099,7 +63505,7 @@ spurious results.`);
 
   // node_modules/@apollo/client/utilities/graphql/getFromAST.js
   function checkDocument(doc) {
-    invariant2(doc && doc.kind === "Document", 88);
+    invariant3(doc && doc.kind === "Document", 88);
     var operations = doc.definitions.filter(function(d) {
       return d.kind !== "FragmentDefinition";
     }).map(function(definition) {
@@ -57108,7 +63514,7 @@ spurious results.`);
       }
       return definition;
     });
-    invariant2(operations.length <= 1, 90, operations.length);
+    invariant3(operations.length <= 1, 90, operations.length);
     return doc;
   }
   function getOperationDefinition(doc) {
@@ -57131,14 +63537,14 @@ spurious results.`);
   }
   function getQueryDefinition(doc) {
     var queryDef = getOperationDefinition(doc);
-    invariant2(queryDef && queryDef.operation === "query", 91);
+    invariant3(queryDef && queryDef.operation === "query", 91);
     return queryDef;
   }
   function getFragmentDefinition(doc) {
-    invariant2(doc.kind === "Document", 92);
-    invariant2(doc.definitions.length <= 1, 93);
+    invariant3(doc.kind === "Document", 92);
+    invariant3(doc.definitions.length <= 1, 93);
     var fragmentDef = doc.definitions[0];
-    invariant2(fragmentDef.kind === "FragmentDefinition", 94);
+    invariant3(fragmentDef.kind === "FragmentDefinition", 94);
     return fragmentDef;
   }
   function getMainDefinition(queryDoc) {
@@ -57550,9 +63956,9 @@ spurious results.`);
     forget: true
     // Fully remove parent Entry from LRU cache and computation graph
   };
-  function dep(options) {
+  function dep(options2) {
     const depsByKey = /* @__PURE__ */ new Map();
-    const subscribe = options && options.subscribe;
+    const subscribe = options2 && options2.subscribe;
     function depend(key) {
       const parent = parentEntrySlot.getValue();
       if (parent) {
@@ -57586,8 +63992,8 @@ spurious results.`);
     return trie.lookupArray(args);
   }
   var caches = /* @__PURE__ */ new Set();
-  function wrap3(originalFunction, { max: max2 = Math.pow(2, 16), keyArgs, makeCacheKey = defaultMakeCacheKey, normalizeResult, subscribe, cache: cacheOption = StrongCache } = /* @__PURE__ */ Object.create(null)) {
-    const cache = typeof cacheOption === "function" ? new cacheOption(max2, (entry) => entry.dispose()) : cacheOption;
+  function wrap3(originalFunction, { max: max3 = Math.pow(2, 16), keyArgs, makeCacheKey = defaultMakeCacheKey, normalizeResult, subscribe, cache: cacheOption = StrongCache } = /* @__PURE__ */ Object.create(null)) {
+    const cache = typeof cacheOption === "function" ? new cacheOption(max3, (entry) => entry.dispose()) : cacheOption;
     const optimistic = function() {
       const key = makeCacheKey.apply(null, keyArgs ? keyArgs.apply(null, arguments) : arguments);
       if (key === void 0) {
@@ -57615,7 +64021,7 @@ spurious results.`);
       enumerable: false
     });
     Object.freeze(optimistic.options = {
-      max: max2,
+      max: max3,
       keyArgs,
       makeCacheKey,
       normalizeResult,
@@ -57663,16 +64069,16 @@ spurious results.`);
   var DocumentTransform = (
     /** @class */
     (function() {
-      function DocumentTransform2(transform, options) {
-        if (options === void 0) {
-          options = /* @__PURE__ */ Object.create(null);
+      function DocumentTransform2(transform, options2) {
+        if (options2 === void 0) {
+          options2 = /* @__PURE__ */ Object.create(null);
         }
         this.resultCache = canUseWeakSet ? /* @__PURE__ */ new WeakSet() : /* @__PURE__ */ new Set();
         this.transform = transform;
-        if (options.getCacheKey) {
-          this.getCacheKey = options.getCacheKey;
+        if (options2.getCacheKey) {
+          this.getCacheKey = options2.getCacheKey;
         }
-        this.cached = options.cache !== false;
+        this.cached = options2.cache !== false;
         this.resetCache();
       }
       DocumentTransform2.prototype.getCacheKey = function(document2) {
@@ -57702,7 +64108,7 @@ spurious results.`);
             makeCacheKey: function(document2) {
               var cacheKeys = _this.getCacheKey(document2);
               if (cacheKeys) {
-                invariant2(Array.isArray(cacheKeys), 77);
+                invariant3(Array.isArray(cacheKeys), 77);
                 return stableCacheKeys_1.lookupArray(cacheKeys);
               }
             },
@@ -57765,7 +64171,7 @@ spurious results.`);
   }
 
   // node_modules/@apollo/client/utilities/common/arrays.js
-  var isArray = Array.isArray;
+  var isArray2 = Array.isArray;
   function isNonEmptyArray(value) {
     return Array.isArray(value) && value.length > 0;
   }
@@ -57836,7 +64242,7 @@ spurious results.`);
     var getInUseByFragmentName = makeInUseGetterFunction("");
     var getInUse = function(ancestors) {
       for (var p = 0, ancestor = void 0; p < ancestors.length && (ancestor = ancestors[p]); ++p) {
-        if (isArray(ancestor))
+        if (isArray2(ancestor))
           continue;
         if (ancestor.kind === Kind.OPERATION_DEFINITION) {
           return getInUseByOperationName(ancestor.name && ancestor.name.value);
@@ -57845,7 +64251,7 @@ spurious results.`);
           return getInUseByFragmentName(ancestor.name.value);
         }
       }
-      globalThis.__DEV__ !== false && invariant2.error(97);
+      globalThis.__DEV__ !== false && invariant3.error(97);
       return null;
     };
     var operationCount = 0;
@@ -58523,7 +64929,7 @@ spurious results.`);
       var C = getSpecies(this);
       return new C(function(observer2) {
         var subscription;
-        var index = 0;
+        var index2 = 0;
         function startNext(next) {
           subscription = next.subscribe({
             next: function(v) {
@@ -58533,11 +64939,11 @@ spurious results.`);
               observer2.error(e);
             },
             complete: function() {
-              if (index === sources.length) {
+              if (index2 === sources.length) {
                 subscription = void 0;
                 observer2.complete();
               } else {
-                startNext(C.from(sources[index++]));
+                startNext(C.from(sources[index2++]));
               }
             }
           });
@@ -59081,9 +65487,9 @@ spurious results.`);
   }
 
   // node_modules/@apollo/client/utilities/common/mergeOptions.js
-  function mergeOptions(defaults, options) {
-    return compact(defaults, options, options.variables && {
-      variables: compact(__assign(__assign({}, defaults && defaults.variables), options.variables))
+  function mergeOptions(defaults, options2) {
+    return compact(defaults, options2, options2.variables && {
+      variables: compact(__assign(__assign({}, defaults && defaults.variables), options2.variables))
     });
   }
 
@@ -59227,7 +65633,7 @@ spurious results.`);
       ApolloLink2.concat = function(first, second) {
         var firstLink = toLink(first);
         if (isTerminating(firstLink)) {
-          globalThis.__DEV__ !== false && invariant2.warn(38, firstLink);
+          globalThis.__DEV__ !== false && invariant3.warn(38, firstLink);
           return firstLink;
         }
         var nextLink = toLink(second);
@@ -59677,17 +66083,17 @@ spurious results.`);
     for (var _i = 2; _i < arguments.length; _i++) {
       configs[_i - 2] = arguments[_i];
     }
-    var options = {};
+    var options2 = {};
     var http = {};
     configs.forEach(function(config) {
-      options = __assign(__assign(__assign({}, options), config.options), { headers: __assign(__assign({}, options.headers), config.headers) });
+      options2 = __assign(__assign(__assign({}, options2), config.options), { headers: __assign(__assign({}, options2.headers), config.headers) });
       if (config.credentials) {
-        options.credentials = config.credentials;
+        options2.credentials = config.credentials;
       }
       http = __assign(__assign({}, http), config.http);
     });
-    if (options.headers) {
-      options.headers = removeDuplicateHeaders(options.headers, http.preserveHeaderCase);
+    if (options2.headers) {
+      options2.headers = removeDuplicateHeaders(options2.headers, http.preserveHeaderCase);
     }
     var operationName = operation.operationName, extensions = operation.extensions, variables = operation.variables, query = operation.query;
     var body = { operationName, variables };
@@ -59696,7 +66102,7 @@ spurious results.`);
     if (http.includeQuery)
       body.query = printer(query, print2);
     return {
-      options,
+      options: options2,
       body
     };
   }
@@ -59828,14 +66234,14 @@ spurious results.`);
         }
         operation.query = transformedQuery;
       }
-      var _b2 = selectHttpOptionsAndBodyInternal(operation, print3, fallbackHttpConfig, linkConfig, contextConfig), options = _b2.options, body = _b2.body;
+      var _b2 = selectHttpOptionsAndBodyInternal(operation, print3, fallbackHttpConfig, linkConfig, contextConfig), options2 = _b2.options, body = _b2.body;
       if (body.variables && !includeUnusedVariables) {
         body.variables = filterOperationVariables(body.variables, operation.query);
       }
       var controller;
-      if (!options.signal && typeof AbortController !== "undefined") {
+      if (!options2.signal && typeof AbortController !== "undefined") {
         controller = new AbortController();
-        options.signal = controller.signal;
+        options2.signal = controller.signal;
       }
       var definitionIsMutation = function(d) {
         return d.kind === "OperationDefinition" && d.operation === "mutation";
@@ -59846,22 +66252,22 @@ spurious results.`);
       var isSubscription = definitionIsSubscription(getMainDefinition(operation.query));
       var hasDefer = hasDirectives(["defer"], operation.query);
       if (useGETForQueries && !operation.query.definitions.some(definitionIsMutation)) {
-        options.method = "GET";
+        options2.method = "GET";
       }
       if (hasDefer || isSubscription) {
-        options.headers = options.headers || {};
+        options2.headers = options2.headers || {};
         var acceptHeader = "multipart/mixed;";
         if (isSubscription && hasDefer) {
-          globalThis.__DEV__ !== false && invariant2.warn(41);
+          globalThis.__DEV__ !== false && invariant3.warn(41);
         }
         if (isSubscription) {
           acceptHeader += "boundary=graphql;subscriptionSpec=1.0,application/json";
         } else if (hasDefer) {
           acceptHeader += "deferSpec=20220824,application/json";
         }
-        options.headers.accept = acceptHeader;
+        options2.headers.accept = acceptHeader;
       }
-      if (options.method === "GET") {
+      if (options2.method === "GET") {
         var _c2 = rewriteURIForGET(chosenURI, body), newURI = _c2.newURI, parseError = _c2.parseError;
         if (parseError) {
           return fromError(parseError);
@@ -59869,7 +66275,7 @@ spurious results.`);
         chosenURI = newURI;
       } else {
         try {
-          options.body = serializeFetchParameter(body, "Payload");
+          options2.body = serializeFetchParameter(body, "Payload");
         } catch (parseError2) {
           return fromError(parseError2);
         }
@@ -59879,7 +66285,7 @@ spurious results.`);
           return fetch;
         }) || backupFetch;
         var observerNext = observer2.next.bind(observer2);
-        currentFetch(chosenURI, options).then(function(response) {
+        currentFetch(chosenURI, options2).then(function(response) {
           var _a4;
           operation.setContext({ response });
           var ctype = (_a4 = response.headers) === null || _a4 === void 0 ? void 0 : _a4.get("content-type");
@@ -59908,12 +66314,12 @@ spurious results.`);
     /** @class */
     (function(_super) {
       __extends(HttpLink2, _super);
-      function HttpLink2(options) {
-        if (options === void 0) {
-          options = {};
+      function HttpLink2(options2) {
+        if (options2 === void 0) {
+          options2 = {};
         }
-        var _this = _super.call(this, createHttpLink(options).request) || this;
-        _this.options = options;
+        var _this = _super.call(this, createHttpLink(options2).request) || this;
+        _this.options = options2;
         return _this;
       }
       return HttpLink2;
@@ -60137,7 +66543,7 @@ spurious results.`);
   function warnOnImproperCacheImplementation() {
     if (!issuedWarning) {
       issuedWarning = true;
-      globalThis.__DEV__ !== false && invariant2.warn(52);
+      globalThis.__DEV__ !== false && invariant3.warn(52);
     }
   }
 
@@ -60162,32 +66568,32 @@ spurious results.`);
   function maskSelectionSet(data, selectionSet, context, migration, path) {
     var _a2;
     var knownChanged = context.knownChanged;
-    var memo3 = getMutableTarget(data, context.mutableTargets);
+    var memo5 = getMutableTarget(data, context.mutableTargets);
     if (Array.isArray(data)) {
       for (var _i = 0, _b = Array.from(data.entries()); _i < _b.length; _i++) {
-        var _c = _b[_i], index = _c[0], item = _c[1];
+        var _c = _b[_i], index2 = _c[0], item = _c[1];
         if (item === null) {
-          memo3[index] = null;
+          memo5[index2] = null;
           continue;
         }
-        var masked = maskSelectionSet(item, selectionSet, context, migration, globalThis.__DEV__ !== false ? "".concat(path || "", "[").concat(index, "]") : void 0);
+        var masked = maskSelectionSet(item, selectionSet, context, migration, globalThis.__DEV__ !== false ? "".concat(path || "", "[").concat(index2, "]") : void 0);
         if (knownChanged.has(masked)) {
-          knownChanged.add(memo3);
+          knownChanged.add(memo5);
         }
-        memo3[index] = masked;
+        memo5[index2] = masked;
       }
-      return knownChanged.has(memo3) ? memo3 : data;
+      return knownChanged.has(memo5) ? memo5 : data;
     }
     for (var _d = 0, _e = selectionSet.selections; _d < _e.length; _d++) {
       var selection = _e[_d];
       var value = void 0;
       if (migration) {
-        knownChanged.add(memo3);
+        knownChanged.add(memo5);
       }
       if (selection.kind === Kind.FIELD) {
         var keyName = resultKeyNameFromField(selection);
         var childSelectionSet = selection.selectionSet;
-        value = memo3[keyName] || data[keyName];
+        value = memo5[keyName] || data[keyName];
         if (value === void 0) {
           continue;
         }
@@ -60198,18 +66604,18 @@ spurious results.`);
           }
         }
         if (!(globalThis.__DEV__ !== false)) {
-          memo3[keyName] = value;
+          memo5[keyName] = value;
         }
         if (globalThis.__DEV__ !== false) {
           if (migration && keyName !== "__typename" && // either the field is not present in the memo object
           // or it has a `get` descriptor, not a `value` descriptor
           // => it is a warning accessor and we can overwrite it
           // with another accessor
-          !((_a2 = Object.getOwnPropertyDescriptor(memo3, keyName)) === null || _a2 === void 0 ? void 0 : _a2.value)) {
-            Object.defineProperty(memo3, keyName, getAccessorWarningDescriptor(keyName, value, path || "", context.operationName, context.operationType));
+          !((_a2 = Object.getOwnPropertyDescriptor(memo5, keyName)) === null || _a2 === void 0 ? void 0 : _a2.value)) {
+            Object.defineProperty(memo5, keyName, getAccessorWarningDescriptor(keyName, value, path || "", context.operationName, context.operationType));
           } else {
-            delete memo3[keyName];
-            memo3[keyName] = value;
+            delete memo5[keyName];
+            memo5[keyName] = value;
           }
         }
       }
@@ -60219,30 +66625,30 @@ spurious results.`);
       if (selection.kind === Kind.FRAGMENT_SPREAD) {
         var fragmentName = selection.name.value;
         var fragment = context.fragmentMap[fragmentName] || (context.fragmentMap[fragmentName] = context.cache.lookupFragment(fragmentName));
-        invariant2(fragment, 47, fragmentName);
+        invariant3(fragment, 47, fragmentName);
         var mode = getFragmentMaskMode(selection);
         if (mode !== "mask") {
           value = maskSelectionSet(data, fragment.selectionSet, context, mode === "migrate", path);
         }
       }
       if (knownChanged.has(value)) {
-        knownChanged.add(memo3);
+        knownChanged.add(memo5);
       }
     }
-    if ("__typename" in data && !("__typename" in memo3)) {
-      memo3.__typename = data.__typename;
+    if ("__typename" in data && !("__typename" in memo5)) {
+      memo5.__typename = data.__typename;
     }
-    if (Object.keys(memo3).length !== Object.keys(data).length) {
-      knownChanged.add(memo3);
+    if (Object.keys(memo5).length !== Object.keys(data).length) {
+      knownChanged.add(memo5);
     }
-    return knownChanged.has(memo3) ? memo3 : data;
+    return knownChanged.has(memo5) ? memo5 : data;
   }
   function getAccessorWarningDescriptor(fieldName, value, path, operationName, operationType) {
     var getValue = function() {
       if (disableWarningsSlot.getValue()) {
         return value;
       }
-      globalThis.__DEV__ !== false && invariant2.warn(48, operationName ? "".concat(operationType, " '").concat(operationName, "'") : "anonymous ".concat(operationType), "".concat(path, ".").concat(fieldName).replace(/^\./, ""));
+      globalThis.__DEV__ !== false && invariant3.warn(48, operationName ? "".concat(operationType, " '").concat(operationName, "'") : "anonymous ".concat(operationType), "".concat(path, ".").concat(fieldName).replace(/^\./, ""));
       getValue = function() {
         return value;
       };
@@ -60274,13 +66680,13 @@ spurious results.`);
       return node2.kind === Kind.FRAGMENT_DEFINITION;
     });
     if (typeof fragmentName === "undefined") {
-      invariant2(fragments.length === 1, 49, fragments.length);
+      invariant3(fragments.length === 1, 49, fragments.length);
       fragmentName = fragments[0].name.value;
     }
     var fragment = fragments.find(function(fragment2) {
       return fragment2.name.value === fragmentName;
     });
-    invariant2(!!fragment, 50, fragmentName);
+    invariant3(!!fragment, 50, fragmentName);
     if (data == null) {
       return data;
     }
@@ -60307,7 +66713,7 @@ spurious results.`);
       return data;
     }
     var definition = getOperationDefinition(document2);
-    invariant2(definition, 51);
+    invariant3(definition, 51);
     if (data == null) {
       return data;
     }
@@ -60335,12 +66741,12 @@ spurious results.`);
       ApolloCache2.prototype.lookupFragment = function(fragmentName) {
         return null;
       };
-      ApolloCache2.prototype.batch = function(options) {
+      ApolloCache2.prototype.batch = function(options2) {
         var _this = this;
-        var optimisticId = typeof options.optimistic === "string" ? options.optimistic : options.optimistic === false ? null : void 0;
+        var optimisticId = typeof options2.optimistic === "string" ? options2.optimistic : options2.optimistic === false ? null : void 0;
         var updateResult;
         this.performTransaction(function() {
-          return updateResult = options.update(_this);
+          return updateResult = options2.update(_this);
         }, optimisticId);
         return updateResult;
       };
@@ -60359,25 +66765,25 @@ spurious results.`);
       ApolloCache2.prototype.gc = function() {
         return [];
       };
-      ApolloCache2.prototype.modify = function(options) {
+      ApolloCache2.prototype.modify = function(options2) {
         return false;
       };
-      ApolloCache2.prototype.readQuery = function(options, optimistic) {
+      ApolloCache2.prototype.readQuery = function(options2, optimistic) {
         if (optimistic === void 0) {
-          optimistic = !!options.optimistic;
+          optimistic = !!options2.optimistic;
         }
-        return this.read(__assign(__assign({}, options), { rootId: options.id || "ROOT_QUERY", optimistic }));
+        return this.read(__assign(__assign({}, options2), { rootId: options2.id || "ROOT_QUERY", optimistic }));
       };
-      ApolloCache2.prototype.watchFragment = function(options) {
+      ApolloCache2.prototype.watchFragment = function(options2) {
         var _this = this;
-        var fragment = options.fragment, fragmentName = options.fragmentName, from = options.from, _a2 = options.optimistic, optimistic = _a2 === void 0 ? true : _a2, otherOptions = __rest(options, ["fragment", "fragmentName", "from", "optimistic"]);
+        var fragment = options2.fragment, fragmentName = options2.fragmentName, from = options2.from, _a2 = options2.optimistic, optimistic = _a2 === void 0 ? true : _a2, otherOptions = __rest(options2, ["fragment", "fragmentName", "from", "optimistic"]);
         var query = this.getFragmentDoc(fragment, fragmentName);
         var id = typeof from === "undefined" || typeof from === "string" ? from : this.identify(from);
-        var dataMasking = !!options[Symbol.for("apollo.dataMasking")];
+        var dataMasking = !!options2[Symbol.for("apollo.dataMasking")];
         if (globalThis.__DEV__ !== false) {
           var actualFragmentName = fragmentName || getFragmentDefinition(fragment).name.value;
           if (!id) {
-            globalThis.__DEV__ !== false && invariant2.warn(1, actualFragmentName);
+            globalThis.__DEV__ !== false && invariant3.warn(1, actualFragmentName);
           }
         }
         var diffOptions = __assign(__assign({}, otherOptions), { returnPartialData: true, id, query, optimistic });
@@ -60393,7 +66799,7 @@ spurious results.`);
                 { data },
                 // TODO: Fix the type on WatchFragmentOptions so that TVars
                 // extends OperationVariables
-                options.variables
+                options2.variables
               )
             ) {
               return;
@@ -60412,47 +66818,47 @@ spurious results.`);
           } }));
         });
       };
-      ApolloCache2.prototype.readFragment = function(options, optimistic) {
+      ApolloCache2.prototype.readFragment = function(options2, optimistic) {
         if (optimistic === void 0) {
-          optimistic = !!options.optimistic;
+          optimistic = !!options2.optimistic;
         }
-        return this.read(__assign(__assign({}, options), { query: this.getFragmentDoc(options.fragment, options.fragmentName), rootId: options.id, optimistic }));
+        return this.read(__assign(__assign({}, options2), { query: this.getFragmentDoc(options2.fragment, options2.fragmentName), rootId: options2.id, optimistic }));
       };
       ApolloCache2.prototype.writeQuery = function(_a2) {
-        var id = _a2.id, data = _a2.data, options = __rest(_a2, ["id", "data"]);
-        return this.write(Object.assign(options, {
+        var id = _a2.id, data = _a2.data, options2 = __rest(_a2, ["id", "data"]);
+        return this.write(Object.assign(options2, {
           dataId: id || "ROOT_QUERY",
           result: data
         }));
       };
       ApolloCache2.prototype.writeFragment = function(_a2) {
-        var id = _a2.id, data = _a2.data, fragment = _a2.fragment, fragmentName = _a2.fragmentName, options = __rest(_a2, ["id", "data", "fragment", "fragmentName"]);
-        return this.write(Object.assign(options, {
+        var id = _a2.id, data = _a2.data, fragment = _a2.fragment, fragmentName = _a2.fragmentName, options2 = __rest(_a2, ["id", "data", "fragment", "fragmentName"]);
+        return this.write(Object.assign(options2, {
           query: this.getFragmentDoc(fragment, fragmentName),
           dataId: id,
           result: data
         }));
       };
-      ApolloCache2.prototype.updateQuery = function(options, update) {
+      ApolloCache2.prototype.updateQuery = function(options2, update) {
         return this.batch({
           update: function(cache) {
-            var value = cache.readQuery(options);
+            var value = cache.readQuery(options2);
             var data = update(value);
             if (data === void 0 || data === null)
               return value;
-            cache.writeQuery(__assign(__assign({}, options), { data }));
+            cache.writeQuery(__assign(__assign({}, options2), { data }));
             return data;
           }
         });
       };
-      ApolloCache2.prototype.updateFragment = function(options, update) {
+      ApolloCache2.prototype.updateFragment = function(options2, update) {
         return this.batch({
           update: function(cache) {
-            var value = cache.readFragment(options);
+            var value = cache.readFragment(options2);
             var data = update(value);
             if (data === void 0 || data === null)
               return value;
-            cache.writeFragment(__assign(__assign({}, options), { data }));
+            cache.writeFragment(__assign(__assign({}, options2), { data }));
             return data;
           }
         });
@@ -60535,7 +66941,7 @@ spurious results.`);
   }
   function selectionSetMatchesResult(selectionSet, result2, variables) {
     if (isNonNullObject(result2)) {
-      return isArray(result2) ? result2.every(function(item) {
+      return isArray2(result2) ? result2.every(function(item) {
         return selectionSetMatchesResult(selectionSet, item, variables);
       }) : selectionSet.selections.every(function(field) {
         if (isField(field) && shouldInclude(field, variables)) {
@@ -60548,7 +66954,7 @@ spurious results.`);
     return false;
   }
   function storeValueIsStoreObject(value) {
-    return isNonNullObject(value) && !isReference(value) && !isArray(value);
+    return isNonNullObject(value) && !isReference(value) && !isArray2(value);
   }
   function makeProcessedFieldsMerger() {
     return new DeepMerger();
@@ -60651,7 +67057,7 @@ spurious results.`);
         var incoming = typeof newer === "string" ? this.lookup(dataId = newer) : newer;
         if (!incoming)
           return;
-        invariant2(typeof dataId === "string", 2);
+        invariant3(typeof dataId === "string", 2);
         var merged = new DeepMerger(storeObjectReconciler).merge(existing, incoming);
         this.data[dataId] = merged;
         if (merged !== existing) {
@@ -60725,7 +67131,7 @@ spurious results.`);
                   if (globalThis.__DEV__ !== false) {
                     var checkReference = function(ref) {
                       if (_this.lookup(ref.__ref) === void 0) {
-                        globalThis.__DEV__ !== false && invariant2.warn(3, ref);
+                        globalThis.__DEV__ !== false && invariant3.warn(3, ref);
                         return true;
                       }
                     };
@@ -60749,7 +67155,7 @@ spurious results.`);
                           }
                         }
                         if (seenReference && someNonReference !== void 0) {
-                          globalThis.__DEV__ !== false && invariant2.warn(4, someNonReference);
+                          globalThis.__DEV__ !== false && invariant3.warn(4, someNonReference);
                           break;
                         }
                       }
@@ -60787,17 +67193,17 @@ spurious results.`);
         }
         return false;
       };
-      EntityStore2.prototype.evict = function(options, limit) {
+      EntityStore2.prototype.evict = function(options2, limit) {
         var evicted = false;
-        if (options.id) {
-          if (hasOwn.call(this.data, options.id)) {
-            evicted = this.delete(options.id, options.fieldName, options.args);
+        if (options2.id) {
+          if (hasOwn.call(this.data, options2.id)) {
+            evicted = this.delete(options2.id, options2.fieldName, options2.args);
           }
           if (this instanceof Layer && this !== limit) {
-            evicted = this.parent.evict(options, limit) || evicted;
+            evicted = this.parent.evict(options2, limit) || evicted;
           }
-          if (options.fieldName || evicted) {
-            this.group.dirty(options.id, options.fieldName || "__exists");
+          if (options2.fieldName || evicted) {
+            this.group.dirty(options2.id, options2.fieldName || "__exists");
           }
         }
         return evicted;
@@ -61087,7 +67493,7 @@ spurious results.`);
   // node_modules/@apollo/client/cache/inmemory/object-canon.js
   function shallowCopy(value) {
     if (isNonNullObject(value)) {
-      return isArray(value) ? value.slice(0) : __assign({ __proto__: Object.getPrototypeOf(value) }, value);
+      return isArray2(value) ? value.slice(0) : __assign({ __proto__: Object.getPrototypeOf(value) }, value);
     }
     return value;
   }
@@ -61179,14 +67585,14 @@ spurious results.`);
   );
 
   // node_modules/@apollo/client/cache/inmemory/readFromStore.js
-  function execSelectionSetKeyArgs(options) {
+  function execSelectionSetKeyArgs(options2) {
     return [
-      options.selectionSet,
-      options.objectOrReference,
-      options.context,
+      options2.selectionSet,
+      options2.objectOrReference,
+      options2.context,
       // We split out this property so we can pass different values
       // independently without modifying options.context itself.
-      options.context.canonizeResults
+      options2.context.canonizeResults
     ];
   }
   var StoreReader = (
@@ -61200,10 +67606,10 @@ spurious results.`);
           canonizeResults: shouldCanonizeResults(config)
         });
         this.canon = config.canon || new ObjectCanon();
-        this.executeSelectionSet = wrap3(function(options) {
+        this.executeSelectionSet = wrap3(function(options2) {
           var _a2;
-          var canonizeResults = options.context.canonizeResults;
-          var peekArgs = execSelectionSetKeyArgs(options);
+          var canonizeResults = options2.context.canonizeResults;
+          var peekArgs = execSelectionSetKeyArgs(options2);
           peekArgs[3] = !canonizeResults;
           var other = (_a2 = _this.executeSelectionSet).peek.apply(_a2, peekArgs);
           if (other) {
@@ -61216,8 +67622,8 @@ spurious results.`);
             }
             return other;
           }
-          maybeDependOnExistenceOfEntity(options.context.store, options.enclosingRef.__ref);
-          return _this.execSelectionSetImpl(options);
+          maybeDependOnExistenceOfEntity(options2.context.store, options2.enclosingRef.__ref);
+          return _this.execSelectionSetImpl(options2);
         }, {
           max: this.config.resultCacheMaxSize || cacheSizes["inMemoryCache.executeSelectionSet"] || 5e4,
           keyArgs: execSelectionSetKeyArgs,
@@ -61229,9 +67635,9 @@ spurious results.`);
             }
           }
         });
-        this.executeSubSelectedArray = wrap3(function(options) {
-          maybeDependOnExistenceOfEntity(options.context.store, options.enclosingRef.__ref);
-          return _this.execSubSelectedArrayImpl(options);
+        this.executeSubSelectedArray = wrap3(function(options2) {
+          maybeDependOnExistenceOfEntity(options2.context.store, options2.enclosingRef.__ref);
+          return _this.execSubSelectedArrayImpl(options2);
         }, {
           max: this.config.resultCacheMaxSize || cacheSizes["inMemoryCache.executeSubSelectedArray"] || 1e4,
           makeCacheKey: function(_a2) {
@@ -61329,7 +67735,7 @@ spurious results.`);
               if (!addTypenameToDocument.added(selection)) {
                 missing = missingMerger.merge(missing, (_a3 = {}, _a3[resultName] = "Can't find field '".concat(selection.name.value, "' on ").concat(isReference(objectOrReference) ? objectOrReference.__ref + " object" : "object " + JSON.stringify(objectOrReference, null, 2)), _a3));
               }
-            } else if (isArray(fieldValue)) {
+            } else if (isArray2(fieldValue)) {
               if (fieldValue.length > 0) {
                 fieldValue = handleMissing(_this.executeSubSelectedArray({
                   field: selection,
@@ -61390,7 +67796,7 @@ spurious results.`);
           if (item === null) {
             return null;
           }
-          if (isArray(item)) {
+          if (isArray2(item)) {
             return handleMissing(_this.executeSubSelectedArray({
               field,
               array: item,
@@ -61435,7 +67841,7 @@ spurious results.`);
       var workSet_1 = /* @__PURE__ */ new Set([fieldValue]);
       workSet_1.forEach(function(value) {
         if (isNonNullObject(value)) {
-          invariant2(
+          invariant3(
             !isReference(value),
             11,
             getTypenameFromStoreObject(store, value),
@@ -61542,7 +67948,7 @@ spurious results.`);
         if (extracted === void 0 && object2 !== context.storeObject && hasOwn.call(object2, schemaKeyPath[0])) {
           extracted = extractKeyPath(object2, schemaKeyPath, extractKey);
         }
-        invariant2(extracted !== void 0, 5, schemaKeyPath.join("."), object2);
+        invariant3(extracted !== void 0, 5, schemaKeyPath.join("."), object2);
         return extracted;
       });
       return "".concat(context.typename, ":").concat(JSON.stringify(keyObject));
@@ -61612,14 +68018,14 @@ spurious results.`);
       var paths_1 = info.paths = [];
       var currentPath_1 = [];
       spec.forEach(function(s, i) {
-        if (isArray(s)) {
+        if (isArray2(s)) {
           getSpecifierPaths(s).forEach(function(p) {
             return paths_1.push(currentPath_1.concat(p));
           });
           currentPath_1.length = 0;
         } else {
           currentPath_1.push(s);
-          if (!isArray(spec[i + 1])) {
+          if (!isArray2(spec[i + 1])) {
             paths_1.push(currentPath_1.slice(0));
             currentPath_1.length = 0;
           }
@@ -61634,14 +68040,14 @@ spurious results.`);
   function extractKeyPath(object2, path, extract) {
     extract = extract || extractKey;
     return normalize(path.reduce(function reducer(obj, key) {
-      return isArray(obj) ? obj.map(function(child) {
+      return isArray2(obj) ? obj.map(function(child) {
         return reducer(child, key);
       }) : obj && extract(obj, key);
     }, object2));
   }
   function normalize(value) {
     if (isNonNullObject(value)) {
-      if (isArray(value)) {
+      if (isArray2(value)) {
         return value.map(normalize);
       }
       return collectSpecifierPaths(Object.keys(value).sort(), function(path) {
@@ -61701,10 +68107,10 @@ spurious results.`);
         }
         var storeObject = partialContext && partialContext.storeObject || object2;
         var context = __assign(__assign({}, partialContext), { typename, storeObject, readField: partialContext && partialContext.readField || function() {
-          var options = normalizeReadFieldOptions(arguments, storeObject);
-          return policies.readField(options, {
+          var options2 = normalizeReadFieldOptions(arguments, storeObject);
+          return policies.readField(options2, {
             store: policies.cache["data"],
-            variables: options.variables
+            variables: options2.variables
           });
         } });
         var id;
@@ -61713,7 +68119,7 @@ spurious results.`);
         disableWarningsSlot.withValue(true, function() {
           while (keyFn) {
             var specifierOrId = keyFn(__assign(__assign({}, object2), storeObject), context);
-            if (isArray(specifierOrId)) {
+            if (isArray2(specifierOrId)) {
               keyFn = keyFieldsFnFromSpecifier(specifierOrId);
             } else {
               id = specifierOrId;
@@ -61750,7 +68156,7 @@ spurious results.`);
         }
         setMerge(existing, incoming.merge);
         existing.keyFn = // Pass false to disable normalization for this typename.
-        keyFields === false ? nullKeyFieldsFn : isArray(keyFields) ? keyFieldsFnFromSpecifier(keyFields) : typeof keyFields === "function" ? keyFields : existing.keyFn;
+        keyFields === false ? nullKeyFieldsFn : isArray2(keyFields) ? keyFieldsFnFromSpecifier(keyFields) : typeof keyFields === "function" ? keyFields : existing.keyFn;
         if (fields) {
           Object.keys(fields).forEach(function(fieldName) {
             var existing2 = _this.getFieldPolicy(typename, fieldName, true);
@@ -61761,7 +68167,7 @@ spurious results.`);
               var keyArgs = incoming2.keyArgs, read2 = incoming2.read, merge = incoming2.merge;
               existing2.keyFn = // Pass false to disable argument-based differentiation of
               // field identities.
-              keyArgs === false ? simpleKeyArgsFn : isArray(keyArgs) ? keyArgsFnFromSpecifier(keyArgs) : typeof keyArgs === "function" ? keyArgs : existing2.keyFn;
+              keyArgs === false ? simpleKeyArgsFn : isArray2(keyArgs) ? keyArgsFnFromSpecifier(keyArgs) : typeof keyArgs === "function" ? keyArgs : existing2.keyFn;
               if (typeof read2 === "function") {
                 existing2.read = read2;
               }
@@ -61780,7 +68186,7 @@ spurious results.`);
         var rootId = "ROOT_" + which.toUpperCase();
         var old = this.rootTypenamesById[rootId];
         if (typename !== old) {
-          invariant2(!old || old === which, 6, which);
+          invariant3(!old || old === which, 6, which);
           if (old)
             delete this.rootIdsByTypename[old];
           this.rootIdsByTypename[typename] = rootId;
@@ -61874,7 +68280,7 @@ spurious results.`);
             if (supertypeSet.has(supertype)) {
               if (!typenameSupertypeSet.has(supertype)) {
                 if (checkingFuzzySubtypes) {
-                  globalThis.__DEV__ !== false && invariant2.warn(7, typename, supertype);
+                  globalThis.__DEV__ !== false && invariant3.warn(7, typename, supertype);
                 }
                 typenameSupertypeSet.add(supertype);
               }
@@ -61920,7 +68326,7 @@ spurious results.`);
           var args = argsFromFieldSpecifier(fieldSpec);
           while (keyFn) {
             var specifierOrString = keyFn(args, context);
-            if (isArray(specifierOrString)) {
+            if (isArray2(specifierOrString)) {
               keyFn = keyArgsFnFromSpecifier(specifierOrString);
             } else {
               storeFieldName = specifierOrString || fieldName;
@@ -61936,25 +68342,25 @@ spurious results.`);
         }
         return fieldName === fieldNameFromStoreName(storeFieldName) ? storeFieldName : fieldName + ":" + storeFieldName;
       };
-      Policies2.prototype.readField = function(options, context) {
-        var objectOrReference = options.from;
+      Policies2.prototype.readField = function(options2, context) {
+        var objectOrReference = options2.from;
         if (!objectOrReference)
           return;
-        var nameOrField = options.field || options.fieldName;
+        var nameOrField = options2.field || options2.fieldName;
         if (!nameOrField)
           return;
-        if (options.typename === void 0) {
+        if (options2.typename === void 0) {
           var typename = context.store.getFieldValue(objectOrReference, "__typename");
           if (typename)
-            options.typename = typename;
+            options2.typename = typename;
         }
-        var storeFieldName = this.getStoreFieldName(options);
+        var storeFieldName = this.getStoreFieldName(options2);
         var fieldName = fieldNameFromStoreName(storeFieldName);
         var existing = context.store.getFieldValue(objectOrReference, storeFieldName);
-        var policy = this.getFieldPolicy(options.typename, fieldName, false);
+        var policy = this.getFieldPolicy(options2.typename, fieldName, false);
         var read2 = policy && policy.read;
         if (read2) {
-          var readOptions = makeFieldFunctionOptions(this, objectOrReference, options, context, context.store.getStorage(isReference(objectOrReference) ? objectOrReference.__ref : objectOrReference, storeFieldName));
+          var readOptions = makeFieldFunctionOptions(this, objectOrReference, options2, context, context.store.getStorage(isReference(objectOrReference) ? objectOrReference.__ref : objectOrReference, storeFieldName));
           return cacheSlot.withValue(this.cache, read2, [
             existing,
             readOptions
@@ -62037,9 +68443,9 @@ spurious results.`);
   }
   function normalizeReadFieldOptions(readFieldArgs, objectOrReference, variables) {
     var fieldNameOrOptions = readFieldArgs[0], from = readFieldArgs[1], argc = readFieldArgs.length;
-    var options;
+    var options2;
     if (typeof fieldNameOrOptions === "string") {
-      options = {
+      options2 = {
         fieldName: fieldNameOrOptions,
         // Default to objectOrReference only when no second argument was
         // passed for the from parameter, not when undefined is explicitly
@@ -62047,22 +68453,22 @@ spurious results.`);
         from: argc > 1 ? from : objectOrReference
       };
     } else {
-      options = __assign({}, fieldNameOrOptions);
-      if (!hasOwn.call(options, "from")) {
-        options.from = objectOrReference;
+      options2 = __assign({}, fieldNameOrOptions);
+      if (!hasOwn.call(options2, "from")) {
+        options2.from = objectOrReference;
       }
     }
-    if (globalThis.__DEV__ !== false && options.from === void 0) {
-      globalThis.__DEV__ !== false && invariant2.warn(8, stringifyForDisplay(Array.from(readFieldArgs)));
+    if (globalThis.__DEV__ !== false && options2.from === void 0) {
+      globalThis.__DEV__ !== false && invariant3.warn(8, stringifyForDisplay(Array.from(readFieldArgs)));
     }
-    if (void 0 === options.variables) {
-      options.variables = variables;
+    if (void 0 === options2.variables) {
+      options2.variables = variables;
     }
-    return options;
+    return options2;
   }
   function makeMergeObjectsFunction(store) {
     return function mergeObjects(existing, incoming) {
-      if (isArray(existing) || isArray(incoming)) {
+      if (isArray2(existing) || isArray2(incoming)) {
         throw newInvariantError(9);
       }
       if (isNonNullObject(existing) && isNonNullObject(incoming)) {
@@ -62169,17 +68575,17 @@ spurious results.`);
           incoming.__typename = typename;
         }
         var readField = function() {
-          var options = normalizeReadFieldOptions(arguments, incoming, context.variables);
-          if (isReference(options.from)) {
-            var info = context.incomingById.get(options.from.__ref);
+          var options2 = normalizeReadFieldOptions(arguments, incoming, context.variables);
+          if (isReference(options2.from)) {
+            var info = context.incomingById.get(options2.from.__ref);
             if (info) {
-              var result_1 = policies.readField(__assign(__assign({}, options), { from: info.storeObject }), context);
+              var result_1 = policies.readField(__assign(__assign({}, options2), { from: info.storeObject }), context);
               if (result_1 !== void 0) {
                 return result_1;
               }
             }
           }
-          return policies.readField(options, context);
+          return policies.readField(options2, context);
         };
         var fieldNodeSet = /* @__PURE__ */ new Set();
         this.flattenFields(
@@ -62231,7 +68637,7 @@ spurious results.`);
           // provide a default value, so its absence from the written data should
           // not be cause for alarm.
           !policies.getReadFunction(typename, field.name.value)) {
-            globalThis.__DEV__ !== false && invariant2.error(13, resultKeyNameFromField(field), result2);
+            globalThis.__DEV__ !== false && invariant3.error(13, resultKeyNameFromField(field), result2);
           }
         });
         try {
@@ -62285,7 +68691,7 @@ spurious results.`);
         if (!field.selectionSet || value === null) {
           return globalThis.__DEV__ !== false ? cloneDeep(value) : value;
         }
-        if (isArray(value)) {
+        if (isArray2(value)) {
           return value.map(function(item, i) {
             var value2 = _this.processFieldValue(item, field, context, getChildMergeTree(mergeTree, i));
             maybeRecycleChildMergeTree(mergeTree, i);
@@ -62369,7 +68775,7 @@ spurious results.`);
             // Items in the same position in different arrays are not
             // necessarily related to each other, so when incoming is an array
             // we process its elements as if there was no existing data.
-            !isArray(incoming) && // Likewise, existing must be either a Reference or a StoreObject
+            !isArray2(incoming) && // Likewise, existing must be either a Reference or a StoreObject
             // in order for its fields to be safe to merge with the fields of
             // the incoming object.
             (isReference(existing) || storeValueIsStoreObject(existing)) ? existing : void 0
@@ -62380,7 +68786,7 @@ spurious results.`);
           }
           var changedFields_1;
           var getValue_1 = function(from, name) {
-            return isArray(from) ? typeof name === "number" ? from[name] : void 0 : context.store.getFieldValue(from, String(name));
+            return isArray2(from) ? typeof name === "number" ? from[name] : void 0 : context.store.getFieldValue(from, String(name));
           };
           mergeTree.map.forEach(function(childTree, storeFieldName) {
             var eVal = getValue_1(e_1, storeFieldName);
@@ -62396,11 +68802,11 @@ spurious results.`);
               changedFields_1.set(storeFieldName, aVal);
             }
             if (getStorageArgs) {
-              invariant2(getStorageArgs.pop() === storeFieldName);
+              invariant3(getStorageArgs.pop() === storeFieldName);
             }
           });
           if (changedFields_1) {
-            incoming = isArray(i_1) ? i_1.slice(0) : __assign({}, i_1);
+            incoming = isArray2(i_1) ? i_1.slice(0) : __assign({}, i_1);
             changedFields_1.forEach(function(value, name) {
               incoming[name] = value;
             });
@@ -62482,7 +68888,7 @@ spurious results.`);
       return;
     warnings.add(typeDotName);
     var childTypenames = [];
-    if (!isArray(existing) && !isArray(incoming)) {
+    if (!isArray2(existing) && !isArray2(incoming)) {
       [existing, incoming].forEach(function(child) {
         var typename = store.getFieldValue(child, "__typename");
         if (typeof typename === "string" && !childTypenames.includes(typename)) {
@@ -62490,7 +68896,7 @@ spurious results.`);
         }
       });
     }
-    globalThis.__DEV__ !== false && invariant2.warn(15, fieldName, parentType, childTypenames.length ? "either ensure all objects of type " + childTypenames.join(" and ") + " have an ID or a custom merge function, or " : "", typeDotName, __assign({}, existing), __assign({}, incoming));
+    globalThis.__DEV__ !== false && invariant3.warn(15, fieldName, parentType, childTypenames.length ? "either ensure all objects of type " + childTypenames.join(" and ") + " have an ID or a custom merge function, or " : "", typeDotName, __assign({}, existing), __assign({}, incoming));
   }
 
   // node_modules/@apollo/client/cache/inmemory/inMemoryCache.js
@@ -62539,8 +68945,8 @@ spurious results.`);
           canon: resetResultIdentities ? void 0 : previousReader && previousReader.canon,
           fragments
         }), fragments);
-        this.maybeBroadcastWatch = wrap3(function(c, options) {
-          return _this.broadcastWatch(c, options);
+        this.maybeBroadcastWatch = wrap3(function(c, options2) {
+          return _this.broadcastWatch(c, options2);
         }, {
           max: this.config.resultCacheMaxSize || cacheSizes["inMemoryCache.maybeBroadcastWatch"] || 5e3,
           makeCacheKey: function(c) {
@@ -62577,10 +68983,10 @@ spurious results.`);
         }
         return (optimistic ? this.optimisticData : this.data).extract();
       };
-      InMemoryCache2.prototype.read = function(options) {
-        var _a2 = options.returnPartialData, returnPartialData = _a2 === void 0 ? false : _a2;
+      InMemoryCache2.prototype.read = function(options2) {
+        var _a2 = options2.returnPartialData, returnPartialData = _a2 === void 0 ? false : _a2;
         try {
-          return this.storeReader.diffQueryAgainstStore(__assign(__assign({}, options), { store: options.optimistic ? this.optimisticData : this.data, config: this.config, returnPartialData })).result || null;
+          return this.storeReader.diffQueryAgainstStore(__assign(__assign({}, options2), { store: options2.optimistic ? this.optimisticData : this.data, config: this.config, returnPartialData })).result || null;
         } catch (e) {
           if (e instanceof MissingFieldError) {
             return null;
@@ -62588,32 +68994,32 @@ spurious results.`);
           throw e;
         }
       };
-      InMemoryCache2.prototype.write = function(options) {
+      InMemoryCache2.prototype.write = function(options2) {
         try {
           ++this.txCount;
-          return this.storeWriter.writeToStore(this.data, options);
+          return this.storeWriter.writeToStore(this.data, options2);
         } finally {
-          if (!--this.txCount && options.broadcast !== false) {
+          if (!--this.txCount && options2.broadcast !== false) {
             this.broadcastWatches();
           }
         }
       };
-      InMemoryCache2.prototype.modify = function(options) {
-        if (hasOwn.call(options, "id") && !options.id) {
+      InMemoryCache2.prototype.modify = function(options2) {
+        if (hasOwn.call(options2, "id") && !options2.id) {
           return false;
         }
-        var store = options.optimistic ? this.optimisticData : this.data;
+        var store = options2.optimistic ? this.optimisticData : this.data;
         try {
           ++this.txCount;
-          return store.modify(options.id || "ROOT_QUERY", options.fields);
+          return store.modify(options2.id || "ROOT_QUERY", options2.fields);
         } finally {
-          if (!--this.txCount && options.broadcast !== false) {
+          if (!--this.txCount && options2.broadcast !== false) {
             this.broadcastWatches();
           }
         }
       };
-      InMemoryCache2.prototype.diff = function(options) {
-        return this.storeReader.diffQueryAgainstStore(__assign(__assign({}, options), { store: options.optimistic ? this.optimisticData : this.data, rootId: options.id || "ROOT_QUERY", config: this.config }));
+      InMemoryCache2.prototype.diff = function(options2) {
+        return this.storeReader.diffQueryAgainstStore(__assign(__assign({}, options2), { store: options2.optimistic ? this.optimisticData : this.data, rootId: options2.id || "ROOT_QUERY", config: this.config }));
       };
       InMemoryCache2.prototype.watch = function(watch) {
         var _this = this;
@@ -62631,17 +69037,17 @@ spurious results.`);
           _this.maybeBroadcastWatch.forget(watch);
         };
       };
-      InMemoryCache2.prototype.gc = function(options) {
+      InMemoryCache2.prototype.gc = function(options2) {
         var _a2;
         canonicalStringify.reset();
         print2.reset();
         this.addTypenameTransform.resetCache();
         (_a2 = this.config.fragments) === null || _a2 === void 0 ? void 0 : _a2.resetCaches();
         var ids = this.optimisticData.gc();
-        if (options && !this.txCount) {
-          if (options.resetResultCache) {
-            this.resetResultCache(options.resetResultIdentities);
-          } else if (options.resetResultIdentities) {
+        if (options2 && !this.txCount) {
+          if (options2.resetResultCache) {
+            this.resetResultCache(options2.resetResultIdentities);
+          } else if (options2.resetResultIdentities) {
             this.storeReader.resetCanon();
           }
         }
@@ -62659,30 +69065,30 @@ spurious results.`);
         try {
           return this.policies.identify(object2)[0];
         } catch (e) {
-          globalThis.__DEV__ !== false && invariant2.warn(e);
+          globalThis.__DEV__ !== false && invariant3.warn(e);
         }
       };
-      InMemoryCache2.prototype.evict = function(options) {
-        if (!options.id) {
-          if (hasOwn.call(options, "id")) {
+      InMemoryCache2.prototype.evict = function(options2) {
+        if (!options2.id) {
+          if (hasOwn.call(options2, "id")) {
             return false;
           }
-          options = __assign(__assign({}, options), { id: "ROOT_QUERY" });
+          options2 = __assign(__assign({}, options2), { id: "ROOT_QUERY" });
         }
         try {
           ++this.txCount;
-          return this.optimisticData.evict(options, this.data);
+          return this.optimisticData.evict(options2, this.data);
         } finally {
-          if (!--this.txCount && options.broadcast !== false) {
+          if (!--this.txCount && options2.broadcast !== false) {
             this.broadcastWatches();
           }
         }
       };
-      InMemoryCache2.prototype.reset = function(options) {
+      InMemoryCache2.prototype.reset = function(options2) {
         var _this = this;
         this.init();
         canonicalStringify.reset();
-        if (options && options.discardWatches) {
+        if (options2 && options2.discardWatches) {
           this.watches.forEach(function(watch) {
             return _this.maybeBroadcastWatch.forget(watch);
           });
@@ -62700,9 +69106,9 @@ spurious results.`);
           this.broadcastWatches();
         }
       };
-      InMemoryCache2.prototype.batch = function(options) {
+      InMemoryCache2.prototype.batch = function(options2) {
         var _this = this;
-        var update = options.update, _a2 = options.optimistic, optimistic = _a2 === void 0 ? true : _a2, removeOptimistic = options.removeOptimistic, onWatchUpdated = options.onWatchUpdated;
+        var update = options2.update, _a2 = options2.optimistic, optimistic = _a2 === void 0 ? true : _a2, removeOptimistic = options2.removeOptimistic, onWatchUpdated = options2.onWatchUpdated;
         var updateResult;
         var perform = function(layer2) {
           var _a3 = _this, data = _a3.data, optimisticData = _a3.optimisticData;
@@ -62720,7 +69126,7 @@ spurious results.`);
         };
         var alreadyDirty = /* @__PURE__ */ new Set();
         if (onWatchUpdated && !this.txCount) {
-          this.broadcastWatches(__assign(__assign({}, options), { onWatchUpdated: function(watch) {
+          this.broadcastWatches(__assign(__assign({}, options2), { onWatchUpdated: function(watch) {
             alreadyDirty.add(watch);
             return false;
           } }));
@@ -62736,7 +69142,7 @@ spurious results.`);
           this.optimisticData = this.optimisticData.removeLayer(removeOptimistic);
         }
         if (onWatchUpdated && alreadyDirty.size) {
-          this.broadcastWatches(__assign(__assign({}, options), { onWatchUpdated: function(watch, diff) {
+          this.broadcastWatches(__assign(__assign({}, options2), { onWatchUpdated: function(watch, diff) {
             var result2 = onWatchUpdated.call(this, watch, diff);
             if (result2 !== false) {
               alreadyDirty.delete(watch);
@@ -62749,7 +69155,7 @@ spurious results.`);
             });
           }
         } else {
-          this.broadcastWatches(options);
+          this.broadcastWatches(options2);
         }
         return updateResult;
       };
@@ -62769,11 +69175,11 @@ spurious results.`);
         var _a2;
         return ((_a2 = this.config.fragments) === null || _a2 === void 0 ? void 0 : _a2.lookup(fragmentName)) || null;
       };
-      InMemoryCache2.prototype.broadcastWatches = function(options) {
+      InMemoryCache2.prototype.broadcastWatches = function(options2) {
         var _this = this;
         if (!this.txCount) {
           this.watches.forEach(function(c) {
-            return _this.maybeBroadcastWatch(c, options);
+            return _this.maybeBroadcastWatch(c, options2);
           });
         }
       };
@@ -62787,14 +69193,14 @@ spurious results.`);
         }
         return document2;
       };
-      InMemoryCache2.prototype.broadcastWatch = function(c, options) {
+      InMemoryCache2.prototype.broadcastWatch = function(c, options2) {
         var lastDiff = c.lastDiff;
         var diff = this.diff(c);
-        if (options) {
-          if (c.optimistic && typeof options.optimistic === "string") {
+        if (options2) {
+          if (c.optimistic && typeof options2.optimistic === "string") {
             diff.fromOptimisticTransaction = true;
           }
-          if (options.onWatchUpdated && options.onWatchUpdated.call(this, c, diff, lastDiff) === false) {
+          if (options2.onWatchUpdated && options2.onWatchUpdated.call(this, c, diff, lastDiff) === false) {
             return;
           }
         }
@@ -62832,7 +69238,7 @@ spurious results.`);
     (function(_super) {
       __extends(ObservableQuery2, _super);
       function ObservableQuery2(_a2) {
-        var queryManager = _a2.queryManager, queryInfo = _a2.queryInfo, options = _a2.options;
+        var queryManager = _a2.queryManager, queryInfo = _a2.queryInfo, options2 = _a2.options;
         var _this = this;
         var startedInactive = ObservableQuery2.inactiveOnCreation.getValue();
         _this = _super.call(this, function(observer2) {
@@ -62874,13 +69280,13 @@ spurious results.`);
         };
         _this.queryInfo = queryInfo;
         _this.queryManager = queryManager;
-        _this.waitForOwnResult = skipCacheDataFor(options.fetchPolicy);
+        _this.waitForOwnResult = skipCacheDataFor(options2.fetchPolicy);
         _this.isTornDown = false;
         _this.subscribeToMore = _this.subscribeToMore.bind(_this);
         _this.maskResult = _this.maskResult.bind(_this);
         var _b = queryManager.defaultOptions.watchQuery, _c = _b === void 0 ? {} : _b, _d = _c.fetchPolicy, defaultFetchPolicy = _d === void 0 ? "cache-first" : _d;
-        var _e = options.fetchPolicy, fetchPolicy = _e === void 0 ? defaultFetchPolicy : _e, _f = options.initialFetchPolicy, initialFetchPolicy = _f === void 0 ? fetchPolicy === "standby" ? defaultFetchPolicy : fetchPolicy : _f;
-        _this.options = __assign(__assign({}, options), {
+        var _e = options2.fetchPolicy, fetchPolicy = _e === void 0 ? defaultFetchPolicy : _e, _f = options2.initialFetchPolicy, initialFetchPolicy = _f === void 0 ? fetchPolicy === "standby" ? defaultFetchPolicy : fetchPolicy : _f;
+        _this.options = __assign(__assign({}, options2), {
           // Remember the initial options.fetchPolicy so we can revert back to this
           // policy when variables change. This information can also be specified
           // (or overridden) by providing options.initialFetchPolicy explicitly.
@@ -63040,7 +69446,7 @@ spurious results.`);
           if (!vars || !vars.some(function(v) {
             return v.variable.name.value === "variables";
           })) {
-            globalThis.__DEV__ !== false && invariant2.warn(
+            globalThis.__DEV__ !== false && invariant3.warn(
               21,
               variables,
               ((_a2 = queryDef.name) === null || _a2 === void 0 ? void 0 : _a2.value) || queryDef
@@ -63076,7 +69482,7 @@ spurious results.`);
         var updateQuery = fetchMoreOptions === null || fetchMoreOptions === void 0 ? void 0 : fetchMoreOptions.updateQuery;
         var isCached = this.options.fetchPolicy !== "no-cache";
         if (!isCached) {
-          invariant2(updateQuery, 22);
+          invariant3(updateQuery, 22);
         }
         return this.queryManager.fetchQuery(qid, combinedOptions, NetworkStatus.fetchMore).then(function(fetchMoreResult) {
           _this.queryManager.removeQuery(qid);
@@ -63126,15 +69532,15 @@ spurious results.`);
           }
         });
       };
-      ObservableQuery2.prototype.subscribeToMore = function(options) {
+      ObservableQuery2.prototype.subscribeToMore = function(options2) {
         var _this = this;
         var subscription = this.queryManager.startGraphQLSubscription({
-          query: options.document,
-          variables: options.variables,
-          context: options.context
+          query: options2.document,
+          variables: options2.variables,
+          context: options2.context
         }).subscribe({
           next: function(subscriptionData) {
-            var updateQuery = options.updateQuery;
+            var updateQuery = options2.updateQuery;
             if (updateQuery) {
               _this.updateQuery(function(previous, updateOptions) {
                 return updateQuery(previous, __assign({ subscriptionData }, updateOptions));
@@ -63142,11 +69548,11 @@ spurious results.`);
             }
           },
           error: function(err) {
-            if (options.onError) {
-              options.onError(err);
+            if (options2.onError) {
+              options2.onError(err);
               return;
             }
-            globalThis.__DEV__ !== false && invariant2.error(23, err);
+            globalThis.__DEV__ !== false && invariant3.error(23, err);
           }
         });
         this.subscriptions.add(subscription);
@@ -63207,29 +69613,29 @@ spurious results.`);
         this.options.pollInterval = 0;
         this.updatePolling();
       };
-      ObservableQuery2.prototype.applyNextFetchPolicy = function(reason, options) {
-        if (options.nextFetchPolicy) {
-          var _a2 = options.fetchPolicy, fetchPolicy = _a2 === void 0 ? "cache-first" : _a2, _b = options.initialFetchPolicy, initialFetchPolicy = _b === void 0 ? fetchPolicy : _b;
+      ObservableQuery2.prototype.applyNextFetchPolicy = function(reason, options2) {
+        if (options2.nextFetchPolicy) {
+          var _a2 = options2.fetchPolicy, fetchPolicy = _a2 === void 0 ? "cache-first" : _a2, _b = options2.initialFetchPolicy, initialFetchPolicy = _b === void 0 ? fetchPolicy : _b;
           if (fetchPolicy === "standby") {
-          } else if (typeof options.nextFetchPolicy === "function") {
-            options.fetchPolicy = options.nextFetchPolicy(fetchPolicy, {
+          } else if (typeof options2.nextFetchPolicy === "function") {
+            options2.fetchPolicy = options2.nextFetchPolicy(fetchPolicy, {
               reason,
-              options,
+              options: options2,
               observable: this,
               initialFetchPolicy
             });
           } else if (reason === "variables-changed") {
-            options.fetchPolicy = initialFetchPolicy;
+            options2.fetchPolicy = initialFetchPolicy;
           } else {
-            options.fetchPolicy = options.nextFetchPolicy;
+            options2.fetchPolicy = options2.nextFetchPolicy;
           }
         }
-        return options.fetchPolicy;
+        return options2.fetchPolicy;
       };
-      ObservableQuery2.prototype.fetch = function(options, newNetworkStatus, query) {
+      ObservableQuery2.prototype.fetch = function(options2, newNetworkStatus, query) {
         var queryInfo = this._getOrCreateQuery();
         queryInfo.setObservableQuery(this);
-        return this.queryManager["fetchConcastWithInfo"](queryInfo, options, newNetworkStatus, query);
+        return this.queryManager["fetchConcastWithInfo"](queryInfo, options2, newNetworkStatus, query);
       };
       ObservableQuery2.prototype.updatePolling = function() {
         var _this = this;
@@ -63247,7 +69653,7 @@ spurious results.`);
         if (pollingInfo && pollingInfo.interval === pollInterval) {
           return;
         }
-        invariant2(pollInterval, 24);
+        invariant3(pollInterval, 24);
         var info = pollingInfo || (this.pollingInfo = {});
         info.interval = pollInterval;
         var maybeFetch = function() {
@@ -63301,35 +69707,35 @@ spurious results.`);
         var oldVariables = this.options.variables;
         var oldFetchPolicy = this.options.fetchPolicy;
         var mergedOptions = compact(this.options, newOptions || {});
-        var options = useDisposableConcast ? (
+        var options2 = useDisposableConcast ? (
           // Disposable Concast fetches receive a shallow copy of this.options
           // (merged with newOptions), leaving this.options unmodified.
           mergedOptions
         ) : assign(this.options, mergedOptions);
-        var query = this.transformDocument(options.query);
+        var query = this.transformDocument(options2.query);
         this.lastQuery = query;
         if (!useDisposableConcast) {
           this.updatePolling();
           if (newOptions && newOptions.variables && !equal(newOptions.variables, oldVariables) && // Don't mess with the fetchPolicy if it's currently "standby".
-          options.fetchPolicy !== "standby" && // If we're changing the fetchPolicy anyway, don't try to change it here
+          options2.fetchPolicy !== "standby" && // If we're changing the fetchPolicy anyway, don't try to change it here
           // using applyNextFetchPolicy. The explicit options.fetchPolicy wins.
-          (options.fetchPolicy === oldFetchPolicy || // A `nextFetchPolicy` function has even higher priority, though,
+          (options2.fetchPolicy === oldFetchPolicy || // A `nextFetchPolicy` function has even higher priority, though,
           // so in that case `applyNextFetchPolicy` must be called.
-          typeof options.nextFetchPolicy === "function")) {
-            this.applyNextFetchPolicy("variables-changed", options);
+          typeof options2.nextFetchPolicy === "function")) {
+            this.applyNextFetchPolicy("variables-changed", options2);
             if (newNetworkStatus === void 0) {
               newNetworkStatus = NetworkStatus.setVariables;
             }
           }
         }
-        this.waitForOwnResult && (this.waitForOwnResult = skipCacheDataFor(options.fetchPolicy));
+        this.waitForOwnResult && (this.waitForOwnResult = skipCacheDataFor(options2.fetchPolicy));
         var finishWaitingForOwnResult = function() {
           if (_this.concast === concast) {
             _this.waitForOwnResult = false;
           }
         };
-        var variables = options.variables && __assign({}, options.variables);
-        var _a2 = this.fetch(options, newNetworkStatus, query), concast = _a2.concast, fromLink = _a2.fromLink;
+        var variables = options2.variables && __assign({}, options2.variables);
+        var _a2 = this.fetch(options2, newNetworkStatus, query), concast = _a2.concast, fromLink = _a2.fromLink;
         var observer2 = {
           next: function(result2) {
             if (equal(_this.variables, variables)) {
@@ -63486,11 +69892,11 @@ spurious results.`);
   );
   fixObservableSubclass(ObservableQuery);
   function defaultSubscriptionObserverErrorCallback(error) {
-    globalThis.__DEV__ !== false && invariant2.error(25, error.message, error.stack);
+    globalThis.__DEV__ !== false && invariant3.error(25, error.message, error.stack);
   }
   function logMissingFieldErrors(missing) {
     if (globalThis.__DEV__ !== false && missing) {
-      globalThis.__DEV__ !== false && invariant2.debug(26, missing);
+      globalThis.__DEV__ !== false && invariant3.debug(26, missing);
     }
   }
   function skipCacheDataFor(fetchPolicy) {
@@ -63563,8 +69969,8 @@ spurious results.`);
         this.lastDiff = void 0;
       };
       QueryInfo2.prototype.getDiff = function() {
-        var options = this.getDiffOptions();
-        if (this.lastDiff && equal(options, this.lastDiff.options)) {
+        var options2 = this.getDiffOptions();
+        if (this.lastDiff && equal(options2, this.lastDiff.options)) {
           return this.lastDiff.diff;
         }
         this.updateWatch(this.variables);
@@ -63572,14 +69978,14 @@ spurious results.`);
         if (oq && oq.options.fetchPolicy === "no-cache") {
           return { complete: false };
         }
-        var diff = this.cache.diff(options);
-        this.updateLastDiff(diff, options);
+        var diff = this.cache.diff(options2);
+        this.updateLastDiff(diff, options2);
         return diff;
       };
-      QueryInfo2.prototype.updateLastDiff = function(diff, options) {
+      QueryInfo2.prototype.updateLastDiff = function(diff, options2) {
         this.lastDiff = diff ? {
           diff,
-          options: options || this.getDiffOptions()
+          options: options2 || this.getDiffOptions()
         } : void 0;
       };
       QueryInfo2.prototype.getDiffOptions = function(variables) {
@@ -63657,7 +70063,7 @@ spurious results.`);
         // the cache will repair what was evicted.
         lastWrite.dmCount === destructiveMethodCounts.get(this.cache) && equal(variables, lastWrite.variables) && equal(result2.data, lastWrite.result.data));
       };
-      QueryInfo2.prototype.markResult = function(result2, document2, options, cacheWriteBehavior) {
+      QueryInfo2.prototype.markResult = function(result2, document2, options2, cacheWriteBehavior) {
         var _this = this;
         var _a2;
         var merger = new DeepMerger();
@@ -63671,21 +70077,21 @@ spurious results.`);
           result2.data = merger.merge(diff.result, result2.data);
         }
         this.graphQLErrors = graphQLErrors;
-        if (options.fetchPolicy === "no-cache") {
-          this.updateLastDiff({ result: result2.data, complete: true }, this.getDiffOptions(options.variables));
+        if (options2.fetchPolicy === "no-cache") {
+          this.updateLastDiff({ result: result2.data, complete: true }, this.getDiffOptions(options2.variables));
         } else if (cacheWriteBehavior !== 0) {
-          if (shouldWriteResult(result2, options.errorPolicy)) {
+          if (shouldWriteResult(result2, options2.errorPolicy)) {
             this.cache.performTransaction(function(cache) {
-              if (_this.shouldWrite(result2, options.variables)) {
+              if (_this.shouldWrite(result2, options2.variables)) {
                 cache.writeQuery({
                   query: document2,
                   data: result2.data,
-                  variables: options.variables,
+                  variables: options2.variables,
                   overwrite: cacheWriteBehavior === 1
                 });
                 _this.lastWrite = {
                   result: result2,
-                  variables: options.variables,
+                  variables: options2.variables,
                   dmCount: destructiveMethodCounts.get(_this.cache)
                 };
               } else {
@@ -63694,10 +70100,10 @@ spurious results.`);
                   return;
                 }
               }
-              var diffOptions = _this.getDiffOptions(options.variables);
+              var diffOptions = _this.getDiffOptions(options2.variables);
               var diff2 = cache.diff(diffOptions);
-              if (!_this.stopped && equal(_this.variables, options.variables)) {
-                _this.updateWatch(options.variables);
+              if (!_this.stopped && equal(_this.variables, options2.variables)) {
+                _this.updateWatch(options2.variables);
               }
               _this.updateLastDiff(diff2, diffOptions);
               if (diff2.complete) {
@@ -63747,7 +70153,7 @@ spurious results.`);
   var QueryManager = (
     /** @class */
     (function() {
-      function QueryManager2(options) {
+      function QueryManager2(options2) {
         var _this = this;
         this.clientAwareness = {};
         this.queries = /* @__PURE__ */ new Map();
@@ -63768,19 +70174,19 @@ spurious results.`);
           // Allow the apollo cache to manage its own transform caches
           { cache: false }
         );
-        this.cache = options.cache;
-        this.link = options.link;
-        this.defaultOptions = options.defaultOptions;
-        this.queryDeduplication = options.queryDeduplication;
-        this.clientAwareness = options.clientAwareness;
-        this.localState = options.localState;
-        this.ssrMode = options.ssrMode;
-        this.assumeImmutableResults = options.assumeImmutableResults;
-        this.dataMasking = options.dataMasking;
-        var documentTransform = options.documentTransform;
+        this.cache = options2.cache;
+        this.link = options2.link;
+        this.defaultOptions = options2.defaultOptions;
+        this.queryDeduplication = options2.queryDeduplication;
+        this.clientAwareness = options2.clientAwareness;
+        this.localState = options2.localState;
+        this.ssrMode = options2.ssrMode;
+        this.assumeImmutableResults = options2.assumeImmutableResults;
+        this.dataMasking = options2.dataMasking;
+        var documentTransform = options2.documentTransform;
         this.documentTransform = documentTransform ? defaultDocumentTransform.concat(documentTransform).concat(defaultDocumentTransform) : defaultDocumentTransform;
-        this.defaultContext = options.defaultContext || /* @__PURE__ */ Object.create(null);
-        if (this.onBroadcast = options.onBroadcast) {
+        this.defaultContext = options2.defaultContext || /* @__PURE__ */ Object.create(null);
+        if (this.onBroadcast = options2.onBroadcast) {
           this.mutationStore = /* @__PURE__ */ Object.create(null);
         }
       }
@@ -63805,8 +70211,8 @@ spurious results.`);
           return __generator(this, function(_j) {
             switch (_j.label) {
               case 0:
-                invariant2(mutation, 28);
-                invariant2(fetchPolicy === "network-only" || fetchPolicy === "no-cache", 29);
+                invariant3(mutation, 28);
+                invariant3(fetchPolicy === "network-only" || fetchPolicy === "no-cache", 29);
                 mutationId = this.generateMutationId();
                 mutation = this.cache.transformForLink(this.transform(mutation));
                 hasClientExports2 = this.getDocumentInfo(mutation).hasClientExports;
@@ -64059,13 +70465,13 @@ spurious results.`);
           try {
             _this.markMutationResult(__assign(__assign({}, mutation), { result: { data } }), cache);
           } catch (error) {
-            globalThis.__DEV__ !== false && invariant2.error(error);
+            globalThis.__DEV__ !== false && invariant3.error(error);
           }
         }, mutation.mutationId);
         return true;
       };
-      QueryManager2.prototype.fetchQuery = function(queryId, options, networkStatus) {
-        return this.fetchConcastWithInfo(this.getOrCreateQuery(queryId), options, networkStatus).concast.promise;
+      QueryManager2.prototype.fetchQuery = function(queryId, options2, networkStatus) {
+        return this.fetchConcastWithInfo(this.getOrCreateQuery(queryId), options2, networkStatus).concast.promise;
       };
       QueryManager2.prototype.getQueryStore = function() {
         var store = /* @__PURE__ */ Object.create(null);
@@ -64126,17 +70532,17 @@ spurious results.`);
       QueryManager2.prototype.getVariables = function(document2, variables) {
         return __assign(__assign({}, this.getDocumentInfo(document2).defaultVars), variables);
       };
-      QueryManager2.prototype.watchQuery = function(options) {
-        var query = this.transform(options.query);
-        options = __assign(__assign({}, options), { variables: this.getVariables(query, options.variables) });
-        if (typeof options.notifyOnNetworkStatusChange === "undefined") {
-          options.notifyOnNetworkStatusChange = false;
+      QueryManager2.prototype.watchQuery = function(options2) {
+        var query = this.transform(options2.query);
+        options2 = __assign(__assign({}, options2), { variables: this.getVariables(query, options2.variables) });
+        if (typeof options2.notifyOnNetworkStatusChange === "undefined") {
+          options2.notifyOnNetworkStatusChange = false;
         }
         var queryInfo = new QueryInfo(this);
         var observable = new ObservableQuery({
           queryManager: this,
           queryInfo,
-          options
+          options: options2
         });
         observable["lastQuery"] = query;
         if (!ObservableQuery["inactiveOnCreation"].getValue()) {
@@ -64149,21 +70555,21 @@ spurious results.`);
         });
         return observable;
       };
-      QueryManager2.prototype.query = function(options, queryId) {
+      QueryManager2.prototype.query = function(options2, queryId) {
         var _this = this;
         if (queryId === void 0) {
           queryId = this.generateQueryId();
         }
-        invariant2(options.query, 30);
-        invariant2(options.query.kind === "Document", 31);
-        invariant2(!options.returnPartialData, 32);
-        invariant2(!options.pollInterval, 33);
-        var query = this.transform(options.query);
-        return this.fetchQuery(queryId, __assign(__assign({}, options), { query })).then(function(result2) {
+        invariant3(options2.query, 30);
+        invariant3(options2.query.kind === "Document", 31);
+        invariant3(!options2.returnPartialData, 32);
+        invariant3(!options2.pollInterval, 33);
+        var query = this.transform(options2.query);
+        return this.fetchQuery(queryId, __assign(__assign({}, options2), { query })).then(function(result2) {
           return result2 && __assign(__assign({}, result2), { data: _this.maskOperation({
             document: query,
             data: result2.data,
-            fetchPolicy: options.fetchPolicy,
+            fetchPolicy: options2.fetchPolicy,
             id: queryId
           }) });
         }).finally(function() {
@@ -64188,9 +70594,9 @@ spurious results.`);
         if (queryInfo)
           queryInfo.stop();
       };
-      QueryManager2.prototype.clearStore = function(options) {
-        if (options === void 0) {
-          options = {
+      QueryManager2.prototype.clearStore = function(options2) {
+        if (options2 === void 0) {
+          options2 = {
             discardWatches: true
           };
         }
@@ -64205,7 +70611,7 @@ spurious results.`);
         if (this.mutationStore) {
           this.mutationStore = /* @__PURE__ */ Object.create(null);
         }
-        return this.cache.reset(options);
+        return this.cache.reset(options2);
       };
       QueryManager2.prototype.getObservableQueries = function(include) {
         var _this = this;
@@ -64251,18 +70657,18 @@ spurious results.`);
           }
         });
         if (legacyQueryOptions.size) {
-          legacyQueryOptions.forEach(function(options) {
+          legacyQueryOptions.forEach(function(options2) {
             var queryId = makeUniqueId("legacyOneTimeQuery");
             var queryInfo = _this.getOrCreateQuery(queryId).init({
-              document: options.query,
-              variables: options.variables
+              document: options2.query,
+              variables: options2.variables
             });
             var oq = new ObservableQuery({
               queryManager: _this,
               queryInfo,
-              options: __assign(__assign({}, options), { fetchPolicy: "network-only" })
+              options: __assign(__assign({}, options2), { fetchPolicy: "network-only" })
             });
-            invariant2(oq.queryId === queryId);
+            invariant3(oq.queryId === queryId);
             queryInfo.setObservableQuery(oq);
             queries.set(queryId, oq);
           });
@@ -64272,9 +70678,9 @@ spurious results.`);
             if (!included) {
               var queryName = queryNames.get(nameOrQueryString);
               if (queryName) {
-                globalThis.__DEV__ !== false && invariant2.warn(35, queryName);
+                globalThis.__DEV__ !== false && invariant3.warn(35, queryName);
               } else {
-                globalThis.__DEV__ !== false && invariant2.warn(36);
+                globalThis.__DEV__ !== false && invariant3.warn(36);
               }
             }
           });
@@ -64298,10 +70704,10 @@ spurious results.`);
         this.broadcastQueries();
         return Promise.all(observableQueryPromises);
       };
-      QueryManager2.prototype.startGraphQLSubscription = function(options) {
+      QueryManager2.prototype.startGraphQLSubscription = function(options2) {
         var _this = this;
-        var query = options.query, variables = options.variables;
-        var fetchPolicy = options.fetchPolicy, _a2 = options.errorPolicy, errorPolicy = _a2 === void 0 ? "none" : _a2, _b = options.context, context = _b === void 0 ? {} : _b, _c = options.extensions, extensions = _c === void 0 ? {} : _c;
+        var query = options2.query, variables = options2.variables;
+        var fetchPolicy = options2.fetchPolicy, _a2 = options2.errorPolicy, errorPolicy = _a2 === void 0 ? "none" : _a2, _b = options2.context, context = _b === void 0 ? {} : _b, _c = options2.extensions, extensions = _c === void 0 ? {} : _c;
         query = this.transform(query);
         variables = this.getVariables(query, variables);
         var makeObservable = function(variables2) {
@@ -64435,20 +70841,20 @@ spurious results.`);
         }
         return observable;
       };
-      QueryManager2.prototype.getResultsFromLink = function(queryInfo, cacheWriteBehavior, options) {
+      QueryManager2.prototype.getResultsFromLink = function(queryInfo, cacheWriteBehavior, options2) {
         var requestId = queryInfo.lastRequestId = this.generateRequestId();
-        var linkDocument = this.cache.transformForLink(options.query);
-        return asyncMap(this.getObservableFromLink(linkDocument, options.context, options.variables), function(result2) {
+        var linkDocument = this.cache.transformForLink(options2.query);
+        return asyncMap(this.getObservableFromLink(linkDocument, options2.context, options2.variables), function(result2) {
           var graphQLErrors = getGraphQLErrorsFromResult(result2);
           var hasErrors = graphQLErrors.length > 0;
-          var errorPolicy = options.errorPolicy;
+          var errorPolicy = options2.errorPolicy;
           if (requestId >= queryInfo.lastRequestId) {
             if (hasErrors && errorPolicy === "none") {
               throw queryInfo.markError(new ApolloError({
                 graphQLErrors
               }));
             }
-            queryInfo.markResult(result2, linkDocument, options, cacheWriteBehavior);
+            queryInfo.markResult(result2, linkDocument, options2, cacheWriteBehavior);
             queryInfo.markReady();
           }
           var aqr = {
@@ -64472,18 +70878,18 @@ spurious results.`);
           throw error;
         });
       };
-      QueryManager2.prototype.fetchConcastWithInfo = function(queryInfo, options, networkStatus, query) {
+      QueryManager2.prototype.fetchConcastWithInfo = function(queryInfo, options2, networkStatus, query) {
         var _this = this;
         if (networkStatus === void 0) {
           networkStatus = NetworkStatus.loading;
         }
         if (query === void 0) {
-          query = options.query;
+          query = options2.query;
         }
-        var variables = this.getVariables(query, options.variables);
+        var variables = this.getVariables(query, options2.variables);
         var defaults = this.defaultOptions.watchQuery;
-        var _a2 = options.fetchPolicy, fetchPolicy = _a2 === void 0 ? defaults && defaults.fetchPolicy || "cache-first" : _a2, _b = options.errorPolicy, errorPolicy = _b === void 0 ? defaults && defaults.errorPolicy || "none" : _b, _c = options.returnPartialData, returnPartialData = _c === void 0 ? false : _c, _d = options.notifyOnNetworkStatusChange, notifyOnNetworkStatusChange = _d === void 0 ? false : _d, _e = options.context, context = _e === void 0 ? {} : _e;
-        var normalized = Object.assign({}, options, {
+        var _a2 = options2.fetchPolicy, fetchPolicy = _a2 === void 0 ? defaults && defaults.fetchPolicy || "cache-first" : _a2, _b = options2.errorPolicy, errorPolicy = _b === void 0 ? defaults && defaults.errorPolicy || "none" : _b, _c = options2.returnPartialData, returnPartialData = _c === void 0 ? false : _c, _d = options2.notifyOnNetworkStatusChange, notifyOnNetworkStatusChange = _d === void 0 ? false : _d, _e = options2.context, context = _e === void 0 ? {} : _e;
+        var normalized = Object.assign({}, options2, {
           query,
           variables,
           fetchPolicy,
@@ -64502,7 +70908,7 @@ spurious results.`);
             // this is another way to detect when nothing was done/fetched.
             sourcesWithInfo2.sources.length > 0 && queryInfo.observableQuery
           ) {
-            queryInfo.observableQuery["applyNextFetchPolicy"]("after-fetch", options);
+            queryInfo.observableQuery["applyNextFetchPolicy"]("after-fetch", options2);
           }
           return sourcesWithInfo2;
         };
@@ -64633,16 +71039,16 @@ spurious results.`);
         }
         return results;
       };
-      QueryManager2.prototype.maskOperation = function(options) {
+      QueryManager2.prototype.maskOperation = function(options2) {
         var _a2, _b, _c;
-        var document2 = options.document, data = options.data;
+        var document2 = options2.document, data = options2.data;
         if (globalThis.__DEV__ !== false) {
-          var fetchPolicy = options.fetchPolicy, id = options.id;
+          var fetchPolicy = options2.fetchPolicy, id = options2.id;
           var operationType = (_a2 = getOperationDefinition(document2)) === null || _a2 === void 0 ? void 0 : _a2.operation;
           var operationId = ((_b = operationType === null || operationType === void 0 ? void 0 : operationType[0]) !== null && _b !== void 0 ? _b : "o") + id;
           if (this.dataMasking && fetchPolicy === "no-cache" && !isFullyUnmaskedOperation(document2) && !this.noCacheWarningsByQueryId.has(operationId)) {
             this.noCacheWarningsByQueryId.add(operationId);
-            globalThis.__DEV__ !== false && invariant2.warn(
+            globalThis.__DEV__ !== false && invariant3.warn(
               37,
               (_c = getOperationName(document2)) !== null && _c !== void 0 ? _c : "Unnamed ".concat(operationType !== null && operationType !== void 0 ? operationType : "operation")
             );
@@ -64650,8 +71056,8 @@ spurious results.`);
         }
         return this.dataMasking ? maskOperation(data, document2, this.cache) : data;
       };
-      QueryManager2.prototype.maskFragment = function(options) {
-        var data = options.data, fragment = options.fragment, fragmentName = options.fragmentName;
+      QueryManager2.prototype.maskFragment = function(options2) {
+        var data = options2.data, fragment = options2.fragment, fragmentName = options2.fragmentName;
         return this.dataMasking ? maskFragment(data, fragment, this.cache, fragmentName) : data;
       };
       QueryManager2.prototype.fetchQueryByPolicy = function(queryInfo, _a2, networkStatus) {
@@ -64977,7 +71383,7 @@ spurious results.`);
                     fragment = selection;
                   } else {
                     fragment = fragmentMap[selection.name.value];
-                    invariant2(fragment, 19, selection.name.value);
+                    invariant3(fragment, 19, selection.name.value);
                   }
                   if (fragment && fragment.typeCondition) {
                     typeCondition = fragment.typeCondition.name.value;
@@ -65103,7 +71509,7 @@ spurious results.`);
               },
               FragmentSpread: function(spread, _, __, ___, ancestors) {
                 var fragment = fragmentMap[spread.name.value];
-                invariant2(fragment, 20, spread.name.value);
+                invariant3(fragment, 20, spread.name.value);
                 var fragmentSelections = collectByDefinition(fragment);
                 if (fragmentSelections.size > 0) {
                   ancestors.forEach(function(node2) {
@@ -65132,16 +71538,16 @@ spurious results.`);
   var ApolloClient = (
     /** @class */
     (function() {
-      function ApolloClient2(options) {
+      function ApolloClient2(options2) {
         var _this = this;
         var _a2;
         this.resetStoreCallbacks = [];
         this.clearStoreCallbacks = [];
-        if (!options.cache) {
+        if (!options2.cache) {
           throw newInvariantError(16);
         }
-        var uri = options.uri, credentials = options.credentials, headers = options.headers, cache = options.cache, documentTransform = options.documentTransform, _b = options.ssrMode, ssrMode = _b === void 0 ? false : _b, _c = options.ssrForceFetchDelay, ssrForceFetchDelay = _c === void 0 ? 0 : _c, connectToDevTools = options.connectToDevTools, _d = options.queryDeduplication, queryDeduplication = _d === void 0 ? true : _d, defaultOptions4 = options.defaultOptions, defaultContext = options.defaultContext, _e = options.assumeImmutableResults, assumeImmutableResults = _e === void 0 ? cache.assumeImmutableResults : _e, resolvers = options.resolvers, typeDefs = options.typeDefs, fragmentMatcher = options.fragmentMatcher, clientAwarenessName = options.name, clientAwarenessVersion = options.version, devtools = options.devtools, dataMasking = options.dataMasking;
-        var link = options.link;
+        var uri = options2.uri, credentials = options2.credentials, headers = options2.headers, cache = options2.cache, documentTransform = options2.documentTransform, _b = options2.ssrMode, ssrMode = _b === void 0 ? false : _b, _c = options2.ssrForceFetchDelay, ssrForceFetchDelay = _c === void 0 ? 0 : _c, connectToDevTools = options2.connectToDevTools, _d = options2.queryDeduplication, queryDeduplication = _d === void 0 ? true : _d, defaultOptions4 = options2.defaultOptions, defaultContext = options2.defaultContext, _e = options2.assumeImmutableResults, assumeImmutableResults = _e === void 0 ? cache.assumeImmutableResults : _e, resolvers = options2.resolvers, typeDefs = options2.typeDefs, fragmentMatcher = options2.fragmentMatcher, clientAwarenessName = options2.name, clientAwarenessVersion = options2.version, devtools = options2.devtools, dataMasking = options2.dataMasking;
+        var link = options2.link;
         if (!link) {
           link = uri ? new HttpLink({ uri, credentials, headers }) : ApolloLink.empty();
         }
@@ -65228,7 +71634,7 @@ spurious results.`);
                   }
                 }
                 if (url) {
-                  globalThis.__DEV__ !== false && invariant2.log("Download the Apollo DevTools for a better development experience: %s", url);
+                  globalThis.__DEV__ !== false && invariant3.log("Download the Apollo DevTools for a better development experience: %s", url);
                 }
               }
             }, 1e4);
@@ -65250,69 +71656,69 @@ spurious results.`);
       ApolloClient2.prototype.stop = function() {
         this.queryManager.stop();
       };
-      ApolloClient2.prototype.watchQuery = function(options) {
+      ApolloClient2.prototype.watchQuery = function(options2) {
         if (this.defaultOptions.watchQuery) {
-          options = mergeOptions(this.defaultOptions.watchQuery, options);
+          options2 = mergeOptions(this.defaultOptions.watchQuery, options2);
         }
-        if (this.disableNetworkFetches && (options.fetchPolicy === "network-only" || options.fetchPolicy === "cache-and-network")) {
-          options = __assign(__assign({}, options), { fetchPolicy: "cache-first" });
+        if (this.disableNetworkFetches && (options2.fetchPolicy === "network-only" || options2.fetchPolicy === "cache-and-network")) {
+          options2 = __assign(__assign({}, options2), { fetchPolicy: "cache-first" });
         }
-        return this.queryManager.watchQuery(options);
+        return this.queryManager.watchQuery(options2);
       };
-      ApolloClient2.prototype.query = function(options) {
+      ApolloClient2.prototype.query = function(options2) {
         if (this.defaultOptions.query) {
-          options = mergeOptions(this.defaultOptions.query, options);
+          options2 = mergeOptions(this.defaultOptions.query, options2);
         }
-        invariant2(options.fetchPolicy !== "cache-and-network", 17);
-        if (this.disableNetworkFetches && options.fetchPolicy === "network-only") {
-          options = __assign(__assign({}, options), { fetchPolicy: "cache-first" });
+        invariant3(options2.fetchPolicy !== "cache-and-network", 17);
+        if (this.disableNetworkFetches && options2.fetchPolicy === "network-only") {
+          options2 = __assign(__assign({}, options2), { fetchPolicy: "cache-first" });
         }
-        return this.queryManager.query(options);
+        return this.queryManager.query(options2);
       };
-      ApolloClient2.prototype.mutate = function(options) {
+      ApolloClient2.prototype.mutate = function(options2) {
         if (this.defaultOptions.mutate) {
-          options = mergeOptions(this.defaultOptions.mutate, options);
+          options2 = mergeOptions(this.defaultOptions.mutate, options2);
         }
-        return this.queryManager.mutate(options);
+        return this.queryManager.mutate(options2);
       };
-      ApolloClient2.prototype.subscribe = function(options) {
+      ApolloClient2.prototype.subscribe = function(options2) {
         var _this = this;
         var id = this.queryManager.generateQueryId();
-        return this.queryManager.startGraphQLSubscription(options).map(function(result2) {
+        return this.queryManager.startGraphQLSubscription(options2).map(function(result2) {
           return __assign(__assign({}, result2), { data: _this.queryManager.maskOperation({
-            document: options.query,
+            document: options2.query,
             data: result2.data,
-            fetchPolicy: options.fetchPolicy,
+            fetchPolicy: options2.fetchPolicy,
             id
           }) });
         });
       };
-      ApolloClient2.prototype.readQuery = function(options, optimistic) {
+      ApolloClient2.prototype.readQuery = function(options2, optimistic) {
         if (optimistic === void 0) {
           optimistic = false;
         }
-        return this.cache.readQuery(options, optimistic);
+        return this.cache.readQuery(options2, optimistic);
       };
-      ApolloClient2.prototype.watchFragment = function(options) {
+      ApolloClient2.prototype.watchFragment = function(options2) {
         var _a2;
-        return this.cache.watchFragment(__assign(__assign({}, options), (_a2 = {}, _a2[Symbol.for("apollo.dataMasking")] = this.queryManager.dataMasking, _a2)));
+        return this.cache.watchFragment(__assign(__assign({}, options2), (_a2 = {}, _a2[Symbol.for("apollo.dataMasking")] = this.queryManager.dataMasking, _a2)));
       };
-      ApolloClient2.prototype.readFragment = function(options, optimistic) {
+      ApolloClient2.prototype.readFragment = function(options2, optimistic) {
         if (optimistic === void 0) {
           optimistic = false;
         }
-        return this.cache.readFragment(options, optimistic);
+        return this.cache.readFragment(options2, optimistic);
       };
-      ApolloClient2.prototype.writeQuery = function(options) {
-        var ref = this.cache.writeQuery(options);
-        if (options.broadcast !== false) {
+      ApolloClient2.prototype.writeQuery = function(options2) {
+        var ref = this.cache.writeQuery(options2);
+        if (options2.broadcast !== false) {
           this.queryManager.broadcastQueries();
         }
         return ref;
       };
-      ApolloClient2.prototype.writeFragment = function(options) {
-        var ref = this.cache.writeFragment(options);
-        if (options.broadcast !== false) {
+      ApolloClient2.prototype.writeFragment = function(options2) {
+        var ref = this.cache.writeFragment(options2);
+        if (options2.broadcast !== false) {
           this.queryManager.broadcastQueries();
         }
         return ref;
@@ -65370,8 +71776,8 @@ spurious results.`);
       ApolloClient2.prototype.reFetchObservableQueries = function(includeStandby) {
         return this.queryManager.reFetchObservableQueries(includeStandby);
       };
-      ApolloClient2.prototype.refetchQueries = function(options) {
-        var map = this.queryManager.refetchQueries(options);
+      ApolloClient2.prototype.refetchQueries = function(options2) {
+        var map = this.queryManager.refetchQueries(options2);
         var queries = [];
         var results = [];
         map.forEach(function(result3, obsQuery) {
@@ -65382,7 +71788,7 @@ spurious results.`);
         result2.queries = queries;
         result2.results = results;
         result2.catch(function(error) {
-          globalThis.__DEV__ !== false && invariant2.debug(18, error);
+          globalThis.__DEV__ !== false && invariant3.debug(18, error);
         });
         return result2;
       };
@@ -65561,12 +71967,12 @@ spurious results.`);
       });
     });
   }
-  var customFetch = async (uri, options) => {
+  var customFetch = async (uri, options2) => {
     const cookie = await cookieHeaderFor("https://home.atlassian.com");
     return fetch(uri, {
-      ...options,
+      ...options2,
       headers: {
-        ...options.headers,
+        ...options2.headers,
         "content-type": "application/json",
         "cookie": cookie,
         "origin": "https://home.atlassian.com",
@@ -67359,14 +73765,14 @@ fragment UserAvatar on User {
       },
       []
     );
-    const [modalOpen, setModalOpen] = (0, import_react61.useState)(false);
-    const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react61.useState)([]);
-    const observerRef = (0, import_react61.useRef)(null);
+    const [modalOpen, setModalOpen] = (0, import_react100.useState)(false);
+    const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react100.useState)([]);
+    const observerRef = (0, import_react100.useRef)(null);
     const updateVisibleProjects = async () => {
       const matches = await downloadProjectData();
       setVisibleProjectKeys(matches.map((m) => m.projectId));
     };
-    (0, import_react61.useEffect)(() => {
+    (0, import_react100.useEffect)(() => {
       updateVisibleProjects();
       const observer2 = new window.MutationObserver(() => {
         updateVisibleProjects();
@@ -67384,14 +73790,14 @@ fragment UserAvatar on User {
     }));
     const filteredProjects = visibleProjectKeys.length > 0 ? projectViewModel.filter((p) => visibleProjectKeys.includes(p.projectKey)) : projectViewModel;
     const handleOpenModal = () => setModalOpen(true);
-    return /* @__PURE__ */ import_react61.default.createElement(import_react61.default.Fragment, null, /* @__PURE__ */ import_react61.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal }, "Atlas Xray", visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react61.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, /* @__PURE__ */ import_react61.default.createElement(ProjectList, { projects: filteredProjects })));
+    return /* @__PURE__ */ import_react100.default.createElement(import_react100.default.Fragment, null, /* @__PURE__ */ import_react100.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal }, "Atlas Xray", visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react100.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, (weekLimit) => /* @__PURE__ */ import_react100.default.createElement(ProjectList, { projects: filteredProjects, weekLimit })));
   };
   var FloatingButton_default = FloatingButton;
 
   // src/floatingButtonContentScript.js
   var container = document.createElement("div");
   document.body.appendChild(container);
-  (0, import_client3.createRoot)(container).render(/* @__PURE__ */ import_react62.default.createElement(FloatingButton_default, null));
+  (0, import_client3.createRoot)(container).render(/* @__PURE__ */ import_react101.default.createElement(FloatingButton_default, null));
   downloadProjectData();
   var observer = new MutationObserver(() => {
     downloadProjectData();

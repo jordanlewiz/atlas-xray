@@ -6,28 +6,33 @@ import Tooltip from "@atlaskit/tooltip";
 /**
  * ProjectTimeline view model is passed as the viewModel prop.
  * Contains: { projects, updatesByProject }
+ * Accepts weekLimit prop to limit the number of weeks shown.
  */
-const ProjectTimeline = ({ viewModel }) => {
+const ProjectTimeline = ({ viewModel, weekLimit }) => {
   const { projects, updatesByProject } = viewModel;
   const { minDate, maxDate } = getAllProjectDates(projects, updatesByProject);
   if (!minDate || !maxDate) return null;
   const weekRanges = getWeekRanges(minDate, maxDate);
+  const limitedWeekRanges =
+    typeof weekLimit === 'number' && isFinite(weekLimit)
+      ? weekRanges.slice(-weekLimit)
+      : weekRanges;
 
   return (
     <div className="project-timeline">
       <div className="timeline-row timeline-labels">
         <div className="timeline-y-label" />
-        {weekRanges.map((w, i) => (
+        {limitedWeekRanges.map((w, i) => (
           <div key={i} className="timeline-x-label">
             <Tooltip content={w.label}>{w.label}</Tooltip>
           </div>
         ))}
       </div>
-      {projects.map((proj, idx) => (
+      {projects.filter(Boolean).map((proj, idx) => (
         <ProjectTimelineRow
           key={proj.projectKey || idx}
-          project={proj}
-          weekRanges={weekRanges}
+          projectUpdate={proj}
+          weekRanges={limitedWeekRanges}
           updates={updatesByProject[proj.projectKey] || []}
         />
       ))}

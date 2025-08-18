@@ -5,24 +5,28 @@ import { buildProjectUrlFromKey } from "../utils/linkUtils";
 import Tooltip from "@atlaskit/tooltip";
 import { daysBetweenFlexibleDates } from "../utils/timelineUtils";
 
-export default function ProjectTimelineRow({ project, weekRanges, updates }) {
+export default function ProjectTimelineRow({ projectUpdate, weekRanges, updates }) {
+  if (!projectUpdate) {
+    console.warn('ProjectTimelineRow received undefined projectUpdate');
+    return null;
+  }
   // Only use updates with a valid string creationDate
   const validUpdates = updates.filter(u => u && typeof u.creationDate === 'string');
   return (
-    console.log("project", project),
+    console.log("project", projectUpdate),
     <div className="timeline-row">
       <div className="timeline-y-label">
-        <Tooltip content={project.name} position="bottom-start">
+        <Tooltip content={projectUpdate.name} position="bottom-start">
           <a
-            href={buildProjectUrlFromKey(project.projectKey)}
+            href={buildProjectUrlFromKey(projectUpdate.projectKey)}
             target="_blank"
             rel="noopener noreferrer"
             style={{ color: 'inherit', textDecoration: 'underline' }}
           >
-            {project.name}
+            {projectUpdate.name}
           </a>
         </Tooltip>
-        <small>{project.projectKey}</small>
+        <small>{projectUpdate.projectKey}</small>
       </div>
       {weekRanges.map((w, i) => {
         const weekStart = w.start;

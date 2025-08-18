@@ -71,7 +71,9 @@ const FloatingButton = () => {
       </button>
       
       <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <ProjectList projects={filteredProjects} />
+        {weekLimit => (
+          <ProjectList projects={filteredProjects} weekLimit={weekLimit} />
+        )}
       </Modal>
     </>
   );

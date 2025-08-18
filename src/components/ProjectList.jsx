@@ -46,7 +46,7 @@ function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
   return { projectViewModels, timelineViewModel };
 }
 
-export default function ProjectList({ projects }) {
+export default function ProjectList({ projects, weekLimit }) {
   // Fetch all updates and status history for all projects
   const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []);
   const allStatusHistory = useLiveQuery(() => db.projectStatusHistory.toArray(), []);
@@ -59,7 +59,7 @@ export default function ProjectList({ projects }) {
 
   return (
     <>
-      <ProjectTimeline viewModel={timelineViewModel} />
+      <ProjectTimeline viewModel={timelineViewModel} weekLimit={weekLimit} />
     </>
   );
 }
