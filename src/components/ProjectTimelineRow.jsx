@@ -9,16 +9,16 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
   return (
     <div className="timeline-row">
       <div className="timeline-y-label">
+      {project.name}<br />
         <a
           href={buildProjectUrlFromKey(project.projectKey)}
           target="_blank"
           rel="noopener noreferrer"
           style={{ color: 'inherit', textDecoration: 'underline' }}
         >
-          {project.name}
+          <small>{project.projectKey}</small>
         </a>
-        <br />
-        <small>{project.projectKey}</small>
+        
       </div>
       {weekRanges.map((w, i) => {
         const weekStart = w.start;

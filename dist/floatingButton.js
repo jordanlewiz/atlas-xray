@@ -41427,8 +41427,7 @@
   // src/components/ProjectTimelineRow.jsx
   function ProjectTimelineRow({ project, weekRanges, updates }) {
     const validUpdates = updates.filter((u) => u && typeof u.creationDate === "string");
-    console.log("project", project);
-    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react2.default.createElement(
+    return /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react2.default.createElement("div", { className: "timeline-y-label" }, project.name, /* @__PURE__ */ import_react2.default.createElement("br", null), /* @__PURE__ */ import_react2.default.createElement(
       "a",
       {
         href: buildProjectUrlFromKey(project.projectKey),
@@ -41436,8 +41435,8 @@
         rel: "noopener noreferrer",
         style: { color: "inherit", textDecoration: "underline" }
       },
-      project.name
-    ), /* @__PURE__ */ import_react2.default.createElement("br", null), /* @__PURE__ */ import_react2.default.createElement("small", null, project.projectKey)), weekRanges.map((w, i) => {
+      /* @__PURE__ */ import_react2.default.createElement("small", null, project.projectKey)
+    )), weekRanges.map((w, i) => {
       const weekStart = w.start;
       const weekEnd = w.end;
       const weekUpdates = validUpdates.filter((u) => {
