@@ -72,7 +72,7 @@
   }
 }
 
-.summary-section {
+.summary-section, .details-section {
   margin: 8px 0;
   
   h3 {
@@ -83,7 +83,7 @@
   }
 }
 
-.summary-content {
+.summary-content, .details-content {
   margin: 8px 0;
   line-height: 1.6;
   color: #172B4D;
@@ -103,10 +103,63 @@
   
   ul, ol {
     margin: 8px 0;
-    padding-left: 20px;
+    padding-left: 24px;
+    list-style: disc outside;
+  }
+  
+  ol {
+    list-style: decimal outside;
   }
   
   li {
     margin: 4px 0;
+    display: list-item;
+    list-style: inherit;
+  }
+  
+  // Ensure links in lists are styled properly
+  a {
+    color: #0052CC;
+    text-decoration: underline;
+    
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+.note-item {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #FAFBFC;
+  border-radius: 4px;
+  border: 1px solid #DFE1E6;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  strong {
+    color: #172B4D;
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+  
+  // Ensure list styling works inside note items
+  ul, ol {
+    margin: 8px 0;
+    padding-left: 24px;
+    list-style: disc outside;
+  }
+  
+  ol {
+    list-style: decimal outside;
+  }
+  
+  li {
+    margin: 4px 0;
+    display: list-item !important;
+    list-style: inherit !important;
   }
 }

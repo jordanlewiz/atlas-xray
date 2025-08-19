@@ -1,4 +1,4 @@
-// Database record types - simplified
+// Database record types - with individual fields for easier access
 export interface ProjectView {
   projectKey: string;
   raw: any; // Full GraphQL response
@@ -7,13 +7,25 @@ export interface ProjectView {
 export interface ProjectUpdate {
   id: string;
   projectKey: string;
-  raw: any; // Full GraphQL response
+  creationDate?: string;
+  state?: string;
+  missedUpdate?: boolean;
+  targetDate?: string;
+  newDueDate?: string;
+  oldDueDate?: string;
+  oldState?: string;
+  summary?: string;
+  details?: string; // JSON stringified notes array
+  raw?: any; // Full GraphQL response (optional)
 }
 
 export interface ProjectStatusHistory {
   id: string;
   projectKey: string;
-  raw: any; // Full GraphQL response
+  creationDate?: string;
+  startDate?: string;
+  targetDate?: string;
+  raw?: any; // Full GraphQL response (optional)
 }
 
 // Timeline data types

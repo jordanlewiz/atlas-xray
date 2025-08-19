@@ -88,14 +88,31 @@ function renderNode(node: any): string {
       return `<ol>${renderNodeContent(node.content)}</ol>`;
     
     case 'list_item':
+    case 'listItem':
       return `<li>${renderNodeContent(node.content)}</li>`;
     
     case 'heading':
       const level = node.attrs?.level || 1;
       return `<h${level}>${renderNodeContent(node.content)}</h${level}>`;
     
+    case 'inlineCard':
+      // Handle Confluence inline cards (links)
+      const url = node.attrs?.url || '#';
+      return `<a href="${url}" target="_blank" style="color: #0052CC; text-decoration: underline;">${url}</a>`;
+    
+    case 'hardBreak':
+      return '<br>';
+    
     default:
-      return renderNodeContent(node.content);
+      // Log unknown node types for debugging
+      if (node.type) {
+        console.warn(`Unknown ProseMirror node type: ${node.type}`, node);
+      }
+      // For unknown node types, try to render their content
+      if (node.content) {
+        return renderNodeContent(node.content);
+      }
+      return '';
   }
 }
 

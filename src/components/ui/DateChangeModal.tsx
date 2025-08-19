@@ -98,14 +98,36 @@ export default function DateChangeModal({
                     </SectionMessage>
                   )}
 
-                  {selectedUpdate.summary && (
-                    <div className="summary-section">
-                      <h3>Update Summary:</h3>
-                      <div className="summary-content">
-                        <div dangerouslySetInnerHTML={{ __html: renderProseMirror(selectedUpdate.summary) }} />
-                      </div>
-                    </div>
-                  )}
+                                     {selectedUpdate.summary && (
+                     <div className="summary-section">
+                       <h3>Update Summary:</h3>
+                       <div className="summary-content">
+                         <div dangerouslySetInnerHTML={{ __html: renderProseMirror(selectedUpdate.summary) }} />
+                       </div>
+                     </div>
+                   )}
+
+                   {selectedUpdate.details && (
+                     <div className="details-section">
+                       <h3>Update Details:</h3>
+                       <div className="details-content">
+                         {(() => {
+                           try {
+                             const notesArray = JSON.parse(selectedUpdate.details);
+                             return notesArray.map((note: any, idx: number) => (
+                               <div key={idx} className="note-item">
+                                 <strong>{note.title}:</strong>
+                                 <div dangerouslySetInnerHTML={{ __html: renderProseMirror(note.summary) }} />
+                               </div>
+                             ));
+                           } catch (e) {
+                             console.error('Error parsing details:', e);
+                             return <div>Error parsing details: {e instanceof Error ? e.message : String(e)}</div>;
+                           }
+                         })()}
+                       </div>
+                     </div>
+                   )}
                 </div>
               </Grid>
             </Box>

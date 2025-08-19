@@ -42947,7 +42947,7 @@
       oldDueDate: n.oldDueDate?.label,
       oldState: n.oldState?.projectStateValue,
       summary: n.summary,
-      raw: n
+      details: n.notes ? JSON.stringify(n.notes) : null
     }));
     return db.projectUpdates.bulkPut(rows);
   }
@@ -42961,8 +42961,7 @@
       projectKey,
       creationDate: n.creationDate,
       startDate: n.startDate,
-      targetDate: n.targetDate,
-      raw: n
+      targetDate: n.targetDate
     }));
     return db.projectStatusHistory.bulkPut(rows);
   }
@@ -61237,12 +61236,24 @@
       case "ordered_list":
         return `<ol>${renderNodeContent(node3.content)}</ol>`;
       case "list_item":
+      case "listItem":
         return `<li>${renderNodeContent(node3.content)}</li>`;
       case "heading":
         const level = node3.attrs?.level || 1;
         return `<h${level}>${renderNodeContent(node3.content)}</h${level}>`;
+      case "inlineCard":
+        const url = node3.attrs?.url || "#";
+        return `<a href="${url}" target="_blank" style="color: #0052CC; text-decoration: underline;">${url}</a>`;
+      case "hardBreak":
+        return "<br>";
       default:
-        return renderNodeContent(node3.content);
+        if (node3.type) {
+          console.warn(`Unknown ProseMirror node type: ${node3.type}`, node3);
+        }
+        if (node3.content) {
+          return renderNodeContent(node3.content);
+        }
+        return "";
     }
   }
   function renderNodeContent(content) {
@@ -61340,6 +61351,27 @@
             selectedUpdate.summary && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "summary-section", children: [
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "Update Summary:" }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "summary-content", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { dangerouslySetInnerHTML: { __html: renderProseMirror(selectedUpdate.summary) } }) })
+            ] }),
+            selectedUpdate.details && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "details-section", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "Update Details:" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "details-content", children: (() => {
+                try {
+                  const notesArray = JSON.parse(selectedUpdate.details);
+                  return notesArray.map((note, idx) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "note-item", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { children: [
+                      note.title,
+                      ":"
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { dangerouslySetInnerHTML: { __html: renderProseMirror(note.summary) } })
+                  ] }, idx));
+                } catch (e) {
+                  console.error("Error parsing details:", e);
+                  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
+                    "Error parsing details: ",
+                    e instanceof Error ? e.message : String(e)
+                  ] });
+                }
+              })() })
             ] })
           ] }) }) }) })
         ]
