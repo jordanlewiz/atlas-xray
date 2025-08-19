@@ -2,7 +2,6 @@ import React, { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../utils/database";
 import ProjectTimeline from "./ProjectTimeline.jsx";
-import ProjectListItem from "./ProjectListItem.jsx";
 
 /**
  * Builds the view model for the project list, including per-project view models and timeline data.
@@ -29,7 +28,6 @@ function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
   const timelineViewModel = {
     projects: projectViewModels.map(vm => {
       const latestUpdate = vm.updates.length > 0 ? vm.updates[vm.updates.length - 1] : {};
-      console.log("latestUpdate", latestUpdate);
       return {
         projectKey: vm.projectKey,
         name: vm.name,
@@ -46,6 +44,9 @@ function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
   return { projectViewModels, timelineViewModel };
 }
 
+/**
+ * Main project list component. Orchestrates data fetching and passes a clean viewModel to ProjectTimeline.
+ */
 export default function ProjectList({ projects, weekLimit }) {
   // Fetch all updates and status history for all projects
   const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []);
@@ -59,6 +60,7 @@ export default function ProjectList({ projects, weekLimit }) {
 
   return (
     <>
+      {/* ProjectTimeline receives a modular, clean viewModel and weekLimit */}
       <ProjectTimeline viewModel={timelineViewModel} weekLimit={weekLimit} />
     </>
   );

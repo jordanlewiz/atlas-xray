@@ -41182,7 +41182,7 @@
   var import_react42 = __toESM(require_react());
 
   // src/components/ProjectTimeline.jsx
-  var import_react40 = __toESM(require_react());
+  var import_react41 = __toESM(require_react());
 
   // node_modules/chrono-node/dist/esm/results.js
   var import_quarterOfYear = __toESM(require_quarterOfYear(), 1);
@@ -49961,20 +49961,20 @@
   var tooltip_default = Tooltip;
 
   // src/components/ProjectTimelineRow.jsx
-  function ProjectTimelineRow({ projectUpdate, weekRanges, updates }) {
-    if (!projectUpdate) {
-      console.warn("ProjectTimelineRow received undefined projectUpdate");
+  function ProjectTimelineRow({ project, weekRanges, updates }) {
+    if (!project) {
+      console.warn("ProjectTimelineRow received undefined project");
       return null;
     }
     const validUpdates = updates.filter((u) => u && typeof u.creationDate === "string");
-    return console.log("project", projectUpdate), /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: projectUpdate.name, position: "bottom-start" }, /* @__PURE__ */ import_react39.default.createElement("h3", { className: "project-title-ellipsis" }, projectUpdate.name)), /* @__PURE__ */ import_react39.default.createElement(
+    return /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: project.name, position: "bottom-start" }, /* @__PURE__ */ import_react39.default.createElement("h3", { className: "project-title-ellipsis" }, project.name)), /* @__PURE__ */ import_react39.default.createElement(
       "a",
       {
-        href: buildProjectUrlFromKey(projectUpdate.projectKey),
+        href: buildProjectUrlFromKey(project.projectKey),
         target: "_blank",
         rel: "noopener noreferrer"
       },
-      projectUpdate.projectKey
+      project.projectKey
     )), weekRanges.map((w2, i) => {
       const weekStart = w2.start;
       const weekEnd = w2.end;
@@ -50002,14 +50002,20 @@
         oldStateClass
       ].filter(Boolean).join(" ");
       return /* @__PURE__ */ import_react39.default.createElement("div", { key: i, className: cellClass }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react39.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: `${u.oldDueDate} \u2192 ${u.newDueDate}` }, /* @__PURE__ */ import_react39.default.createElement("span", null, daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate))))));
-    }), /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-target-date" }, projectUpdate.newDueDate || projectUpdate.targetDate ? /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: projectUpdate.newDueDate || projectUpdate.targetDate }, /* @__PURE__ */ import_react39.default.createElement("span", null, (() => {
-      const dateStr = projectUpdate.newDueDate || projectUpdate.targetDate;
+    }), /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-target-date" }, project.newDueDate || project.targetDate ? /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: project.newDueDate || project.targetDate }, /* @__PURE__ */ import_react39.default.createElement("span", null, (() => {
+      const dateStr = project.newDueDate || project.targetDate;
       const d = safeParseDate(dateStr);
       if (d && !isNaN(d.getTime())) {
         return format(d, "d MMM yyyy");
       }
       return dateStr;
     })())) : null));
+  }
+
+  // src/components/ProjectTimelineHeader.jsx
+  var import_react40 = __toESM(require_react());
+  function ProjectTimelineHeader({ weekRanges }) {
+    return /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w2, i) => /* @__PURE__ */ import_react40.default.createElement("div", { key: i, className: "timeline-x-label" }, /* @__PURE__ */ import_react40.default.createElement(tooltip_default, { content: w2.label }, w2.label))), /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-target-date timeline-target-date-header" }, "Target Date"));
   }
 
   // src/components/ProjectTimeline.jsx
@@ -50019,20 +50025,17 @@
     if (!minDate || !maxDate) return null;
     const weekRanges = getWeekRanges(minDate, maxDate);
     const limitedWeekRanges = typeof weekLimit === "number" && isFinite(weekLimit) ? weekRanges.slice(-weekLimit) : weekRanges;
-    return /* @__PURE__ */ import_react40.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-y-label" }), limitedWeekRanges.map((w2, i) => /* @__PURE__ */ import_react40.default.createElement("div", { key: i, className: "timeline-x-label" }, /* @__PURE__ */ import_react40.default.createElement(tooltip_default, { content: w2.label }, w2.label))), /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-target-date timeline-target-date-header" }, "Target Date")), projects.filter(Boolean).map((proj, idx) => /* @__PURE__ */ import_react40.default.createElement(
+    return /* @__PURE__ */ import_react41.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react41.default.createElement(ProjectTimelineHeader, { weekRanges: limitedWeekRanges }), projects.filter(Boolean).map((project, idx) => /* @__PURE__ */ import_react41.default.createElement(
       ProjectTimelineRow,
       {
-        key: proj.projectKey || idx,
-        projectUpdate: proj,
+        key: project.projectKey || idx,
+        project,
         weekRanges: limitedWeekRanges,
-        updates: updatesByProject[proj.projectKey] || []
+        updates: updatesByProject[project.projectKey] || []
       }
     )));
   };
   var ProjectTimeline_default = ProjectTimeline;
-
-  // src/components/ProjectListItem.jsx
-  var import_react41 = __toESM(require_react());
 
   // src/components/ProjectList.jsx
   function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
@@ -50053,7 +50056,6 @@
     const timelineViewModel = {
       projects: projectViewModels.map((vm) => {
         const latestUpdate = vm.updates.length > 0 ? vm.updates[vm.updates.length - 1] : {};
-        console.log("latestUpdate", latestUpdate);
         return {
           projectKey: vm.projectKey,
           name: vm.name,
