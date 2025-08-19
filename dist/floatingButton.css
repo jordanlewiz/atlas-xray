@@ -4426,6 +4426,164 @@
   text-decoration-line: none;
 }
 
+/* node_modules/@atlaskit/lozenge/dist/esm/lozenge.compiled.css */
+._19it14mp {
+  border: 1px solid #b7b9be;
+}
+._19it1am1 {
+  border: 1px solid #94c748;
+}
+._19it1apr {
+  border: 1px solid #c97cf4;
+}
+._19it1cy7 {
+  border: 1px solid #669df1;
+}
+._19itoa5t {
+  border: 1px solid #f87168;
+}
+._19itzi1n {
+  border: 1px solid #fca700;
+}
+._2rkoglpi {
+  border-radius: var(--ds-border-radius,4px);
+}
+._2rkosqtm {
+  border-radius: var(--ds-border-radius-100,3px);
+}
+._18zr1b66 {
+  padding-inline: var(--ds-space-050,4px);
+}
+._12ji14je {
+  outline-color: #b7b9be;
+}
+._12ji157s {
+  outline-color: #c97cf4;
+}
+._12jia2c0 {
+  outline-color: #f87168;
+}
+._12jih727 {
+  outline-color: #fca700;
+}
+._12jin0nx {
+  outline-color: #94c748;
+}
+._12jiuisw {
+  outline-color: #669df1;
+}
+._12y3t94y {
+  outline-width: 1px;
+}
+._18m915vq {
+  overflow-y: hidden;
+}
+._1bto1l2s {
+  text-overflow: ellipsis;
+}
+._1cwg1n1a {
+  outline-offset: -1px;
+}
+._1dyz9vsi {
+  letter-spacing: .165px;
+}
+._1e0c116y {
+  display: inline-flex;
+}
+._1kz6184x {
+  block-size: min-content;
+}
+._1p1dangw {
+  text-transform: uppercase;
+}
+._1qu2nqa1 {
+  outline-style: solid;
+}
+._1reo15vq {
+  overflow-x: hidden;
+}
+._1wyb1skh {
+  font-size: 11px;
+}
+._bfhk1366 {
+  background-color: #fd9891;
+}
+._bfhk1fkg {
+  background-color: #dddee1;
+}
+._bfhk1ymo {
+  background-color: #8fb8f6;
+}
+._bfhk3uhp {
+  background-color: #b3df72;
+}
+._bfhkshej {
+  background-color: #d8a0f7;
+}
+._bfhksm61 {
+  background-color: var(--ds-background-neutral-subtle,#00000000);
+}
+._bfhkxmjf {
+  background-color: #f9c84e;
+}
+._bozg1b66 {
+  padding-inline-start: var(--ds-space-050,4px);
+}
+._ect41gqc {
+  font-family: var(--ds-font-family-body,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Ubuntu,"Helvetica Neue",sans-serif);
+}
+._k48pmoej {
+  font-weight: var(--ds-font-weight-bold,700);
+}
+._kqswpfqs {
+  position: static;
+}
+._o5721q9c {
+  white-space: nowrap;
+}
+._syaz15cr {
+  color: var(--ds-text-inverse,#fff);
+}
+._syaz17fi {
+  color: var(--ds-text-success,#064);
+}
+._syaz1fxt {
+  color: var(--ds-text,#172b4d);
+}
+._syaz1ick {
+  color: var(--ds-text-danger,#de350b);
+}
+._syaz1lpn {
+  color: var(--ds-text-information,#0052cc);
+}
+._syaz1mvf {
+  color: var(--ds-text-discovery,#403294);
+}
+._syaz1tm6 {
+  color: var(--ds-text-warning,#974f0c);
+}
+._syazal3n {
+  color: var(--ds-text-warning-inverse,#172b4d);
+}
+._syazjjyb {
+  color: var(--ds-text-subtle,#42526e);
+}
+._syazwwip {
+  color: #292a2e;
+}
+._vchhusvi {
+  box-sizing: border-box;
+}
+._vwz47vkz {
+  line-height: 1pc;
+}
+._y4ti1b66 {
+  padding-inline-end: var(--ds-space-050,4px);
+}
+._zg8l4jg8 {
+  font-style: normal;
+}
+
 /* node_modules/@atlaskit/react-select/dist/esm/components/containers.compiled.css */
 ._11c81ixg {
   font: var(--ds-font-body-large,normal 400 1pc/24px ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Ubuntu,"Helvetica Neue",sans-serif);

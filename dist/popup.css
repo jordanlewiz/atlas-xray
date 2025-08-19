@@ -1,13 +1,4 @@
 @charset "UTF-8";
-#root {
-  min-width: 300px;
-  min-height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #f8f9fa;
-}
-
 .atlas-xray-floating-btn {
   position: fixed;
   top: 40px;

@@ -513,7 +513,7 @@
             }
             return element;
           };
-          function createElement37(type, config, children) {
+          function createElement38(type, config, children) {
             var propName;
             var props = {};
             var key = null;
@@ -1035,7 +1035,7 @@
             }
             return false;
           }
-          function memo8(type, compare) {
+          function memo9(type, compare) {
             {
               if (!isValidElementType(type)) {
                 error("memo: The first argument must be a component. Instead received: %s", type === null ? "null" : typeof type);
@@ -1115,7 +1115,7 @@
             var dispatcher = resolveDispatcher();
             return dispatcher.useCallback(callback, deps);
           }
-          function useMemo15(create, deps) {
+          function useMemo16(create, deps) {
             var dispatcher = resolveDispatcher();
             return dispatcher.useMemo(create, deps);
           }
@@ -1612,7 +1612,7 @@
                 error("React.createElement: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", typeString, info);
               }
             }
-            var element = createElement37.apply(this, arguments);
+            var element = createElement38.apply(this, arguments);
             if (element == null) {
               return element;
             }
@@ -1875,7 +1875,7 @@
           exports.forwardRef = forwardRef26;
           exports.isValidElement = isValidElement;
           exports.lazy = lazy;
-          exports.memo = memo8;
+          exports.memo = memo9;
           exports.startTransition = startTransition;
           exports.unstable_act = act;
           exports.useCallback = useCallback24;
@@ -1887,7 +1887,7 @@
           exports.useImperativeHandle = useImperativeHandle2;
           exports.useInsertionEffect = useInsertionEffect3;
           exports.useLayoutEffect = useLayoutEffect10;
-          exports.useMemo = useMemo15;
+          exports.useMemo = useMemo16;
           exports.useReducer = useReducer;
           exports.useRef = useRef33;
           exports.useState = useState30;
@@ -16745,7 +16745,7 @@
       Object.defineProperty(exports, "__esModule", {
         value: true
       });
-      exports.fg = fg20;
+      exports.fg = fg21;
       exports.getBooleanFF = getBooleanFF;
       exports.setBooleanFeatureFlagResolver = setBooleanFeatureFlagResolver;
       var _resolvers = require_resolvers();
@@ -16755,7 +16755,7 @@
       function getBooleanFF(name) {
         return (0, _resolvers.resolveBooleanFlag)(name);
       }
-      function fg20(name) {
+      function fg21(name) {
         return (0, _resolvers.resolveBooleanFlag)(name);
       }
     }
@@ -18010,9 +18010,9 @@
           if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function") {
             __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
           }
-          var React97 = require_react();
+          var React98 = require_react();
           var Scheduler = require_scheduler();
-          var ReactSharedInternals = React97.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+          var ReactSharedInternals = React98.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
           var suppressWarning = false;
           function setSuppressWarning(newSuppressWarning) {
             {
@@ -19619,7 +19619,7 @@
             {
               if (props.value == null) {
                 if (typeof props.children === "object" && props.children !== null) {
-                  React97.Children.forEach(props.children, function(child) {
+                  React98.Children.forEach(props.children, function(child) {
                     if (child == null) {
                       return;
                     }
@@ -25043,7 +25043,7 @@
               }
             }
           }
-          function createElement37(type, props, rootContainerElement, parentNamespace) {
+          function createElement38(type, props, rootContainerElement, parentNamespace) {
             var isCustomComponentTag;
             var ownerDocument = getOwnerDocumentFromRootContainer(rootContainerElement);
             var domElement;
@@ -25913,7 +25913,7 @@
               }
               parentNamespace = hostContextDev.namespace;
             }
-            var domElement = createElement37(type, props, rootContainerInstance, parentNamespace);
+            var domElement = createElement38(type, props, rootContainerInstance, parentNamespace);
             precacheFiberNode(internalInstanceHandle, domElement);
             updateFiberProps(domElement, props);
             return domElement;
@@ -40525,7 +40525,7 @@
       };
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.useCache = void 0;
-      var React97 = __importStar(require_react());
+      var React98 = __importStar(require_react());
       var react_1 = require_react();
       var cache_1 = require_cache();
       var is_server_environment_1 = require_is_server_environment();
@@ -40549,7 +40549,7 @@
       var StyleCacheProvider = (props) => {
         if ((0, is_server_environment_1.isServerEnvironment)()) {
           const inserted = (0, exports.useCache)();
-          return React97.createElement(Cache2.Provider, { value: inserted }, props.children);
+          return React98.createElement(Cache2.Provider, { value: inserted }, props.children);
         }
         return props.children;
       };
@@ -40852,7 +40852,7 @@
       exports.default = exports.Icon = void 0;
       require_icon_new_compiled();
       var _react = _interopRequireWildcard(require_react());
-      var React97 = _react;
+      var React98 = _react;
       var _runtime = require_runtime2();
       var _platformFeatureFlags = require_cjs3();
       function _interopRequireWildcard(e, t) {
@@ -40921,7 +40921,7 @@
           __html: dangerouslySetGlyph
         } : void 0;
         if (FallbackIcon && !(0, _platformFeatureFlags.fg)("platform-visual-refresh-icons")) {
-          return /* @__PURE__ */ React97.createElement(FallbackIcon, {
+          return /* @__PURE__ */ React98.createElement(FallbackIcon, {
             primaryColor: LEGACY_primaryColor !== null && LEGACY_primaryColor !== void 0 ? LEGACY_primaryColor : color,
             secondaryColor: LEGACY_secondaryColor,
             size: LEGACY_size,
@@ -40938,7 +40938,7 @@
         var baseSize = baseSizeMap[type];
         var viewBoxPadding = paddingMap[type][size2][spacing];
         var viewBoxSize = baseSize + 2 * viewBoxPadding;
-        return /* @__PURE__ */ React97.createElement("span", {
+        return /* @__PURE__ */ React98.createElement("span", {
           "data-testid": testId,
           role: label ? "img" : void 0,
           "aria-label": label ? label : void 0,
@@ -40947,7 +40947,7 @@
             color
           },
           className: (0, _runtime.ax)(["_1e0c1o8l _vchhusvi _1o9zidpf _vwz4kb7n _y4ti1igz _bozg1mb9", "_12va1onz _jcxd1r8n", shouldScale && "_1bsb1kw7 _4t3i1kw7", (type === "utility" || size2 === "small") && "_vwz4utpp"])
-        }, /* @__PURE__ */ React97.createElement("svg", {
+        }, /* @__PURE__ */ React98.createElement("svg", {
           fill: "none",
           viewBox: "".concat(0 - viewBoxPadding, " ").concat(0 - viewBoxPadding, " ").concat(viewBoxSize, " ").concat(viewBoxSize),
           role: "presentation",
@@ -41054,7 +41054,7 @@
       exports.default = exports.Icon = void 0;
       require_icon_compiled();
       var _react = _interopRequireWildcard(require_react());
-      var React97 = _react;
+      var React98 = _react;
       var _runtime = require_runtime2();
       var _extends2 = _interopRequireDefault(require_extends());
       var _defineProperty2 = _interopRequireDefault(require_defineProperty());
@@ -41106,7 +41106,7 @@
             __html: dangerouslySetGlyph
           }
         } : {
-          children: Glyph ? /* @__PURE__ */ React97.createElement(Glyph, {
+          children: Glyph ? /* @__PURE__ */ React98.createElement(Glyph, {
             role: "presentation"
           }) : null
         };
@@ -41114,7 +41114,7 @@
           width: width2 + "px",
           height: height + "px"
         } : null;
-        return /* @__PURE__ */ React97.createElement("span", (0, _extends2.default)({
+        return /* @__PURE__ */ React98.createElement("span", (0, _extends2.default)({
           "data-testid": testId,
           "data-vc": "icon-".concat(testId),
           role: label ? "img" : void 0,
@@ -41852,7 +41852,7 @@
   });
 
   // src/components/FloatingButton.jsx
-  var import_react137 = __toESM(require_react());
+  var import_react138 = __toESM(require_react());
 
   // node_modules/dexie/import-wrapper.mjs
   var import_dexie = __toESM(require_dexie(), 1);
@@ -42027,10 +42027,10 @@
   }
 
   // src/components/ProjectList.jsx
-  var import_react112 = __toESM(require_react());
+  var import_react113 = __toESM(require_react());
 
   // src/components/ProjectTimeline.jsx
-  var import_react111 = __toESM(require_react());
+  var import_react112 = __toESM(require_react());
 
   // node_modules/chrono-node/dist/esm/results.js
   var import_quarterOfYear = __toESM(require_quarterOfYear(), 1);
@@ -46838,7 +46838,7 @@
   }
 
   // src/components/ProjectTimelineRow.jsx
-  var import_react109 = __toESM(require_react());
+  var import_react110 = __toESM(require_react());
 
   // node_modules/@babel/runtime/helpers/esm/extends.js
   function _extends() {
@@ -53187,7 +53187,7 @@
   var button_default2 = IconButton;
 
   // src/components/DateChangeModal.jsx
-  var import_react108 = __toESM(require_react());
+  var import_react109 = __toESM(require_react());
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/modal-dialog.js
   var import_react91 = __toESM(require_react());
@@ -59834,6 +59834,129 @@
   SectionMessage.displayName = "SectionMessage";
   var section_message_default = SectionMessage;
 
+  // node_modules/@atlaskit/lozenge/dist/esm/lozenge.js
+  var React70 = __toESM(require_react());
+  var import_react108 = __toESM(require_react());
+  var import_platform_feature_flags16 = __toESM(require_cjs3());
+  var stylesOld = {
+    container: "_2rkoglpi _1reo15vq _18m915vq _18zr1b66 _1e0c116y _1kz6184x _kqswpfqs _vchhusvi",
+    "text.bold.default": "_syaz15cr",
+    "text.bold.inprogress": "_syaz15cr",
+    "text.bold.moved": "_syazal3n",
+    "text.bold.new": "_syaz15cr",
+    "text.bold.removed": "_syaz15cr",
+    "text.bold.success": "_syaz15cr",
+    "text.subtle.default": "_syazjjyb",
+    "text.subtle.inprogress": "_syaz1lpn",
+    "text.subtle.moved": "_syaz1tm6",
+    "text.subtle.new": "_syaz1mvf",
+    "text.subtle.removed": "_syaz1ick",
+    "text.subtle.success": "_syaz17fi"
+  };
+  var stylesOldUnbounded = {
+    text: "_1reo15vq _18m915vq _ect41gqc _1wyb1skh _zg8l4jg8 _k48pmoej _vwz47vkz _1bto1l2s _1p1dangw _o5721q9c",
+    customLetterspacing: "_1dyz9vsi"
+  };
+  var backgroundColorsOld = {
+    bold: {
+      default: "color.background.neutral.bold",
+      inprogress: "color.background.information.bold",
+      moved: "color.background.warning.bold",
+      new: "color.background.discovery.bold",
+      removed: "color.background.danger.bold",
+      success: "color.background.success.bold"
+    },
+    subtle: {
+      default: "color.background.neutral",
+      inprogress: "color.background.information",
+      moved: "color.background.warning",
+      new: "color.background.discovery",
+      removed: "color.background.danger",
+      success: "color.background.success"
+    }
+  };
+  var stylesNew = {
+    container: "_2rkosqtm _1reo15vq _18m915vq _1e0c116y _vchhusvi _kqswpfqs _1kz6184x _bozg1b66 _y4ti1b66",
+    containerSubtle: "_1cwg1n1a",
+    text: "_1reo15vq _18m915vq _ect41gqc _1wyb1skh _zg8l4jg8 _k48pmoej _vwz47vkz _1bto1l2s _1p1dangw _o5721q9c",
+    customLetterspacing: "_1dyz9vsi",
+    "bg.bold.default": "_bfhk1fkg",
+    "bg.bold.inprogress": "_bfhk1ymo",
+    "bg.bold.moved": "_bfhkxmjf",
+    "bg.bold.new": "_bfhkshej",
+    "bg.bold.removed": "_bfhk1366",
+    "bg.bold.success": "_bfhk3uhp",
+    "bg.subtle.default": "_bfhksm61",
+    "bg.subtle.inprogress": "_bfhksm61",
+    "bg.subtle.moved": "_bfhksm61",
+    "bg.subtle.new": "_bfhksm61",
+    "bg.subtle.removed": "_bfhksm61",
+    "bg.subtle.success": "_bfhksm61",
+    "border.subtle.default": "_19it14mp",
+    "border.subtle.inprogress": "_19it1cy7",
+    "border.subtle.moved": "_19itzi1n",
+    "border.subtle.new": "_19it1apr",
+    "border.subtle.removed": "_19itoa5t",
+    "border.subtle.success": "_19it1am1",
+    "outline.subtle.default": "_12ji14je _1qu2nqa1 _12y3t94y",
+    "outline.subtle.inprogress": "_12jiuisw _1qu2nqa1 _12y3t94y",
+    "outline.subtle.moved": "_12jih727 _1qu2nqa1 _12y3t94y",
+    "outline.subtle.new": "_12ji157s _1qu2nqa1 _12y3t94y",
+    "outline.subtle.removed": "_12jia2c0 _1qu2nqa1 _12y3t94y",
+    "outline.subtle.success": "_12jin0nx _1qu2nqa1 _12y3t94y",
+    "text.subtle": "_syaz1fxt",
+    "text.bold": "_syazwwip"
+  };
+  var appearanceTypes = ["default", "inprogress", "moved", "new", "removed", "success"];
+  var Lozenge = /* @__PURE__ */ (0, import_react108.memo)(function(_ref2) {
+    var children = _ref2.children, testId = _ref2.testId, _ref$isBold = _ref2.isBold, isBold = _ref$isBold === void 0 ? false : _ref$isBold, _ref$appearance = _ref2.appearance, appearance = _ref$appearance === void 0 ? "default" : _ref$appearance, _ref$maxWidth = _ref2.maxWidth, maxWidth = _ref$maxWidth === void 0 ? 200 : _ref$maxWidth, style = _ref2.style;
+    var appearanceStyle = isBold ? "bold" : "subtle";
+    var appearanceType = (0, import_react108.useMemo)(function() {
+      return appearanceTypes.includes(appearance) ? appearance : "default";
+    }, [appearance]);
+    var maxWidthValue = typeof maxWidth === "string" ? maxWidth : "".concat(maxWidth, "px");
+    var maxWidthIsPc = typeof maxWidth === "string" && /%$/.test(maxWidth);
+    if ((0, import_platform_feature_flags16.fg)("platform-component-visual-refresh")) {
+      return /* @__PURE__ */ React70.createElement("span", {
+        style: {
+          backgroundColor: style === null || style === void 0 ? void 0 : style.backgroundColor,
+          maxWidth: maxWidthIsPc ? maxWidth : "100%"
+        },
+        "data-testid": testId,
+        className: ax([stylesNew.container, stylesNew["bg.".concat(appearanceStyle, ".").concat(appearanceType)], appearanceStyle === "subtle" && !(0, import_platform_feature_flags16.fg)("visual-refresh_drop_5") && stylesNew["border.subtle.".concat(appearanceType)], appearanceStyle === "subtle" && (0, import_platform_feature_flags16.fg)("visual-refresh_drop_5") && stylesNew["outline.subtle.".concat(appearanceType)], appearanceStyle === "subtle" && (0, import_platform_feature_flags16.fg)("visual-refresh_drop_5") && stylesNew.containerSubtle])
+      }, /* @__PURE__ */ React70.createElement("span", {
+        style: {
+          color: style === null || style === void 0 ? void 0 : style.color,
+          // to negate paddingInline specified on Box above
+          maxWidth: maxWidthIsPc ? "100%" : "calc(".concat(maxWidthValue, " - ", "var(--ds-space-100, 8px)", ")")
+        },
+        "data-testid": testId && "".concat(testId, "--text"),
+        className: ax([stylesNew.text, (0, import_platform_feature_flags16.fg)("platform-lozenge-custom-letterspacing") && stylesNew.customLetterspacing, stylesNew["text.".concat(appearanceStyle)]])
+      }, children));
+    }
+    return /* @__PURE__ */ React70.createElement(box_default, {
+      as: "span",
+      backgroundColor: backgroundColorsOld[appearanceStyle][appearanceType],
+      style: {
+        backgroundColor: style === null || style === void 0 ? void 0 : style.backgroundColor,
+        maxWidth: maxWidthIsPc ? maxWidth : "100%"
+      },
+      paddingInline: "space.050",
+      xcss: stylesOld.container,
+      testId
+    }, /* @__PURE__ */ React70.createElement("span", {
+      style: {
+        color: style === null || style === void 0 ? void 0 : style.color,
+        // to negate paddingInline specified on Box above
+        maxWidth: maxWidthIsPc ? "100%" : "calc(".concat(maxWidthValue, " - ", "var(--ds-space-100, 8px)", ")")
+      },
+      "data-testid": testId && "".concat(testId, "--text"),
+      className: ax([stylesOldUnbounded.text, (0, import_platform_feature_flags16.fg)("platform-lozenge-custom-letterspacing") && stylesOldUnbounded.customLetterspacing, stylesOld["text.".concat(appearanceStyle, ".").concat(appearanceType)]])
+    }, children));
+  });
+  Lozenge.displayName = "Lozenge";
+  var lozenge_default = Lozenge;
+
   // src/utils/timelineViewModels.js
   function getTimelineCellClass(lastUpdate, weekUpdates) {
     let stateClass = "state-none";
@@ -59890,6 +60013,30 @@
 
   // src/components/DateChangeModal.jsx
   function DateChangeModal({ selectedUpdate, project, onClose }) {
+    const getLozengeAppearance = (status, isBold = false) => {
+      if (!status) return "new";
+      const normalizedStatus = status.toLowerCase().replace(/_/g, "-");
+      switch (normalizedStatus) {
+        case "on-track":
+          return isBold ? "success-bold" : "success";
+        case "off-track":
+          return "removed-bold";
+        case "none":
+          return "new";
+        case "at-risk":
+          return "moved";
+        case "pending":
+          return "inprogress";
+        case "paused":
+          return "default";
+        case "cancelled":
+          return "default-bold";
+        case "done":
+          return "success-bold";
+        default:
+          return "default";
+      }
+    };
     const extractTextFromSummary = (summary) => {
       let parsedSummary = summary;
       if (typeof summary === "string") {
@@ -59926,7 +60073,7 @@
       }
       return "No summary available";
     };
-    return /* @__PURE__ */ import_react108.default.createElement(modal_transition_default, null, selectedUpdate && /* @__PURE__ */ import_react108.default.createElement(
+    return /* @__PURE__ */ import_react109.default.createElement(modal_transition_default, null, selectedUpdate && /* @__PURE__ */ import_react109.default.createElement(
       ModalWrapper,
       {
         onClose,
@@ -59937,24 +60084,24 @@
           { text: "Close", onClick: onClose, appearance: "subtle" }
         ]
       },
-      /* @__PURE__ */ import_react108.default.createElement("div", { style: { padding: "16px" } }, /* @__PURE__ */ import_react108.default.createElement("h3", null, project?.name), /* @__PURE__ */ import_react108.default.createElement("div", { style: { margin: "16px 0" } }, /* @__PURE__ */ import_react108.default.createElement("small", null, "Project Key:"), " ", project?.projectKey), selectedUpdate.oldDueDate && /* @__PURE__ */ import_react108.default.createElement(
+      /* @__PURE__ */ import_react109.default.createElement("div", { style: { padding: "16px" } }, /* @__PURE__ */ import_react109.default.createElement("h3", null, project?.name), /* @__PURE__ */ import_react109.default.createElement("div", { style: { margin: "16px 0" } }, /* @__PURE__ */ import_react109.default.createElement("small", null, "Project Key:"), " ", project?.projectKey), selectedUpdate.oldDueDate && /* @__PURE__ */ import_react109.default.createElement(
         section_message_default,
         {
           appearance: "error",
           title: "Date Change Detected"
         },
-        /* @__PURE__ */ import_react108.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react108.default.createElement("strong", null, "Date Change:")),
-        /* @__PURE__ */ import_react108.default.createElement("div", { style: { fontSize: "16px", margin: "8px 0" } }, /* @__PURE__ */ import_react108.default.createElement("span", { style: { color: "red" } }, selectedUpdate.oldDueDate), /* @__PURE__ */ import_react108.default.createElement("span", { style: { margin: "0 16px" } }, "\u2192"), /* @__PURE__ */ import_react108.default.createElement("span", { style: { color: "green" } }, selectedUpdate.newDueDate)),
-        /* @__PURE__ */ import_react108.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react108.default.createElement("strong", null, "Difference:"), " ", getDueDateDiff(selectedUpdate), " days")
-      ), selectedUpdate.oldState && /* @__PURE__ */ import_react108.default.createElement(
+        /* @__PURE__ */ import_react109.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react109.default.createElement("strong", null, "Date Change:")),
+        /* @__PURE__ */ import_react109.default.createElement("div", { style: { fontSize: "16px", margin: "8px 0" } }, /* @__PURE__ */ import_react109.default.createElement("span", { style: { color: "red" } }, selectedUpdate.oldDueDate), /* @__PURE__ */ import_react109.default.createElement("span", { style: { margin: "0 16px" } }, "\u2192"), /* @__PURE__ */ import_react109.default.createElement("span", { style: { color: "green" } }, selectedUpdate.newDueDate)),
+        /* @__PURE__ */ import_react109.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react109.default.createElement("strong", null, "Difference:"), " ", getDueDateDiff(selectedUpdate), " days")
+      ), selectedUpdate.oldState && /* @__PURE__ */ import_react109.default.createElement(
         section_message_default,
         {
           appearance: "error",
           title: "Status Change Detected"
         },
-        /* @__PURE__ */ import_react108.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react108.default.createElement("strong", null, "Status Change:")),
-        /* @__PURE__ */ import_react108.default.createElement("div", { style: { fontSize: "16px", margin: "8px 0" } }, /* @__PURE__ */ import_react108.default.createElement("span", { style: { color: "red" } }, selectedUpdate.oldState), /* @__PURE__ */ import_react108.default.createElement("span", { style: { margin: "0 16px" } }, "\u2192"), /* @__PURE__ */ import_react108.default.createElement("span", { style: { color: "green" } }, selectedUpdate.state))
-      ), selectedUpdate.summary && /* @__PURE__ */ import_react108.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react108.default.createElement("h3", null, "Update Summary:"), /* @__PURE__ */ import_react108.default.createElement("p", { style: { margin: "8px 0", lineHeight: "1.5" } }, extractTextFromSummary(selectedUpdate.summary))))
+        /* @__PURE__ */ import_react109.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react109.default.createElement("strong", null, "Status Change:")),
+        /* @__PURE__ */ import_react109.default.createElement("div", { style: { fontSize: "16px", margin: "8px 0" } }, /* @__PURE__ */ import_react109.default.createElement(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.oldState) }, selectedUpdate.oldState), /* @__PURE__ */ import_react109.default.createElement("span", { style: { margin: "0 16px" } }, "\u2192"), /* @__PURE__ */ import_react109.default.createElement(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.state) }, selectedUpdate.state))
+      ), selectedUpdate.summary && /* @__PURE__ */ import_react109.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react109.default.createElement("h3", null, "Update Summary:"), /* @__PURE__ */ import_react109.default.createElement("p", { style: { margin: "8px 0", lineHeight: "1.5" } }, extractTextFromSummary(selectedUpdate.summary))))
     ));
   }
 
@@ -59968,8 +60115,8 @@
 
   // src/components/ProjectTimelineRow.jsx
   function ProjectTimelineRow({ project, weekRanges, updates }) {
-    const [isOpen, setIsOpen] = (0, import_react109.useState)(false);
-    const [selectedUpdate, setSelectedUpdate] = (0, import_react109.useState)(null);
+    const [isOpen, setIsOpen] = (0, import_react110.useState)(false);
+    const [selectedUpdate, setSelectedUpdate] = (0, import_react110.useState)(null);
     if (!project) {
       console.warn("ProjectTimelineRow received undefined project");
       return null;
@@ -59977,7 +60124,7 @@
     const weekCells = getTimelineWeekCells(weekRanges, updates);
     const targetDateRaw = project.newDueDate || project.targetDate;
     const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
-    return /* @__PURE__ */ import_react109.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react109.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react109.default.createElement(tooltip_default, { content: project.name, position: "bottom-start" }, /* @__PURE__ */ import_react109.default.createElement("h3", { className: "project-title-ellipsis" }, project.name)), /* @__PURE__ */ import_react109.default.createElement(
+    return /* @__PURE__ */ import_react110.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react110.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react110.default.createElement(tooltip_default, { content: project.name, position: "bottom-start" }, /* @__PURE__ */ import_react110.default.createElement("h3", { className: "project-title-ellipsis" }, project.name)), /* @__PURE__ */ import_react110.default.createElement(
       "a",
       {
         href: buildProjectUrlFromKey(project.projectKey),
@@ -59985,13 +60132,13 @@
         rel: "noopener noreferrer"
       },
       project.projectKey
-    )), weekCells.map((cell, i) => /* @__PURE__ */ import_react109.default.createElement("div", { key: i, className: cell.cellClass }, cell.weekUpdates.map((u, idx) => /* @__PURE__ */ import_react109.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "", onClick: () => setSelectedUpdate(u) }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react109.default.createElement(tooltip_default, { content: getDueDateTooltip(u), position: "top" }, getDueDateDiff(u)))))), /* @__PURE__ */ import_react109.default.createElement("div", { className: "timeline-target-date" }, /* @__PURE__ */ import_react109.default.createElement(
+    )), weekCells.map((cell, i) => /* @__PURE__ */ import_react110.default.createElement("div", { key: i, className: cell.cellClass }, cell.weekUpdates.map((u, idx) => /* @__PURE__ */ import_react110.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "", onClick: () => setSelectedUpdate(u) }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react110.default.createElement(tooltip_default, { content: getDueDateTooltip(u), position: "top" }, getDueDateDiff(u)))))), /* @__PURE__ */ import_react110.default.createElement("div", { className: "timeline-target-date" }, /* @__PURE__ */ import_react110.default.createElement(
       esm_default3,
       {
         isOpen,
         onClose: () => setIsOpen(false),
-        content: () => /* @__PURE__ */ import_react109.default.createElement("div", { style: { padding: "16px", maxWidth: "300px" } }, /* @__PURE__ */ import_react109.default.createElement("h3", null, "Target Date"), /* @__PURE__ */ import_react109.default.createElement("p", null, targetDateRaw)),
-        trigger: (triggerProps) => /* @__PURE__ */ import_react109.default.createElement(
+        content: () => /* @__PURE__ */ import_react110.default.createElement("div", { style: { padding: "16px", maxWidth: "300px" } }, /* @__PURE__ */ import_react110.default.createElement("h3", null, "Target Date"), /* @__PURE__ */ import_react110.default.createElement("p", null, targetDateRaw)),
+        trigger: (triggerProps) => /* @__PURE__ */ import_react110.default.createElement(
           button_default,
           {
             ...triggerProps,
@@ -60003,7 +60150,7 @@
         placement: "bottom-start",
         zIndex: 1e3
       }
-    )), /* @__PURE__ */ import_react109.default.createElement(
+    )), /* @__PURE__ */ import_react110.default.createElement(
       DateChangeModal,
       {
         selectedUpdate,
@@ -60014,9 +60161,9 @@
   }
 
   // src/components/ProjectTimelineHeader.jsx
-  var import_react110 = __toESM(require_react());
+  var import_react111 = __toESM(require_react());
   function ProjectTimelineHeader({ weekRanges }) {
-    return /* @__PURE__ */ import_react110.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react110.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w2, i) => /* @__PURE__ */ import_react110.default.createElement("div", { key: i, className: "timeline-x-label" }, /* @__PURE__ */ import_react110.default.createElement(tooltip_default, { content: w2.label }, w2.label))), /* @__PURE__ */ import_react110.default.createElement("div", { className: "timeline-target-date timeline-target-date-header" }, "Target Date"));
+    return /* @__PURE__ */ import_react111.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react111.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w2, i) => /* @__PURE__ */ import_react111.default.createElement("div", { key: i, className: "timeline-x-label" }, /* @__PURE__ */ import_react111.default.createElement(tooltip_default, { content: w2.label }, w2.label))), /* @__PURE__ */ import_react111.default.createElement("div", { className: "timeline-target-date timeline-target-date-header" }, "Target Date"));
   }
 
   // src/components/ProjectTimeline.jsx
@@ -60026,7 +60173,7 @@
     if (!minDate || !maxDate) return null;
     const weekRanges = getWeekRanges(minDate, maxDate);
     const limitedWeekRanges = typeof weekLimit === "number" && isFinite(weekLimit) ? weekRanges.slice(-weekLimit) : weekRanges;
-    return /* @__PURE__ */ import_react111.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react111.default.createElement(ProjectTimelineHeader, { weekRanges: limitedWeekRanges }), projects.filter(Boolean).map((project, idx) => /* @__PURE__ */ import_react111.default.createElement(
+    return /* @__PURE__ */ import_react112.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react112.default.createElement(ProjectTimelineHeader, { weekRanges: limitedWeekRanges }), projects.filter(Boolean).map((project, idx) => /* @__PURE__ */ import_react112.default.createElement(
       ProjectTimelineRow,
       {
         key: project.projectKey || idx,
@@ -60076,20 +60223,20 @@
   function ProjectList({ projects, weekLimit }) {
     const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []);
     const allStatusHistory = useLiveQuery(() => db.projectStatusHistory.toArray(), []);
-    const { projectViewModels, timelineViewModel } = (0, import_react112.useMemo)(
+    const { projectViewModels, timelineViewModel } = (0, import_react113.useMemo)(
       () => createProjectListViewModel(projects, allUpdates, allStatusHistory),
       [projects, allUpdates, allStatusHistory]
     );
-    return /* @__PURE__ */ import_react112.default.createElement(import_react112.default.Fragment, null, /* @__PURE__ */ import_react112.default.createElement(ProjectTimeline_default, { viewModel: timelineViewModel, weekLimit }));
+    return /* @__PURE__ */ import_react113.default.createElement(import_react113.default.Fragment, null, /* @__PURE__ */ import_react113.default.createElement(ProjectTimeline_default, { viewModel: timelineViewModel, weekLimit }));
   }
 
   // src/components/Modal.jsx
-  var import_react136 = __toESM(require_react());
+  var import_react137 = __toESM(require_react());
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/full-screen.js
-  var import_react113 = __toESM(require_react());
+  var import_react114 = __toESM(require_react());
   function FullScreenModalDialog(props) {
-    return /* @__PURE__ */ import_react113.default.createElement(
+    return /* @__PURE__ */ import_react114.default.createElement(
       modal_wrapper_default,
       _extends({}, props, {
         /**
@@ -60112,7 +60259,7 @@
   // node_modules/@atlaskit/react-select/dist/esm/use-state-manager.js
   init_defineProperty();
   init_slicedToArray();
-  var import_react114 = __toESM(require_react());
+  var import_react115 = __toESM(require_react());
   var _excluded12 = ["defaultInputValue", "defaultMenuIsOpen", "defaultValue", "inputValue", "menuIsOpen", "onChange", "onInputChange", "onMenuClose", "onMenuOpen", "value"];
   function ownKeys15(e, r) {
     var t = Object.keys(e);
@@ -60137,29 +60284,29 @@
   }
   function useStateManager(_ref2) {
     var _ref$defaultInputValu = _ref2.defaultInputValue, defaultInputValue = _ref$defaultInputValu === void 0 ? "" : _ref$defaultInputValu, _ref$defaultMenuIsOpe = _ref2.defaultMenuIsOpen, defaultMenuIsOpen = _ref$defaultMenuIsOpe === void 0 ? false : _ref$defaultMenuIsOpe, _ref$defaultValue = _ref2.defaultValue, defaultValue = _ref$defaultValue === void 0 ? null : _ref$defaultValue, propsInputValue = _ref2.inputValue, propsMenuIsOpen = _ref2.menuIsOpen, propsOnChange = _ref2.onChange, propsOnInputChange = _ref2.onInputChange, propsOnMenuClose = _ref2.onMenuClose, propsOnMenuOpen = _ref2.onMenuOpen, propsValue = _ref2.value, restSelectProps = _objectWithoutProperties(_ref2, _excluded12);
-    var _useState = (0, import_react114.useState)(propsInputValue !== void 0 ? propsInputValue : defaultInputValue), _useState2 = _slicedToArray(_useState, 2), stateInputValue = _useState2[0], setStateInputValue = _useState2[1];
-    var _useState3 = (0, import_react114.useState)(propsMenuIsOpen !== void 0 ? propsMenuIsOpen : defaultMenuIsOpen), _useState4 = _slicedToArray(_useState3, 2), stateMenuIsOpen = _useState4[0], setStateMenuIsOpen = _useState4[1];
-    var _useState5 = (0, import_react114.useState)(propsValue !== void 0 ? propsValue : defaultValue), _useState6 = _slicedToArray(_useState5, 2), stateValue = _useState6[0], setStateValue = _useState6[1];
-    var onChange2 = (0, import_react114.useCallback)(function(value2, actionMeta) {
+    var _useState = (0, import_react115.useState)(propsInputValue !== void 0 ? propsInputValue : defaultInputValue), _useState2 = _slicedToArray(_useState, 2), stateInputValue = _useState2[0], setStateInputValue = _useState2[1];
+    var _useState3 = (0, import_react115.useState)(propsMenuIsOpen !== void 0 ? propsMenuIsOpen : defaultMenuIsOpen), _useState4 = _slicedToArray(_useState3, 2), stateMenuIsOpen = _useState4[0], setStateMenuIsOpen = _useState4[1];
+    var _useState5 = (0, import_react115.useState)(propsValue !== void 0 ? propsValue : defaultValue), _useState6 = _slicedToArray(_useState5, 2), stateValue = _useState6[0], setStateValue = _useState6[1];
+    var onChange2 = (0, import_react115.useCallback)(function(value2, actionMeta) {
       if (typeof propsOnChange === "function") {
         propsOnChange(value2, actionMeta);
       }
       setStateValue(value2);
     }, [propsOnChange]);
-    var onInputChange = (0, import_react114.useCallback)(function(value2, actionMeta) {
+    var onInputChange = (0, import_react115.useCallback)(function(value2, actionMeta) {
       var newValue;
       if (typeof propsOnInputChange === "function") {
         newValue = propsOnInputChange(value2, actionMeta);
       }
       setStateInputValue(newValue !== void 0 ? newValue : value2);
     }, [propsOnInputChange]);
-    var onMenuOpen = (0, import_react114.useCallback)(function() {
+    var onMenuOpen = (0, import_react115.useCallback)(function() {
       if (typeof propsOnMenuOpen === "function") {
         propsOnMenuOpen();
       }
       setStateMenuIsOpen(true);
     }, [propsOnMenuOpen]);
-    var onMenuClose = (0, import_react114.useCallback)(function() {
+    var onMenuClose = (0, import_react115.useCallback)(function() {
       if (typeof propsOnMenuClose === "function") {
         propsOnMenuClose();
       }
@@ -60185,8 +60332,8 @@
   init_createClass();
   init_defineProperty();
   init_toConsumableArray();
-  var import_react131 = __toESM(require_react());
-  var import_platform_feature_flags19 = __toESM(require_cjs3());
+  var import_react132 = __toESM(require_react());
+  var import_platform_feature_flags20 = __toESM(require_cjs3());
 
   // node_modules/@atlaskit/react-select/dist/esm/builtins.js
   var formatGroupLabel = function formatGroupLabel2(group) {
@@ -60206,8 +60353,8 @@
   init_defineProperty();
 
   // node_modules/@atlaskit/react-select/dist/esm/components/containers.js
-  var React76 = __toESM(require_react());
-  var import_platform_feature_flags16 = __toESM(require_cjs3());
+  var React77 = __toESM(require_react());
+  var import_platform_feature_flags17 = __toESM(require_cjs3());
 
   // node_modules/@atlaskit/react-select/dist/esm/utils.js
   init_slicedToArray();
@@ -60491,9 +60638,9 @@
       "--is-disabled": isDisabled,
       "--is-rtl": isRtl
     }), className = _getStyleProps.className, css7 = _getStyleProps.css;
-    return /* @__PURE__ */ React76.createElement("div", _extends({
+    return /* @__PURE__ */ React77.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
-      className: ax([containerStyles.default, isRtl && containerStyles.rtl, isDisabled && containerStyles.disabled, (0, import_platform_feature_flags16.fg)("platform_design_system_team_safari_input_fix") && containerStyles.ff_safari_input_fix, cx(className, xcss2, "-container")]),
+      className: ax([containerStyles.default, isRtl && containerStyles.rtl, isDisabled && containerStyles.disabled, (0, import_platform_feature_flags17.fg)("platform_design_system_team_safari_input_fix") && containerStyles.ff_safari_input_fix, cx(className, xcss2, "-container")]),
       style: css7
     }, innerProps), children);
   };
@@ -60512,7 +60659,7 @@
       "value-container--is-multi": isMulti,
       "value-container--has-value": hasValue
     }), css7 = _getStyleProps2.css, className = _getStyleProps2.className;
-    return /* @__PURE__ */ React76.createElement("div", _extends({
+    return /* @__PURE__ */ React77.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([valueContainerStyles.default, isMulti && hasValue && controlShouldRenderValue && valueContainerStyles.flex, isCompact && valueContainerStyles.compact, cx(className, xcss2, "-ValueContainer")]),
       style: css7
@@ -60526,7 +60673,7 @@
     var _getStyleProps3 = getStyleProps(props, "indicatorsContainer", {
       indicators: true
     }), css7 = _getStyleProps3.css, className = _getStyleProps3.className;
-    return /* @__PURE__ */ React76.createElement("div", _extends({
+    return /* @__PURE__ */ React77.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax(["_1e0c1txw _4cvr1h6o _1o9zidpf _1wpz1fhb _y4ti1b66", cx(className, xcss2, "-IndicatorsContainer")])
@@ -60534,7 +60681,7 @@
   };
 
   // node_modules/@atlaskit/react-select/dist/esm/components/control.js
-  var React77 = __toESM(require_react());
+  var React78 = __toESM(require_react());
   var styles12 = {
     default: "_12ji1r31 _1qu2glyw _12y3idpf _2rkosqtm _v564r5cv _1h6d1elr _1dqonqa1 _189ee4h9 _4cvr1h6o _80om73ad _1e0c1txw _1n261g80 _1bah1yb4 _kqswh2mm _bfhk1j9a _1tke1ylp _ca0qze3t _u5f3ze3t _n3tdze3t _19bvze3t _15peftgi _1ke8ftgi _jaboglyw _1u6l1bml _4cvx1elr _123byq51 _d0altlke _irr31d5g _1ogl1caj",
     compact: "_1tkezwfg",
@@ -60557,7 +60704,7 @@
       "control--is-focused": isFocused,
       "control--menu-is-open": menuIsOpen
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React77.createElement("div", _extends({
+    return /* @__PURE__ */ React78.createElement("div", _extends({
       ref: innerRef,
       className: ax([styles12.default, isDisabled && styles12.disabled, isInvalid && styles12.invalid, isCompact && styles12.compact, appearance === "subtle" && styles12.subtle, appearance === "subtle" && isFocused && styles12.subtleFocused, isFocused && styles12.focused, appearance === "none" && styles12.none, cx(className, xcss2, "-control")]),
       style: css7
@@ -60568,7 +60715,7 @@
   var control_default = Control;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/group.js
-  var React78 = __toESM(require_react());
+  var React79 = __toESM(require_react());
   var _excluded14 = ["data"];
   var styles13 = {
     root: "_n3tdu2gc _ca0qu2gc"
@@ -60581,18 +60728,18 @@
     var _getStyleProps = getStyleProps(props, "group", {
       group: true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React78.createElement("div", _extends({
+    return /* @__PURE__ */ React79.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7
     }, innerProps, {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([styles13.root, cx(className, xcss2, innerProps === null || innerProps === void 0 ? void 0 : innerProps.className, "-Group")])
-    }), label && /* @__PURE__ */ React78.createElement(Heading2, _extends({}, headingProps, {
+    }), label && /* @__PURE__ */ React79.createElement(Heading2, _extends({}, headingProps, {
       selectProps,
       getStyles,
       getClassNames,
       cx: builtinCX
-    }), label), /* @__PURE__ */ React78.createElement("div", null, children));
+    }), label), /* @__PURE__ */ React79.createElement("div", null, children));
   };
   var groupHeadingCSS = function groupHeadingCSS2() {
     return {};
@@ -60603,7 +60750,7 @@
     var _getStyleProps2 = getStyleProps(props, "groupHeading", {
       "group-heading": true
     }), css7 = _getStyleProps2.css, className = _getStyleProps2.className;
-    return /* @__PURE__ */ React78.createElement("div", _extends({
+    return /* @__PURE__ */ React79.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax(["_11c81o8v _1e0c1ule _syaz1gjq _80om73ad _k48pmoej _6rthpd1z _y4tiutpp _bozgutpp _1p1dglyw", cx(className, xcss2, "-group")]),
       style: css7
@@ -60613,7 +60760,7 @@
 
   // node_modules/@atlaskit/react-select/dist/esm/components/indicators.js
   init_defineProperty();
-  var React79 = __toESM(require_react());
+  var React80 = __toESM(require_react());
   var import_chevron_down = __toESM(require_chevron_down3());
   var import_cross_circle_select_clear = __toESM(require_cross_circle_select_clear());
   var _excluded15 = ["innerProps", "isRtl", "size", "isCompact", "xcss"];
@@ -60658,14 +60805,14 @@
       indicator: true,
       "dropdown-indicator": true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React79.createElement("div", _extends({
+    return /* @__PURE__ */ React80.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([dropdownStyles.default, isDisabled && dropdownStyles.disabled, isCompact && dropdownStyles.compact, cx(className, xcss2, "-indicatorContainer")])
-    }, innerProps), children ? children : /* @__PURE__ */ React79.createElement(inline_default, {
+    }, innerProps), children ? children : /* @__PURE__ */ React80.createElement(inline_default, {
       as: "span",
       xcss: dropdownWrapperStyles.root
-    }, /* @__PURE__ */ React79.createElement(import_chevron_down.default, {
+    }, /* @__PURE__ */ React80.createElement(import_chevron_down.default, {
       color: "currentColor",
       label: "open",
       LEGACY_margin: "var(--ds-space-negative-075, -0.375rem)",
@@ -60685,15 +60832,15 @@
       indicator: true,
       "clear-indicator": true
     }), css7 = _getStyleProps2.css, className = _getStyleProps2.className;
-    return /* @__PURE__ */ React79.createElement("div", _extends({
+    return /* @__PURE__ */ React80.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([clearIndicatorStyles.default, isCompact && clearIndicatorStyles.compact, cx(className, xcss2, "-indicatorContainer")])
-    }, innerProps), /* @__PURE__ */ React79.createElement(pressable_default, {
+    }, innerProps), /* @__PURE__ */ React80.createElement(pressable_default, {
       xcss: iconContainerStyles.root,
       tabIndex: -1,
       "aria-label": clearControlLabel
-    }, /* @__PURE__ */ React79.createElement(import_cross_circle_select_clear.default, {
+    }, /* @__PURE__ */ React80.createElement(import_cross_circle_select_clear.default, {
       label: "",
       color: "currentColor",
       LEGACY_size: "small",
@@ -60718,18 +60865,18 @@
       indicator: true,
       "loading-indicator": true
     }), css7 = _getStyleProps3.css, className = _getStyleProps3.className;
-    return /* @__PURE__ */ React79.createElement("div", _extends({
+    return /* @__PURE__ */ React80.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([loadingIndicatorStyles.default, isCompact && loadingIndicatorStyles.compact, cx(className, xcss2, "-loadingIndicator")])
-    }, innerProps), /* @__PURE__ */ React79.createElement(spinner_default, {
+    }, innerProps), /* @__PURE__ */ React80.createElement(spinner_default, {
       size: "small"
     }));
   };
 
   // node_modules/@atlaskit/react-select/dist/esm/components/input.js
-  var React80 = __toESM(require_react());
-  var import_platform_feature_flags17 = __toESM(require_cjs3());
+  var React81 = __toESM(require_react());
+  var import_platform_feature_flags18 = __toESM(require_cjs3());
   var _excluded16 = ["innerRef", "isDisabled", "isHidden", "inputClassName", "testId"];
   var inputCSS = function inputCSS2() {
     return {};
@@ -60749,14 +60896,14 @@
     var _getStyleProps = getStyleProps(props, "input", {
       "input-container": true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    if ((0, import_platform_feature_flags17.fg)("platform_do_not_clear_input_for_multiselect")) {
-      return /* @__PURE__ */ React80.createElement("div", {
+    if ((0, import_platform_feature_flags18.fg)("platform_do_not_clear_input_for_multiselect")) {
+      return /* @__PURE__ */ React81.createElement("div", {
         // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
         style: css7,
         className: ax([inputStyles.root, isDisabled && inputStyles.disabled, cx(className, xcss2, "-Input")]),
         "data-value": value || "",
         "data-testid": dataId && "".concat(dataId, "-container")
-      }, /* @__PURE__ */ React80.createElement("input", _extends({
+      }, /* @__PURE__ */ React81.createElement("input", _extends({
         // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
         className: ax(["_19pkidpf _2hwxidpf _otyridpf _18u0idpf _ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _1r04idpf _11q7idpf _19itidpf _11c81kw7 _nd5l1yjy _12ji1r31 _1qu2glyw _12y3idpf _1bsb1osq _1ul9yh40 _kqswstnw _syaz1kw7 _tzy4kb7n", isHidden && "_tzy4idpf", builtinCX({
           input: true
@@ -60766,13 +60913,13 @@
         "data-testid": dataId
       }, innerProps)));
     }
-    return /* @__PURE__ */ React80.createElement("div", {
+    return /* @__PURE__ */ React81.createElement("div", {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([inputStylesOld.root, isDisabled && inputStylesOld.disabled, cx(className, xcss2, "-Input")]),
       "data-value": value || "",
       "data-testid": dataId && "".concat(dataId, "-container")
-    }, /* @__PURE__ */ React80.createElement("input", _extends({
+    }, /* @__PURE__ */ React81.createElement("input", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
       className: ax(["_19pkidpf _2hwxidpf _otyridpf _18u0idpf _ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _11q7idpf _19itidpf _11c81kw7 _nd5l1yjy _12ji1r31 _1qu2glyw _12y3idpf _1bsb1osq _1ul9yh40 _syaz1kw7 _tzy4kb7n", isHidden && "_tzy4idpf", builtinCX({
         input: true
@@ -60787,8 +60934,8 @@
   // node_modules/@atlaskit/react-select/dist/esm/components/menu.js
   init_defineProperty();
   init_slicedToArray();
-  var React81 = __toESM(require_react());
-  var import_react121 = __toESM(require_react());
+  var React82 = __toESM(require_react());
+  var import_react122 = __toESM(require_react());
 
   // node_modules/@floating-ui/utils/dist/floating-ui.utils.mjs
   var min2 = Math.min;
@@ -61193,8 +61340,8 @@
   var import_react_dom3 = __toESM(require_react_dom());
 
   // node_modules/use-isomorphic-layout-effect/dist/use-isomorphic-layout-effect.browser.esm.js
-  var import_react120 = __toESM(require_react());
-  var index = import_react120.useLayoutEffect;
+  var import_react121 = __toESM(require_react());
+  var index = import_react121.useLayoutEffect;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/menu.js
   var _excluded17 = ["children", "innerProps", "xcss"];
@@ -61343,13 +61490,13 @@
   var menuCSS = function menuCSS2() {
     return {};
   };
-  var PortalPlacementContext = /* @__PURE__ */ (0, import_react121.createContext)(null);
+  var PortalPlacementContext = /* @__PURE__ */ (0, import_react122.createContext)(null);
   var MenuPlacer = function MenuPlacer2(props) {
     var children = props.children, minMenuHeight = props.minMenuHeight, maxMenuHeight = props.maxMenuHeight, menuPlacement = props.menuPlacement, menuPosition = props.menuPosition, menuShouldScrollIntoView = props.menuShouldScrollIntoView;
-    var _ref2 = (0, import_react121.useContext)(PortalPlacementContext) || {}, setPortalPlacement = _ref2.setPortalPlacement;
-    var ref = (0, import_react121.useRef)(null);
-    var _useState = (0, import_react121.useState)(maxMenuHeight), _useState2 = _slicedToArray(_useState, 2), maxHeight = _useState2[0], setMaxHeight = _useState2[1];
-    var _useState3 = (0, import_react121.useState)(null), _useState4 = _slicedToArray(_useState3, 2), placement = _useState4[0], setPlacement = _useState4[1];
+    var _ref2 = (0, import_react122.useContext)(PortalPlacementContext) || {}, setPortalPlacement = _ref2.setPortalPlacement;
+    var ref = (0, import_react122.useRef)(null);
+    var _useState = (0, import_react122.useState)(maxMenuHeight), _useState2 = _slicedToArray(_useState, 2), maxHeight = _useState2[0], setMaxHeight = _useState2[1];
+    var _useState3 = (0, import_react122.useState)(null), _useState4 = _slicedToArray(_useState3, 2), placement = _useState4[0], setPlacement = _useState4[1];
     var controlHeight = 38;
     index(function() {
       var menuEl = ref.current;
@@ -61384,7 +61531,7 @@
     var _getStyleProps = getStyleProps(props, "menu", {
       menu: true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React81.createElement("div", _extends({
+    return /* @__PURE__ */ React82.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([menuStyles.root, menuStyles[placement], cx(xcss2, className, "-menu")]),
       style: css7,
@@ -61401,7 +61548,7 @@
       "menu-list": true,
       "menu-list--is-multi": isMulti
     }), css7 = _getStyleProps2.css, className = _getStyleProps2.className;
-    return /* @__PURE__ */ React81.createElement("div", _extends({
+    return /* @__PURE__ */ React82.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax(["_kqswh2mm _18m91wug _85i5u2gc _1q51u2gc _8am5i4x0", cx(className, xcss2, "-MenuList")]),
       style: _objectSpread18(_objectSpread18({}, css7), {}, {
@@ -61426,12 +61573,12 @@
       "menu-notice": true,
       "menu-notice--no-options": true
     }), css7 = _getStyleProps3.css, className = _getStyleProps3.className;
-    return /* @__PURE__ */ React81.createElement("div", _extends({
+    return /* @__PURE__ */ React82.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax(["_85i5u2gc _1q51u2gc _y4tiutpp _bozgutpp _y3gn1h6o", cx(className, xcss2, "-NoOptionsMessage")]),
       style: css7,
       role: "option"
-    }, innerProps), /* @__PURE__ */ React81.createElement(text_default, {
+    }, innerProps), /* @__PURE__ */ React82.createElement(text_default, {
       color: "color.text.subtle"
     }, children));
   };
@@ -61444,14 +61591,14 @@
       "menu-notice": true,
       "menu-notice--loading": true
     }), css7 = _getStyleProps4.css, className = _getStyleProps4.className;
-    return /* @__PURE__ */ React81.createElement("div", _extends({
+    return /* @__PURE__ */ React82.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax(["_85i5u2gc _1q51u2gc _y4tiutpp _bozgutpp _y3gn1h6o", cx(className, xcss2, "-LoadingMessage")]),
       style: css7
     }, innerProps, {
       // eslint-disable-next-line jsx-a11y/role-has-required-aria-props
       role: "option"
-    }), /* @__PURE__ */ React81.createElement(text_default, {
+    }), /* @__PURE__ */ React82.createElement(text_default, {
       color: "color.text.subtle"
     }, children));
   };
@@ -61463,16 +61610,16 @@
   };
   var MenuPortal = function MenuPortal2(props) {
     var appendTo = props.appendTo, children = props.children, controlElement = props.controlElement, innerProps = props.innerProps, menuPlacement = props.menuPlacement, menuPosition = props.menuPosition, xcss2 = props.xcss;
-    var menuPortalRef = (0, import_react121.useRef)(null);
-    var cleanupRef = (0, import_react121.useRef)(null);
-    var _useState5 = (0, import_react121.useState)(coercePlacement(menuPlacement)), _useState6 = _slicedToArray(_useState5, 2), placement = _useState6[0], setPortalPlacement = _useState6[1];
-    var portalPlacementContext = (0, import_react121.useMemo)(function() {
+    var menuPortalRef = (0, import_react122.useRef)(null);
+    var cleanupRef = (0, import_react122.useRef)(null);
+    var _useState5 = (0, import_react122.useState)(coercePlacement(menuPlacement)), _useState6 = _slicedToArray(_useState5, 2), placement = _useState6[0], setPortalPlacement = _useState6[1];
+    var portalPlacementContext = (0, import_react122.useMemo)(function() {
       return {
         setPortalPlacement
       };
     }, []);
-    var _useState7 = (0, import_react121.useState)(null), _useState8 = _slicedToArray(_useState7, 2), computedPosition = _useState8[0], setComputedPosition = _useState8[1];
-    var updateComputedPosition = (0, import_react121.useCallback)(function() {
+    var _useState7 = (0, import_react122.useState)(null), _useState8 = _slicedToArray(_useState7, 2), computedPosition = _useState8[0], setComputedPosition = _useState8[1];
+    var updateComputedPosition = (0, import_react122.useCallback)(function() {
       if (!controlElement) {
         return;
       }
@@ -61489,7 +61636,7 @@
     index(function() {
       updateComputedPosition();
     }, [updateComputedPosition]);
-    var runAutoUpdate = (0, import_react121.useCallback)(function() {
+    var runAutoUpdate = (0, import_react122.useCallback)(function() {
       if (typeof cleanupRef.current === "function") {
         cleanupRef.current();
         cleanupRef.current = null;
@@ -61503,7 +61650,7 @@
     index(function() {
       runAutoUpdate();
     }, [runAutoUpdate]);
-    var setMenuPortalElement = (0, import_react121.useCallback)(function(menuPortalElement) {
+    var setMenuPortalElement = (0, import_react122.useCallback)(function(menuPortalElement) {
       menuPortalRef.current = menuPortalElement;
       runAutoUpdate();
     }, [runAutoUpdate]);
@@ -61517,7 +61664,7 @@
     }), "menuPortal", {
       "menu-portal": true
     }), css7 = _getStyleProps5.css, className = _getStyleProps5.className;
-    var menuWrapper = /* @__PURE__ */ React81.createElement("div", _extends({
+    var menuWrapper = /* @__PURE__ */ React82.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([menuPortalStyles.root, cx(className, xcss2, "-MenuPortal")]),
       ref: setMenuPortalElement,
@@ -61529,17 +61676,17 @@
         "--menu-width": "".concat(computedPosition.rect.width, "px")
       }, css7)
     }, innerProps), children);
-    return /* @__PURE__ */ React81.createElement(PortalPlacementContext.Provider, {
+    return /* @__PURE__ */ React82.createElement(PortalPlacementContext.Provider, {
       value: portalPlacementContext
     }, appendTo ? /* @__PURE__ */ (0, import_react_dom3.createPortal)(menuWrapper, appendTo) : menuWrapper);
   };
 
   // node_modules/@atlaskit/react-select/dist/esm/components/multi-value.js
   init_defineProperty();
-  var React82 = __toESM(require_react());
+  var React83 = __toESM(require_react());
   var import_cross3 = __toESM(require_cross());
   var import_select_clear = __toESM(require_select_clear());
-  var import_platform_feature_flags18 = __toESM(require_cjs3());
+  var import_platform_feature_flags19 = __toESM(require_cjs3());
   function ownKeys19(e, r) {
     var t = Object.keys(e);
     if (Object.getOwnPropertySymbols) {
@@ -61589,27 +61736,27 @@
   };
   var MultiValueContainer = function MultiValueContainer2(_ref2) {
     var children = _ref2.children, innerProps = _ref2.innerProps, isFocused = _ref2.isFocused, isDisabled = _ref2.isDisabled, className = _ref2.className, xcss2 = _ref2.xcss;
-    return /* @__PURE__ */ React82.createElement("div", _extends({}, innerProps, {
+    return /* @__PURE__ */ React83.createElement("div", _extends({}, innerProps, {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
-      className: ax([multiValueStyles.root, isDisabled && multiValueStyles.disabled, isFocused && multiValueStyles.focused, (0, import_platform_feature_flags18.fg)("platform-component-visual-refresh") && multiValueStyles.refresh, cx(className, xcss2, "-multiValue")])
+      className: ax([multiValueStyles.root, isDisabled && multiValueStyles.disabled, isFocused && multiValueStyles.focused, (0, import_platform_feature_flags19.fg)("platform-component-visual-refresh") && multiValueStyles.refresh, cx(className, xcss2, "-multiValue")])
     }), children);
   };
   var MultiValueLabel = function MultiValueLabel2(_ref2) {
     var children = _ref2.children, innerProps = _ref2.innerProps, isDisabled = _ref2.isDisabled, hasEllipsis = _ref2.hasEllipsis, className = _ref2.className, xcss2 = _ref2.xcss;
-    return /* @__PURE__ */ React82.createElement("div", _extends({}, innerProps, {
+    return /* @__PURE__ */ React83.createElement("div", _extends({}, innerProps, {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
-      className: ax([multiValueLabelStyles.root, isDisabled && multiValueLabelStyles.disabled, hasEllipsis && multiValueLabelStyles.ellipsis, (0, import_platform_feature_flags18.fg)("platform-component-visual-refresh") && multiValueLabelStyles.refresh, cx(className, xcss2, "-MultiValueLabel")])
+      className: ax([multiValueLabelStyles.root, isDisabled && multiValueLabelStyles.disabled, hasEllipsis && multiValueLabelStyles.ellipsis, (0, import_platform_feature_flags19.fg)("platform-component-visual-refresh") && multiValueLabelStyles.refresh, cx(className, xcss2, "-MultiValueLabel")])
     }), children);
   };
   function MultiValueRemove(_ref3) {
     var isDisabled = _ref3.isDisabled, isFocused = _ref3.isFocused, innerProps = _ref3.innerProps, className = _ref3.className, xcss2 = _ref3.xcss;
-    return /* @__PURE__ */ React82.createElement("div", _extends({}, innerProps, {
+    return /* @__PURE__ */ React83.createElement("div", _extends({}, innerProps, {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
-      className: ax([multiValueRemoveStyles.root, isFocused && multiValueRemoveStyles.focused, (0, import_platform_feature_flags18.fg)("platform-component-visual-refresh") && multiValueRemoveStyles.refresh, cx(className, xcss2, "-MultiValueRemove")])
-    }), /* @__PURE__ */ React82.createElement("div", {
+      className: ax([multiValueRemoveStyles.root, isFocused && multiValueRemoveStyles.focused, (0, import_platform_feature_flags19.fg)("platform-component-visual-refresh") && multiValueRemoveStyles.refresh, cx(className, xcss2, "-MultiValueRemove")])
+    }), /* @__PURE__ */ React83.createElement("div", {
       "data-testid": isDisabled ? "hide-clear-icon" : "show-clear-icon",
       className: ax([isDisabled && "_1e0cglyw", !isDisabled && "_1e0c1kw7"])
-    }, /* @__PURE__ */ React82.createElement(import_cross3.default, {
+    }, /* @__PURE__ */ React83.createElement(import_cross3.default, {
       label: "",
       color: "currentColor",
       LEGACY_fallbackIcon: import_select_clear.default,
@@ -61633,7 +61780,7 @@
     var _getStyleProps3 = getStyleProps(props, "multiValueRemove", {
       "multi-value__remove": true
     }), removeCss = _getStyleProps3.css, removeClassName = _getStyleProps3.className;
-    return /* @__PURE__ */ React82.createElement(Container, {
+    return /* @__PURE__ */ React83.createElement(Container, {
       data,
       innerProps: _objectSpread19({
         style: containerCss,
@@ -61643,7 +61790,7 @@
       isFocused,
       isDisabled,
       selectProps
-    }, /* @__PURE__ */ React82.createElement(Label, {
+    }, /* @__PURE__ */ React83.createElement(Label, {
       data,
       innerProps: {
         style: labelCss,
@@ -61652,7 +61799,7 @@
       className: labelClassName,
       hasEllipsis: cropWithEllipsis || cropWithEllipsis === void 0,
       selectProps
-    }, children), /* @__PURE__ */ React82.createElement(Remove, {
+    }, children), /* @__PURE__ */ React83.createElement(Remove, {
       data,
       innerProps: _objectSpread19({
         style: removeCss,
@@ -61669,7 +61816,7 @@
   var multi_value_default = MultiValue;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/option.js
-  var React83 = __toESM(require_react());
+  var React84 = __toESM(require_react());
   var optionCSS = function optionCSS2() {
     return {};
   };
@@ -61688,7 +61835,7 @@
       "option--is-focused": isFocused,
       "option--is-selected": isSelected
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React83.createElement("div", _extends({
+    return /* @__PURE__ */ React84.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([optionStyles.root, isFocused && optionStyles.focused, isSelected && optionStyles.selected, isFocused && isSelected && optionStyles.focusedSelected, isDisabled && optionStyles.disabled, cx(className, xcss2, "-option")]),
@@ -61700,7 +61847,7 @@
   var option_default = Option;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/placeholder.js
-  var React84 = __toESM(require_react());
+  var React85 = __toESM(require_react());
   var placeholderCSS = function placeholderCSS2() {
     return {};
   };
@@ -61713,7 +61860,7 @@
     var _getStyleProps = getStyleProps(props, "placeholder", {
       placeholder: true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React84.createElement("div", _extends({
+    return /* @__PURE__ */ React85.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([placeholderStyles.root, isDisabled && placeholderStyles.disabled, cx(className, xcss2, "-placeholder")])
@@ -61722,7 +61869,7 @@
   var placeholder_default = Placeholder;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/single-value.js
-  var React85 = __toESM(require_react());
+  var React86 = __toESM(require_react());
   var css5 = function css6() {
     return {};
   };
@@ -61736,7 +61883,7 @@
       "single-value": true,
       "single-value--is-disabled": isDisabled
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React85.createElement("div", _extends({
+    return /* @__PURE__ */ React86.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([styles14.root, isDisabled && styles14.disalbed, cx(className, xcss2, "-singleValue")])
@@ -61795,9 +61942,9 @@
   };
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/a11y-text.js
-  var React86 = __toESM(require_react());
+  var React87 = __toESM(require_react());
   var A11yText = function A11yText2(props) {
-    return /* @__PURE__ */ React86.createElement("span", _extends({
+    return /* @__PURE__ */ React87.createElement("span", _extends({
       // eslint-disable-next-line  @atlaskit/ui-styling-standard/no-classname-prop
       className: ax(["_ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _19itidpf _1reo15vq _18m915vq _1bsbt94y _4t3it94y _kqswstnw _1pbydx66 _ogto7mnp _uiztglyw _o5721q9c", "-a11yText"])
       // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
@@ -61806,22 +61953,22 @@
   var a11y_text_default = A11yText;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/dummy-input.js
-  var React87 = __toESM(require_react());
+  var React88 = __toESM(require_react());
   var _excluded18 = ["innerRef"];
   function DummyInput(_ref2) {
     var innerRef = _ref2.innerRef, props = _objectWithoutProperties(_ref2, _excluded18);
     var filteredProps = removeProps(props, "onExited", "in", "enter", "exit", "appear");
-    return /* @__PURE__ */ React87.createElement("input", _extends({
+    return /* @__PURE__ */ React88.createElement("input", _extends({
       ref: innerRef,
       className: ax(["_ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _11q7idpf _19itidpf _nd5l1sux _12ji1r31 _1qu2glyw _12y3idpf _1bsbt94y _kqswh2mm _1n5d1j28 _syaz1j28 _1e02p1rm _tzy4idpf _t9ec1kuz", "-dummyInput"])
     }, filteredProps));
   }
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/scroll-manager.js
-  var import_react129 = __toESM(require_react());
+  var import_react130 = __toESM(require_react());
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/use-scroll-capture.js
-  var import_react127 = __toESM(require_react());
+  var import_react128 = __toESM(require_react());
   var cancelScroll = function cancelScroll2(event) {
     if (event.cancelable) {
       event.preventDefault();
@@ -61830,11 +61977,11 @@
   };
   function useScrollCapture(_ref2) {
     var isEnabled = _ref2.isEnabled, onBottomArrive = _ref2.onBottomArrive, onBottomLeave = _ref2.onBottomLeave, onTopArrive = _ref2.onTopArrive, onTopLeave = _ref2.onTopLeave;
-    var isBottom = (0, import_react127.useRef)(false);
-    var isTop = (0, import_react127.useRef)(false);
-    var touchStart = (0, import_react127.useRef)(0);
-    var scrollTarget = (0, import_react127.useRef)(null);
-    var handleEventDelta = (0, import_react127.useCallback)(function(event, delta) {
+    var isBottom = (0, import_react128.useRef)(false);
+    var isTop = (0, import_react128.useRef)(false);
+    var touchStart = (0, import_react128.useRef)(0);
+    var scrollTarget = (0, import_react128.useRef)(null);
+    var handleEventDelta = (0, import_react128.useCallback)(function(event, delta) {
       if (scrollTarget.current === null) {
         return;
       }
@@ -61874,17 +62021,17 @@
         cancelScroll(event);
       }
     }, [onBottomArrive, onBottomLeave, onTopArrive, onTopLeave]);
-    var onWheel = (0, import_react127.useCallback)(function(event) {
+    var onWheel = (0, import_react128.useCallback)(function(event) {
       handleEventDelta(event, event.deltaY);
     }, [handleEventDelta]);
-    var onTouchStart = (0, import_react127.useCallback)(function(event) {
+    var onTouchStart = (0, import_react128.useCallback)(function(event) {
       touchStart.current = event.changedTouches[0].clientY;
     }, []);
-    var onTouchMove = (0, import_react127.useCallback)(function(event) {
+    var onTouchMove = (0, import_react128.useCallback)(function(event) {
       var deltaY = touchStart.current - event.changedTouches[0].clientY;
       handleEventDelta(event, deltaY);
     }, [handleEventDelta]);
-    var startListening = (0, import_react127.useCallback)(function(el) {
+    var startListening = (0, import_react128.useCallback)(function(el) {
       if (!el) {
         return;
       }
@@ -61895,7 +62042,7 @@
       el.addEventListener("touchstart", onTouchStart, notPassive);
       el.addEventListener("touchmove", onTouchMove, notPassive);
     }, [onTouchMove, onTouchStart, onWheel]);
-    var stopListening = (0, import_react127.useCallback)(function(el) {
+    var stopListening = (0, import_react128.useCallback)(function(el) {
       if (!el) {
         return;
       }
@@ -61903,7 +62050,7 @@
       el.removeEventListener("touchstart", onTouchStart, false);
       el.removeEventListener("touchmove", onTouchMove, false);
     }, [onTouchMove, onTouchStart, onWheel]);
-    (0, import_react127.useEffect)(function() {
+    (0, import_react128.useEffect)(function() {
       if (!isEnabled) {
         return;
       }
@@ -61919,7 +62066,7 @@
   }
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/use-scroll-lock.js
-  var import_react128 = __toESM(require_react());
+  var import_react129 = __toESM(require_react());
   var STYLE_KEYS = ["boxSizing", "height", "overflow", "paddingRight", "position"];
   var LOCK_STYLES = {
     boxSizing: "border-box",
@@ -61955,9 +62102,9 @@
   };
   function useScrollLock(_ref2) {
     var isEnabled = _ref2.isEnabled, _ref$accountForScroll = _ref2.accountForScrollbars, accountForScrollbars = _ref$accountForScroll === void 0 ? true : _ref$accountForScroll;
-    var originalStyles = (0, import_react128.useRef)({});
-    var scrollTarget = (0, import_react128.useRef)(null);
-    var addScrollLock = (0, import_react128.useCallback)(function(touchScrollTarget) {
+    var originalStyles = (0, import_react129.useRef)({});
+    var scrollTarget = (0, import_react129.useRef)(null);
+    var addScrollLock = (0, import_react129.useCallback)(function(touchScrollTarget) {
       if (!canUseDOM) {
         return;
       }
@@ -61992,7 +62139,7 @@
       }
       activeScrollLocks += 1;
     }, [accountForScrollbars]);
-    var removeScrollLock = (0, import_react128.useCallback)(function(touchScrollTarget) {
+    var removeScrollLock = (0, import_react129.useCallback)(function(touchScrollTarget) {
       if (!canUseDOM) {
         return;
       }
@@ -62015,7 +62162,7 @@
         }
       }
     }, [accountForScrollbars]);
-    (0, import_react128.useEffect)(function() {
+    (0, import_react129.useEffect)(function() {
       if (!isEnabled) {
         return;
       }
@@ -62051,8 +62198,8 @@
       setScrollCaptureTarget(element);
       setScrollLockTarget(element);
     };
-    return /* @__PURE__ */ import_react129.default.createElement(import_react129.Fragment, null, lockEnabled && // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, @atlassian/a11y/interactive-element-not-keyboard-focusable
-    /* @__PURE__ */ import_react129.default.createElement("div", {
+    return /* @__PURE__ */ import_react130.default.createElement(import_react130.Fragment, null, lockEnabled && // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, @atlassian/a11y/interactive-element-not-keyboard-focusable
+    /* @__PURE__ */ import_react130.default.createElement("div", {
       onClick: blurSelectInput,
       style: {
         // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
@@ -62070,10 +62217,10 @@
   }
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/required-input.js
-  var React89 = __toESM(require_react());
+  var React90 = __toESM(require_react());
   var RequiredInput = function RequiredInput2(_ref2) {
     var name = _ref2.name, onFocus3 = _ref2.onFocus;
-    return /* @__PURE__ */ React89.createElement("input", {
+    return /* @__PURE__ */ React90.createElement("input", {
       required: true,
       name,
       tabIndex: -1,
@@ -62099,7 +62246,7 @@
 
   // node_modules/@atlaskit/react-select/dist/esm/components/live-region.js
   init_defineProperty();
-  var import_react130 = __toESM(require_react());
+  var import_react131 = __toESM(require_react());
 
   // node_modules/@atlaskit/react-select/dist/esm/accessibility/index.js
   var defaultAriaLiveMessages = {
@@ -62150,10 +62297,10 @@
     var ariaSelection = props.ariaSelection, focusableOptions = props.focusableOptions, isFocused = props.isFocused, selectValue = props.selectValue, selectProps = props.selectProps, id = props.id;
     var ariaLiveMessages = selectProps.ariaLiveMessages, getOptionLabel5 = selectProps.getOptionLabel, inputValue = selectProps.inputValue, isOptionDisabled3 = selectProps.isOptionDisabled, menuIsOpen = selectProps.menuIsOpen, options2 = selectProps.options, screenReaderStatus2 = selectProps.screenReaderStatus, isLoading = selectProps.isLoading;
     var ariaLive = selectProps["aria-live"];
-    var messages = (0, import_react130.useMemo)(function() {
+    var messages = (0, import_react131.useMemo)(function() {
       return _objectSpread21(_objectSpread21({}, defaultAriaLiveMessages), ariaLiveMessages || {});
     }, [ariaLiveMessages]);
-    var ariaSelected = (0, import_react130.useMemo)(function() {
+    var ariaSelected = (0, import_react131.useMemo)(function() {
       var message2 = "";
       if (menuIsOpen) {
         return "";
@@ -62181,7 +62328,7 @@
       }
       return message2;
     }, [ariaSelection, messages, isOptionDisabled3, selectValue, getOptionLabel5, menuIsOpen]);
-    var ariaResults = (0, import_react130.useMemo)(function() {
+    var ariaResults = (0, import_react131.useMemo)(function() {
       var resultsMsg = "";
       if (isLoading) {
         resultsMsg = "Loading. ";
@@ -62201,14 +62348,14 @@
       return resultsMsg;
     }, [focusableOptions, inputValue, menuIsOpen, messages, options2, screenReaderStatus2, isLoading]);
     var isInitialFocus = (ariaSelection === null || ariaSelection === void 0 ? void 0 : ariaSelection.action) === "initial-input-focus";
-    var ScreenReaderText = /* @__PURE__ */ import_react130.default.createElement(import_react130.Fragment, null, /* @__PURE__ */ import_react130.default.createElement("span", {
+    var ScreenReaderText = /* @__PURE__ */ import_react131.default.createElement(import_react131.Fragment, null, /* @__PURE__ */ import_react131.default.createElement("span", {
       id: "aria-selection"
-    }, ariaSelected), /* @__PURE__ */ import_react130.default.createElement("span", {
+    }, ariaSelected), /* @__PURE__ */ import_react131.default.createElement("span", {
       id: "aria-results"
     }, ariaResults));
-    return /* @__PURE__ */ import_react130.default.createElement(import_react130.Fragment, null, /* @__PURE__ */ import_react130.default.createElement(a11y_text_default, {
+    return /* @__PURE__ */ import_react131.default.createElement(import_react131.Fragment, null, /* @__PURE__ */ import_react131.default.createElement(a11y_text_default, {
       id
-    }, isInitialFocus && ScreenReaderText), /* @__PURE__ */ import_react130.default.createElement(a11y_text_default, {
+    }, isInitialFocus && ScreenReaderText), /* @__PURE__ */ import_react131.default.createElement(a11y_text_default, {
       "aria-live": ariaLive,
       role: "status"
     }, isFocused && !isInitialFocus && ScreenReaderText));
@@ -62839,7 +62986,7 @@
       });
       _defineProperty(_this, "setValue", function(newValue, action, option) {
         var _this$props2 = _this.props, closeMenuOnSelect = _this$props2.closeMenuOnSelect, isMulti = _this$props2.isMulti, inputValue = _this$props2.inputValue;
-        if (isMulti && (0, import_platform_feature_flags19.fg)("platform_do_not_clear_input_for_multiselect")) {
+        if (isMulti && (0, import_platform_feature_flags20.fg)("platform_do_not_clear_input_for_multiselect")) {
           _this.onInputChange(inputValue, {
             action: "set-value",
             prevInputValue: inputValue
@@ -63161,7 +63308,7 @@
           action: "input-blur",
           prevInputValue
         });
-        if ((0, import_platform_feature_flags19.fg)("platform_dst_select_menu_close_on_blur")) {
+        if ((0, import_platform_feature_flags20.fg)("platform_dst_select_menu_close_on_blur")) {
           _this.props.menuIsOpen && _this.onMenuClose();
         } else {
           _this.onMenuClose();
@@ -63771,7 +63918,7 @@
             "aria-readonly": true
           }), this.calculateDescription());
           if (!isSearchable) {
-            return /* @__PURE__ */ import_react131.default.createElement(DummyInput, _extends({
+            return /* @__PURE__ */ import_react132.default.createElement(DummyInput, _extends({
               id,
               innerRef: this.getInputRef,
               onBlur: this.onInputBlur,
@@ -63785,7 +63932,7 @@
               "data-testid": testId && "".concat(testId, "-select--input")
             }, ariaAttributes));
           }
-          return /* @__PURE__ */ import_react131.default.createElement(Input3, _extends({}, commonProps, {
+          return /* @__PURE__ */ import_react132.default.createElement(Input3, _extends({}, commonProps, {
             autoCapitalize: "none",
             autoComplete: "off",
             autoCorrect: "off",
@@ -63814,7 +63961,7 @@
         var _this$props9 = this.props, controlShouldRenderValue = _this$props9.controlShouldRenderValue, isDisabled = _this$props9.isDisabled, isMulti = _this$props9.isMulti, inputValue = _this$props9.inputValue, placeholder = _this$props9.placeholder, testId = _this$props9.testId;
         var _this$state4 = this.state, selectValue = _this$state4.selectValue, focusedValue = _this$state4.focusedValue, isFocused = _this$state4.isFocused;
         if (!this.hasValue() || !controlShouldRenderValue) {
-          return inputValue ? null : /* @__PURE__ */ import_react131.default.createElement(Placeholder3, _extends({}, commonProps, {
+          return inputValue ? null : /* @__PURE__ */ import_react132.default.createElement(Placeholder3, _extends({}, commonProps, {
             key: "placeholder",
             isDisabled,
             isFocused,
@@ -63829,7 +63976,7 @@
           return selectValue.map(function(opt, index2) {
             var isOptionFocused = opt === focusedValue;
             var key = "".concat(_this5.getOptionLabel(opt), "-").concat(_this5.getOptionValue(opt));
-            return /* @__PURE__ */ import_react131.default.createElement(MultiValue3, _extends({}, commonProps, {
+            return /* @__PURE__ */ import_react132.default.createElement(MultiValue3, _extends({}, commonProps, {
               components: {
                 Container: MultiValueContainer3,
                 Label: MultiValueLabel3,
@@ -63867,7 +64014,7 @@
           return null;
         }
         var singleValue = selectValue[0];
-        return /* @__PURE__ */ import_react131.default.createElement(SingleValue3, _extends({}, commonProps, {
+        return /* @__PURE__ */ import_react132.default.createElement(SingleValue3, _extends({}, commonProps, {
           data: singleValue,
           isDisabled,
           innerProps: {
@@ -63892,7 +64039,7 @@
           "data-testid": "".concat(testId, "-select--clear-indicator")
         });
         var isCompact = spacing === "compact";
-        return /* @__PURE__ */ import_react131.default.createElement(ClearIndicator3, _extends({
+        return /* @__PURE__ */ import_react132.default.createElement(ClearIndicator3, _extends({
           clearControlLabel
         }, commonProps, {
           innerProps,
@@ -63914,7 +64061,7 @@
         var innerProps = {
           "aria-hidden": "true"
         };
-        return /* @__PURE__ */ import_react131.default.createElement(LoadingIndicator3, _extends({
+        return /* @__PURE__ */ import_react132.default.createElement(LoadingIndicator3, _extends({
           "data-testid": testId && "".concat(testId, "-select--loading-indicator")
         }, commonProps, {
           innerProps,
@@ -63941,7 +64088,7 @@
         }, testId && {
           "data-testid": "".concat(testId, "-select--dropdown-indicator")
         });
-        return /* @__PURE__ */ import_react131.default.createElement(DropdownIndicator3, _extends({}, commonProps, {
+        return /* @__PURE__ */ import_react132.default.createElement(DropdownIndicator3, _extends({}, commonProps, {
           innerProps,
           isDisabled,
           isFocused,
@@ -63982,7 +64129,7 @@
           }, testId && {
             "data-testid": "".concat(testId, "-select--option-").concat(id)
           });
-          return /* @__PURE__ */ import_react131.default.createElement(Option3, _extends({}, commonProps, {
+          return /* @__PURE__ */ import_react132.default.createElement(Option3, _extends({}, commonProps, {
             innerProps,
             data,
             isDisabled,
@@ -64003,7 +64150,7 @@
               var data = item.data, options2 = item.options, groupIndex = item.index;
               var groupId = "".concat(_this6.getElementId("group"), "-").concat(groupIndex);
               var headingId = "".concat(groupId, "-heading");
-              return /* @__PURE__ */ import_react131.default.createElement(Group3, _extends({}, commonProps, {
+              return /* @__PURE__ */ import_react132.default.createElement(Group3, _extends({}, commonProps, {
                 key: groupId,
                 data,
                 options: options2,
@@ -64029,7 +64176,7 @@
           if (message2 === null) {
             return null;
           }
-          menuUI = /* @__PURE__ */ import_react131.default.createElement(LoadingMessage3, commonProps, message2);
+          menuUI = /* @__PURE__ */ import_react132.default.createElement(LoadingMessage3, commonProps, message2);
         } else {
           var _message = noOptionsMessage2({
             inputValue
@@ -64037,7 +64184,7 @@
           if (_message === null) {
             return null;
           }
-          menuUI = /* @__PURE__ */ import_react131.default.createElement(NoOptionsMessage3, _extends({}, commonProps, {
+          menuUI = /* @__PURE__ */ import_react132.default.createElement(NoOptionsMessage3, _extends({}, commonProps, {
             innerProps: _objectSpread23({}, testId && {
               "data-testid": "".concat(testId, "-select--no-options")
             })
@@ -64050,9 +64197,9 @@
           menuPosition,
           menuShouldScrollIntoView
         };
-        var menuElement = /* @__PURE__ */ import_react131.default.createElement(MenuPlacer, _extends({}, commonProps, menuPlacementProps), function(_ref4) {
+        var menuElement = /* @__PURE__ */ import_react132.default.createElement(MenuPlacer, _extends({}, commonProps, menuPlacementProps), function(_ref4) {
           var ref = _ref4.ref, _ref4$placerProps = _ref4.placerProps, placement = _ref4$placerProps.placement, maxHeight = _ref4$placerProps.maxHeight;
-          return /* @__PURE__ */ import_react131.default.createElement(Menu3, _extends({}, commonProps, menuPlacementProps, {
+          return /* @__PURE__ */ import_react132.default.createElement(Menu3, _extends({}, commonProps, menuPlacementProps, {
             innerRef: ref,
             innerProps: _objectSpread23({
               onMouseDown: _this6.onMenuMouseDown,
@@ -64063,14 +64210,14 @@
             }),
             isLoading,
             placement
-          }), /* @__PURE__ */ import_react131.default.createElement(ScrollManager, {
+          }), /* @__PURE__ */ import_react132.default.createElement(ScrollManager, {
             captureEnabled: captureMenuScroll,
             onTopArrive: onMenuScrollToTop,
             onBottomArrive: onMenuScrollToBottom,
             lockEnabled: menuShouldBlockScroll
           }, function(scrollTargetRef) {
             var _this6$inputRef, _this6$inputRef2;
-            return /* @__PURE__ */ import_react131.default.createElement(MenuList3, _extends({}, commonProps, {
+            return /* @__PURE__ */ import_react132.default.createElement(MenuList3, _extends({}, commonProps, {
               innerRef: function innerRef(instance) {
                 _this6.getMenuListRef(instance);
                 scrollTargetRef(instance);
@@ -64090,12 +64237,12 @@
               isLoading,
               maxHeight,
               focusedOption
-            }), _this6.props["UNSAFE_is_experimental_generic"] ? /* @__PURE__ */ import_react131.default.createElement("div", {
+            }), _this6.props["UNSAFE_is_experimental_generic"] ? /* @__PURE__ */ import_react132.default.createElement("div", {
               role: "list"
             }, menuUI) : menuUI);
           }));
         });
-        return menuPortalTarget || menuPosition === "fixed" ? /* @__PURE__ */ import_react131.default.createElement(MenuPortal3, _extends({}, commonProps, {
+        return menuPortalTarget || menuPosition === "fixed" ? /* @__PURE__ */ import_react132.default.createElement(MenuPortal3, _extends({}, commonProps, {
           appendTo: menuPortalTarget,
           controlElement: this.controlRef,
           menuPlacement,
@@ -64109,7 +64256,7 @@
         var _this$props12 = this.props, delimiter2 = _this$props12.delimiter, isDisabled = _this$props12.isDisabled, isMulti = _this$props12.isMulti, required = _this$props12.required, name = _this$props12.name;
         var selectValue = this.state.selectValue;
         if (required && !this.hasValue() && !isDisabled) {
-          return /* @__PURE__ */ import_react131.default.createElement(required_input_default, {
+          return /* @__PURE__ */ import_react132.default.createElement(required_input_default, {
             name,
             onFocus: this.onValueInputFocus
           });
@@ -64122,29 +64269,29 @@
             var value = selectValue.map(function(opt) {
               return _this7.getOptionValue(opt);
             }).join(delimiter2);
-            return /* @__PURE__ */ import_react131.default.createElement("input", {
+            return /* @__PURE__ */ import_react132.default.createElement("input", {
               name,
               type: "hidden",
               value
             });
           } else {
             var input = selectValue.length > 0 ? selectValue.map(function(opt, i) {
-              return /* @__PURE__ */ import_react131.default.createElement("input", {
+              return /* @__PURE__ */ import_react132.default.createElement("input", {
                 key: "i-".concat(i),
                 name,
                 type: "hidden",
                 value: _this7.getOptionValue(opt)
               });
-            }) : /* @__PURE__ */ import_react131.default.createElement("input", {
+            }) : /* @__PURE__ */ import_react132.default.createElement("input", {
               name,
               type: "hidden",
               value: ""
             });
-            return /* @__PURE__ */ import_react131.default.createElement("div", null, input);
+            return /* @__PURE__ */ import_react132.default.createElement("div", null, input);
           }
         } else {
           var _value = selectValue[0] ? this.getOptionValue(selectValue[0]) : "";
-          return /* @__PURE__ */ import_react131.default.createElement("input", {
+          return /* @__PURE__ */ import_react132.default.createElement("input", {
             name,
             type: "hidden",
             value: _value
@@ -64157,7 +64304,7 @@
         var commonProps = this.commonProps;
         var _this$state5 = this.state, ariaSelection = _this$state5.ariaSelection, isFocused = _this$state5.isFocused, selectValue = _this$state5.selectValue;
         var focusableOptions = this.getFocusableOptions();
-        return /* @__PURE__ */ import_react131.default.createElement(live_region_default, _extends({}, commonProps, {
+        return /* @__PURE__ */ import_react132.default.createElement(live_region_default, _extends({}, commonProps, {
           id: this.getElementId("live-region"),
           ariaSelection,
           isFocused,
@@ -64171,7 +64318,7 @@
         var msg = ", multiple selections available, ".concat(this.state.selectValue.length ? "Use left or right arrow keys to navigate selected items" : "");
         return (
           // eslint-disable-next-line @atlaskit/design-system/use-primitives-text
-          /* @__PURE__ */ import_react131.default.createElement("span", {
+          /* @__PURE__ */ import_react132.default.createElement("span", {
             id: this.getElementId("multi-message"),
             hidden: true
           }, msg)
@@ -64185,7 +64332,7 @@
         var isFocused = this.state.isFocused;
         var commonProps = this.commonProps = this.getCommonProps();
         var isCompact = spacing === "compact";
-        return /* @__PURE__ */ import_react131.default.createElement(SelectContainer3, _extends({}, commonProps, {
+        return /* @__PURE__ */ import_react132.default.createElement(SelectContainer3, _extends({}, commonProps, {
           // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
           className,
           innerProps: _objectSpread23({
@@ -64196,7 +64343,7 @@
           }),
           isDisabled,
           isFocused
-        }), this.renderLiveRegion(), commonProps.isMulti && this.renderMultiselectMessage(), /* @__PURE__ */ import_react131.default.createElement(Control3, _extends({}, commonProps, {
+        }), this.renderLiveRegion(), commonProps.isMulti && this.renderMultiselectMessage(), /* @__PURE__ */ import_react132.default.createElement(Control3, _extends({}, commonProps, {
           innerRef: this.getControlRef,
           innerProps: _objectSpread23({
             onMouseDown: this.onControlMouseDown,
@@ -64210,7 +64357,7 @@
           isFocused,
           menuIsOpen,
           isCompact
-        }), /* @__PURE__ */ import_react131.default.createElement(ValueContainer3, _extends({}, commonProps, {
+        }), /* @__PURE__ */ import_react132.default.createElement(ValueContainer3, _extends({}, commonProps, {
           isDisabled,
           isCompact,
           innerProps: _objectSpread23(_objectSpread23({}, testId && {
@@ -64221,12 +64368,12 @@
             // DST Accessibility.
             role: "application"
           })
-        }), this.renderPlaceholderOrValue(), this.renderInput()), /* @__PURE__ */ import_react131.default.createElement(IndicatorsContainer3, _extends({}, commonProps, {
+        }), this.renderPlaceholderOrValue(), this.renderInput()), /* @__PURE__ */ import_react132.default.createElement(IndicatorsContainer3, _extends({}, commonProps, {
           isDisabled,
           innerProps: _objectSpread23({}, testId && {
             "data-testid": "".concat(testId, "-select--indicators-container")
           })
-        }), this.renderClearIndicator(), this.renderLoadingIndicator(), this.renderDropdownIndicator())), this.renderMenu(), this.renderFormField(), /* @__PURE__ */ import_react131.default.createElement(NotifyOpenLayerObserver, {
+        }), this.renderClearIndicator(), this.renderLoadingIndicator(), this.renderDropdownIndicator())), this.renderMenu(), this.renderFormField(), /* @__PURE__ */ import_react132.default.createElement(NotifyOpenLayerObserver, {
           isOpen: this.props.menuIsOpen,
           onClose: this.handleOpenLayerObserverCloseSignal
         }));
@@ -64277,16 +64424,16 @@
         });
       }
     }]);
-  })(import_react131.Component);
+  })(import_react132.Component);
   _defineProperty(Select, "defaultProps", defaultProps);
 
   // node_modules/@atlaskit/react-select/dist/esm/async.js
-  var import_react133 = __toESM(require_react());
+  var import_react134 = __toESM(require_react());
 
   // node_modules/@atlaskit/react-select/dist/esm/use-async.js
   init_defineProperty();
   init_slicedToArray();
-  var import_react132 = __toESM(require_react());
+  var import_react133 = __toESM(require_react());
   var _excluded19 = ["defaultOptions", "cacheOptions", "loadOptions", "options", "isLoading", "onInputChange", "filterOption"];
   function ownKeys24(e, r) {
     var t = Object.keys(e);
@@ -64312,17 +64459,17 @@
   function useAsync(_ref2) {
     var _ref$defaultOptions = _ref2.defaultOptions, propsDefaultOptions = _ref$defaultOptions === void 0 ? false : _ref$defaultOptions, _ref$cacheOptions = _ref2.cacheOptions, cacheOptions = _ref$cacheOptions === void 0 ? false : _ref$cacheOptions, propsLoadOptions = _ref2.loadOptions, propsOptions = _ref2.options, _ref$isLoading = _ref2.isLoading, propsIsLoading = _ref$isLoading === void 0 ? false : _ref$isLoading, propsOnInputChange = _ref2.onInputChange, _ref$filterOption = _ref2.filterOption, filterOption = _ref$filterOption === void 0 ? null : _ref$filterOption, restSelectProps = _objectWithoutProperties(_ref2, _excluded19);
     var propsInputValue = restSelectProps.inputValue;
-    var lastRequest = (0, import_react132.useRef)(void 0);
-    var mounted = (0, import_react132.useRef)(false);
-    var _useState = (0, import_react132.useState)(Array.isArray(propsDefaultOptions) ? propsDefaultOptions : void 0), _useState2 = _slicedToArray(_useState, 2), defaultOptions4 = _useState2[0], setDefaultOptions = _useState2[1];
-    var _useState3 = (0, import_react132.useState)(typeof propsInputValue !== "undefined" ? propsInputValue : ""), _useState4 = _slicedToArray(_useState3, 2), stateInputValue = _useState4[0], setStateInputValue = _useState4[1];
-    var _useState5 = (0, import_react132.useState)(propsDefaultOptions === true), _useState6 = _slicedToArray(_useState5, 2), isLoading = _useState6[0], setIsLoading = _useState6[1];
-    var _useState7 = (0, import_react132.useState)(void 0), _useState8 = _slicedToArray(_useState7, 2), loadedInputValue = _useState8[0], setLoadedInputValue = _useState8[1];
-    var _useState9 = (0, import_react132.useState)([]), _useState0 = _slicedToArray(_useState9, 2), loadedOptions = _useState0[0], setLoadedOptions = _useState0[1];
-    var _useState1 = (0, import_react132.useState)(false), _useState10 = _slicedToArray(_useState1, 2), passEmptyOptions = _useState10[0], setPassEmptyOptions = _useState10[1];
-    var _useState11 = (0, import_react132.useState)({}), _useState12 = _slicedToArray(_useState11, 2), optionsCache = _useState12[0], setOptionsCache = _useState12[1];
-    var _useState13 = (0, import_react132.useState)(void 0), _useState14 = _slicedToArray(_useState13, 2), prevDefaultOptions = _useState14[0], setPrevDefaultOptions = _useState14[1];
-    var _useState15 = (0, import_react132.useState)(void 0), _useState16 = _slicedToArray(_useState15, 2), prevCacheOptions = _useState16[0], setPrevCacheOptions = _useState16[1];
+    var lastRequest = (0, import_react133.useRef)(void 0);
+    var mounted = (0, import_react133.useRef)(false);
+    var _useState = (0, import_react133.useState)(Array.isArray(propsDefaultOptions) ? propsDefaultOptions : void 0), _useState2 = _slicedToArray(_useState, 2), defaultOptions4 = _useState2[0], setDefaultOptions = _useState2[1];
+    var _useState3 = (0, import_react133.useState)(typeof propsInputValue !== "undefined" ? propsInputValue : ""), _useState4 = _slicedToArray(_useState3, 2), stateInputValue = _useState4[0], setStateInputValue = _useState4[1];
+    var _useState5 = (0, import_react133.useState)(propsDefaultOptions === true), _useState6 = _slicedToArray(_useState5, 2), isLoading = _useState6[0], setIsLoading = _useState6[1];
+    var _useState7 = (0, import_react133.useState)(void 0), _useState8 = _slicedToArray(_useState7, 2), loadedInputValue = _useState8[0], setLoadedInputValue = _useState8[1];
+    var _useState9 = (0, import_react133.useState)([]), _useState0 = _slicedToArray(_useState9, 2), loadedOptions = _useState0[0], setLoadedOptions = _useState0[1];
+    var _useState1 = (0, import_react133.useState)(false), _useState10 = _slicedToArray(_useState1, 2), passEmptyOptions = _useState10[0], setPassEmptyOptions = _useState10[1];
+    var _useState11 = (0, import_react133.useState)({}), _useState12 = _slicedToArray(_useState11, 2), optionsCache = _useState12[0], setOptionsCache = _useState12[1];
+    var _useState13 = (0, import_react133.useState)(void 0), _useState14 = _slicedToArray(_useState13, 2), prevDefaultOptions = _useState14[0], setPrevDefaultOptions = _useState14[1];
+    var _useState15 = (0, import_react133.useState)(void 0), _useState16 = _slicedToArray(_useState15, 2), prevCacheOptions = _useState16[0], setPrevCacheOptions = _useState16[1];
     if (cacheOptions !== prevCacheOptions) {
       setOptionsCache({});
       setPrevCacheOptions(cacheOptions);
@@ -64331,13 +64478,13 @@
       setDefaultOptions(Array.isArray(propsDefaultOptions) ? propsDefaultOptions : void 0);
       setPrevDefaultOptions(propsDefaultOptions);
     }
-    (0, import_react132.useEffect)(function() {
+    (0, import_react133.useEffect)(function() {
       mounted.current = true;
       return function() {
         mounted.current = false;
       };
     }, []);
-    var loadOptions = (0, import_react132.useCallback)(function(inputValue, callback) {
+    var loadOptions = (0, import_react133.useCallback)(function(inputValue, callback) {
       if (!propsLoadOptions) {
         return callback();
       }
@@ -64348,7 +64495,7 @@
         });
       }
     }, [propsLoadOptions]);
-    (0, import_react132.useEffect)(function() {
+    (0, import_react133.useEffect)(function() {
       if (propsDefaultOptions === true) {
         loadOptions(stateInputValue, function(options3) {
           if (!mounted.current) {
@@ -64359,7 +64506,7 @@
         });
       }
     }, []);
-    var onInputChange = (0, import_react132.useCallback)(function(newValue, actionMeta) {
+    var onInputChange = (0, import_react133.useCallback)(function(newValue, actionMeta) {
       var inputValue = handleInputChange(newValue, actionMeta, propsOnInputChange);
       if (!inputValue) {
         lastRequest.current = void 0;
@@ -64407,25 +64554,25 @@
   }
 
   // node_modules/@atlaskit/react-select/dist/esm/async.js
-  var AsyncSelect = /* @__PURE__ */ (0, import_react133.forwardRef)(function(props, ref) {
+  var AsyncSelect = /* @__PURE__ */ (0, import_react134.forwardRef)(function(props, ref) {
     var isAsyncEnabledInBaseSelect = props.isAsync && !props.options && (!!props.loadOptions || !!props.defaultOptions);
     var stateManagedProps = useAsync(props);
     var selectAsyncProps = !props.isAsync || isAsyncEnabledInBaseSelect ? stateManagedProps : props;
     var selectProps = useStateManager(selectAsyncProps);
-    return /* @__PURE__ */ import_react133.default.createElement(Select, _extends({
+    return /* @__PURE__ */ import_react134.default.createElement(Select, _extends({
       ref
     }, selectProps));
   });
   var async_default = AsyncSelect;
 
   // node_modules/@atlaskit/select/dist/esm/createSelect.js
-  var import_react134 = __toESM(require_react());
+  var import_react135 = __toESM(require_react());
   var _excluded20 = ["ariaLiveMessages", "isInvalid", "onClickPreventDefault", "tabSelectsValue", "validationState"];
   function createSelect(WrappedComponent) {
-    var AtlaskitSelect = /* @__PURE__ */ (0, import_react134.forwardRef)(function AtlaskitSelect2(props, forwardedRef) {
+    var AtlaskitSelect = /* @__PURE__ */ (0, import_react135.forwardRef)(function AtlaskitSelect2(props, forwardedRef) {
       var ariaLiveMessages = props.ariaLiveMessages, isInvalid = props.isInvalid, _props$onClickPrevent = props.onClickPreventDefault, onClickPreventDefault = _props$onClickPrevent === void 0 ? true : _props$onClickPrevent, _props$tabSelectsValu = props.tabSelectsValue, tabSelectsValue = _props$tabSelectsValu === void 0 ? false : _props$tabSelectsValu, _props$validationStat = props.validationState, validationState = _props$validationStat === void 0 ? "default" : _props$validationStat, restProps = _objectWithoutProperties(props, _excluded20);
-      var internalSelectRef = (0, import_react134.useRef)(null);
-      (0, import_react134.useImperativeHandle)(forwardedRef, function() {
+      var internalSelectRef = (0, import_react135.useRef)(null);
+      (0, import_react135.useImperativeHandle)(forwardedRef, function() {
         return {
           select: internalSelectRef.current,
           focus: function focus() {
@@ -64438,7 +64585,7 @@
           }
         };
       }, []);
-      return /* @__PURE__ */ import_react134.default.createElement(WrappedComponent, _extends({
+      return /* @__PURE__ */ import_react135.default.createElement(WrappedComponent, _extends({
         ref: internalSelectRef,
         ariaLiveMessages,
         tabSelectsValue,
@@ -64477,14 +64624,14 @@
   var Select_default = Select2;
 
   // src/components/Legend.jsx
-  var import_react135 = __toESM(require_react());
+  var import_react136 = __toESM(require_react());
   function Legend() {
-    return /* @__PURE__ */ import_react135.default.createElement("div", { className: "timeline-legend" }, /* @__PURE__ */ import_react135.default.createElement("span", { className: "legend-item legend-on-track" }, "On Track"), /* @__PURE__ */ import_react135.default.createElement("span", { className: "legend-item legend-off-track" }, "Off Track"), /* @__PURE__ */ import_react135.default.createElement("span", { className: "legend-item legend-at-risk" }, "At Risk"), /* @__PURE__ */ import_react135.default.createElement("span", { className: "legend-item legend-pending" }, "Pending"), /* @__PURE__ */ import_react135.default.createElement("span", { className: "legend-item legend-paused" }, "Paused"), /* @__PURE__ */ import_react135.default.createElement("span", { className: "legend-item legend-cancelled" }, "Cancelled"), /* @__PURE__ */ import_react135.default.createElement("span", { className: "legend-item legend-done" }, "Done"), /* @__PURE__ */ import_react135.default.createElement("span", { className: "legend-item legend-missed-update" }, "Missed Update"));
+    return /* @__PURE__ */ import_react136.default.createElement("div", { className: "timeline-legend" }, /* @__PURE__ */ import_react136.default.createElement("span", { className: "legend-item legend-on-track" }, "On Track"), /* @__PURE__ */ import_react136.default.createElement("span", { className: "legend-item legend-off-track" }, "Off Track"), /* @__PURE__ */ import_react136.default.createElement("span", { className: "legend-item legend-at-risk" }, "At Risk"), /* @__PURE__ */ import_react136.default.createElement("span", { className: "legend-item legend-pending" }, "Pending"), /* @__PURE__ */ import_react136.default.createElement("span", { className: "legend-item legend-paused" }, "Paused"), /* @__PURE__ */ import_react136.default.createElement("span", { className: "legend-item legend-cancelled" }, "Cancelled"), /* @__PURE__ */ import_react136.default.createElement("span", { className: "legend-item legend-done" }, "Done"), /* @__PURE__ */ import_react136.default.createElement("span", { className: "legend-item legend-missed-update" }, "Missed Update"));
   }
 
   // src/components/Modal.jsx
   function Modal({ open, onClose, children }) {
-    const [weekLimit, setWeekLimit] = (0, import_react136.useState)(12);
+    const [weekLimit, setWeekLimit] = (0, import_react137.useState)(12);
     const weekOptions = [
       { label: "4 weeks", value: 4 },
       { label: "8 weeks", value: 8 },
@@ -64492,7 +64639,7 @@
       { label: "24 weeks", value: 24 },
       { label: "All", value: Infinity }
     ];
-    return /* @__PURE__ */ import_react136.default.createElement(modal_transition_default, null, open && /* @__PURE__ */ import_react136.default.createElement(FullScreenModalDialog, { onClose }, /* @__PURE__ */ import_react136.default.createElement(modal_header_default, { hasCloseButton: true }, /* @__PURE__ */ import_react136.default.createElement(modal_title_default, null, "Atlas-Xray Project History Timeline")), /* @__PURE__ */ import_react136.default.createElement(modal_body_default, { hasInlinePadding: true }, /* @__PURE__ */ import_react136.default.createElement(Legend, null), /* @__PURE__ */ import_react136.default.createElement("div", { style: { marginBottom: 16, maxWidth: 200 } }, /* @__PURE__ */ import_react136.default.createElement(
+    return /* @__PURE__ */ import_react137.default.createElement(modal_transition_default, null, open && /* @__PURE__ */ import_react137.default.createElement(FullScreenModalDialog, { onClose }, /* @__PURE__ */ import_react137.default.createElement(modal_header_default, { hasCloseButton: true }, /* @__PURE__ */ import_react137.default.createElement(modal_title_default, null, "Atlas-Xray Project History Timeline")), /* @__PURE__ */ import_react137.default.createElement(modal_body_default, { hasInlinePadding: true }, /* @__PURE__ */ import_react137.default.createElement(Legend, null), /* @__PURE__ */ import_react137.default.createElement("div", { style: { marginBottom: 16, maxWidth: 200 } }, /* @__PURE__ */ import_react137.default.createElement(
       Select_default,
       {
         options: weekOptions,
@@ -71676,32 +71823,32 @@ spurious results.`);
   function maskSelectionSet(data, selectionSet, context, migration, path) {
     var _a2;
     var knownChanged = context.knownChanged;
-    var memo8 = getMutableTarget(data, context.mutableTargets);
+    var memo9 = getMutableTarget(data, context.mutableTargets);
     if (Array.isArray(data)) {
       for (var _i = 0, _b = Array.from(data.entries()); _i < _b.length; _i++) {
         var _c = _b[_i], index2 = _c[0], item = _c[1];
         if (item === null) {
-          memo8[index2] = null;
+          memo9[index2] = null;
           continue;
         }
         var masked = maskSelectionSet(item, selectionSet, context, migration, globalThis.__DEV__ !== false ? "".concat(path || "", "[").concat(index2, "]") : void 0);
         if (knownChanged.has(masked)) {
-          knownChanged.add(memo8);
+          knownChanged.add(memo9);
         }
-        memo8[index2] = masked;
+        memo9[index2] = masked;
       }
-      return knownChanged.has(memo8) ? memo8 : data;
+      return knownChanged.has(memo9) ? memo9 : data;
     }
     for (var _d = 0, _e = selectionSet.selections; _d < _e.length; _d++) {
       var selection = _e[_d];
       var value = void 0;
       if (migration) {
-        knownChanged.add(memo8);
+        knownChanged.add(memo9);
       }
       if (selection.kind === Kind.FIELD) {
         var keyName = resultKeyNameFromField(selection);
         var childSelectionSet = selection.selectionSet;
-        value = memo8[keyName] || data[keyName];
+        value = memo9[keyName] || data[keyName];
         if (value === void 0) {
           continue;
         }
@@ -71712,18 +71859,18 @@ spurious results.`);
           }
         }
         if (!(globalThis.__DEV__ !== false)) {
-          memo8[keyName] = value;
+          memo9[keyName] = value;
         }
         if (globalThis.__DEV__ !== false) {
           if (migration && keyName !== "__typename" && // either the field is not present in the memo object
           // or it has a `get` descriptor, not a `value` descriptor
           // => it is a warning accessor and we can overwrite it
           // with another accessor
-          !((_a2 = Object.getOwnPropertyDescriptor(memo8, keyName)) === null || _a2 === void 0 ? void 0 : _a2.value)) {
-            Object.defineProperty(memo8, keyName, getAccessorWarningDescriptor(keyName, value, path || "", context.operationName, context.operationType));
+          !((_a2 = Object.getOwnPropertyDescriptor(memo9, keyName)) === null || _a2 === void 0 ? void 0 : _a2.value)) {
+            Object.defineProperty(memo9, keyName, getAccessorWarningDescriptor(keyName, value, path || "", context.operationName, context.operationType));
           } else {
-            delete memo8[keyName];
-            memo8[keyName] = value;
+            delete memo9[keyName];
+            memo9[keyName] = value;
           }
         }
       }
@@ -71740,16 +71887,16 @@ spurious results.`);
         }
       }
       if (knownChanged.has(value)) {
-        knownChanged.add(memo8);
+        knownChanged.add(memo9);
       }
     }
-    if ("__typename" in data && !("__typename" in memo8)) {
-      memo8.__typename = data.__typename;
+    if ("__typename" in data && !("__typename" in memo9)) {
+      memo9.__typename = data.__typename;
     }
-    if (Object.keys(memo8).length !== Object.keys(data).length) {
-      knownChanged.add(memo8);
+    if (Object.keys(memo9).length !== Object.keys(data).length) {
+      knownChanged.add(memo9);
     }
-    return knownChanged.has(memo8) ? memo8 : data;
+    return knownChanged.has(memo9) ? memo9 : data;
   }
   function getAccessorWarningDescriptor(fieldName, value, path, operationName, operationType) {
     var getValue = function() {
@@ -78873,14 +79020,14 @@ fragment UserAvatar on User {
       },
       []
     );
-    const [modalOpen, setModalOpen] = (0, import_react137.useState)(false);
-    const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react137.useState)([]);
-    const observerRef = (0, import_react137.useRef)(null);
+    const [modalOpen, setModalOpen] = (0, import_react138.useState)(false);
+    const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react138.useState)([]);
+    const observerRef = (0, import_react138.useRef)(null);
     const updateVisibleProjects = async () => {
       const matches = await downloadProjectData();
       setVisibleProjectKeys(matches.map((m) => m.projectId));
     };
-    (0, import_react137.useEffect)(() => {
+    (0, import_react138.useEffect)(() => {
       updateVisibleProjects();
       const observer = new window.MutationObserver(() => {
         updateVisibleProjects();
@@ -78898,7 +79045,7 @@ fragment UserAvatar on User {
     }));
     const filteredProjects = visibleProjectKeys.length > 0 ? projectViewModel.filter((p) => visibleProjectKeys.includes(p.projectKey)) : projectViewModel;
     const handleOpenModal = () => setModalOpen(true);
-    return /* @__PURE__ */ import_react137.default.createElement(import_react137.default.Fragment, null, /* @__PURE__ */ import_react137.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal }, "Atlas Xray", visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react137.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, (weekLimit) => /* @__PURE__ */ import_react137.default.createElement(ProjectList, { projects: filteredProjects, weekLimit })));
+    return /* @__PURE__ */ import_react138.default.createElement(import_react138.default.Fragment, null, /* @__PURE__ */ import_react138.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal }, "Atlas Xray", visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react138.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, (weekLimit) => /* @__PURE__ */ import_react138.default.createElement(ProjectList, { projects: filteredProjects, weekLimit })));
   };
   var FloatingButton_default = FloatingButton;
 })();

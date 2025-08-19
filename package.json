@@ -14,6 +14,7 @@
   "dependencies": {
     "@apollo/client": "^3.13.9",
     "@atlaskit/button": "^23.4.0",
+    "@atlaskit/lozenge": "^13.0.5",
     "@atlaskit/modal-dialog": "^14.3.4",
     "@atlaskit/popup": "^4.3.7",
     "@atlaskit/section-message": "^8.5.1",

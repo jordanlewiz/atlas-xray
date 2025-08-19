@@ -1,9 +1,38 @@
 import React from "react";
 import ModalDialog, { ModalTransition } from "@atlaskit/modal-dialog";
 import SectionMessage from "@atlaskit/section-message";
+import Lozenge from "@atlaskit/lozenge";
 import { getDueDateDiff } from "../utils/timelineViewModels";
 
 export default function DateChangeModal({ selectedUpdate, project, onClose }) {
+  // Helper function to get Lozenge appearance based on status
+  const getLozengeAppearance = (status, isBold = false) => {
+    if (!status) return 'new';
+    
+    const normalizedStatus = status.toLowerCase().replace(/_/g, '-');
+    
+    switch (normalizedStatus) {
+      case 'on-track':
+        return isBold ? 'success-bold' : 'success';
+      case 'off-track':
+        return 'removed-bold';
+      case 'none':
+        return 'new';
+      case 'at-risk':
+        return 'moved';
+      case 'pending':
+        return 'inprogress';
+      case 'paused':
+        return 'default';
+      case 'cancelled':
+        return 'default-bold';
+      case 'done':
+        return 'success-bold';
+      default:
+        return 'default';
+    }
+  };
+
   // Helper function to extract text from ProseMirror document
   const extractTextFromSummary = (summary) => {
     let parsedSummary = summary;
@@ -103,9 +132,9 @@ export default function DateChangeModal({ selectedUpdate, project, onClose }) {
                     <strong>Status Change:</strong>
                   </div>
                   <div style={{ fontSize: '16px', margin: '8px 0' }}>
-                    <span style={{ color: 'red' }}>{selectedUpdate.oldState}</span> 
+                    <Lozenge appearance={getLozengeAppearance(selectedUpdate.oldState)}>{selectedUpdate.oldState}</Lozenge>
                     <span style={{ margin: '0 16px' }}>→</span> 
-                    <span style={{ color: 'green' }}>{selectedUpdate.state}</span>
+                    <Lozenge appearance={getLozengeAppearance(selectedUpdate.state)}>{selectedUpdate.state}</Lozenge>
                   </div>
                 </SectionMessage>
               )}
