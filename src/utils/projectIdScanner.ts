@@ -9,10 +9,28 @@ import { setGlobalCloudAndSection } from "./globalState";
 // Regex for /o/{cloudId}/s/{sectionId}/project/{ORG-123}
 const projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
 
-export function findMatchingProjectLinksFromHrefs(hrefs) {
-  const seen = new Set();
-  const results = [];
+interface ProjectMatch {
+  projectId: string;
+  cloudId: string;
+  sectionId: string;
+}
+
+interface ProjectViewVariables {
+  key: string;
+  trackViewEvent: string;
+  workspaceId: string | null;
+  onboardingKeyFilter: string;
+  areMilestonesEnabled: boolean;
+  cloudId: string;
+  isNavRefreshEnabled: boolean;
+}
+
+export function findMatchingProjectLinksFromHrefs(hrefs: (string | null)[]): ProjectMatch[] {
+  const seen = new Set<string>();
+  const results: ProjectMatch[] = [];
+  
   hrefs.forEach(href => {
+    if (!href) return;
     const match = href.match(projectLinkPattern);
     if (match && match[3]) {
       const cloudId = match[1];
@@ -30,8 +48,8 @@ export function findMatchingProjectLinksFromHrefs(hrefs) {
   return results;
 }
 
-async function fetchAndStoreProjectData(projectId, cloudId) {
-  const variables = {
+async function fetchAndStoreProjectData(projectId: string, cloudId: string): Promise<void> {
+  const variables: ProjectViewVariables = {
     key: projectId,
     trackViewEvent: "DIRECT",
     workspaceId: null,
@@ -52,8 +70,6 @@ async function fetchAndStoreProjectData(projectId, cloudId) {
     console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
   }
 
-
-
   // ProjectStatusHistory (normalize and store one row per status change)
   try {
     const { data } = await apolloClient.query({
@@ -65,7 +81,7 @@ async function fetchAndStoreProjectData(projectId, cloudId) {
     if (!projectId) {
       console.error('[AtlasXray] projectId is undefined when saving status history!');
     }
-    const nodes = data?.project?.updates?.edges?.map(edge => edge.node).filter(Boolean) || [];
+    const nodes = data?.project?.updates?.edges?.map((edge: any) => edge.node).filter(Boolean) || [];
     console.log('[AtlasXray] Calling upsertProjectStatusHistory with projectId:', projectId, nodes);
     if (nodes.length > 0) {
       await upsertProjectStatusHistory(nodes, projectId);
@@ -74,9 +90,6 @@ async function fetchAndStoreProjectData(projectId, cloudId) {
     console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${projectId}`, err);
   }
 
-
-
-
   // ProjectUpdates (normalize and store flat rows)
   try {
     const { data } = await apolloClient.query({
@@ -84,19 +97,20 @@ async function fetchAndStoreProjectData(projectId, cloudId) {
       variables: { key: projectId, isUpdatesTab: true }
     });
     // Normalize: extract all .node from edges
-    const nodes = data?.project?.updates?.edges?.map(edge => edge.node).filter(Boolean) || [];
+    const nodes = data?.project?.updates?.edges?.map((edge: any) => edge.node).filter(Boolean) || [];
     if (nodes.length > 0) {
-      await upsertProjectUpdates(nodes, projectId);
+      await upsertProjectUpdates(nodes);
     }
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
   }
 }
 
-export async function downloadProjectData() {
+export async function downloadProjectData(): Promise<ProjectMatch[]> {
   const links = Array.from(document.querySelectorAll('a[href]'));
   const hrefs = links.map(link => link.getAttribute('href'));
   const matches = findMatchingProjectLinksFromHrefs(hrefs);
+  
   for (const { projectId, cloudId } of matches) {
     const key = `projectId:${projectId}`;
     const existing = await getItem(key);

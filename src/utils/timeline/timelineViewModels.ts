@@ -1,8 +1,19 @@
-import { safeParseDate } from "./timelineUtils";
+import { safeParseDate, daysBetweenFlexibleDates } from "./timelineUtils";
 import { format } from "date-fns";
-import { daysBetweenFlexibleDates } from "./timelineUtils";
+import type { ProjectUpdate, WeekRange } from "../../types";
 
-export function getTimelineCellClass(lastUpdate, weekUpdates) {
+interface TimelineCell {
+  cellClass: string;
+  weekUpdates: ProjectUpdate[];
+}
+
+interface LastUpdate {
+  missedUpdate?: boolean;
+  state?: string;
+  oldState?: string;
+}
+
+export function getTimelineCellClass(lastUpdate: LastUpdate | undefined, weekUpdates: ProjectUpdate[]): string {
   let stateClass = 'state-none';
   if (lastUpdate) {
     // Based on console logs, data is directly accessible
@@ -11,10 +22,12 @@ export function getTimelineCellClass(lastUpdate, weekUpdates) {
       stateClass = `state-${lastUpdate.state.replace(/_/g, '-').toLowerCase()}`;
     }
   }
+  
   let oldStateClass = '';
   if (lastUpdate && lastUpdate.oldState && typeof lastUpdate.oldState === 'string') {
     oldStateClass = `old-state-${lastUpdate.oldState.replace(/_/g, '-').toLowerCase()}`;
   }
+  
   return [
     'timeline-cell',
     weekUpdates.length > 0 ? 'has-update' : '',
@@ -23,7 +36,7 @@ export function getTimelineCellClass(lastUpdate, weekUpdates) {
   ].filter(Boolean).join(' ');
 }
 
-export function getTargetDateDisplay(dateStr) {
+export function getTargetDateDisplay(dateStr: string | null | undefined): string {
   if (!dateStr || typeof dateStr !== 'string') {
     return 'No date';
   }
@@ -34,7 +47,7 @@ export function getTargetDateDisplay(dateStr) {
   return dateStr;
 }
 
-export function getTimelineWeekCells(weekRanges, updates) {
+export function getTimelineWeekCells(weekRanges: WeekRange[], updates: ProjectUpdate[]): TimelineCell[] {
   if (!updates || !Array.isArray(updates)) {
     return weekRanges.map(() => ({
       cellClass: 'timeline-cell state-none',
@@ -45,7 +58,7 @@ export function getTimelineWeekCells(weekRanges, updates) {
   const validUpdates = updates.filter(u => {
     if (!u) return false;
     // Based on console logs, data is directly accessible
-    const creationDate = u.creationDate || u.raw?.creationDate;
+    const creationDate = u.creationDate || (u as any).raw?.creationDate;
     return creationDate && typeof creationDate === 'string';
   });
   
@@ -53,7 +66,7 @@ export function getTimelineWeekCells(weekRanges, updates) {
     const weekStart = w.start;
     const weekEnd = w.end;
     const weekUpdates = validUpdates.filter(u => {
-      const creationDate = u.creationDate || u.raw?.creationDate;
+      const creationDate = u.creationDate || (u as any).raw?.creationDate;
       const d = safeParseDate(creationDate);
       return d && d >= weekStart && d < weekEnd;
     });
@@ -65,16 +78,16 @@ export function getTimelineWeekCells(weekRanges, updates) {
   });
 }
 
-export function getDueDateTooltip(u) {
+export function getDueDateTooltip(u: ProjectUpdate): string | null {
   if (u && u.oldDueDate && u.newDueDate) {
     return `${u.oldDueDate} → ${u.newDueDate}`;
   }
   return null;
 }
 
-export function getDueDateDiff(u) {
+export function getDueDateDiff(u: ProjectUpdate): number | null {
   if (u && u.oldDueDate && u.newDueDate) {
-    return daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate);
+    return daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate, new Date().getFullYear());
   }
   return null;
 }

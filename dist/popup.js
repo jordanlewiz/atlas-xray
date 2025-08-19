@@ -13246,7 +13246,7 @@
   } = Dexie;
   var import_wrapper_default = Dexie;
 
-  // src/utils/database.js
+  // src/utils/database.ts
   var db = new import_wrapper_default("AtlasXrayDB");
   db.version(8).stores({
     projectView: "projectKey",

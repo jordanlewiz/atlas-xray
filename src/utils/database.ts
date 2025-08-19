@@ -1,7 +1,16 @@
 import Dexie from "dexie";
 import { getGlobalCloudId, getGlobalSectionId } from "./globalState";
 
-const db = new Dexie("AtlasXrayDB");
+// Database interface extending Dexie
+export interface AtlasXrayDB extends Dexie {
+  projectView: Dexie.Table<any, string>;
+  projectStatusHistory: Dexie.Table<any, string>;
+  projectUpdates: Dexie.Table<any, string>;
+  meta: Dexie.Table<any, string>;
+}
+
+const db = new Dexie("AtlasXrayDB") as AtlasXrayDB;
+
 db.version(8).stores({
   projectView: "projectKey",
   projectStatusHistory: "id,projectKey",
@@ -10,57 +19,96 @@ db.version(8).stores({
 });
 
 // ProjectView store
-export async function setProjectView(projectKey, data) {
+export async function setProjectView(projectKey: string, data: any): Promise<void> {
   // No longer store projectUrl
   await db.projectView.put({ projectKey, ...data });
 }
-export async function getProjectView(projectKey) {
+
+export async function getProjectView(projectKey: string): Promise<any> {
   return db.projectView.get(projectKey);
 }
 
 // ProjectStatusHistory store
-export async function setProjectStatusHistory(projectKey, data) {
+export async function setProjectStatusHistory(projectKey: string, data: any): Promise<void> {
   await db.projectStatusHistory.put({ projectKey, ...data });
 }
-export async function getProjectStatusHistory(projectKey) {
+
+export async function getProjectStatusHistory(projectKey: string): Promise<any> {
   return db.projectStatusHistory.get(projectKey);
 }
 
 // ProjectUpdates store (full updates query result per project)
-export async function setProjectUpdates(projectKey, data) {
+export async function setProjectUpdates(projectKey: string, data: any): Promise<void> {
   await db.projectUpdates.put({ projectKey, ...data });
 }
-export async function getProjectUpdates(projectKey) {
+
+export async function getProjectUpdates(projectKey: string): Promise<any> {
   return db.projectUpdates.get(projectKey);
 }
 
 // Meta store
-export async function setMeta(key, value) {
+export async function setMeta(key: string, value: any): Promise<void> {
   await db.meta.put({ key, value });
 }
-export async function getMeta(key) {
+
+export async function getMeta(key: string): Promise<any> {
   const entry = await db.meta.get(key);
   return entry ? entry.value : null;
 }
 
 // Generic key-value helpers (backward compatibility, use meta store)
-export async function setItem(key, value) {
+export async function setItem(key: string, value: any): Promise<void> {
   await setMeta(key, value);
 }
-export async function getItem(key) {
+
+export async function getItem(key: string): Promise<any> {
   return getMeta(key);
 }
 
-export async function getProjectViewCount() {
+export async function getProjectViewCount(): Promise<number> {
   return db.projectView.count();
+}
+
+// GraphQL node types
+interface GraphQLNode {
+  id?: string;
+  uuid?: string;
+  project?: {
+    key?: string;
+  };
+  creationDate?: string;
+  newState?: {
+    projectStateValue?: string;
+  };
+  missedUpdate?: boolean;
+  newTargetDate?: string;
+  newDueDate?: {
+    label?: string;
+  };
+  oldDueDate?: {
+    label?: string;
+  };
+  oldState?: {
+    projectStateValue?: string;
+  };
+  summary?: string;
+  notes?: any[];
+}
+
+interface StatusHistoryNode {
+  id?: string;
+  uuid?: string;
+  creationDate?: string;
+  startDate?: string;
+  targetDate?: string;
 }
 
 /**
  * Upsert normalized project updates into the DB.
- * @param {any[]} nodes
- * @returns {Promise}
+ * @param nodes - Array of GraphQL nodes
+ * @returns Promise
  */
-function upsertProjectUpdates(nodes) {
+function upsertProjectUpdates(nodes: GraphQLNode[]): Promise<void> {
   console.log("nodes", nodes);
   const rows = nodes.map((n) => ({
     id: n.id ?? n.uuid,
@@ -80,10 +128,11 @@ function upsertProjectUpdates(nodes) {
 
 /**
  * Upsert normalized project status history into the DB.
- * @param {any[]} nodes
- * @returns {Promise}
+ * @param nodes - Array of status history nodes
+ * @param projectKey - Project key
+ * @returns Promise
  */
-function upsertProjectStatusHistory(nodes, projectKey) {
+function upsertProjectStatusHistory(nodes: StatusHistoryNode[], projectKey: string): Promise<void> {
   if (!projectKey) {
     console.warn('[AtlasXray] upsertProjectStatusHistory called with undefined projectKey. Skipping.');
     return Promise.resolve();

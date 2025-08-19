@@ -1,6 +1,6 @@
 import { getGlobalCloudId, getGlobalSectionId } from "./globalState";
 
-export function buildProjectUrlFromKey(projectKey) {
+export function buildProjectUrlFromKey(projectKey: string): string | undefined {
   const cloudId = getGlobalCloudId();
   const sectionId = getGlobalSectionId();
   if (!cloudId || !sectionId || !projectKey) return undefined;

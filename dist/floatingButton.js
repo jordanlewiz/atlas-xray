@@ -42861,21 +42861,7 @@
     }, deps || [], defaultResult);
   }
 
-  // src/utils/globalState.js
-  var cloudId = null;
-  var sectionId = null;
-  function setGlobalCloudAndSection({ newCloudId, newSectionId }) {
-    cloudId = newCloudId;
-    sectionId = newSectionId;
-  }
-  function getGlobalCloudId() {
-    return cloudId;
-  }
-  function getGlobalSectionId() {
-    return sectionId;
-  }
-
-  // src/utils/database.js
+  // src/utils/database.ts
   var db = new import_wrapper_default("AtlasXrayDB");
   db.version(8).stores({
     projectView: "projectKey",
@@ -60945,7 +60931,21 @@
     return addWeeks(date, -amount, options2);
   }
 
-  // src/utils/timeline/timelineUtils.js
+  // src/utils/globalState.ts
+  var cloudId = null;
+  var sectionId = null;
+  function setGlobalCloudAndSection({ newCloudId, newSectionId }) {
+    cloudId = newCloudId;
+    sectionId = newSectionId;
+  }
+  function getGlobalCloudId() {
+    return cloudId;
+  }
+  function getGlobalSectionId() {
+    return sectionId;
+  }
+
+  // src/utils/timeline/timelineUtils.ts
   var MONTHS = [
     "jan",
     "feb",
@@ -61063,7 +61063,7 @@
     return diff > 0 ? diff + 1 : diff - 1;
   }
 
-  // src/utils/timeline/timelineViewModels.js
+  // src/utils/timeline/timelineViewModels.ts
   function getTimelineCellClass(lastUpdate, weekUpdates) {
     let stateClass = "state-none";
     if (lastUpdate) {
@@ -61128,7 +61128,7 @@
   }
   function getDueDateDiff(u) {
     if (u && u.oldDueDate && u.newDueDate) {
-      return daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate);
+      return daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate, (/* @__PURE__ */ new Date()).getFullYear());
     }
     return null;
   }
@@ -61343,7 +61343,7 @@
     ) });
   }
 
-  // src/utils/linkUtils.js
+  // src/utils/linkUtils.ts
   function buildProjectUrlFromKey(projectKey) {
     const cloudId2 = getGlobalCloudId();
     const sectionId2 = getGlobalSectionId();
@@ -80243,12 +80243,13 @@ fragment UserAvatar on User {
   }
 `;
 
-  // src/utils/projectIdScanner.js
+  // src/utils/projectIdScanner.ts
   var projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
   function findMatchingProjectLinksFromHrefs(hrefs) {
     const seen = /* @__PURE__ */ new Set();
     const results = [];
     hrefs.forEach((href) => {
+      if (!href) return;
       const match3 = href.match(projectLinkPattern);
       if (match3 && match3[3]) {
         const cloudId2 = match3[1];
@@ -80307,7 +80308,7 @@ fragment UserAvatar on User {
       });
       const nodes = data?.project?.updates?.edges?.map((edge) => edge.node).filter(Boolean) || [];
       if (nodes.length > 0) {
-        await upsertProjectUpdates(nodes, projectId);
+        await upsertProjectUpdates(nodes);
       }
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
