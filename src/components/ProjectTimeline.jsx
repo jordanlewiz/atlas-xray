@@ -1,32 +1,29 @@
 import React from "react";
-import { getWeekRanges, getAllProjectDates } from "../utils/timelineUtils";
 import ProjectTimelineRow from "./ProjectTimelineRow.jsx";
 import ProjectTimelineHeader from "./ProjectTimelineHeader.jsx";
+import { useTimelineContext } from "../contexts/TimelineContext";
 
 /**
- * Renders the project timeline grid.
- * @param {Object} props
- * @param {Object} props.viewModel - Contains { projects, updatesByProject }
- * @param {number} props.weekLimit - Number of weeks to display
+ * Renders the project timeline grid. Now uses context for data.
  */
-const ProjectTimeline = ({ viewModel, weekLimit }) => {
-  const { projects, updatesByProject } = viewModel;
-  const { minDate, maxDate } = getAllProjectDates(projects, updatesByProject);
-  if (!minDate || !maxDate) return null;
-  const weekRanges = getWeekRanges(minDate, maxDate);
-  const limitedWeekRanges =
-    typeof weekLimit === 'number' && isFinite(weekLimit)
-      ? weekRanges.slice(-weekLimit)
-      : weekRanges;
+const ProjectTimeline = ({ projects }) => {
+  const { weekRanges, updatesByProject } = useTimelineContext();
+
+  console.log('ProjectTimeline render:', { 
+    projectsCount: projects?.length, 
+    weekRangesCount: weekRanges?.length,
+    weekRanges,
+    updatesByProjectKeys: Object.keys(updatesByProject || {})
+  });
 
   return (
     <div className="project-timeline">
-      <ProjectTimelineHeader weekRanges={limitedWeekRanges} />
+      <ProjectTimelineHeader weekRanges={weekRanges} />
       {projects.filter(Boolean).map((project, idx) => (
         <ProjectTimelineRow
           key={project.projectKey || idx}
           project={project}
-          weekRanges={limitedWeekRanges}
+          weekRanges={weekRanges}
           updates={updatesByProject[project.projectKey] || []}
         />
       ))}

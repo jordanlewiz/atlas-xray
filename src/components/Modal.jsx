@@ -9,6 +9,7 @@ import {
 import Select from "@atlaskit/select";
 import Legend from "./Legend.jsx";
 import { Grid, Box } from "@atlaskit/primitives";
+import { TimelineProvider } from "../contexts/TimelineContext";
 
 export default function Modal({ open, onClose, children }) {
   const [weekLimit, setWeekLimit] = useState(12); // default to 12 weeks
@@ -41,8 +42,10 @@ export default function Modal({ open, onClose, children }) {
                     isSearchable={false}
                   />
                 </div>
-                {/* Pass weekLimit as a prop to children if children is a function */}
-                {typeof children === 'function' ? children(weekLimit) : children}
+                {/* Wrap children in TimelineProvider */}
+                <TimelineProvider weekLimit={weekLimit}>
+                  {typeof children === 'function' ? children(weekLimit) : children}
+                </TimelineProvider>
               </Grid>
             </Box>
           </ModalBody>

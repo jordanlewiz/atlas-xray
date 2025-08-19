@@ -27,7 +27,17 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
     console.warn('ProjectTimelineRow received undefined project');
     return null;
   }
+  console.log('ProjectTimelineRow render:', { 
+    projectKey: project.projectKey,
+    weekRangesCount: weekRanges?.length,
+    updatesCount: updates?.length,
+    weekRanges,
+    updates
+  });
+  
   const weekCells = getTimelineWeekCells(weekRanges, updates);
+  console.log('weekCells result:', weekCells);
+  
   const targetDateRaw = project.newDueDate || project.targetDate;
   const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
 

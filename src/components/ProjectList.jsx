@@ -1,68 +1,20 @@
-import React, { useMemo } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../utils/database";
+import React from "react";
 import ProjectTimeline from "./ProjectTimeline.jsx";
+import { useTimelineContext } from "../contexts/TimelineContext";
 
 /**
- * Builds the view model for the project list, including per-project view models and timeline data.
- * @param {Array} projects - Raw project data
- * @param {Array} allUpdates - All updates from DB
- * @param {Array} allStatusHistory - All status history from DB
- * @returns {Object} { projectViewModels, timelineViewModel }
+ * Main project list component. Now uses context instead of props for data.
  */
-function createProjectListViewModel(projects, allUpdates, allStatusHistory) {
-  const projectViewModels = (projects || []).map(proj => {
-    const updates = (allUpdates || []).filter(u => u.projectKey === proj.projectKey);
-    const statusHistory = (allStatusHistory || []).filter(s => s.projectKey === proj.projectKey);
-    return {
-      projectKey: proj.projectKey,
-      name: proj.name,
-      updates,
-      statusHistory
-    };
-  });
-  const updatesByProject = {};
-  projectViewModels.forEach(vm => {
-    updatesByProject[vm.projectKey] = vm.updates; // Use full update objects
-  });
-  const timelineViewModel = {
-    projects: projectViewModels.map(vm => {
-      const latestUpdate = vm.updates.length > 0 ? vm.updates[vm.updates.length - 1] : {};
-      return {
-        projectKey: vm.projectKey,
-        name: vm.name,
-        state: latestUpdate.state,
-        oldState: latestUpdate.oldState,
-        newDueDate: latestUpdate.targetDate,
-        oldDueDate: latestUpdate.oldDueDate,
-        missedUpdate: latestUpdate.missedUpdate,
-        summary: latestUpdate.summary,
-        details: latestUpdate.notes,
-      };
-    }),
-    updatesByProject
-  };
-  return { projectViewModels, timelineViewModel };
-}
+export default function ProjectList() {
+  const { projectViewModels, isLoading } = useTimelineContext();
 
-/**
- * Main project list component. Orchestrates data fetching and passes a clean viewModel to ProjectTimeline.
- */
-export default function ProjectList({ projects, weekLimit }) {
-  // Fetch all updates and status history for all projects
-  const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []);
-  const allStatusHistory = useLiveQuery(() => db.projectStatusHistory.toArray(), []);
-
-  // Build the view model for the list and timeline
-  const { projectViewModels, timelineViewModel } = useMemo(
-    () => createProjectListViewModel(projects, allUpdates, allStatusHistory),
-    [projects, allUpdates, allStatusHistory]
-  );
+  if (isLoading) {
+    return <div>Loading timeline data...</div>;
+  }
 
   return (
     <>
-      {/* ProjectTimeline receives a modular, clean viewModel and weekLimit */}
-      <ProjectTimeline viewModel={timelineViewModel} weekLimit={weekLimit} />
+      <ProjectTimeline projects={projectViewModels} />
     </>
   );
 }
