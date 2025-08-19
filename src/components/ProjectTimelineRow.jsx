@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
+import Button from "@atlaskit/button/new";
 import { buildProjectUrlFromKey } from "../utils/linkUtils";
 import {
   getTimelineWeekCells,
@@ -17,6 +18,8 @@ import {
  * @param {Array} props.updates - Array of update objects for this project
  */
 export default function ProjectTimelineRow({ project, weekRanges, updates }) {
+  const [isOpen, setIsOpen] = useState(false);
+  
   if (!project) {
     console.warn('ProjectTimelineRow received undefined project');
     return null;
@@ -82,24 +85,28 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
           ))}
         </div>
       ))}
-      <div className="timeline-target-date">
-        {targetDateRaw ? (
-          <Popup
-            trigger={(triggerProps) => (
-              <span {...triggerProps} style={{ cursor: 'pointer' }}>
-                {targetDateDisplay}
-              </span>
-            )}
-            content={() => (
-              <div style={{ padding: '8px', maxWidth: '300px' }}>
-                <strong>Target Date</strong>
-                <br />
-                {targetDateRaw}
-              </div>
-            )}
-            placement="bottom-start"
-          />
-        ) : null}
+      <div className="timeline-target-date">        
+        <Popup
+          isOpen={isOpen}
+          onClose={() => setIsOpen(false)}
+          content={() => (
+            <div style={{ padding: '16px', maxWidth: '300px' }}>
+              <h3>Target Date</h3>
+              <p>{targetDateRaw}</p>
+            </div>
+          )}
+          trigger={(triggerProps) => (
+            <Button
+              {...triggerProps}
+              appearance="primary"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {targetDateRaw}
+            </Button>
+          )}
+          placement="bottom-start"
+          zIndex={1000}
+        />
       </div>
     </div>
   );
