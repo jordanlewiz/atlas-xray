@@ -49,15 +49,10 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
       {weekCells.map((cell, i) => (
         <div key={i} className={cell.cellClass}>
           {cell.weekUpdates.map((u, idx) => (
-            <div key={idx} className={u.oldDueDate ? 'has-old-due-date' : ''}>
+            <div key={idx} className={u.oldDueDate ? 'has-old-due-date' : ''} onClick={() => setSelectedUpdate(u)}>
               {u.oldDueDate && u.newDueDate && (
                 <Tooltip content={getDueDateTooltip(u)} position="top">
-                  <span 
-                    style={{ cursor: 'pointer', padding: '2px' }}
-                    onClick={() => setSelectedUpdate(u)}
-                  >
                     {getDueDateDiff(u)}
-                  </span>
                 </Tooltip>
               )}
             </div>
