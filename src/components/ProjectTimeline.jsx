@@ -27,6 +27,7 @@ const ProjectTimeline = ({ viewModel, weekLimit }) => {
             <Tooltip content={w.label}>{w.label}</Tooltip>
           </div>
         ))}
+        <div className="timeline-target-date timeline-target-date-header">Target Date</div>
       </div>
       {projects.filter(Boolean).map((proj, idx) => (
         <ProjectTimelineRow

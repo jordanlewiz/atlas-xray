@@ -49967,7 +49967,7 @@
         oldStateClass
       ].filter(Boolean).join(" ");
       return /* @__PURE__ */ import_react39.default.createElement("div", { key: i, className: cellClass }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react39.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: `${u.oldDueDate} \u2192 ${u.newDueDate}` }, /* @__PURE__ */ import_react39.default.createElement("span", null, daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate))))));
-    }));
+    }), /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-target-date" }, projectUpdate.newDueDate || projectUpdate.targetDate ? /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: projectUpdate.newDueDate || projectUpdate.targetDate }, /* @__PURE__ */ import_react39.default.createElement("span", null, projectUpdate.newDueDate || projectUpdate.targetDate)) : null));
   }
 
   // src/components/ProjectTimeline.jsx
@@ -49977,7 +49977,7 @@
     if (!minDate || !maxDate) return null;
     const weekRanges = getWeekRanges(minDate, maxDate);
     const limitedWeekRanges = typeof weekLimit === "number" && isFinite(weekLimit) ? weekRanges.slice(-weekLimit) : weekRanges;
-    return /* @__PURE__ */ import_react40.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-y-label" }), limitedWeekRanges.map((w2, i) => /* @__PURE__ */ import_react40.default.createElement("div", { key: i, className: "timeline-x-label" }, /* @__PURE__ */ import_react40.default.createElement(tooltip_default, { content: w2.label }, w2.label)))), projects.filter(Boolean).map((proj, idx) => /* @__PURE__ */ import_react40.default.createElement(
+    return /* @__PURE__ */ import_react40.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-y-label" }), limitedWeekRanges.map((w2, i) => /* @__PURE__ */ import_react40.default.createElement("div", { key: i, className: "timeline-x-label" }, /* @__PURE__ */ import_react40.default.createElement(tooltip_default, { content: w2.label }, w2.label))), /* @__PURE__ */ import_react40.default.createElement("div", { className: "timeline-target-date timeline-target-date-header" }, "Target Date")), projects.filter(Boolean).map((proj, idx) => /* @__PURE__ */ import_react40.default.createElement(
       ProjectTimelineRow,
       {
         key: proj.projectKey || idx,

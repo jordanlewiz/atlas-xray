@@ -27,7 +27,7 @@ export default function ProjectTimelineRow({ projectUpdate, weekRanges, updates 
             rel="noopener noreferrer"
           >
             {projectUpdate.projectKey}
-          </a>
+        </a>
       </div>
       {weekRanges.map((w, i) => {
         const weekStart = w.start;
@@ -73,6 +73,13 @@ export default function ProjectTimelineRow({ projectUpdate, weekRanges, updates 
           </div>
         );
       })}
+      <div className="timeline-target-date">
+        {projectUpdate.newDueDate || projectUpdate.targetDate ? (
+          <Tooltip content={projectUpdate.newDueDate || projectUpdate.targetDate}>
+            <span>{projectUpdate.newDueDate || projectUpdate.targetDate}</span>
+          </Tooltip>
+        ) : null}
+      </div>
     </div>
   );
 }

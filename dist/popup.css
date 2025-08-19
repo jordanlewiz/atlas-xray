@@ -181,6 +181,20 @@
   vertical-align: top;
 }
 
+.timeline-target-date {
+  min-width: 100px;
+  max-width: 180px;
+  margin-left: 12px;
+  text-align: right;
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
 .timeline-legend {
   display: flex;
   flex-wrap: wrap;
