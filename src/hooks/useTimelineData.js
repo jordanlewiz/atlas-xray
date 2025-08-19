@@ -20,46 +20,37 @@ export function useTimelineData(weekLimit = 12) {
       };
     }
 
-    // Create updates lookup by project first
+    // Group updates by project - simple and direct
     const updatesByProject = {};
-    console.log('Processing allUpdates:', allUpdates);
     allUpdates.forEach(update => {
       const key = update.projectKey;
       if (key) {
-        // Initialize array if it doesn't exist
         if (!updatesByProject[key]) {
           updatesByProject[key] = [];
         }
-        // Add this update to the array
         updatesByProject[key].push(update);
       }
     });
-    console.log('Created updatesByProject:', updatesByProject);
 
-    // Transform projects into view models
-    const projectViewModels = projects.map(project => {
-      const projectUpdates = allUpdates.find(u => u.projectKey === project.projectKey);
-      const projectStatusHistory = allStatusHistory.find(s => s.projectKey === project.projectKey);
-      
-      // Get the latest update for this project
-      const latestUpdate = projectUpdates || {};
-      const latestStatus = projectStatusHistory || {};
-
-      return {
-        projectKey: project.projectKey,
-        name: project.project?.name || "",
-        state: latestStatus.state || latestUpdate.state,
-        oldState: latestStatus.oldState || latestUpdate.oldState,
-        newDueDate: latestUpdate.targetDate || latestStatus.targetDate,
-        oldDueDate: latestUpdate.oldDueDate || latestStatus.oldDueDate,
-        missedUpdate: latestUpdate.missedUpdate || false,
-        summary: latestUpdate.summary || latestStatus.summary,
-        details: latestUpdate.notes || latestStatus.notes,
-        // Raw data for timeline processing
-        rawUpdates: projectUpdates ? [projectUpdates] : [],
-        rawStatusHistory: projectStatusHistory ? [projectStatusHistory] : []
-      };
+    // Group status history by project
+    const statusByProject = {};
+    allStatusHistory.forEach(status => {
+      const key = status.projectKey;
+      if (key) {
+        if (!statusByProject[key]) {
+          statusByProject[key] = [];
+        }
+        statusByProject[key].push(status);
+      }
     });
+
+    // Simple project view models - just basic info + references to data
+    const projectViewModels = projects.map(project => ({
+      projectKey: project.projectKey,
+      name: project.project?.name || "Unknown Project",
+      // Keep it simple - just store the raw project data
+      rawProject: project
+    }));
 
     // Get week ranges for the timeline using the correct parameters
     console.log('About to call getAllProjectDates with:', { 
@@ -79,6 +70,7 @@ export function useTimelineData(weekLimit = 12) {
         weekRanges: [],
         projectViewModels,
         updatesByProject,
+        statusByProject: {},
         isLoading: false
       };
     }
@@ -94,6 +86,7 @@ export function useTimelineData(weekLimit = 12) {
       weekRanges: limitedWeekRanges,
       projectViewModels,
       updatesByProject,
+      statusByProject,
       isLoading: false
     };
   }, [projects, allUpdates, allStatusHistory, weekLimit]);

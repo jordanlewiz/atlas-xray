@@ -60375,7 +60375,7 @@
     });
     const weekCells = getTimelineWeekCells(weekRanges, updates);
     console.log("weekCells result:", weekCells);
-    const targetDateRaw = project.newDueDate || project.targetDate;
+    const targetDateRaw = updates.find((u) => u.targetDate)?.targetDate || updates.find((u) => u.newDueDate)?.newDueDate || project.newDueDate || project.targetDate;
     const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
     return /* @__PURE__ */ import_react114.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react114.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react114.default.createElement(tooltip_default, { content: project.name, position: "bottom-start" }, /* @__PURE__ */ import_react114.default.createElement("h3", { className: "project-title-ellipsis" }, project.name)), /* @__PURE__ */ import_react114.default.createElement(
       "a",
@@ -60385,7 +60385,7 @@
         rel: "noopener noreferrer"
       },
       project.projectKey
-    )), weekCells.map((cell, i) => /* @__PURE__ */ import_react114.default.createElement("div", { key: i, className: cell.cellClass }, cell.weekUpdates.map((u, idx) => /* @__PURE__ */ import_react114.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "", onClick: () => setSelectedUpdate(u) }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react114.default.createElement(tooltip_default, { content: getDueDateTooltip(u), position: "top" }, getDueDateDiff(u)))))), /* @__PURE__ */ import_react114.default.createElement("div", { className: "timeline-target-date" }, /* @__PURE__ */ import_react114.default.createElement(
+    )), weekCells.map((cell, i) => /* @__PURE__ */ import_react114.default.createElement("div", { key: i, className: cell.cellClass }, cell.weekUpdates.map((u, idx) => /* @__PURE__ */ import_react114.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "", onClick: () => setSelectedUpdate(u) }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react114.default.createElement(tooltip_default, { content: getDueDateTooltip(u), position: "top" }, getDueDateDiff(u)))))), /* @__PURE__ */ import_react114.default.createElement("div", { className: "timeline-target-date" }, targetDateRaw ? /* @__PURE__ */ import_react114.default.createElement(
       esm_default3,
       {
         isOpen,
@@ -60399,12 +60399,12 @@
             spacing: "compact",
             onClick: () => setIsOpen(!isOpen)
           },
-          targetDateRaw
+          targetDateDisplay
         ),
         placement: "bottom-start",
         zIndex: 1e3
       }
-    )), /* @__PURE__ */ import_react114.default.createElement(
+    ) : /* @__PURE__ */ import_react114.default.createElement("span", { style: { color: "#6b7280", fontSize: "12px" } }, "No target date")), /* @__PURE__ */ import_react114.default.createElement(
       DateChangeModal,
       {
         selectedUpdate,
@@ -60439,7 +60439,6 @@
         };
       }
       const updatesByProject = {};
-      console.log("Processing allUpdates:", allUpdates);
       allUpdates.forEach((update) => {
         const key = update.projectKey;
         if (key) {
@@ -60449,27 +60448,22 @@
           updatesByProject[key].push(update);
         }
       });
-      console.log("Created updatesByProject:", updatesByProject);
-      const projectViewModels = projects.map((project) => {
-        const projectUpdates = allUpdates.find((u) => u.projectKey === project.projectKey);
-        const projectStatusHistory = allStatusHistory.find((s) => s.projectKey === project.projectKey);
-        const latestUpdate = projectUpdates || {};
-        const latestStatus = projectStatusHistory || {};
-        return {
-          projectKey: project.projectKey,
-          name: project.project?.name || "",
-          state: latestStatus.state || latestUpdate.state,
-          oldState: latestStatus.oldState || latestUpdate.oldState,
-          newDueDate: latestUpdate.targetDate || latestStatus.targetDate,
-          oldDueDate: latestUpdate.oldDueDate || latestStatus.oldDueDate,
-          missedUpdate: latestUpdate.missedUpdate || false,
-          summary: latestUpdate.summary || latestStatus.summary,
-          details: latestUpdate.notes || latestStatus.notes,
-          // Raw data for timeline processing
-          rawUpdates: projectUpdates ? [projectUpdates] : [],
-          rawStatusHistory: projectStatusHistory ? [projectStatusHistory] : []
-        };
+      const statusByProject = {};
+      allStatusHistory.forEach((status) => {
+        const key = status.projectKey;
+        if (key) {
+          if (!statusByProject[key]) {
+            statusByProject[key] = [];
+          }
+          statusByProject[key].push(status);
+        }
       });
+      const projectViewModels = projects.map((project) => ({
+        projectKey: project.projectKey,
+        name: project.project?.name || "Unknown Project",
+        // Keep it simple - just store the raw project data
+        rawProject: project
+      }));
       console.log("About to call getAllProjectDates with:", {
         projectViewModelsCount: projectViewModels.length,
         updatesByProjectKeys: Object.keys(updatesByProject),
@@ -60484,6 +60478,7 @@
           weekRanges: [],
           projectViewModels,
           updatesByProject,
+          statusByProject: {},
           isLoading: false
         };
       }
@@ -60496,6 +60491,7 @@
         weekRanges: limitedWeekRanges,
         projectViewModels,
         updatesByProject,
+        statusByProject,
         isLoading: false
       };
     }, [projects, allUpdates, allStatusHistory, weekLimit]);

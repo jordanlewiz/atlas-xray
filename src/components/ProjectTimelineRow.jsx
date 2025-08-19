@@ -38,7 +38,11 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
   const weekCells = getTimelineWeekCells(weekRanges, updates);
   console.log('weekCells result:', weekCells);
   
-  const targetDateRaw = project.newDueDate || project.targetDate;
+  // Get target date from the most recent update that has one
+  const targetDateRaw = updates.find(u => u.targetDate)?.targetDate || 
+                       updates.find(u => u.newDueDate)?.newDueDate ||
+                       project.newDueDate || 
+                       project.targetDate;
   const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
 
   return (
@@ -71,28 +75,32 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
         </div>
       ))}
       <div className="timeline-target-date">     
-        <Popup
-          isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
-          content={() => (
-            <div style={{ padding: '16px', maxWidth: '300px' }}>
-              <h3>Target Date</h3>
-              <p>{targetDateRaw}</p>
-            </div>
-          )}
-          trigger={(triggerProps) => (
-            <Button
-              {...triggerProps}
-              appearance="default"
-              spacing="compact"
-              onClick={() => setIsOpen(!isOpen)}
-            >
-              {targetDateRaw}
-            </Button>
-          )}
-          placement="bottom-start"
-          zIndex={1000}
-        />
+        {targetDateRaw ? (
+          <Popup
+            isOpen={isOpen}
+            onClose={() => setIsOpen(false)}
+            content={() => (
+              <div style={{ padding: '16px', maxWidth: '300px' }}>
+                <h3>Target Date</h3>
+                <p>{targetDateRaw}</p>
+              </div>
+            )}
+            trigger={(triggerProps) => (
+              <Button
+                {...triggerProps}
+                appearance="default"
+                spacing="compact"
+                onClick={() => setIsOpen(!isOpen)}
+              >
+                {targetDateDisplay}
+              </Button>
+            )}
+            placement="bottom-start"
+            zIndex={1000}
+          />
+        ) : (
+          <span style={{ color: '#6b7280', fontSize: '12px' }}>No target date</span>
+        )}
       </div>
       
       <DateChangeModal
