@@ -88,6 +88,11 @@ export interface ModalProps {
 
 export interface FloatingButtonProps {}
 
+// New component interfaces
+export interface ProjectListProps {
+  weekLimit?: number;
+}
+
 // Hook types
 export interface UseTimelineDataReturn {
   weekRanges: WeekRange[];

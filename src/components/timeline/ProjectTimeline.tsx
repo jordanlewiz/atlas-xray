@@ -1,14 +1,16 @@
 import React from "react";
 import ProjectTimelineRow from "./ProjectTimelineRow";
 import ProjectTimelineHeader from "./ProjectTimelineHeader";
-
-import type { ProjectTimelineProps } from "../types";
+import type { ProjectTimelineProps } from "../../types";
 
 /**
- * Renders the project timeline grid. Now receives data as props.
+ * Renders the project timeline grid. Receives data as props.
  */
-const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projects, weekRanges, updatesByProject }) => {
-
+const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ 
+  projects, 
+  weekRanges, 
+  updatesByProject 
+}) => {
   return (
     <div className="project-timeline">
       <ProjectTimelineHeader weekRanges={weekRanges} />

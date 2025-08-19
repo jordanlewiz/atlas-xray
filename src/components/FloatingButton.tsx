@@ -1,63 +1,64 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../utils/database";
+import type { AtlasXrayDB } from "../types/database";
 import ProjectList from "./ProjectList";
-import Modal from "./Modal";
+import Modal from "./layout/Modal";
 import { downloadProjectData } from "../utils/projectIdScanner";
 
-const FloatingButton = () => {
-  const projectCount = useLiveQuery(() => db.projectView.count(), []);
-  const projects = useLiveQuery(() => db.projectView.toArray(), []);
+/**
+ * Floating button that opens the timeline modal.
+ */
+export default function FloatingButton(): React.JSX.Element {
+  const projectCount = useLiveQuery(() => (db as AtlasXrayDB).projectView.count(), []);
+  const projects = useLiveQuery(() => (db as AtlasXrayDB).projectView.toArray(), []);
   const updatesByProject = useLiveQuery(
     async () => {
-      const updates = {};
-      const allUpdates = await db.projectUpdates.toArray();
+      const updates: Record<string, string[]> = {};
+      const allUpdates = await (db as AtlasXrayDB).projectUpdates.toArray();
       for (const update of allUpdates) {
         const key = update.projectKey;
         const edges = update?.projectUpdates?.edges || [];
-        updates[key] = edges.map(e => e.node?.creationDate).filter(Boolean);
+        updates[key] = edges.map((e: any) => e.node?.creationDate).filter(Boolean);
       }
       return updates;
     },
     []
   );
+  
   const [modalOpen, setModalOpen] = useState(false);
-  const [visibleProjectKeys, setVisibleProjectKeys] = useState([]);
-  const observerRef = useRef(null);
+  const [visibleProjectKeys, setVisibleProjectKeys] = useState<string[]>([]);
+  const observerRef = useRef<MutationObserver | null>(null);
 
-  // Function to update visible projects
-  const updateVisibleProjects = async () => {
+  const updateVisibleProjects = async (): Promise<void> => {
     const matches = await downloadProjectData();
     setVisibleProjectKeys(matches.map(m => m.projectId));
   };
 
-  // Set up MutationObserver to update visible projects on DOM changes
   useEffect(() => {
-    updateVisibleProjects(); // Initial run
+    updateVisibleProjects();
     const observer = new window.MutationObserver(() => {
       updateVisibleProjects();
     });
     observer.observe(document.body, { childList: true, subtree: true });
     observerRef.current = observer;
+    
     return () => {
       if (observerRef.current) observerRef.current.disconnect();
     };
   }, []);
 
-  // Compute the view-model: array of { projectKey, name, updateDates }
-  const projectViewModel = (projects || []).map(proj => ({
+  const projectViewModel = (projects || []).map((proj: any) => ({
     projectKey: proj.projectKey,
     name: proj.project?.name || "",
     updateDates: (updatesByProject && updatesByProject[proj.projectKey]) ? updatesByProject[proj.projectKey] : []
   }));
 
-  // Filter to only visible projects if any are detected
   const filteredProjects = visibleProjectKeys.length > 0
     ? projectViewModel.filter(p => visibleProjectKeys.includes(p.projectKey))
     : projectViewModel;
 
-  // Modal open handler (no longer needs to update visible projects)
-  const handleOpenModal = () => setModalOpen(true);
+  const handleOpenModal = (): void => setModalOpen(true);
 
   return (
     <>
@@ -70,13 +71,11 @@ const FloatingButton = () => {
             : ""}
       </button>
       
-                   <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
-               {weekLimit => (
-                 <ProjectList weekLimit={weekLimit} />
-               )}
-             </Modal>
+      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+        {(weekLimit: number) => (
+          <ProjectList weekLimit={weekLimit} />
+        )}
+      </Modal>
     </>
   );
-};
-
-export default FloatingButton;
+}

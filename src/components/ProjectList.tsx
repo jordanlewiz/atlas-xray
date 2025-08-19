@@ -1,11 +1,15 @@
 import React from "react";
-import ProjectTimeline from "./ProjectTimeline";
+import ProjectTimeline from "./timeline/ProjectTimeline";
 import { useTimeline } from "../hooks/useTimelineData";
 
+interface ProjectListProps {
+  weekLimit?: number;
+}
+
 /**
- * Main project list component. Now uses the hook directly for data.
+ * Main project list component. Uses the hook directly for data.
  */
-export default function ProjectList({ weekLimit = 12 }) {
+export default function ProjectList({ weekLimit = 12 }: ProjectListProps): React.JSX.Element {
   const { projectViewModels, weekRanges, updatesByProject, isLoading } = useTimeline(weekLimit);
 
   if (isLoading) {
