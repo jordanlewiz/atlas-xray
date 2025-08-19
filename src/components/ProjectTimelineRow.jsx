@@ -19,6 +19,7 @@ import {
  * @param {Array} props.updates - Array of update objects for this project
  */
 export default function ProjectTimelineRow({ project, weekRanges, updates }) {
+    console.log("selectedUpdate >>", updates);
   const [isOpen, setIsOpen] = useState(false);
   const [selectedUpdate, setSelectedUpdate] = useState(null);
   
@@ -59,8 +60,7 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
           ))}
         </div>
       ))}
-      <div className="timeline-target-date">    
-        {targetDateRaw}   
+      <div className="timeline-target-date">     
         <Popup
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
@@ -75,7 +75,6 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
               {...triggerProps}
               appearance="default"
               spacing="compact"
-              shouldFitContainer
               onClick={() => setIsOpen(!isOpen)}
             >
               {targetDateRaw}

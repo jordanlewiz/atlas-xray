@@ -150,6 +150,10 @@ export default function DateChangeModal({ selectedUpdate, project, onClose }) {
                       <p style={{ margin: '8px 0', lineHeight: '1.5' }}>
                         {extractTextFromSummary(selectedUpdate.summary)}
                       </p>
+                      <h3>Update Details:</h3>
+                      <p style={{ margin: '8px 0', lineHeight: '1.5' }}>
+                        {selectedUpdate.notes}
+                      </p>
                     </div>
                   )}
                 </div>

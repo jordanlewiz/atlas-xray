@@ -60251,6 +60251,7 @@
 
   // src/components/DateChangeModal.jsx
   function DateChangeModal({ selectedUpdate, project, onClose }) {
+    console.log("selectedUpdate", selectedUpdate);
     const getLozengeAppearance = (status, isBold = false) => {
       if (!status) return "new";
       const normalizedStatus = status.toLowerCase().replace(/_/g, "-");
@@ -60344,7 +60345,7 @@
           },
           /* @__PURE__ */ import_react113.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react113.default.createElement("strong", null, "Status Change:")),
           /* @__PURE__ */ import_react113.default.createElement("div", { style: { fontSize: "16px", margin: "8px 0" } }, /* @__PURE__ */ import_react113.default.createElement(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.oldState) }, selectedUpdate.oldState), /* @__PURE__ */ import_react113.default.createElement("span", { style: { margin: "0 16px" } }, "\u2192"), /* @__PURE__ */ import_react113.default.createElement(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.state) }, selectedUpdate.state))
-        ), selectedUpdate.summary && /* @__PURE__ */ import_react113.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react113.default.createElement("h3", null, "Update Summary:"), /* @__PURE__ */ import_react113.default.createElement("p", { style: { margin: "8px 0", lineHeight: "1.5" } }, extractTextFromSummary(selectedUpdate.summary)))))
+        ), selectedUpdate.summary && /* @__PURE__ */ import_react113.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react113.default.createElement("h3", null, "Update Summary:"), /* @__PURE__ */ import_react113.default.createElement("p", { style: { margin: "8px 0", lineHeight: "1.5" } }, extractTextFromSummary(selectedUpdate.summary)), /* @__PURE__ */ import_react113.default.createElement("h3", null, "Update Details:"), /* @__PURE__ */ import_react113.default.createElement("p", { style: { margin: "8px 0", lineHeight: "1.5" } }, selectedUpdate.notes))))
       )
     ));
   }
@@ -60359,6 +60360,7 @@
 
   // src/components/ProjectTimelineRow.jsx
   function ProjectTimelineRow({ project, weekRanges, updates }) {
+    console.log("selectedUpdate >>", updates);
     const [isOpen, setIsOpen] = (0, import_react114.useState)(false);
     const [selectedUpdate, setSelectedUpdate] = (0, import_react114.useState)(null);
     if (!project) {
@@ -60376,7 +60378,7 @@
         rel: "noopener noreferrer"
       },
       project.projectKey
-    )), weekCells.map((cell, i) => /* @__PURE__ */ import_react114.default.createElement("div", { key: i, className: cell.cellClass }, cell.weekUpdates.map((u, idx) => /* @__PURE__ */ import_react114.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "", onClick: () => setSelectedUpdate(u) }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react114.default.createElement(tooltip_default, { content: getDueDateTooltip(u), position: "top" }, getDueDateDiff(u)))))), /* @__PURE__ */ import_react114.default.createElement("div", { className: "timeline-target-date" }, targetDateRaw, /* @__PURE__ */ import_react114.default.createElement(
+    )), weekCells.map((cell, i) => /* @__PURE__ */ import_react114.default.createElement("div", { key: i, className: cell.cellClass }, cell.weekUpdates.map((u, idx) => /* @__PURE__ */ import_react114.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "", onClick: () => setSelectedUpdate(u) }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react114.default.createElement(tooltip_default, { content: getDueDateTooltip(u), position: "top" }, getDueDateDiff(u)))))), /* @__PURE__ */ import_react114.default.createElement("div", { className: "timeline-target-date" }, /* @__PURE__ */ import_react114.default.createElement(
       esm_default3,
       {
         isOpen,
@@ -60388,7 +60390,6 @@
             ...triggerProps,
             appearance: "default",
             spacing: "compact",
-            shouldFitContainer: true,
             onClick: () => setIsOpen(!isOpen)
           },
           targetDateRaw
@@ -60450,7 +60451,6 @@
     const timelineViewModel = {
       projects: projectViewModels.map((vm) => {
         const latestUpdate = vm.updates.length > 0 ? vm.updates[vm.updates.length - 1] : {};
-        console.log("latestUpdate 2", latestUpdate);
         return {
           projectKey: vm.projectKey,
           name: vm.name,
@@ -60459,7 +60459,8 @@
           newDueDate: latestUpdate.targetDate,
           oldDueDate: latestUpdate.oldDueDate,
           missedUpdate: latestUpdate.missedUpdate,
-          summary: latestUpdate.summary
+          summary: latestUpdate.summary,
+          details: latestUpdate.notes
         };
       }),
       updatesByProject
