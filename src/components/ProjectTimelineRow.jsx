@@ -59,7 +59,8 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
           ))}
         </div>
       ))}
-      <div className="timeline-target-date">        
+      <div className="timeline-target-date">    
+        {targetDateRaw}   
         <Popup
           isOpen={isOpen}
           onClose={() => setIsOpen(false)}
@@ -72,7 +73,9 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
           trigger={(triggerProps) => (
             <Button
               {...triggerProps}
-              appearance="primary"
+              appearance="default"
+              spacing="compact"
+              shouldFitContainer
               onClick={() => setIsOpen(!isOpen)}
             >
               {targetDateRaw}

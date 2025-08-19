@@ -8,6 +8,7 @@ import {
 } from "@atlaskit/modal-dialog/full-screen";
 import Select from "@atlaskit/select";
 import Legend from "./Legend.jsx";
+import { Grid, Box } from "@atlaskit/primitives";
 
 export default function Modal({ open, onClose, children }) {
   const [weekLimit, setWeekLimit] = useState(12); // default to 12 weeks
@@ -26,18 +27,24 @@ export default function Modal({ open, onClose, children }) {
             <ModalTitle>Atlas-Xray Project History Timeline</ModalTitle>
           </ModalHeader>
           <ModalBody hasInlinePadding={true}>
-            <Legend />
-            <div style={{ marginBottom: 16, maxWidth: 200 }}>
-              <Select
-                options={weekOptions}
-                value={weekOptions.find(opt => opt.value === weekLimit)}
-                onChange={option => setWeekLimit(option.value)}
-                placeholder="Weeks to show"
-                isSearchable={false}
-              />
-            </div>
-            {/* Pass weekLimit as a prop to children if children is a function */}
-            {typeof children === 'function' ? children(weekLimit) : children}
+            <Box
+              style={{ maxWidth: '1128px', margin: '0 auto', width: '100%' }} // fixed width & centered
+            >
+              <Grid>
+                <Legend />
+                <div style={{ marginBottom: 16, maxWidth: 200 }}>
+                  <Select
+                    options={weekOptions}
+                    value={weekOptions.find(opt => opt.value === weekLimit)}
+                    onChange={option => setWeekLimit(option.value)}
+                    placeholder="Weeks to show"
+                    isSearchable={false}
+                  />
+                </div>
+                {/* Pass weekLimit as a prop to children if children is a function */}
+                {typeof children === 'function' ? children(weekLimit) : children}
+              </Grid>
+            </Box>
           </ModalBody>
         </FullScreenModalDialog>
       )}

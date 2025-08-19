@@ -2,6 +2,7 @@ import React from "react";
 import ModalDialog, { ModalTransition } from "@atlaskit/modal-dialog";
 import SectionMessage from "@atlaskit/section-message";
 import Lozenge from "@atlaskit/lozenge";
+import { Grid, Box } from "@atlaskit/primitives";
 import { getDueDateDiff } from "../utils/timelineViewModels";
 
 export default function DateChangeModal({ selectedUpdate, project, onClose }) {
@@ -92,62 +93,68 @@ export default function DateChangeModal({ selectedUpdate, project, onClose }) {
         <ModalDialog
           onClose={onClose}
           heading="Date Change Details"
-          width="medium"
+          width="full"
           shouldScrollInViewport
           actions={[
             { text: 'Close', onClick: onClose, appearance: 'subtle' }
           ]}
         >
-                      <div style={{ padding: '16px' }}>
-              <h3>{project?.name}</h3>
-              <div style={{ margin: '16px 0' }}>
-                <small>Project Key:</small> {project?.projectKey}
-              </div>
-              
-              {selectedUpdate.oldDueDate && (
-                <SectionMessage
-                  appearance="error"
-                  title="Date Change Detected"
-                >
-                  <div style={{ margin: '8px 0' }}>
-                    <strong>Date Change:</strong>
+            <Box
+              style={{ maxWidth: '1128px', margin: '0 auto', width: '100%' }} // fixed width & centered
+            >
+              <Grid>
+                <div style={{ padding: '16px' }}>
+                  <h3>{project?.name}</h3>
+                  <div style={{ margin: '16px 0' }}>
+                    <small>Project Key:</small> {project?.projectKey}
                   </div>
-                  <div style={{ fontSize: '16px', margin: '8px 0' }}>
-                    <span style={{ color: 'red' }}>{selectedUpdate.oldDueDate}</span> 
-                    <span style={{ margin: '0 16px' }}>→</span> 
-                    <span style={{ color: 'green' }}>{selectedUpdate.newDueDate}</span>
-                  </div>
-                  <div style={{ margin: '8px 0' }}>
-                    <strong>Difference:</strong> {getDueDateDiff(selectedUpdate)} days
-                  </div>
-                </SectionMessage>
-              )}
+                  
+                  {selectedUpdate.oldDueDate && (
+                    <SectionMessage
+                      appearance="error"
+                      title="Date Change Detected"
+                    >
+                      <div style={{ margin: '8px 0' }}>
+                        <strong>Date Change:</strong>
+                      </div>
+                      <div style={{ fontSize: '16px', margin: '8px 0' }}>
+                        <span style={{ color: 'red' }}>{selectedUpdate.oldDueDate}</span> 
+                        <span style={{ margin: '0 16px' }}>→</span> 
+                        <span style={{ color: 'green' }}>{selectedUpdate.newDueDate}</span>
+                      </div>
+                      <div style={{ margin: '8px 0' }}>
+                        <strong>Difference:</strong> {getDueDateDiff(selectedUpdate)} days
+                      </div>
+                    </SectionMessage>
+                  )}
 
-              {selectedUpdate.oldState && (
-                <SectionMessage
-                  appearance="error"
-                  title="Status Change Detected"
-                >
-                  <div style={{ margin: '8px 0' }}>
-                    <strong>Status Change:</strong>
-                  </div>
-                  <div style={{ fontSize: '16px', margin: '8px 0' }}>
-                    <Lozenge appearance={getLozengeAppearance(selectedUpdate.oldState)}>{selectedUpdate.oldState}</Lozenge>
-                    <span style={{ margin: '0 16px' }}>→</span> 
-                    <Lozenge appearance={getLozengeAppearance(selectedUpdate.state)}>{selectedUpdate.state}</Lozenge>
-                  </div>
-                </SectionMessage>
-              )}
+                  {selectedUpdate.oldState && (
+                    <SectionMessage
+                      appearance="error"
+                      title="Status Change Detected"
+                    >
+                      <div style={{ margin: '8px 0' }}>
+                        <strong>Status Change:</strong>
+                      </div>
+                      <div style={{ fontSize: '16px', margin: '8px 0' }}>
+                        <Lozenge appearance={getLozengeAppearance(selectedUpdate.oldState)}>{selectedUpdate.oldState}</Lozenge>
+                        <span style={{ margin: '0 16px' }}>→</span> 
+                        <Lozenge appearance={getLozengeAppearance(selectedUpdate.state)}>{selectedUpdate.state}</Lozenge>
+                      </div>
+                    </SectionMessage>
+                  )}
 
-              {selectedUpdate.summary && (
-                <div style={{ margin: '8px 0' }}>
-                  <h3>Update Summary:</h3>
-                  <p style={{ margin: '8px 0', lineHeight: '1.5' }}>
-                    {extractTextFromSummary(selectedUpdate.summary)}
-                  </p>
+                  {selectedUpdate.summary && (
+                    <div style={{ margin: '8px 0' }}>
+                      <h3>Update Summary:</h3>
+                      <p style={{ margin: '8px 0', lineHeight: '1.5' }}>
+                        {extractTextFromSummary(selectedUpdate.summary)}
+                      </p>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
+              </Grid>
+            </Box>
         </ModalDialog>
       )}
     </ModalTransition>
