@@ -3,7 +3,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../utils/database";
 import type { AtlasXrayDB } from "../types/database";
 import ProjectTimeline from "./timeline/ProjectTimeline";
-import Modal from "./modal/Modal";
+import ProjectStatusHistoryModal from "./modal/ProjectStatusHistoryModal";
 import { downloadProjectData } from "../utils/projectIdScanner";
 
 /**
@@ -71,11 +71,11 @@ export default function FloatingButton(): React.JSX.Element {
             : ""}
       </button>
       
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+      <ProjectStatusHistoryModal open={modalOpen} onClose={() => setModalOpen(false)}>
         {(weekLimit: number) => (
           <ProjectTimeline weekLimit={weekLimit} />
         )}
-      </Modal>
+      </ProjectStatusHistoryModal>
     </>
   );
 }

@@ -61567,7 +61567,7 @@
     ] });
   }
 
-  // src/components/modal/Modal.tsx
+  // src/components/modal/ProjectStatusHistoryModal/ProjectStatusHistoryModal.tsx
   var import_react137 = __toESM(require_react());
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/full-screen.js
@@ -65974,9 +65974,9 @@
     ] });
   }
 
-  // src/components/modal/Modal.tsx
+  // src/components/modal/ProjectStatusHistoryModal/ProjectStatusHistoryModal.tsx
   var import_jsx_runtime6 = __toESM(require_jsx_runtime());
-  function Modal({ open, onClose, children }) {
+  function ProjectStatusHistoryModal({ open, onClose, children }) {
     const [weekLimit, setWeekLimit] = (0, import_react137.useState)(12);
     const weekOptions = [
       { label: "4 weeks", value: 4 },
@@ -80411,7 +80411,7 @@ fragment UserAvatar on User {
         "Atlas Xray",
         visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Modal, { open: modalOpen, onClose: () => setModalOpen(false), children: (weekLimit) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(ProjectTimeline, { weekLimit }) })
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(ProjectStatusHistoryModal, { open: modalOpen, onClose: () => setModalOpen(false), children: (weekLimit) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(ProjectTimeline, { weekLimit }) })
     ] });
   }
 

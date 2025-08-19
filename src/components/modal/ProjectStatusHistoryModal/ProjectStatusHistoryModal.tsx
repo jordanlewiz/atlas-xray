@@ -7,14 +7,14 @@ import {
   ModalTransition,
 } from "@atlaskit/modal-dialog/full-screen";
 import Select from "@atlaskit/select";
-import StatusLegend from "../ui/StatusLegend";
+import StatusLegend from "../../ui/StatusLegend";
 import { Grid, Box } from "@atlaskit/primitives";
-import type { ModalProps } from "../../types";
+import type { ProjectStatusHistoryModalProps } from "../../types";
 
 /**
- * Main modal dialog for the timeline.
+ * Main modal dialog for the project status history timeline.
  */
-export default function Modal({ open, onClose, children }: ModalProps): React.JSX.Element | null {
+export default function ProjectStatusHistoryModal({ open, onClose, children }: ProjectStatusHistoryModalProps): React.JSX.Element | null {
   const [weekLimit, setWeekLimit] = useState(12); // default to 12 weeks
   const weekOptions = [
     { label: "4 weeks", value: 4 },

@@ -76,7 +76,7 @@ export interface ProjectUpdateModalProps {
   onClose: () => React.JSX.Element;
 }
 
-export interface ModalProps {
+export interface ProjectStatusHistoryModalProps {
   open: boolean;
   onClose: () => void;
   children: React.ReactNode | ((weekLimit: number) => React.ReactNode);
