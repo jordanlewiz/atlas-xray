@@ -13218,12 +13218,9 @@
     }
   });
 
-  // src/popup.jsx
-  var import_react3 = __toESM(require_react());
-  var import_client = __toESM(require_client());
-
-  // src/PopupApp.jsx
+  // src/popup.tsx
   var import_react2 = __toESM(require_react());
+  var import_client = __toESM(require_client());
 
   // node_modules/dexie/import-wrapper.mjs
   var import_dexie = __toESM(require_dexie(), 1);
@@ -13342,7 +13339,7 @@
     }, deps || [], defaultResult);
   }
 
-  // src/PopupApp.jsx
+  // src/popup.tsx
   var import_jsx_runtime = __toESM(require_jsx_runtime());
   var STORAGE_KEY = "demoValue";
   var Popup = () => {
@@ -13352,7 +13349,7 @@
     const projectCount = useLiveQuery(() => db.projectView.count(), []);
     const [refreshMsg, setRefreshMsg] = (0, import_react2.useState)("");
     console.log("projectCount", projectCount);
-    import_react2.default.useEffect(() => {
+    (0, import_react2.useEffect)(() => {
       getItem(STORAGE_KEY).then((val) => {
         if (val) setStored(val);
       });
@@ -13374,12 +13371,8 @@
       refreshMsg && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { color: "#2980b9", marginTop: 8 }, children: refreshMsg })
     ] });
   };
-  var PopupApp_default = Popup;
-
-  // src/popup.jsx
-  var import_jsx_runtime2 = __toESM(require_jsx_runtime());
   var root = (0, import_client.createRoot)(document.getElementById("root"));
-  root.render(/* @__PURE__ */ (0, import_jsx_runtime2.jsx)(PopupApp_default, {}));
+  root.render(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(Popup, {}));
 })();
 /*! Bundled license information:
 

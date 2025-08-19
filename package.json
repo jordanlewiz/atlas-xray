@@ -4,7 +4,7 @@
   "description": "Bare bones Chrome extension using React, IndexedDB, and Sass.",
   "main": "background.js",
   "scripts": {
-    "build:js": "esbuild src/popup.jsx --bundle --outfile=dist/popup.js --format=iife --loader:.js=jsx --define:process.env.NODE_ENV='\"production\"'",
+    "build:js": "esbuild src/popup.tsx --bundle --outfile=dist/popup.js --format=iife --loader:.ts=tsx --define:process.env.NODE_ENV='\"production\"'",
     "build:css": "sass src/assets/styles/popup.scss dist/popup.css --source-map",
     "build:content": "esbuild src/components/FloatingButton.jsx --bundle --outfile=dist/floatingButton.js --format=iife --loader:.js=jsx --loader:.jsx=jsx",
     "build:floatingButtonContentScript": "esbuild src/floatingButtonContentScript.js --bundle --outfile=dist/floatingButtonContentScript.js --format=iife --loader:.js=jsx",

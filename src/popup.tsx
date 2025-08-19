@@ -1,32 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createRoot } from "react-dom/client";
 import { getItem } from "./utils/database";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./utils/database";
 
 const STORAGE_KEY = "demoValue";
 
-const Popup = () => {
+const Popup: React.FC = () => {
   console.log("PopupApp");
-  const [stored, setStored] = useState("");
-  const [resetMsg, setResetMsg] = useState("");
+  const [stored, setStored] = useState<string>("");
+  const [resetMsg, setResetMsg] = useState<string>("");
   const projectCount = useLiveQuery(() => db.projectView.count(), []);
-  const [refreshMsg, setRefreshMsg] = useState("");
+  const [refreshMsg, setRefreshMsg] = useState<string>("");
 
   console.log("projectCount", projectCount);
-  React.useEffect(() => {
+  
+  useEffect(() => {
     getItem(STORAGE_KEY).then((val) => {
       if (val) setStored(val);
     });
   }, []);
 
-  const handleResetDB = async () => {
+  const handleResetDB = async (): Promise<void> => {
     /*if (window.confirm("Are you sure you want to clear all AtlasXrayDB data?")) {
       await Promise.all(db.tables.map(table => table.clear()));
       setResetMsg("All data cleared from AtlasXrayDB!");
     }*/
   };
 
-  const handleRefreshUpdates = async () => {
+  const handleRefreshUpdates = async (): Promise<void> => {
     setRefreshMsg(`Project count refreshed! >> ${projectCount} <<`);
     setTimeout(() => setRefreshMsg(""), 1500);
   };
@@ -46,4 +48,6 @@ const Popup = () => {
   );
 };
 
-export default Popup;
+// Bootstrap the React app
+const root = createRoot(document.getElementById("root")!);
+root.render(<Popup />);
