@@ -10,6 +10,7 @@ export default function Legend() {
       <span className="legend-item legend-paused">Paused</span>
       <span className="legend-item legend-cancelled">Cancelled</span>
       <span className="legend-item legend-done">Done</span>
+      <span className="legend-item legend-missed-update">Missed Update</span>
     </div>
   );
 }

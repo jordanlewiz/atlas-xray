@@ -150,6 +150,10 @@
     border-color: #424242;
     color: #fff;
     border: none;
+    &:before{
+      content: "❌";
+    }
+
   }
   &.state-done {
     background: #006400; // dark green

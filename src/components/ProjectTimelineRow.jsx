@@ -1,5 +1,6 @@
 import React from "react";
 import Tooltip from "@atlaskit/tooltip";
+import Popup from "@atlaskit/popup";
 import { buildProjectUrlFromKey } from "../utils/linkUtils";
 import {
   getTimelineWeekCells,
@@ -45,8 +46,36 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
           {cell.weekUpdates.map((u, idx) => (
             <div key={idx} className={u.oldDueDate ? 'has-old-due-date' : ''}>
               {u.oldDueDate && u.newDueDate && (
-                <Tooltip content={getDueDateTooltip(u)}>
-                  <span>{getDueDateDiff(u)}</span>
+                <Tooltip content={getDueDateTooltip(u)} position="top">
+                  <Popup
+                    trigger={(triggerProps) => (
+                      <span 
+                        {...triggerProps} 
+                        style={{ cursor: 'pointer', padding: '2px' }}
+                      >
+                        {getDueDateDiff(u)}
+                      </span>
+                    )}
+                    content={() => (
+                      <div style={{ padding: '8px', maxWidth: '300px' }}>
+                        <strong>Date Change</strong>
+                        <br />
+                        <span style={{ color: 'red' }}>{u.oldDueDate}</span> → <span style={{ color: 'green' }}>{u.newDueDate}</span>
+                        <br />
+                        <small>Difference: {getDueDateDiff(u)} days</small>
+                        {u.summary && (
+                          <>
+                            <br />
+                            <br />
+                            <strong>Summary:</strong>
+                            <br />
+                            {u.summary}
+                          </>
+                        )}
+                      </div>
+                    )}
+                    placement="top"
+                  />
                 </Tooltip>
               )}
             </div>
@@ -55,9 +84,21 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
       ))}
       <div className="timeline-target-date">
         {targetDateRaw ? (
-          <Tooltip content={targetDateRaw}>
-            <span>{targetDateDisplay}</span>
-          </Tooltip>
+          <Popup
+            trigger={(triggerProps) => (
+              <span {...triggerProps} style={{ cursor: 'pointer' }}>
+                {targetDateDisplay}
+              </span>
+            )}
+            content={() => (
+              <div style={{ padding: '8px', maxWidth: '300px' }}>
+                <strong>Target Date</strong>
+                <br />
+                {targetDateRaw}
+              </div>
+            )}
+            placement="bottom-start"
+          />
         ) : null}
       </div>
     </div>

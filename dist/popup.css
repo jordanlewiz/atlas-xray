@@ -150,6 +150,9 @@
   color: #fff;
   border: none;
 }
+.timeline-cell.state-cancelled:before {
+  content: "❌";
+}
 .timeline-cell.state-done {
   background: #006400;
   border-color: #006400;
@@ -290,7 +293,7 @@
 }
 
 .legend-cancelled:before {
-  content: "";
+  content: "❌";
   position: absolute;
   left: 6px;
   top: 50%;
@@ -313,6 +316,20 @@
   height: 18px;
   background: #006400;
   border: 2px solid #006400;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.legend-missed-update:before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  background: #d3d3d3;
+  border: 2px solid #d3d3d3;
   border-radius: 3px;
   display: inline-block;
 }
