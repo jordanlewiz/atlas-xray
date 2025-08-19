@@ -61146,6 +61146,91 @@
     return null;
   }
 
+  // src/utils/proseMirrorRenderer.ts
+  function renderProseMirror(summary) {
+    if (!summary) return "No summary available";
+    let parsedSummary = summary;
+    if (typeof summary === "string") {
+      if (summary.startsWith("{") && summary.endsWith("}")) {
+        try {
+          parsedSummary = JSON.parse(summary);
+        } catch (error) {
+          return summary;
+        }
+      } else {
+        return summary;
+      }
+    }
+    if (parsedSummary && typeof parsedSummary === "object" && parsedSummary.content) {
+      try {
+        const rendered = renderProseMirrorManually(parsedSummary);
+        return rendered;
+      } catch (error) {
+        console.error("Error rendering ProseMirror content:", error);
+        return `Summary rendering error: ${error instanceof Error ? error.message : String(error)}`;
+      }
+    }
+    return "No summary available";
+  }
+  function renderProseMirrorManually(doc) {
+    if (!doc.content || !Array.isArray(doc.content)) {
+      return "Invalid document structure";
+    }
+    let html = "";
+    for (const node3 of doc.content) {
+      html += renderNode(node3);
+    }
+    return html;
+  }
+  function renderNode(node3) {
+    if (!node3) return "";
+    switch (node3.type) {
+      case "paragraph":
+        return `<p>${renderNodeContent(node3.content)}</p>`;
+      case "text":
+        let text = node3.text || "";
+        if (node3.marks) {
+          for (const mark of node3.marks) {
+            switch (mark.type) {
+              case "strong":
+              case "bold":
+                text = `<strong>${text}</strong>`;
+                break;
+              case "em":
+              case "italic":
+                text = `<em>${text}</em>`;
+                break;
+              case "code":
+                text = `<code>${text}</code>`;
+                break;
+            }
+          }
+        }
+        return text;
+      case "emoji":
+        return node3.attrs?.text || "\u{1F60A}";
+      case "bullet_list":
+        return `<ul>${renderNodeContent(node3.content)}</ul>`;
+      case "ordered_list":
+        return `<ol>${renderNodeContent(node3.content)}</ol>`;
+      case "list_item":
+        return `<li>${renderNodeContent(node3.content)}</li>`;
+      case "heading":
+        const level = node3.attrs?.level || 1;
+        return `<h${level}>${renderNodeContent(node3.content)}</h${level}>`;
+      default:
+        return renderNodeContent(node3.content);
+    }
+  }
+  function renderNodeContent(content) {
+    if (!content || !Array.isArray(content)) return "";
+    let html = "";
+    for (const node3 of content) {
+      html += renderNode(node3);
+    }
+    return html;
+  }
+
   // src/components/ui/DateChangeModal.tsx
   var import_jsx_runtime = __toESM(require_jsx_runtime());
   function DateChangeModal({
@@ -61177,43 +61262,6 @@
           return "default";
       }
     };
-    const extractTextFromSummary = (summary) => {
-      if (!summary) return "No summary available";
-      let parsedSummary = summary;
-      if (typeof summary === "string") {
-        if (summary.startsWith("{") && summary.endsWith("}")) {
-          try {
-            parsedSummary = JSON.parse(summary);
-          } catch (error) {
-            return summary;
-          }
-        } else {
-          return summary;
-        }
-      }
-      if (parsedSummary && typeof parsedSummary === "object" && parsedSummary.content) {
-        try {
-          const extractText = (node3) => {
-            if (node3.type === "text" && node3.text) {
-              return node3.text;
-            }
-            if (node3.type === "emoji" && node3.attrs && node3.attrs.text) {
-              return node3.attrs.text;
-            }
-            if (node3.content && Array.isArray(node3.content)) {
-              return node3.content.map(extractText).filter(Boolean).join("");
-            }
-            return "";
-          };
-          const result2 = extractText(parsedSummary).trim();
-          return result2 || "No summary available";
-        } catch (error) {
-          console.warn("Error parsing summary:", error);
-          return "Summary parsing error";
-        }
-      }
-      return "No summary available";
-    };
     if (!selectedUpdate) return null;
     return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(modal_transition_default, { children: selectedUpdate && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
       ModalWrapper,
@@ -61223,60 +61271,54 @@
         shouldScrollInViewport: true,
         children: [
           /* @__PURE__ */ (0, import_jsx_runtime.jsx)(modal_header_default, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(modal_title_default, { children: "Date Change Details" }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(modal_body_default, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
-            box_default2,
-            {
-              style: { maxWidth: "1128px", margin: "0 auto", width: "100%" },
-              children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(grid_default, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "16px" }, children: [
-                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: project?.name }),
-                /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { margin: "16px 0" }, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Project Key:" }),
-                  " ",
-                  project?.projectKey
-                ] }),
-                selectedUpdate.oldDueDate && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-                  section_message_default,
-                  {
-                    appearance: "error",
-                    title: "Date Change Detected",
-                    children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "8px 0" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Date Change:" }) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "16px", margin: "8px 0" }, children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: "red" }, children: selectedUpdate.oldDueDate }),
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { margin: "0 16px" }, children: "\u2192" }),
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: "green" }, children: selectedUpdate.newDueDate })
-                      ] }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { margin: "8px 0" }, children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Difference:" }),
-                        " ",
-                        getDueDateDiff(selectedUpdate),
-                        " days"
-                      ] })
-                    ]
-                  }
-                ),
-                selectedUpdate.oldState && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
-                  section_message_default,
-                  {
-                    appearance: "error",
-                    title: "Status Change Detected",
-                    children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "8px 0" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Status Change:" }) }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "16px", margin: "8px 0" }, children: [
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.oldState), children: selectedUpdate.oldState }),
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { margin: "0 16px" }, children: "\u2192" }),
-                        /* @__PURE__ */ (0, import_jsx_runtime.jsx)(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.state), children: selectedUpdate.state })
-                      ] })
-                    ]
-                  }
-                ),
-                selectedUpdate.summary && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { margin: "8px 0" }, children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "Update Summary:" }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "8px 0", lineHeight: "1.5" }, children: extractTextFromSummary(selectedUpdate.summary) })
-                ] })
-              ] }) })
-            }
-          ) })
+          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(modal_body_default, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(box_default2, { style: { maxWidth: "1128px", margin: "0 auto", width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(grid_default, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "date-change-modal-body", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "project-name", children: project?.name }),
+            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "project-key", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Project Key:" }),
+              " ",
+              project?.projectKey
+            ] }),
+            selectedUpdate.oldDueDate && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              section_message_default,
+              {
+                appearance: "error",
+                title: "Date Change Detected",
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "change-section", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Date Change:" }) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "date-change-display", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "old-date", children: selectedUpdate.oldDueDate }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "arrow", children: "\u2192" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "new-date", children: selectedUpdate.newDueDate })
+                  ] }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "change-difference", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Difference:" }),
+                    " ",
+                    getDueDateDiff(selectedUpdate),
+                    " days"
+                  ] })
+                ]
+              }
+            ),
+            selectedUpdate.oldState && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+              section_message_default,
+              {
+                appearance: "error",
+                title: "Status Change Detected",
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "change-section", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Status Change:" }) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "status-change-display", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.oldState), children: selectedUpdate.oldState }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "arrow", children: "\u2192" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.state), children: selectedUpdate.state })
+                  ] })
+                ]
+              }
+            ),
+            selectedUpdate.summary && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "summary-section", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "Update Summary:" }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "summary-content", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { dangerouslySetInnerHTML: { __html: renderProseMirror(selectedUpdate.summary) } }) })
+            ] })
+          ] }) }) }) })
         ]
       }
     ) });

@@ -1,0 +1,112 @@
+.date-change-modal-content {
+  max-width: 1128px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.date-change-modal-body {
+  padding: 16px;
+}
+
+.project-name {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #172B4D;
+}
+
+.project-key {
+  margin: 16px 0;
+  color: #6B778C;
+  
+  small {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.change-section {
+  margin: 8px 0;
+  font-weight: 600;
+}
+
+.date-change-display {
+  font-size: 16px;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  .old-date {
+    color: #DE350B;
+    font-weight: 500;
+  }
+  
+  .arrow {
+    color: #6B778C;
+    font-weight: bold;
+  }
+  
+  .new-date {
+    color: #36B37E;
+    font-weight: 500;
+  }
+}
+
+.change-difference {
+  margin: 8px 0;
+  font-weight: 500;
+}
+
+.status-change-display {
+  font-size: 16px;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  .arrow {
+    color: #6B778C;
+    font-weight: bold;
+  }
+}
+
+.summary-section {
+  margin: 8px 0;
+  
+  h3 {
+    margin: 16px 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #172B4D;
+  }
+}
+
+.summary-content {
+  margin: 8px 0;
+  line-height: 1.6;
+  color: #172B4D;
+  
+  // Style the rendered HTML content
+  p {
+    margin: 8px 0;
+  }
+  
+  strong, b {
+    font-weight: 600;
+  }
+  
+  em, i {
+    font-style: italic;
+  }
+  
+  ul, ol {
+    margin: 8px 0;
+    padding-left: 20px;
+  }
+  
+  li {
+    margin: 4px 0;
+  }
+}

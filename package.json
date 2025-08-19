@@ -26,6 +26,7 @@
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
     "graphql": "^16.11.0",
+    "prosemirror-to-html": "^1.0.1-c",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
