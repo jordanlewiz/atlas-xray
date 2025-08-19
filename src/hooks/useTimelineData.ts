@@ -2,27 +2,37 @@ import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../utils/database";
 import { getWeekRanges, getAllProjectDates } from "../utils/timelineUtils";
+import type { 
+  ProjectView, 
+  ProjectUpdate, 
+  ProjectStatusHistory, 
+  WeekRange, 
+  ProjectViewModel, 
+  UseTimelineDataReturn 
+} from "../types";
+import type { AtlasXrayDB } from "../types/database";
 
-export function useTimelineData(weekLimit = 12) {
+export function useTimelineData(weekLimit: number = 12): UseTimelineDataReturn {
   // Fetch raw data from database
-  const projects = useLiveQuery(() => db.projectView.toArray(), []);
-  const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []);
-  const allStatusHistory = useLiveQuery(() => db.projectStatusHistory.toArray(), []);
+  const projects = useLiveQuery(() => (db as AtlasXrayDB).projectView.toArray(), []) as ProjectView[] | undefined;
+  const allUpdates = useLiveQuery(() => (db as AtlasXrayDB).projectUpdates.toArray(), []) as ProjectUpdate[] | undefined;
+  const allStatusHistory = useLiveQuery(() => (db as AtlasXrayDB).projectStatusHistory.toArray(), []) as ProjectStatusHistory[] | undefined;
 
   // Transform data into clean view models
-  const timelineData = useMemo(() => {
+  const timelineData = useMemo((): UseTimelineDataReturn => {
     if (!projects || !allUpdates || !allStatusHistory) {
       return {
         weekRanges: [],
         projectViewModels: [],
         updatesByProject: {},
+        statusByProject: {},
         isLoading: true
       };
     }
 
     // Group updates by project - simple and direct
-    const updatesByProject = {};
-    allUpdates.forEach(update => {
+    const updatesByProject: Record<string, ProjectUpdate[]> = {};
+    allUpdates.forEach((update: ProjectUpdate) => {
       const key = update.projectKey;
       if (key) {
         if (!updatesByProject[key]) {
@@ -33,8 +43,8 @@ export function useTimelineData(weekLimit = 12) {
     });
 
     // Group status history by project
-    const statusByProject = {};
-    allStatusHistory.forEach(status => {
+    const statusByProject: Record<string, ProjectStatusHistory[]> = {};
+    allStatusHistory.forEach((status: ProjectStatusHistory) => {
       const key = status.projectKey;
       if (key) {
         if (!statusByProject[key]) {
@@ -45,7 +55,7 @@ export function useTimelineData(weekLimit = 12) {
     });
 
     // Simple project view models - just basic info + references to data
-    const projectViewModels = projects.map(project => ({
+    const projectViewModels: ProjectViewModel[] = projects.map((project: ProjectView) => ({
       projectKey: project.projectKey,
       name: project.project?.name || "Unknown Project",
       // Keep it simple - just store the raw project data
@@ -70,16 +80,16 @@ export function useTimelineData(weekLimit = 12) {
         weekRanges: [],
         projectViewModels,
         updatesByProject,
-        statusByProject: {},
+        statusByProject,
         isLoading: false
       };
     }
     
     console.log('Creating week ranges from:', allDates.minDate, 'to', allDates.maxDate);
-    const weekRanges = getWeekRanges(allDates.minDate, allDates.maxDate);
+    const weekRanges: WeekRange[] = getWeekRanges(allDates.minDate, allDates.maxDate);
     console.log('Week ranges created:', weekRanges);
     
-    const limitedWeekRanges = weekRanges.slice(-weekLimit);
+    const limitedWeekRanges: WeekRange[] = weekRanges.slice(-weekLimit);
     console.log('Limited week ranges:', limitedWeekRanges);
 
     return {

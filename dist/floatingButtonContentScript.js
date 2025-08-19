@@ -1,3 +1,4 @@
+"use strict";
 (() => {
   var __create = Object.create;
   var __defProp = Object.defineProperty;
@@ -2386,9 +2387,9 @@
           if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function") {
             __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
           }
-          var React100 = require_react();
+          var React99 = require_react();
           var Scheduler = require_scheduler();
-          var ReactSharedInternals = React100.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+          var ReactSharedInternals = React99.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
           var suppressWarning = false;
           function setSuppressWarning(newSuppressWarning) {
             {
@@ -2437,7 +2438,7 @@
           var HostPortal = 4;
           var HostComponent = 5;
           var HostText = 6;
-          var Fragment12 = 7;
+          var Fragment14 = 7;
           var Mode = 8;
           var ContextConsumer = 9;
           var ContextProvider = 10;
@@ -3594,7 +3595,7 @@
                 return "DehydratedFragment";
               case ForwardRef:
                 return getWrappedName$1(type, type.render, "ForwardRef");
-              case Fragment12:
+              case Fragment14:
                 return "Fragment";
               case HostComponent:
                 return type;
@@ -3995,7 +3996,7 @@
             {
               if (props.value == null) {
                 if (typeof props.children === "object" && props.children !== null) {
-                  React100.Children.forEach(props.children, function(child) {
+                  React99.Children.forEach(props.children, function(child) {
                     if (child == null) {
                       return;
                     }
@@ -12023,7 +12024,7 @@
               }
             }
             function updateFragment2(returnFiber, current2, fragment, lanes, key) {
-              if (current2 === null || current2.tag !== Fragment12) {
+              if (current2 === null || current2.tag !== Fragment14) {
                 var created = createFiberFromFragment(fragment, returnFiber.mode, lanes, key);
                 created.return = returnFiber;
                 return created;
@@ -12426,7 +12427,7 @@
                 if (child.key === key) {
                   var elementType = element.type;
                   if (elementType === REACT_FRAGMENT_TYPE) {
-                    if (child.tag === Fragment12) {
+                    if (child.tag === Fragment14) {
                       deleteRemainingChildren(returnFiber, child.sibling);
                       var existing = useFiber(child, element.props.children);
                       existing.return = returnFiber;
@@ -17902,7 +17903,7 @@
                 var _resolvedProps2 = workInProgress2.elementType === type ? _unresolvedProps2 : resolveDefaultProps(type, _unresolvedProps2);
                 return updateForwardRef(current2, workInProgress2, type, _resolvedProps2, renderLanes2);
               }
-              case Fragment12:
+              case Fragment14:
                 return updateFragment(current2, workInProgress2, renderLanes2);
               case Mode:
                 return updateMode(current2, workInProgress2, renderLanes2);
@@ -18174,7 +18175,7 @@
               case SimpleMemoComponent:
               case FunctionComponent:
               case ForwardRef:
-              case Fragment12:
+              case Fragment14:
               case Mode:
               case Profiler:
               case ContextConsumer:
@@ -22435,7 +22436,7 @@
             return fiber;
           }
           function createFiberFromFragment(elements, mode, lanes, key) {
-            var fiber = createFiber(Fragment12, elements, key, mode);
+            var fiber = createFiber(Fragment14, elements, key, mode);
             fiber.lanes = lanes;
             return fiber;
           }
@@ -38189,7 +38190,7 @@
           var ContextProvider = REACT_PROVIDER_TYPE;
           var Element2 = REACT_ELEMENT_TYPE;
           var ForwardRef = REACT_FORWARD_REF_TYPE;
-          var Fragment12 = REACT_FRAGMENT_TYPE;
+          var Fragment14 = REACT_FRAGMENT_TYPE;
           var Lazy = REACT_LAZY_TYPE;
           var Memo = REACT_MEMO_TYPE;
           var Portal2 = REACT_PORTAL_TYPE;
@@ -38248,7 +38249,7 @@
           exports.ContextProvider = ContextProvider;
           exports.Element = Element2;
           exports.ForwardRef = ForwardRef;
-          exports.Fragment = Fragment12;
+          exports.Fragment = Fragment14;
           exports.Lazy = Lazy;
           exports.Memo = Memo;
           exports.Portal = Portal2;
@@ -40245,7 +40246,7 @@
       };
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.useCache = void 0;
-      var React100 = __importStar(require_react());
+      var React99 = __importStar(require_react());
       var react_1 = require_react();
       var cache_1 = require_cache();
       var is_server_environment_1 = require_is_server_environment();
@@ -40269,7 +40270,7 @@
       var StyleCacheProvider = (props) => {
         if ((0, is_server_environment_1.isServerEnvironment)()) {
           const inserted = (0, exports.useCache)();
-          return React100.createElement(Cache2.Provider, { value: inserted }, props.children);
+          return React99.createElement(Cache2.Provider, { value: inserted }, props.children);
         }
         return props.children;
       };
@@ -40572,7 +40573,7 @@
       exports.default = exports.Icon = void 0;
       require_icon_new_compiled();
       var _react = _interopRequireWildcard(require_react());
-      var React100 = _react;
+      var React99 = _react;
       var _runtime = require_runtime2();
       var _platformFeatureFlags = require_cjs3();
       function _interopRequireWildcard(e, t) {
@@ -40641,7 +40642,7 @@
           __html: dangerouslySetGlyph
         } : void 0;
         if (FallbackIcon && !(0, _platformFeatureFlags.fg)("platform-visual-refresh-icons")) {
-          return /* @__PURE__ */ React100.createElement(FallbackIcon, {
+          return /* @__PURE__ */ React99.createElement(FallbackIcon, {
             primaryColor: LEGACY_primaryColor !== null && LEGACY_primaryColor !== void 0 ? LEGACY_primaryColor : color,
             secondaryColor: LEGACY_secondaryColor,
             size: LEGACY_size,
@@ -40658,7 +40659,7 @@
         var baseSize = baseSizeMap[type];
         var viewBoxPadding = paddingMap[type][size2][spacing];
         var viewBoxSize = baseSize + 2 * viewBoxPadding;
-        return /* @__PURE__ */ React100.createElement("span", {
+        return /* @__PURE__ */ React99.createElement("span", {
           "data-testid": testId,
           role: label ? "img" : void 0,
           "aria-label": label ? label : void 0,
@@ -40667,7 +40668,7 @@
             color
           },
           className: (0, _runtime.ax)(["_1e0c1o8l _vchhusvi _1o9zidpf _vwz4kb7n _y4ti1igz _bozg1mb9", "_12va1onz _jcxd1r8n", shouldScale && "_1bsb1kw7 _4t3i1kw7", (type === "utility" || size2 === "small") && "_vwz4utpp"])
-        }, /* @__PURE__ */ React100.createElement("svg", {
+        }, /* @__PURE__ */ React99.createElement("svg", {
           fill: "none",
           viewBox: "".concat(0 - viewBoxPadding, " ").concat(0 - viewBoxPadding, " ").concat(viewBoxSize, " ").concat(viewBoxSize),
           role: "presentation",
@@ -40774,7 +40775,7 @@
       exports.default = exports.Icon = void 0;
       require_icon_compiled();
       var _react = _interopRequireWildcard(require_react());
-      var React100 = _react;
+      var React99 = _react;
       var _runtime = require_runtime2();
       var _extends2 = _interopRequireDefault(require_extends());
       var _defineProperty2 = _interopRequireDefault(require_defineProperty());
@@ -40826,7 +40827,7 @@
             __html: dangerouslySetGlyph
           }
         } : {
-          children: Glyph ? /* @__PURE__ */ React100.createElement(Glyph, {
+          children: Glyph ? /* @__PURE__ */ React99.createElement(Glyph, {
             role: "presentation"
           }) : null
         };
@@ -40834,7 +40835,7 @@
           width: width2 + "px",
           height: height + "px"
         } : null;
-        return /* @__PURE__ */ React100.createElement("span", (0, _extends2.default)({
+        return /* @__PURE__ */ React99.createElement("span", (0, _extends2.default)({
           "data-testid": testId,
           "data-vc": "icon-".concat(testId),
           role: label ? "img" : void 0,
@@ -41744,6 +41745,911 @@
     }
   });
 
+  // node_modules/react/cjs/react-jsx-runtime.development.js
+  var require_react_jsx_runtime_development = __commonJS({
+    "node_modules/react/cjs/react-jsx-runtime.development.js"(exports) {
+      "use strict";
+      if (true) {
+        (function() {
+          "use strict";
+          var React99 = require_react();
+          var REACT_ELEMENT_TYPE = Symbol.for("react.element");
+          var REACT_PORTAL_TYPE = Symbol.for("react.portal");
+          var REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
+          var REACT_STRICT_MODE_TYPE = Symbol.for("react.strict_mode");
+          var REACT_PROFILER_TYPE = Symbol.for("react.profiler");
+          var REACT_PROVIDER_TYPE = Symbol.for("react.provider");
+          var REACT_CONTEXT_TYPE = Symbol.for("react.context");
+          var REACT_FORWARD_REF_TYPE = Symbol.for("react.forward_ref");
+          var REACT_SUSPENSE_TYPE = Symbol.for("react.suspense");
+          var REACT_SUSPENSE_LIST_TYPE = Symbol.for("react.suspense_list");
+          var REACT_MEMO_TYPE = Symbol.for("react.memo");
+          var REACT_LAZY_TYPE = Symbol.for("react.lazy");
+          var REACT_OFFSCREEN_TYPE = Symbol.for("react.offscreen");
+          var MAYBE_ITERATOR_SYMBOL = Symbol.iterator;
+          var FAUX_ITERATOR_SYMBOL = "@@iterator";
+          function getIteratorFn(maybeIterable) {
+            if (maybeIterable === null || typeof maybeIterable !== "object") {
+              return null;
+            }
+            var maybeIterator = MAYBE_ITERATOR_SYMBOL && maybeIterable[MAYBE_ITERATOR_SYMBOL] || maybeIterable[FAUX_ITERATOR_SYMBOL];
+            if (typeof maybeIterator === "function") {
+              return maybeIterator;
+            }
+            return null;
+          }
+          var ReactSharedInternals = React99.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+          function error(format2) {
+            {
+              {
+                for (var _len2 = arguments.length, args = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+                  args[_key2 - 1] = arguments[_key2];
+                }
+                printWarning("error", format2, args);
+              }
+            }
+          }
+          function printWarning(level, format2, args) {
+            {
+              var ReactDebugCurrentFrame2 = ReactSharedInternals.ReactDebugCurrentFrame;
+              var stack = ReactDebugCurrentFrame2.getStackAddendum();
+              if (stack !== "") {
+                format2 += "%s";
+                args = args.concat([stack]);
+              }
+              var argsWithFormat = args.map(function(item) {
+                return String(item);
+              });
+              argsWithFormat.unshift("Warning: " + format2);
+              Function.prototype.apply.call(console[level], console, argsWithFormat);
+            }
+          }
+          var enableScopeAPI = false;
+          var enableCacheElement = false;
+          var enableTransitionTracing = false;
+          var enableLegacyHidden = false;
+          var enableDebugTracing = false;
+          var REACT_MODULE_REFERENCE;
+          {
+            REACT_MODULE_REFERENCE = Symbol.for("react.module.reference");
+          }
+          function isValidElementType(type) {
+            if (typeof type === "string" || typeof type === "function") {
+              return true;
+            }
+            if (type === REACT_FRAGMENT_TYPE || type === REACT_PROFILER_TYPE || enableDebugTracing || type === REACT_STRICT_MODE_TYPE || type === REACT_SUSPENSE_TYPE || type === REACT_SUSPENSE_LIST_TYPE || enableLegacyHidden || type === REACT_OFFSCREEN_TYPE || enableScopeAPI || enableCacheElement || enableTransitionTracing) {
+              return true;
+            }
+            if (typeof type === "object" && type !== null) {
+              if (type.$$typeof === REACT_LAZY_TYPE || type.$$typeof === REACT_MEMO_TYPE || type.$$typeof === REACT_PROVIDER_TYPE || type.$$typeof === REACT_CONTEXT_TYPE || type.$$typeof === REACT_FORWARD_REF_TYPE || // This needs to include all possible module reference object
+              // types supported by any Flight configuration anywhere since
+              // we don't know which Flight build this will end up being used
+              // with.
+              type.$$typeof === REACT_MODULE_REFERENCE || type.getModuleId !== void 0) {
+                return true;
+              }
+            }
+            return false;
+          }
+          function getWrappedName(outerType, innerType, wrapperName) {
+            var displayName = outerType.displayName;
+            if (displayName) {
+              return displayName;
+            }
+            var functionName = innerType.displayName || innerType.name || "";
+            return functionName !== "" ? wrapperName + "(" + functionName + ")" : wrapperName;
+          }
+          function getContextName(type) {
+            return type.displayName || "Context";
+          }
+          function getComponentNameFromType(type) {
+            if (type == null) {
+              return null;
+            }
+            {
+              if (typeof type.tag === "number") {
+                error("Received an unexpected object in getComponentNameFromType(). This is likely a bug in React. Please file an issue.");
+              }
+            }
+            if (typeof type === "function") {
+              return type.displayName || type.name || null;
+            }
+            if (typeof type === "string") {
+              return type;
+            }
+            switch (type) {
+              case REACT_FRAGMENT_TYPE:
+                return "Fragment";
+              case REACT_PORTAL_TYPE:
+                return "Portal";
+              case REACT_PROFILER_TYPE:
+                return "Profiler";
+              case REACT_STRICT_MODE_TYPE:
+                return "StrictMode";
+              case REACT_SUSPENSE_TYPE:
+                return "Suspense";
+              case REACT_SUSPENSE_LIST_TYPE:
+                return "SuspenseList";
+            }
+            if (typeof type === "object") {
+              switch (type.$$typeof) {
+                case REACT_CONTEXT_TYPE:
+                  var context = type;
+                  return getContextName(context) + ".Consumer";
+                case REACT_PROVIDER_TYPE:
+                  var provider = type;
+                  return getContextName(provider._context) + ".Provider";
+                case REACT_FORWARD_REF_TYPE:
+                  return getWrappedName(type, type.render, "ForwardRef");
+                case REACT_MEMO_TYPE:
+                  var outerName = type.displayName || null;
+                  if (outerName !== null) {
+                    return outerName;
+                  }
+                  return getComponentNameFromType(type.type) || "Memo";
+                case REACT_LAZY_TYPE: {
+                  var lazyComponent = type;
+                  var payload = lazyComponent._payload;
+                  var init = lazyComponent._init;
+                  try {
+                    return getComponentNameFromType(init(payload));
+                  } catch (x) {
+                    return null;
+                  }
+                }
+              }
+            }
+            return null;
+          }
+          var assign3 = Object.assign;
+          var disabledDepth = 0;
+          var prevLog;
+          var prevInfo;
+          var prevWarn;
+          var prevError;
+          var prevGroup;
+          var prevGroupCollapsed;
+          var prevGroupEnd;
+          function disabledLog() {
+          }
+          disabledLog.__reactDisabledLog = true;
+          function disableLogs() {
+            {
+              if (disabledDepth === 0) {
+                prevLog = console.log;
+                prevInfo = console.info;
+                prevWarn = console.warn;
+                prevError = console.error;
+                prevGroup = console.group;
+                prevGroupCollapsed = console.groupCollapsed;
+                prevGroupEnd = console.groupEnd;
+                var props = {
+                  configurable: true,
+                  enumerable: true,
+                  value: disabledLog,
+                  writable: true
+                };
+                Object.defineProperties(console, {
+                  info: props,
+                  log: props,
+                  warn: props,
+                  error: props,
+                  group: props,
+                  groupCollapsed: props,
+                  groupEnd: props
+                });
+              }
+              disabledDepth++;
+            }
+          }
+          function reenableLogs() {
+            {
+              disabledDepth--;
+              if (disabledDepth === 0) {
+                var props = {
+                  configurable: true,
+                  enumerable: true,
+                  writable: true
+                };
+                Object.defineProperties(console, {
+                  log: assign3({}, props, {
+                    value: prevLog
+                  }),
+                  info: assign3({}, props, {
+                    value: prevInfo
+                  }),
+                  warn: assign3({}, props, {
+                    value: prevWarn
+                  }),
+                  error: assign3({}, props, {
+                    value: prevError
+                  }),
+                  group: assign3({}, props, {
+                    value: prevGroup
+                  }),
+                  groupCollapsed: assign3({}, props, {
+                    value: prevGroupCollapsed
+                  }),
+                  groupEnd: assign3({}, props, {
+                    value: prevGroupEnd
+                  })
+                });
+              }
+              if (disabledDepth < 0) {
+                error("disabledDepth fell below zero. This is a bug in React. Please file an issue.");
+              }
+            }
+          }
+          var ReactCurrentDispatcher = ReactSharedInternals.ReactCurrentDispatcher;
+          var prefix3;
+          function describeBuiltInComponentFrame(name, source2, ownerFn) {
+            {
+              if (prefix3 === void 0) {
+                try {
+                  throw Error();
+                } catch (x) {
+                  var match3 = x.stack.trim().match(/\n( *(at )?)/);
+                  prefix3 = match3 && match3[1] || "";
+                }
+              }
+              return "\n" + prefix3 + name;
+            }
+          }
+          var reentry = false;
+          var componentFrameCache;
+          {
+            var PossiblyWeakMap = typeof WeakMap === "function" ? WeakMap : Map;
+            componentFrameCache = new PossiblyWeakMap();
+          }
+          function describeNativeComponentFrame(fn2, construct) {
+            if (!fn2 || reentry) {
+              return "";
+            }
+            {
+              var frame = componentFrameCache.get(fn2);
+              if (frame !== void 0) {
+                return frame;
+              }
+            }
+            var control;
+            reentry = true;
+            var previousPrepareStackTrace = Error.prepareStackTrace;
+            Error.prepareStackTrace = void 0;
+            var previousDispatcher;
+            {
+              previousDispatcher = ReactCurrentDispatcher.current;
+              ReactCurrentDispatcher.current = null;
+              disableLogs();
+            }
+            try {
+              if (construct) {
+                var Fake = function() {
+                  throw Error();
+                };
+                Object.defineProperty(Fake.prototype, "props", {
+                  set: function() {
+                    throw Error();
+                  }
+                });
+                if (typeof Reflect === "object" && Reflect.construct) {
+                  try {
+                    Reflect.construct(Fake, []);
+                  } catch (x) {
+                    control = x;
+                  }
+                  Reflect.construct(fn2, [], Fake);
+                } else {
+                  try {
+                    Fake.call();
+                  } catch (x) {
+                    control = x;
+                  }
+                  fn2.call(Fake.prototype);
+                }
+              } else {
+                try {
+                  throw Error();
+                } catch (x) {
+                  control = x;
+                }
+                fn2();
+              }
+            } catch (sample) {
+              if (sample && control && typeof sample.stack === "string") {
+                var sampleLines = sample.stack.split("\n");
+                var controlLines = control.stack.split("\n");
+                var s = sampleLines.length - 1;
+                var c = controlLines.length - 1;
+                while (s >= 1 && c >= 0 && sampleLines[s] !== controlLines[c]) {
+                  c--;
+                }
+                for (; s >= 1 && c >= 0; s--, c--) {
+                  if (sampleLines[s] !== controlLines[c]) {
+                    if (s !== 1 || c !== 1) {
+                      do {
+                        s--;
+                        c--;
+                        if (c < 0 || sampleLines[s] !== controlLines[c]) {
+                          var _frame = "\n" + sampleLines[s].replace(" at new ", " at ");
+                          if (fn2.displayName && _frame.includes("<anonymous>")) {
+                            _frame = _frame.replace("<anonymous>", fn2.displayName);
+                          }
+                          {
+                            if (typeof fn2 === "function") {
+                              componentFrameCache.set(fn2, _frame);
+                            }
+                          }
+                          return _frame;
+                        }
+                      } while (s >= 1 && c >= 0);
+                    }
+                    break;
+                  }
+                }
+              }
+            } finally {
+              reentry = false;
+              {
+                ReactCurrentDispatcher.current = previousDispatcher;
+                reenableLogs();
+              }
+              Error.prepareStackTrace = previousPrepareStackTrace;
+            }
+            var name = fn2 ? fn2.displayName || fn2.name : "";
+            var syntheticFrame = name ? describeBuiltInComponentFrame(name) : "";
+            {
+              if (typeof fn2 === "function") {
+                componentFrameCache.set(fn2, syntheticFrame);
+              }
+            }
+            return syntheticFrame;
+          }
+          function describeFunctionComponentFrame(fn2, source2, ownerFn) {
+            {
+              return describeNativeComponentFrame(fn2, false);
+            }
+          }
+          function shouldConstruct(Component3) {
+            var prototype2 = Component3.prototype;
+            return !!(prototype2 && prototype2.isReactComponent);
+          }
+          function describeUnknownElementTypeFrameInDEV(type, source2, ownerFn) {
+            if (type == null) {
+              return "";
+            }
+            if (typeof type === "function") {
+              {
+                return describeNativeComponentFrame(type, shouldConstruct(type));
+              }
+            }
+            if (typeof type === "string") {
+              return describeBuiltInComponentFrame(type);
+            }
+            switch (type) {
+              case REACT_SUSPENSE_TYPE:
+                return describeBuiltInComponentFrame("Suspense");
+              case REACT_SUSPENSE_LIST_TYPE:
+                return describeBuiltInComponentFrame("SuspenseList");
+            }
+            if (typeof type === "object") {
+              switch (type.$$typeof) {
+                case REACT_FORWARD_REF_TYPE:
+                  return describeFunctionComponentFrame(type.render);
+                case REACT_MEMO_TYPE:
+                  return describeUnknownElementTypeFrameInDEV(type.type, source2, ownerFn);
+                case REACT_LAZY_TYPE: {
+                  var lazyComponent = type;
+                  var payload = lazyComponent._payload;
+                  var init = lazyComponent._init;
+                  try {
+                    return describeUnknownElementTypeFrameInDEV(init(payload), source2, ownerFn);
+                  } catch (x) {
+                  }
+                }
+              }
+            }
+            return "";
+          }
+          var hasOwnProperty8 = Object.prototype.hasOwnProperty;
+          var loggedTypeFailures = {};
+          var ReactDebugCurrentFrame = ReactSharedInternals.ReactDebugCurrentFrame;
+          function setCurrentlyValidatingElement(element) {
+            {
+              if (element) {
+                var owner = element._owner;
+                var stack = describeUnknownElementTypeFrameInDEV(element.type, element._source, owner ? owner.type : null);
+                ReactDebugCurrentFrame.setExtraStackFrame(stack);
+              } else {
+                ReactDebugCurrentFrame.setExtraStackFrame(null);
+              }
+            }
+          }
+          function checkPropTypes(typeSpecs, values, location2, componentName, element) {
+            {
+              var has = Function.call.bind(hasOwnProperty8);
+              for (var typeSpecName in typeSpecs) {
+                if (has(typeSpecs, typeSpecName)) {
+                  var error$1 = void 0;
+                  try {
+                    if (typeof typeSpecs[typeSpecName] !== "function") {
+                      var err = Error((componentName || "React class") + ": " + location2 + " type `" + typeSpecName + "` is invalid; it must be a function, usually from the `prop-types` package, but received `" + typeof typeSpecs[typeSpecName] + "`.This often happens because of typos such as `PropTypes.function` instead of `PropTypes.func`.");
+                      err.name = "Invariant Violation";
+                      throw err;
+                    }
+                    error$1 = typeSpecs[typeSpecName](values, typeSpecName, componentName, location2, null, "SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED");
+                  } catch (ex) {
+                    error$1 = ex;
+                  }
+                  if (error$1 && !(error$1 instanceof Error)) {
+                    setCurrentlyValidatingElement(element);
+                    error("%s: type specification of %s `%s` is invalid; the type checker function must return `null` or an `Error` but returned a %s. You may have forgotten to pass an argument to the type checker creator (arrayOf, instanceOf, objectOf, oneOf, oneOfType, and shape all require an argument).", componentName || "React class", location2, typeSpecName, typeof error$1);
+                    setCurrentlyValidatingElement(null);
+                  }
+                  if (error$1 instanceof Error && !(error$1.message in loggedTypeFailures)) {
+                    loggedTypeFailures[error$1.message] = true;
+                    setCurrentlyValidatingElement(element);
+                    error("Failed %s type: %s", location2, error$1.message);
+                    setCurrentlyValidatingElement(null);
+                  }
+                }
+              }
+            }
+          }
+          var isArrayImpl = Array.isArray;
+          function isArray3(a) {
+            return isArrayImpl(a);
+          }
+          function typeName(value) {
+            {
+              var hasToStringTag = typeof Symbol === "function" && Symbol.toStringTag;
+              var type = hasToStringTag && value[Symbol.toStringTag] || value.constructor.name || "Object";
+              return type;
+            }
+          }
+          function willCoercionThrow(value) {
+            {
+              try {
+                testStringCoercion(value);
+                return false;
+              } catch (e) {
+                return true;
+              }
+            }
+          }
+          function testStringCoercion(value) {
+            return "" + value;
+          }
+          function checkKeyStringCoercion(value) {
+            {
+              if (willCoercionThrow(value)) {
+                error("The provided key is an unsupported type %s. This value must be coerced to a string before before using it here.", typeName(value));
+                return testStringCoercion(value);
+              }
+            }
+          }
+          var ReactCurrentOwner = ReactSharedInternals.ReactCurrentOwner;
+          var RESERVED_PROPS = {
+            key: true,
+            ref: true,
+            __self: true,
+            __source: true
+          };
+          var specialPropKeyWarningShown;
+          var specialPropRefWarningShown;
+          var didWarnAboutStringRefs;
+          {
+            didWarnAboutStringRefs = {};
+          }
+          function hasValidRef(config) {
+            {
+              if (hasOwnProperty8.call(config, "ref")) {
+                var getter = Object.getOwnPropertyDescriptor(config, "ref").get;
+                if (getter && getter.isReactWarning) {
+                  return false;
+                }
+              }
+            }
+            return config.ref !== void 0;
+          }
+          function hasValidKey(config) {
+            {
+              if (hasOwnProperty8.call(config, "key")) {
+                var getter = Object.getOwnPropertyDescriptor(config, "key").get;
+                if (getter && getter.isReactWarning) {
+                  return false;
+                }
+              }
+            }
+            return config.key !== void 0;
+          }
+          function warnIfStringRefCannotBeAutoConverted(config, self2) {
+            {
+              if (typeof config.ref === "string" && ReactCurrentOwner.current && self2 && ReactCurrentOwner.current.stateNode !== self2) {
+                var componentName = getComponentNameFromType(ReactCurrentOwner.current.type);
+                if (!didWarnAboutStringRefs[componentName]) {
+                  error('Component "%s" contains the string ref "%s". Support for string refs will be removed in a future major release. This case cannot be automatically converted to an arrow function. We ask you to manually fix this case by using useRef() or createRef() instead. Learn more about using refs safely here: https://reactjs.org/link/strict-mode-string-ref', getComponentNameFromType(ReactCurrentOwner.current.type), config.ref);
+                  didWarnAboutStringRefs[componentName] = true;
+                }
+              }
+            }
+          }
+          function defineKeyPropWarningGetter(props, displayName) {
+            {
+              var warnAboutAccessingKey = function() {
+                if (!specialPropKeyWarningShown) {
+                  specialPropKeyWarningShown = true;
+                  error("%s: `key` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://reactjs.org/link/special-props)", displayName);
+                }
+              };
+              warnAboutAccessingKey.isReactWarning = true;
+              Object.defineProperty(props, "key", {
+                get: warnAboutAccessingKey,
+                configurable: true
+              });
+            }
+          }
+          function defineRefPropWarningGetter(props, displayName) {
+            {
+              var warnAboutAccessingRef = function() {
+                if (!specialPropRefWarningShown) {
+                  specialPropRefWarningShown = true;
+                  error("%s: `ref` is not a prop. Trying to access it will result in `undefined` being returned. If you need to access the same value within the child component, you should pass it as a different prop. (https://reactjs.org/link/special-props)", displayName);
+                }
+              };
+              warnAboutAccessingRef.isReactWarning = true;
+              Object.defineProperty(props, "ref", {
+                get: warnAboutAccessingRef,
+                configurable: true
+              });
+            }
+          }
+          var ReactElement = function(type, key, ref, self2, source2, owner, props) {
+            var element = {
+              // This tag allows us to uniquely identify this as a React Element
+              $$typeof: REACT_ELEMENT_TYPE,
+              // Built-in properties that belong on the element
+              type,
+              key,
+              ref,
+              props,
+              // Record the component responsible for creating this element.
+              _owner: owner
+            };
+            {
+              element._store = {};
+              Object.defineProperty(element._store, "validated", {
+                configurable: false,
+                enumerable: false,
+                writable: true,
+                value: false
+              });
+              Object.defineProperty(element, "_self", {
+                configurable: false,
+                enumerable: false,
+                writable: false,
+                value: self2
+              });
+              Object.defineProperty(element, "_source", {
+                configurable: false,
+                enumerable: false,
+                writable: false,
+                value: source2
+              });
+              if (Object.freeze) {
+                Object.freeze(element.props);
+                Object.freeze(element);
+              }
+            }
+            return element;
+          };
+          function jsxDEV(type, config, maybeKey, source2, self2) {
+            {
+              var propName;
+              var props = {};
+              var key = null;
+              var ref = null;
+              if (maybeKey !== void 0) {
+                {
+                  checkKeyStringCoercion(maybeKey);
+                }
+                key = "" + maybeKey;
+              }
+              if (hasValidKey(config)) {
+                {
+                  checkKeyStringCoercion(config.key);
+                }
+                key = "" + config.key;
+              }
+              if (hasValidRef(config)) {
+                ref = config.ref;
+                warnIfStringRefCannotBeAutoConverted(config, self2);
+              }
+              for (propName in config) {
+                if (hasOwnProperty8.call(config, propName) && !RESERVED_PROPS.hasOwnProperty(propName)) {
+                  props[propName] = config[propName];
+                }
+              }
+              if (type && type.defaultProps) {
+                var defaultProps2 = type.defaultProps;
+                for (propName in defaultProps2) {
+                  if (props[propName] === void 0) {
+                    props[propName] = defaultProps2[propName];
+                  }
+                }
+              }
+              if (key || ref) {
+                var displayName = typeof type === "function" ? type.displayName || type.name || "Unknown" : type;
+                if (key) {
+                  defineKeyPropWarningGetter(props, displayName);
+                }
+                if (ref) {
+                  defineRefPropWarningGetter(props, displayName);
+                }
+              }
+              return ReactElement(type, key, ref, self2, source2, ReactCurrentOwner.current, props);
+            }
+          }
+          var ReactCurrentOwner$1 = ReactSharedInternals.ReactCurrentOwner;
+          var ReactDebugCurrentFrame$1 = ReactSharedInternals.ReactDebugCurrentFrame;
+          function setCurrentlyValidatingElement$1(element) {
+            {
+              if (element) {
+                var owner = element._owner;
+                var stack = describeUnknownElementTypeFrameInDEV(element.type, element._source, owner ? owner.type : null);
+                ReactDebugCurrentFrame$1.setExtraStackFrame(stack);
+              } else {
+                ReactDebugCurrentFrame$1.setExtraStackFrame(null);
+              }
+            }
+          }
+          var propTypesMisspellWarningShown;
+          {
+            propTypesMisspellWarningShown = false;
+          }
+          function isValidElement(object2) {
+            {
+              return typeof object2 === "object" && object2 !== null && object2.$$typeof === REACT_ELEMENT_TYPE;
+            }
+          }
+          function getDeclarationErrorAddendum() {
+            {
+              if (ReactCurrentOwner$1.current) {
+                var name = getComponentNameFromType(ReactCurrentOwner$1.current.type);
+                if (name) {
+                  return "\n\nCheck the render method of `" + name + "`.";
+                }
+              }
+              return "";
+            }
+          }
+          function getSourceInfoErrorAddendum(source2) {
+            {
+              if (source2 !== void 0) {
+                var fileName = source2.fileName.replace(/^.*[\\\/]/, "");
+                var lineNumber = source2.lineNumber;
+                return "\n\nCheck your code at " + fileName + ":" + lineNumber + ".";
+              }
+              return "";
+            }
+          }
+          var ownerHasKeyUseWarning = {};
+          function getCurrentComponentErrorInfo(parentType) {
+            {
+              var info = getDeclarationErrorAddendum();
+              if (!info) {
+                var parentName = typeof parentType === "string" ? parentType : parentType.displayName || parentType.name;
+                if (parentName) {
+                  info = "\n\nCheck the top-level render call using <" + parentName + ">.";
+                }
+              }
+              return info;
+            }
+          }
+          function validateExplicitKey(element, parentType) {
+            {
+              if (!element._store || element._store.validated || element.key != null) {
+                return;
+              }
+              element._store.validated = true;
+              var currentComponentErrorInfo = getCurrentComponentErrorInfo(parentType);
+              if (ownerHasKeyUseWarning[currentComponentErrorInfo]) {
+                return;
+              }
+              ownerHasKeyUseWarning[currentComponentErrorInfo] = true;
+              var childOwner = "";
+              if (element && element._owner && element._owner !== ReactCurrentOwner$1.current) {
+                childOwner = " It was passed a child from " + getComponentNameFromType(element._owner.type) + ".";
+              }
+              setCurrentlyValidatingElement$1(element);
+              error('Each child in a list should have a unique "key" prop.%s%s See https://reactjs.org/link/warning-keys for more information.', currentComponentErrorInfo, childOwner);
+              setCurrentlyValidatingElement$1(null);
+            }
+          }
+          function validateChildKeys(node3, parentType) {
+            {
+              if (typeof node3 !== "object") {
+                return;
+              }
+              if (isArray3(node3)) {
+                for (var i = 0; i < node3.length; i++) {
+                  var child = node3[i];
+                  if (isValidElement(child)) {
+                    validateExplicitKey(child, parentType);
+                  }
+                }
+              } else if (isValidElement(node3)) {
+                if (node3._store) {
+                  node3._store.validated = true;
+                }
+              } else if (node3) {
+                var iteratorFn = getIteratorFn(node3);
+                if (typeof iteratorFn === "function") {
+                  if (iteratorFn !== node3.entries) {
+                    var iterator = iteratorFn.call(node3);
+                    var step;
+                    while (!(step = iterator.next()).done) {
+                      if (isValidElement(step.value)) {
+                        validateExplicitKey(step.value, parentType);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          function validatePropTypes(element) {
+            {
+              var type = element.type;
+              if (type === null || type === void 0 || typeof type === "string") {
+                return;
+              }
+              var propTypes2;
+              if (typeof type === "function") {
+                propTypes2 = type.propTypes;
+              } else if (typeof type === "object" && (type.$$typeof === REACT_FORWARD_REF_TYPE || // Note: Memo only checks outer props here.
+              // Inner props are checked in the reconciler.
+              type.$$typeof === REACT_MEMO_TYPE)) {
+                propTypes2 = type.propTypes;
+              } else {
+                return;
+              }
+              if (propTypes2) {
+                var name = getComponentNameFromType(type);
+                checkPropTypes(propTypes2, element.props, "prop", name, element);
+              } else if (type.PropTypes !== void 0 && !propTypesMisspellWarningShown) {
+                propTypesMisspellWarningShown = true;
+                var _name = getComponentNameFromType(type);
+                error("Component %s declared `PropTypes` instead of `propTypes`. Did you misspell the property assignment?", _name || "Unknown");
+              }
+              if (typeof type.getDefaultProps === "function" && !type.getDefaultProps.isReactClassApproved) {
+                error("getDefaultProps is only used on classic React.createClass definitions. Use a static property named `defaultProps` instead.");
+              }
+            }
+          }
+          function validateFragmentProps(fragment) {
+            {
+              var keys = Object.keys(fragment.props);
+              for (var i = 0; i < keys.length; i++) {
+                var key = keys[i];
+                if (key !== "children" && key !== "key") {
+                  setCurrentlyValidatingElement$1(fragment);
+                  error("Invalid prop `%s` supplied to `React.Fragment`. React.Fragment can only have `key` and `children` props.", key);
+                  setCurrentlyValidatingElement$1(null);
+                  break;
+                }
+              }
+              if (fragment.ref !== null) {
+                setCurrentlyValidatingElement$1(fragment);
+                error("Invalid attribute `ref` supplied to `React.Fragment`.");
+                setCurrentlyValidatingElement$1(null);
+              }
+            }
+          }
+          var didWarnAboutKeySpread = {};
+          function jsxWithValidation(type, props, key, isStaticChildren, source2, self2) {
+            {
+              var validType = isValidElementType(type);
+              if (!validType) {
+                var info = "";
+                if (type === void 0 || typeof type === "object" && type !== null && Object.keys(type).length === 0) {
+                  info += " You likely forgot to export your component from the file it's defined in, or you might have mixed up default and named imports.";
+                }
+                var sourceInfo = getSourceInfoErrorAddendum(source2);
+                if (sourceInfo) {
+                  info += sourceInfo;
+                } else {
+                  info += getDeclarationErrorAddendum();
+                }
+                var typeString;
+                if (type === null) {
+                  typeString = "null";
+                } else if (isArray3(type)) {
+                  typeString = "array";
+                } else if (type !== void 0 && type.$$typeof === REACT_ELEMENT_TYPE) {
+                  typeString = "<" + (getComponentNameFromType(type.type) || "Unknown") + " />";
+                  info = " Did you accidentally export a JSX literal instead of a component?";
+                } else {
+                  typeString = typeof type;
+                }
+                error("React.jsx: type is invalid -- expected a string (for built-in components) or a class/function (for composite components) but got: %s.%s", typeString, info);
+              }
+              var element = jsxDEV(type, props, key, source2, self2);
+              if (element == null) {
+                return element;
+              }
+              if (validType) {
+                var children = props.children;
+                if (children !== void 0) {
+                  if (isStaticChildren) {
+                    if (isArray3(children)) {
+                      for (var i = 0; i < children.length; i++) {
+                        validateChildKeys(children[i], type);
+                      }
+                      if (Object.freeze) {
+                        Object.freeze(children);
+                      }
+                    } else {
+                      error("React.jsx: Static children should always be an array. You are likely explicitly calling React.jsxs or React.jsxDEV. Use the Babel transform instead.");
+                    }
+                  } else {
+                    validateChildKeys(children, type);
+                  }
+                }
+              }
+              {
+                if (hasOwnProperty8.call(props, "key")) {
+                  var componentName = getComponentNameFromType(type);
+                  var keys = Object.keys(props).filter(function(k) {
+                    return k !== "key";
+                  });
+                  var beforeExample = keys.length > 0 ? "{key: someKey, " + keys.join(": ..., ") + ": ...}" : "{key: someKey}";
+                  if (!didWarnAboutKeySpread[componentName + beforeExample]) {
+                    var afterExample = keys.length > 0 ? "{" + keys.join(": ..., ") + ": ...}" : "{}";
+                    error('A props object containing a "key" prop is being spread into JSX:\n  let props = %s;\n  <%s {...props} />\nReact keys must be passed directly to JSX without using spread:\n  let props = %s;\n  <%s key={someKey} {...props} />', beforeExample, componentName, afterExample, componentName);
+                    didWarnAboutKeySpread[componentName + beforeExample] = true;
+                  }
+                }
+              }
+              if (type === REACT_FRAGMENT_TYPE) {
+                validateFragmentProps(element);
+              } else {
+                validatePropTypes(element);
+              }
+              return element;
+            }
+          }
+          function jsxWithValidationStatic(type, props, key) {
+            {
+              return jsxWithValidation(type, props, key, true);
+            }
+          }
+          function jsxWithValidationDynamic(type, props, key) {
+            {
+              return jsxWithValidation(type, props, key, false);
+            }
+          }
+          var jsx13 = jsxWithValidationDynamic;
+          var jsxs8 = jsxWithValidationStatic;
+          exports.Fragment = REACT_FRAGMENT_TYPE;
+          exports.jsx = jsx13;
+          exports.jsxs = jsxs8;
+        })();
+      }
+    }
+  });
+
+  // node_modules/react/jsx-runtime.js
+  var require_jsx_runtime = __commonJS({
+    "node_modules/react/jsx-runtime.js"(exports, module2) {
+      "use strict";
+      if (false) {
+        module2.exports = null;
+      } else {
+        module2.exports = require_react_jsx_runtime_development();
+      }
+    }
+  });
+
   // node_modules/@atlaskit/icon/core/chevron-down.js
   var require_chevron_down = __commonJS({
     "node_modules/@atlaskit/icon/core/chevron-down.js"(exports) {
@@ -41883,11 +42789,11 @@
   });
 
   // src/floatingButtonContentScript.js
-  var import_react145 = __toESM(require_react());
+  var import_react144 = __toESM(require_react());
   var import_client3 = __toESM(require_client());
 
   // src/components/FloatingButton.jsx
-  var import_react144 = __toESM(require_react());
+  var import_react143 = __toESM(require_react());
 
   // node_modules/dexie/import-wrapper.mjs
   var import_dexie = __toESM(require_dexie(), 1);
@@ -42062,9 +42968,6 @@
   }
 
   // src/components/ProjectList.jsx
-  var import_react119 = __toESM(require_react());
-
-  // src/components/ProjectTimeline.jsx
   var import_react118 = __toESM(require_react());
 
   // src/components/ProjectTimelineRow.jsx
@@ -60250,6 +61153,7 @@
   }
 
   // src/components/DateChangeModal.jsx
+  var import_jsx_runtime = __toESM(require_jsx_runtime());
   function DateChangeModal({ selectedUpdate, project, onClose }) {
     const getLozengeAppearance = (status, isBold = false) => {
       if (!status) return "new";
@@ -60311,7 +61215,7 @@
       }
       return "No summary available";
     };
-    return /* @__PURE__ */ import_react113.default.createElement(modal_transition_default, null, selectedUpdate && /* @__PURE__ */ import_react113.default.createElement(
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(modal_transition_default, { children: selectedUpdate && /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
       ModalWrapper,
       {
         onClose,
@@ -60320,33 +61224,65 @@
         shouldScrollInViewport: true,
         actions: [
           { text: "Close", onClick: onClose, appearance: "subtle" }
-        ]
-      },
-      /* @__PURE__ */ import_react113.default.createElement(
-        box_default2,
-        {
-          style: { maxWidth: "1128px", margin: "0 auto", width: "100%" }
-        },
-        /* @__PURE__ */ import_react113.default.createElement(grid_default, null, /* @__PURE__ */ import_react113.default.createElement("div", { style: { padding: "16px" } }, /* @__PURE__ */ import_react113.default.createElement("h3", null, project?.name), /* @__PURE__ */ import_react113.default.createElement("div", { style: { margin: "16px 0" } }, /* @__PURE__ */ import_react113.default.createElement("small", null, "Project Key:"), " ", project?.projectKey), selectedUpdate.oldDueDate && /* @__PURE__ */ import_react113.default.createElement(
-          section_message_default,
+        ],
+        children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+          box_default2,
           {
-            appearance: "error",
-            title: "Date Change Detected"
-          },
-          /* @__PURE__ */ import_react113.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react113.default.createElement("strong", null, "Date Change:")),
-          /* @__PURE__ */ import_react113.default.createElement("div", { style: { fontSize: "16px", margin: "8px 0" } }, /* @__PURE__ */ import_react113.default.createElement("span", { style: { color: "red" } }, selectedUpdate.oldDueDate), /* @__PURE__ */ import_react113.default.createElement("span", { style: { margin: "0 16px" } }, "\u2192"), /* @__PURE__ */ import_react113.default.createElement("span", { style: { color: "green" } }, selectedUpdate.newDueDate)),
-          /* @__PURE__ */ import_react113.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react113.default.createElement("strong", null, "Difference:"), " ", getDueDateDiff(selectedUpdate), " days")
-        ), selectedUpdate.oldState && /* @__PURE__ */ import_react113.default.createElement(
-          section_message_default,
-          {
-            appearance: "error",
-            title: "Status Change Detected"
-          },
-          /* @__PURE__ */ import_react113.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react113.default.createElement("strong", null, "Status Change:")),
-          /* @__PURE__ */ import_react113.default.createElement("div", { style: { fontSize: "16px", margin: "8px 0" } }, /* @__PURE__ */ import_react113.default.createElement(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.oldState) }, selectedUpdate.oldState), /* @__PURE__ */ import_react113.default.createElement("span", { style: { margin: "0 16px" } }, "\u2192"), /* @__PURE__ */ import_react113.default.createElement(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.state) }, selectedUpdate.state))
-        ), selectedUpdate.summary && /* @__PURE__ */ import_react113.default.createElement("div", { style: { margin: "8px 0" } }, /* @__PURE__ */ import_react113.default.createElement("h3", null, "Update Summary:"), /* @__PURE__ */ import_react113.default.createElement("p", { style: { margin: "8px 0", lineHeight: "1.5" } }, extractTextFromSummary(selectedUpdate.summary)), /* @__PURE__ */ import_react113.default.createElement("h3", null, "Update Details:"), /* @__PURE__ */ import_react113.default.createElement("p", { style: { margin: "8px 0", lineHeight: "1.5" } }, selectedUpdate.notes))))
-      )
-    ));
+            style: { maxWidth: "1128px", margin: "0 auto", width: "100%" },
+            children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(grid_default, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { padding: "16px" }, children: [
+              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: project?.name }),
+              /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { margin: "16px 0" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Project Key:" }),
+                " ",
+                project?.projectKey
+              ] }),
+              selectedUpdate.oldDueDate && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                section_message_default,
+                {
+                  appearance: "error",
+                  title: "Date Change Detected",
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "8px 0" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Date Change:" }) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "16px", margin: "8px 0" }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: "red" }, children: selectedUpdate.oldDueDate }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { margin: "0 16px" }, children: "\u2192" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { color: "green" }, children: selectedUpdate.newDueDate })
+                    ] }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { margin: "8px 0" }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Difference:" }),
+                      " ",
+                      getDueDateDiff(selectedUpdate),
+                      " days"
+                    ] })
+                  ]
+                }
+              ),
+              selectedUpdate.oldState && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+                section_message_default,
+                {
+                  appearance: "error",
+                  title: "Status Change Detected",
+                  children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { margin: "8px 0" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Status Change:" }) }),
+                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { fontSize: "16px", margin: "8px 0" }, children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.oldState), children: selectedUpdate.oldState }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { style: { margin: "0 16px" }, children: "\u2192" }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.state), children: selectedUpdate.state })
+                    ] })
+                  ]
+                }
+              ),
+              selectedUpdate.summary && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { margin: "8px 0" }, children: [
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "Update Summary:" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "8px 0", lineHeight: "1.5" }, children: extractTextFromSummary(selectedUpdate.summary) }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "Update Details:" }),
+                /* @__PURE__ */ (0, import_jsx_runtime.jsx)("p", { style: { margin: "8px 0", lineHeight: "1.5" }, children: selectedUpdate.notes })
+              ] })
+            ] }) })
+          }
+        )
+      }
+    ) });
   }
 
   // src/utils/linkUtils.js
@@ -60358,6 +61294,7 @@
   }
 
   // src/components/ProjectTimelineRow.jsx
+  var import_jsx_runtime2 = __toESM(require_jsx_runtime());
   function ProjectTimelineRow({ project, weekRanges, updates }) {
     console.log("selectedUpdate >>", updates);
     const [isOpen, setIsOpen] = (0, import_react114.useState)(false);
@@ -60377,53 +61314,69 @@
     console.log("weekCells result:", weekCells);
     const targetDateRaw = updates.find((u) => u.targetDate)?.targetDate || updates.find((u) => u.newDueDate)?.newDueDate || project.newDueDate || project.targetDate;
     const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
-    return /* @__PURE__ */ import_react114.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react114.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react114.default.createElement(tooltip_default, { content: project.name, position: "bottom-start" }, /* @__PURE__ */ import_react114.default.createElement("h3", { className: "project-title-ellipsis" }, project.name)), /* @__PURE__ */ import_react114.default.createElement(
-      "a",
-      {
-        href: buildProjectUrlFromKey(project.projectKey),
-        target: "_blank",
-        rel: "noopener noreferrer"
-      },
-      project.projectKey
-    )), weekCells.map((cell, i) => /* @__PURE__ */ import_react114.default.createElement("div", { key: i, className: cell.cellClass }, cell.weekUpdates.map((u, idx) => /* @__PURE__ */ import_react114.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "", onClick: () => setSelectedUpdate(u) }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react114.default.createElement(tooltip_default, { content: getDueDateTooltip(u), position: "top" }, getDueDateDiff(u)))))), /* @__PURE__ */ import_react114.default.createElement("div", { className: "timeline-target-date" }, targetDateRaw ? /* @__PURE__ */ import_react114.default.createElement(
-      esm_default3,
-      {
-        isOpen,
-        onClose: () => setIsOpen(false),
-        content: () => /* @__PURE__ */ import_react114.default.createElement("div", { style: { padding: "16px", maxWidth: "300px" } }, /* @__PURE__ */ import_react114.default.createElement("h3", null, "Target Date"), /* @__PURE__ */ import_react114.default.createElement("p", null, targetDateRaw)),
-        trigger: (triggerProps) => /* @__PURE__ */ import_react114.default.createElement(
-          button_default,
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "timeline-row", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "timeline-y-label", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(tooltip_default, { content: project.name, position: "bottom-start", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h3", { className: "project-title-ellipsis", children: project.name }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+          "a",
           {
-            ...triggerProps,
-            appearance: "default",
-            spacing: "compact",
-            onClick: () => setIsOpen(!isOpen)
-          },
-          targetDateDisplay
-        ),
-        placement: "bottom-start",
-        zIndex: 1e3
-      }
-    ) : /* @__PURE__ */ import_react114.default.createElement("span", { style: { color: "#6b7280", fontSize: "12px" } }, "No target date")), /* @__PURE__ */ import_react114.default.createElement(
-      DateChangeModal,
-      {
-        selectedUpdate,
-        project,
-        onClose: () => setSelectedUpdate(null)
-      }
-    ));
+            href: buildProjectUrlFromKey(project.projectKey),
+            target: "_blank",
+            rel: "noopener noreferrer",
+            children: project.projectKey
+          }
+        )
+      ] }),
+      weekCells.map((cell, i) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: cell.cellClass, children: cell.weekUpdates.map((u, idx) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: u.oldDueDate ? "has-old-due-date" : "", onClick: () => setSelectedUpdate(u), children: u.oldDueDate && u.newDueDate && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(tooltip_default, { content: getDueDateTooltip(u), position: "top", children: getDueDateDiff(u) }) }, idx)) }, i)),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "timeline-target-date", children: targetDateRaw ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+        esm_default3,
+        {
+          isOpen,
+          onClose: () => setIsOpen(false),
+          content: () => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { padding: "16px", maxWidth: "300px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h3", { children: "Target Date" }),
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { children: targetDateRaw })
+          ] }),
+          trigger: (triggerProps) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+            button_default,
+            {
+              ...triggerProps,
+              appearance: "default",
+              spacing: "compact",
+              onClick: () => setIsOpen(!isOpen),
+              children: targetDateDisplay
+            }
+          ),
+          placement: "bottom-start",
+          zIndex: 1e3
+        }
+      ) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { color: "#6b7280", fontSize: "12px" }, children: "No target date" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+        DateChangeModal,
+        {
+          selectedUpdate,
+          project,
+          onClose: () => setSelectedUpdate(null)
+        }
+      )
+    ] });
   }
 
   // src/components/ProjectTimelineHeader.jsx
   var import_react115 = __toESM(require_react());
+  var import_jsx_runtime3 = __toESM(require_jsx_runtime());
   function ProjectTimelineHeader({ weekRanges }) {
-    return /* @__PURE__ */ import_react115.default.createElement("div", { className: "timeline-row timeline-labels" }, /* @__PURE__ */ import_react115.default.createElement("div", { className: "timeline-y-label" }), weekRanges.map((w2, i) => /* @__PURE__ */ import_react115.default.createElement("div", { key: i, className: "timeline-x-label" }, /* @__PURE__ */ import_react115.default.createElement(tooltip_default, { content: w2.label }, w2.label))), /* @__PURE__ */ import_react115.default.createElement("div", { className: "timeline-target-date timeline-target-date-header" }, "Target Date"));
+    return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "timeline-row timeline-labels", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "timeline-y-label" }),
+      weekRanges.map((w2, i) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "timeline-x-label", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(tooltip_default, { content: w2.label, children: w2.label }) }, i)),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "timeline-target-date timeline-target-date-header", children: "Target Date" })
+    ] });
   }
 
-  // src/contexts/TimelineContext.jsx
+  // src/contexts/TimelineContext.tsx
   var import_react117 = __toESM(require_react());
 
-  // src/hooks/useTimelineData.js
+  // src/hooks/useTimelineData.ts
   var import_react116 = __toESM(require_react());
   function useTimelineData(weekLimit = 12) {
     const projects = useLiveQuery(() => db.projectView.toArray(), []);
@@ -60435,6 +61388,7 @@
           weekRanges: [],
           projectViewModels: [],
           updatesByProject: {},
+          statusByProject: {},
           isLoading: true
         };
       }
@@ -60478,7 +61432,7 @@
           weekRanges: [],
           projectViewModels,
           updatesByProject,
-          statusByProject: {},
+          statusByProject,
           isLoading: false
         };
       }
@@ -60498,11 +61452,12 @@
     return timelineData;
   }
 
-  // src/contexts/TimelineContext.jsx
-  var TimelineContext = (0, import_react117.createContext)();
+  // src/contexts/TimelineContext.tsx
+  var import_jsx_runtime4 = __toESM(require_jsx_runtime());
+  var TimelineContext = (0, import_react117.createContext)(void 0);
   function TimelineProvider({ children, weekLimit }) {
     const timelineData = useTimelineData(weekLimit);
-    return /* @__PURE__ */ import_react117.default.createElement(TimelineContext.Provider, { value: timelineData }, children);
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(TimelineContext.Provider, { value: timelineData, children });
   }
   function useTimelineContext() {
     const context = (0, import_react117.useContext)(TimelineContext);
@@ -60512,7 +61467,8 @@
     return context;
   }
 
-  // src/components/ProjectTimeline.jsx
+  // src/components/ProjectTimeline.tsx
+  var import_jsx_runtime5 = __toESM(require_jsx_runtime());
   var ProjectTimeline = ({ projects }) => {
     const { weekRanges, updatesByProject } = useTimelineContext();
     console.log("ProjectTimeline render:", {
@@ -60521,34 +61477,38 @@
       weekRanges,
       updatesByProjectKeys: Object.keys(updatesByProject || {})
     });
-    return /* @__PURE__ */ import_react118.default.createElement("div", { className: "project-timeline" }, /* @__PURE__ */ import_react118.default.createElement(ProjectTimelineHeader, { weekRanges }), projects.filter(Boolean).map((project, idx) => /* @__PURE__ */ import_react118.default.createElement(
-      ProjectTimelineRow,
-      {
-        key: project.projectKey || idx,
-        project,
-        weekRanges,
-        updates: updatesByProject[project.projectKey] || []
-      }
-    )));
+    return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "project-timeline", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(ProjectTimelineHeader, { weekRanges }),
+      projects.filter(Boolean).map((project, idx) => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+        ProjectTimelineRow,
+        {
+          project,
+          weekRanges,
+          updates: updatesByProject[project.projectKey] || []
+        },
+        project.projectKey || idx
+      ))
+    ] });
   };
   var ProjectTimeline_default = ProjectTimeline;
 
   // src/components/ProjectList.jsx
+  var import_jsx_runtime6 = __toESM(require_jsx_runtime());
   function ProjectList() {
     const { projectViewModels, isLoading } = useTimelineContext();
     if (isLoading) {
-      return /* @__PURE__ */ import_react119.default.createElement("div", null, "Loading timeline data...");
+      return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { children: "Loading timeline data..." });
     }
-    return /* @__PURE__ */ import_react119.default.createElement(import_react119.default.Fragment, null, /* @__PURE__ */ import_react119.default.createElement(ProjectTimeline_default, { projects: projectViewModels }));
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_jsx_runtime6.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(ProjectTimeline_default, { projects: projectViewModels }) });
   }
 
   // src/components/Modal.jsx
-  var import_react143 = __toESM(require_react());
+  var import_react142 = __toESM(require_react());
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/full-screen.js
-  var import_react120 = __toESM(require_react());
+  var import_react119 = __toESM(require_react());
   function FullScreenModalDialog(props) {
-    return /* @__PURE__ */ import_react120.default.createElement(
+    return /* @__PURE__ */ import_react119.default.createElement(
       modal_wrapper_default,
       _extends({}, props, {
         /**
@@ -60571,7 +61531,7 @@
   // node_modules/@atlaskit/react-select/dist/esm/use-state-manager.js
   init_defineProperty();
   init_slicedToArray();
-  var import_react121 = __toESM(require_react());
+  var import_react120 = __toESM(require_react());
   var _excluded13 = ["defaultInputValue", "defaultMenuIsOpen", "defaultValue", "inputValue", "menuIsOpen", "onChange", "onInputChange", "onMenuClose", "onMenuOpen", "value"];
   function ownKeys15(e, r) {
     var t = Object.keys(e);
@@ -60596,29 +61556,29 @@
   }
   function useStateManager(_ref2) {
     var _ref$defaultInputValu = _ref2.defaultInputValue, defaultInputValue = _ref$defaultInputValu === void 0 ? "" : _ref$defaultInputValu, _ref$defaultMenuIsOpe = _ref2.defaultMenuIsOpen, defaultMenuIsOpen = _ref$defaultMenuIsOpe === void 0 ? false : _ref$defaultMenuIsOpe, _ref$defaultValue = _ref2.defaultValue, defaultValue = _ref$defaultValue === void 0 ? null : _ref$defaultValue, propsInputValue = _ref2.inputValue, propsMenuIsOpen = _ref2.menuIsOpen, propsOnChange = _ref2.onChange, propsOnInputChange = _ref2.onInputChange, propsOnMenuClose = _ref2.onMenuClose, propsOnMenuOpen = _ref2.onMenuOpen, propsValue = _ref2.value, restSelectProps = _objectWithoutProperties(_ref2, _excluded13);
-    var _useState = (0, import_react121.useState)(propsInputValue !== void 0 ? propsInputValue : defaultInputValue), _useState2 = _slicedToArray(_useState, 2), stateInputValue = _useState2[0], setStateInputValue = _useState2[1];
-    var _useState3 = (0, import_react121.useState)(propsMenuIsOpen !== void 0 ? propsMenuIsOpen : defaultMenuIsOpen), _useState4 = _slicedToArray(_useState3, 2), stateMenuIsOpen = _useState4[0], setStateMenuIsOpen = _useState4[1];
-    var _useState5 = (0, import_react121.useState)(propsValue !== void 0 ? propsValue : defaultValue), _useState6 = _slicedToArray(_useState5, 2), stateValue = _useState6[0], setStateValue = _useState6[1];
-    var onChange2 = (0, import_react121.useCallback)(function(value2, actionMeta) {
+    var _useState = (0, import_react120.useState)(propsInputValue !== void 0 ? propsInputValue : defaultInputValue), _useState2 = _slicedToArray(_useState, 2), stateInputValue = _useState2[0], setStateInputValue = _useState2[1];
+    var _useState3 = (0, import_react120.useState)(propsMenuIsOpen !== void 0 ? propsMenuIsOpen : defaultMenuIsOpen), _useState4 = _slicedToArray(_useState3, 2), stateMenuIsOpen = _useState4[0], setStateMenuIsOpen = _useState4[1];
+    var _useState5 = (0, import_react120.useState)(propsValue !== void 0 ? propsValue : defaultValue), _useState6 = _slicedToArray(_useState5, 2), stateValue = _useState6[0], setStateValue = _useState6[1];
+    var onChange2 = (0, import_react120.useCallback)(function(value2, actionMeta) {
       if (typeof propsOnChange === "function") {
         propsOnChange(value2, actionMeta);
       }
       setStateValue(value2);
     }, [propsOnChange]);
-    var onInputChange = (0, import_react121.useCallback)(function(value2, actionMeta) {
+    var onInputChange = (0, import_react120.useCallback)(function(value2, actionMeta) {
       var newValue;
       if (typeof propsOnInputChange === "function") {
         newValue = propsOnInputChange(value2, actionMeta);
       }
       setStateInputValue(newValue !== void 0 ? newValue : value2);
     }, [propsOnInputChange]);
-    var onMenuOpen = (0, import_react121.useCallback)(function() {
+    var onMenuOpen = (0, import_react120.useCallback)(function() {
       if (typeof propsOnMenuOpen === "function") {
         propsOnMenuOpen();
       }
       setStateMenuIsOpen(true);
     }, [propsOnMenuOpen]);
-    var onMenuClose = (0, import_react121.useCallback)(function() {
+    var onMenuClose = (0, import_react120.useCallback)(function() {
       if (typeof propsOnMenuClose === "function") {
         propsOnMenuClose();
       }
@@ -60644,7 +61604,7 @@
   init_createClass();
   init_defineProperty();
   init_toConsumableArray();
-  var import_react138 = __toESM(require_react());
+  var import_react137 = __toESM(require_react());
   var import_platform_feature_flags20 = __toESM(require_cjs3());
 
   // node_modules/@atlaskit/react-select/dist/esm/builtins.js
@@ -60665,7 +61625,7 @@
   init_defineProperty();
 
   // node_modules/@atlaskit/react-select/dist/esm/components/containers.js
-  var React78 = __toESM(require_react());
+  var React77 = __toESM(require_react());
   var import_platform_feature_flags17 = __toESM(require_cjs3());
 
   // node_modules/@atlaskit/react-select/dist/esm/utils.js
@@ -60950,7 +61910,7 @@
       "--is-disabled": isDisabled,
       "--is-rtl": isRtl
     }), className = _getStyleProps.className, css7 = _getStyleProps.css;
-    return /* @__PURE__ */ React78.createElement("div", _extends({
+    return /* @__PURE__ */ React77.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([containerStyles.default, isRtl && containerStyles.rtl, isDisabled && containerStyles.disabled, (0, import_platform_feature_flags17.fg)("platform_design_system_team_safari_input_fix") && containerStyles.ff_safari_input_fix, cx(className, xcss2, "-container")]),
       style: css7
@@ -60971,7 +61931,7 @@
       "value-container--is-multi": isMulti,
       "value-container--has-value": hasValue
     }), css7 = _getStyleProps2.css, className = _getStyleProps2.className;
-    return /* @__PURE__ */ React78.createElement("div", _extends({
+    return /* @__PURE__ */ React77.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([valueContainerStyles.default, isMulti && hasValue && controlShouldRenderValue && valueContainerStyles.flex, isCompact && valueContainerStyles.compact, cx(className, xcss2, "-ValueContainer")]),
       style: css7
@@ -60985,7 +61945,7 @@
     var _getStyleProps3 = getStyleProps(props, "indicatorsContainer", {
       indicators: true
     }), css7 = _getStyleProps3.css, className = _getStyleProps3.className;
-    return /* @__PURE__ */ React78.createElement("div", _extends({
+    return /* @__PURE__ */ React77.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax(["_1e0c1txw _4cvr1h6o _1o9zidpf _1wpz1fhb _y4ti1b66", cx(className, xcss2, "-IndicatorsContainer")])
@@ -60993,7 +61953,7 @@
   };
 
   // node_modules/@atlaskit/react-select/dist/esm/components/control.js
-  var React79 = __toESM(require_react());
+  var React78 = __toESM(require_react());
   var styles12 = {
     default: "_12ji1r31 _1qu2glyw _12y3idpf _2rkosqtm _v564r5cv _1h6d1elr _1dqonqa1 _189ee4h9 _4cvr1h6o _80om73ad _1e0c1txw _1n261g80 _1bah1yb4 _kqswh2mm _bfhk1j9a _1tke1ylp _ca0qze3t _u5f3ze3t _n3tdze3t _19bvze3t _15peftgi _1ke8ftgi _jaboglyw _1u6l1bml _4cvx1elr _123byq51 _d0altlke _irr31d5g _1ogl1caj",
     compact: "_1tkezwfg",
@@ -61016,7 +61976,7 @@
       "control--is-focused": isFocused,
       "control--menu-is-open": menuIsOpen
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React79.createElement("div", _extends({
+    return /* @__PURE__ */ React78.createElement("div", _extends({
       ref: innerRef,
       className: ax([styles12.default, isDisabled && styles12.disabled, isInvalid && styles12.invalid, isCompact && styles12.compact, appearance === "subtle" && styles12.subtle, appearance === "subtle" && isFocused && styles12.subtleFocused, isFocused && styles12.focused, appearance === "none" && styles12.none, cx(className, xcss2, "-control")]),
       style: css7
@@ -61027,7 +61987,7 @@
   var control_default = Control;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/group.js
-  var React80 = __toESM(require_react());
+  var React79 = __toESM(require_react());
   var _excluded15 = ["data"];
   var styles13 = {
     root: "_n3tdu2gc _ca0qu2gc"
@@ -61040,18 +62000,18 @@
     var _getStyleProps = getStyleProps(props, "group", {
       group: true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React80.createElement("div", _extends({
+    return /* @__PURE__ */ React79.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7
     }, innerProps, {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([styles13.root, cx(className, xcss2, innerProps === null || innerProps === void 0 ? void 0 : innerProps.className, "-Group")])
-    }), label && /* @__PURE__ */ React80.createElement(Heading2, _extends({}, headingProps, {
+    }), label && /* @__PURE__ */ React79.createElement(Heading2, _extends({}, headingProps, {
       selectProps,
       getStyles,
       getClassNames,
       cx: builtinCX
-    }), label), /* @__PURE__ */ React80.createElement("div", null, children));
+    }), label), /* @__PURE__ */ React79.createElement("div", null, children));
   };
   var groupHeadingCSS = function groupHeadingCSS2() {
     return {};
@@ -61062,7 +62022,7 @@
     var _getStyleProps2 = getStyleProps(props, "groupHeading", {
       "group-heading": true
     }), css7 = _getStyleProps2.css, className = _getStyleProps2.className;
-    return /* @__PURE__ */ React80.createElement("div", _extends({
+    return /* @__PURE__ */ React79.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax(["_11c81o8v _1e0c1ule _syaz1gjq _80om73ad _k48pmoej _6rthpd1z _y4tiutpp _bozgutpp _1p1dglyw", cx(className, xcss2, "-group")]),
       style: css7
@@ -61072,7 +62032,7 @@
 
   // node_modules/@atlaskit/react-select/dist/esm/components/indicators.js
   init_defineProperty();
-  var React81 = __toESM(require_react());
+  var React80 = __toESM(require_react());
   var import_chevron_down = __toESM(require_chevron_down3());
   var import_cross_circle_select_clear = __toESM(require_cross_circle_select_clear());
   var _excluded16 = ["innerProps", "isRtl", "size", "isCompact", "xcss"];
@@ -61117,14 +62077,14 @@
       indicator: true,
       "dropdown-indicator": true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React81.createElement("div", _extends({
+    return /* @__PURE__ */ React80.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([dropdownStyles.default, isDisabled && dropdownStyles.disabled, isCompact && dropdownStyles.compact, cx(className, xcss2, "-indicatorContainer")])
-    }, innerProps), children ? children : /* @__PURE__ */ React81.createElement(inline_default, {
+    }, innerProps), children ? children : /* @__PURE__ */ React80.createElement(inline_default, {
       as: "span",
       xcss: dropdownWrapperStyles.root
-    }, /* @__PURE__ */ React81.createElement(import_chevron_down.default, {
+    }, /* @__PURE__ */ React80.createElement(import_chevron_down.default, {
       color: "currentColor",
       label: "open",
       LEGACY_margin: "var(--ds-space-negative-075, -0.375rem)",
@@ -61144,15 +62104,15 @@
       indicator: true,
       "clear-indicator": true
     }), css7 = _getStyleProps2.css, className = _getStyleProps2.className;
-    return /* @__PURE__ */ React81.createElement("div", _extends({
+    return /* @__PURE__ */ React80.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([clearIndicatorStyles.default, isCompact && clearIndicatorStyles.compact, cx(className, xcss2, "-indicatorContainer")])
-    }, innerProps), /* @__PURE__ */ React81.createElement(pressable_default, {
+    }, innerProps), /* @__PURE__ */ React80.createElement(pressable_default, {
       xcss: iconContainerStyles.root,
       tabIndex: -1,
       "aria-label": clearControlLabel
-    }, /* @__PURE__ */ React81.createElement(import_cross_circle_select_clear.default, {
+    }, /* @__PURE__ */ React80.createElement(import_cross_circle_select_clear.default, {
       label: "",
       color: "currentColor",
       LEGACY_size: "small",
@@ -61177,17 +62137,17 @@
       indicator: true,
       "loading-indicator": true
     }), css7 = _getStyleProps3.css, className = _getStyleProps3.className;
-    return /* @__PURE__ */ React81.createElement("div", _extends({
+    return /* @__PURE__ */ React80.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([loadingIndicatorStyles.default, isCompact && loadingIndicatorStyles.compact, cx(className, xcss2, "-loadingIndicator")])
-    }, innerProps), /* @__PURE__ */ React81.createElement(spinner_default, {
+    }, innerProps), /* @__PURE__ */ React80.createElement(spinner_default, {
       size: "small"
     }));
   };
 
   // node_modules/@atlaskit/react-select/dist/esm/components/input.js
-  var React82 = __toESM(require_react());
+  var React81 = __toESM(require_react());
   var import_platform_feature_flags18 = __toESM(require_cjs3());
   var _excluded17 = ["innerRef", "isDisabled", "isHidden", "inputClassName", "testId"];
   var inputCSS = function inputCSS2() {
@@ -61209,13 +62169,13 @@
       "input-container": true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
     if ((0, import_platform_feature_flags18.fg)("platform_do_not_clear_input_for_multiselect")) {
-      return /* @__PURE__ */ React82.createElement("div", {
+      return /* @__PURE__ */ React81.createElement("div", {
         // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
         style: css7,
         className: ax([inputStyles.root, isDisabled && inputStyles.disabled, cx(className, xcss2, "-Input")]),
         "data-value": value || "",
         "data-testid": dataId && "".concat(dataId, "-container")
-      }, /* @__PURE__ */ React82.createElement("input", _extends({
+      }, /* @__PURE__ */ React81.createElement("input", _extends({
         // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
         className: ax(["_19pkidpf _2hwxidpf _otyridpf _18u0idpf _ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _1r04idpf _11q7idpf _19itidpf _11c81kw7 _nd5l1yjy _12ji1r31 _1qu2glyw _12y3idpf _1bsb1osq _1ul9yh40 _kqswstnw _syaz1kw7 _tzy4kb7n", isHidden && "_tzy4idpf", builtinCX({
           input: true
@@ -61225,13 +62185,13 @@
         "data-testid": dataId
       }, innerProps)));
     }
-    return /* @__PURE__ */ React82.createElement("div", {
+    return /* @__PURE__ */ React81.createElement("div", {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([inputStylesOld.root, isDisabled && inputStylesOld.disabled, cx(className, xcss2, "-Input")]),
       "data-value": value || "",
       "data-testid": dataId && "".concat(dataId, "-container")
-    }, /* @__PURE__ */ React82.createElement("input", _extends({
+    }, /* @__PURE__ */ React81.createElement("input", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
       className: ax(["_19pkidpf _2hwxidpf _otyridpf _18u0idpf _ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _11q7idpf _19itidpf _11c81kw7 _nd5l1yjy _12ji1r31 _1qu2glyw _12y3idpf _1bsb1osq _1ul9yh40 _syaz1kw7 _tzy4kb7n", isHidden && "_tzy4idpf", builtinCX({
         input: true
@@ -61246,8 +62206,8 @@
   // node_modules/@atlaskit/react-select/dist/esm/components/menu.js
   init_defineProperty();
   init_slicedToArray();
-  var React83 = __toESM(require_react());
-  var import_react128 = __toESM(require_react());
+  var React82 = __toESM(require_react());
+  var import_react127 = __toESM(require_react());
 
   // node_modules/@floating-ui/utils/dist/floating-ui.utils.mjs
   var min2 = Math.min;
@@ -61652,8 +62612,8 @@
   var import_react_dom3 = __toESM(require_react_dom());
 
   // node_modules/use-isomorphic-layout-effect/dist/use-isomorphic-layout-effect.browser.esm.js
-  var import_react127 = __toESM(require_react());
-  var index = import_react127.useLayoutEffect;
+  var import_react126 = __toESM(require_react());
+  var index = import_react126.useLayoutEffect;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/menu.js
   var _excluded18 = ["children", "innerProps", "xcss"];
@@ -61802,13 +62762,13 @@
   var menuCSS = function menuCSS2() {
     return {};
   };
-  var PortalPlacementContext = /* @__PURE__ */ (0, import_react128.createContext)(null);
+  var PortalPlacementContext = /* @__PURE__ */ (0, import_react127.createContext)(null);
   var MenuPlacer = function MenuPlacer2(props) {
     var children = props.children, minMenuHeight = props.minMenuHeight, maxMenuHeight = props.maxMenuHeight, menuPlacement = props.menuPlacement, menuPosition = props.menuPosition, menuShouldScrollIntoView = props.menuShouldScrollIntoView;
-    var _ref2 = (0, import_react128.useContext)(PortalPlacementContext) || {}, setPortalPlacement = _ref2.setPortalPlacement;
-    var ref = (0, import_react128.useRef)(null);
-    var _useState = (0, import_react128.useState)(maxMenuHeight), _useState2 = _slicedToArray(_useState, 2), maxHeight = _useState2[0], setMaxHeight = _useState2[1];
-    var _useState3 = (0, import_react128.useState)(null), _useState4 = _slicedToArray(_useState3, 2), placement = _useState4[0], setPlacement = _useState4[1];
+    var _ref2 = (0, import_react127.useContext)(PortalPlacementContext) || {}, setPortalPlacement = _ref2.setPortalPlacement;
+    var ref = (0, import_react127.useRef)(null);
+    var _useState = (0, import_react127.useState)(maxMenuHeight), _useState2 = _slicedToArray(_useState, 2), maxHeight = _useState2[0], setMaxHeight = _useState2[1];
+    var _useState3 = (0, import_react127.useState)(null), _useState4 = _slicedToArray(_useState3, 2), placement = _useState4[0], setPlacement = _useState4[1];
     var controlHeight = 38;
     index(function() {
       var menuEl = ref.current;
@@ -61843,7 +62803,7 @@
     var _getStyleProps = getStyleProps(props, "menu", {
       menu: true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React83.createElement("div", _extends({
+    return /* @__PURE__ */ React82.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([menuStyles.root, menuStyles[placement], cx(xcss2, className, "-menu")]),
       style: css7,
@@ -61860,7 +62820,7 @@
       "menu-list": true,
       "menu-list--is-multi": isMulti
     }), css7 = _getStyleProps2.css, className = _getStyleProps2.className;
-    return /* @__PURE__ */ React83.createElement("div", _extends({
+    return /* @__PURE__ */ React82.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax(["_kqswh2mm _18m91wug _85i5u2gc _1q51u2gc _8am5i4x0", cx(className, xcss2, "-MenuList")]),
       style: _objectSpread18(_objectSpread18({}, css7), {}, {
@@ -61885,12 +62845,12 @@
       "menu-notice": true,
       "menu-notice--no-options": true
     }), css7 = _getStyleProps3.css, className = _getStyleProps3.className;
-    return /* @__PURE__ */ React83.createElement("div", _extends({
+    return /* @__PURE__ */ React82.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax(["_85i5u2gc _1q51u2gc _y4tiutpp _bozgutpp _y3gn1h6o", cx(className, xcss2, "-NoOptionsMessage")]),
       style: css7,
       role: "option"
-    }, innerProps), /* @__PURE__ */ React83.createElement(text_default, {
+    }, innerProps), /* @__PURE__ */ React82.createElement(text_default, {
       color: "color.text.subtle"
     }, children));
   };
@@ -61903,14 +62863,14 @@
       "menu-notice": true,
       "menu-notice--loading": true
     }), css7 = _getStyleProps4.css, className = _getStyleProps4.className;
-    return /* @__PURE__ */ React83.createElement("div", _extends({
+    return /* @__PURE__ */ React82.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax(["_85i5u2gc _1q51u2gc _y4tiutpp _bozgutpp _y3gn1h6o", cx(className, xcss2, "-LoadingMessage")]),
       style: css7
     }, innerProps, {
       // eslint-disable-next-line jsx-a11y/role-has-required-aria-props
       role: "option"
-    }), /* @__PURE__ */ React83.createElement(text_default, {
+    }), /* @__PURE__ */ React82.createElement(text_default, {
       color: "color.text.subtle"
     }, children));
   };
@@ -61922,16 +62882,16 @@
   };
   var MenuPortal = function MenuPortal2(props) {
     var appendTo = props.appendTo, children = props.children, controlElement = props.controlElement, innerProps = props.innerProps, menuPlacement = props.menuPlacement, menuPosition = props.menuPosition, xcss2 = props.xcss;
-    var menuPortalRef = (0, import_react128.useRef)(null);
-    var cleanupRef = (0, import_react128.useRef)(null);
-    var _useState5 = (0, import_react128.useState)(coercePlacement(menuPlacement)), _useState6 = _slicedToArray(_useState5, 2), placement = _useState6[0], setPortalPlacement = _useState6[1];
-    var portalPlacementContext = (0, import_react128.useMemo)(function() {
+    var menuPortalRef = (0, import_react127.useRef)(null);
+    var cleanupRef = (0, import_react127.useRef)(null);
+    var _useState5 = (0, import_react127.useState)(coercePlacement(menuPlacement)), _useState6 = _slicedToArray(_useState5, 2), placement = _useState6[0], setPortalPlacement = _useState6[1];
+    var portalPlacementContext = (0, import_react127.useMemo)(function() {
       return {
         setPortalPlacement
       };
     }, []);
-    var _useState7 = (0, import_react128.useState)(null), _useState8 = _slicedToArray(_useState7, 2), computedPosition = _useState8[0], setComputedPosition = _useState8[1];
-    var updateComputedPosition = (0, import_react128.useCallback)(function() {
+    var _useState7 = (0, import_react127.useState)(null), _useState8 = _slicedToArray(_useState7, 2), computedPosition = _useState8[0], setComputedPosition = _useState8[1];
+    var updateComputedPosition = (0, import_react127.useCallback)(function() {
       if (!controlElement) {
         return;
       }
@@ -61948,7 +62908,7 @@
     index(function() {
       updateComputedPosition();
     }, [updateComputedPosition]);
-    var runAutoUpdate = (0, import_react128.useCallback)(function() {
+    var runAutoUpdate = (0, import_react127.useCallback)(function() {
       if (typeof cleanupRef.current === "function") {
         cleanupRef.current();
         cleanupRef.current = null;
@@ -61962,7 +62922,7 @@
     index(function() {
       runAutoUpdate();
     }, [runAutoUpdate]);
-    var setMenuPortalElement = (0, import_react128.useCallback)(function(menuPortalElement) {
+    var setMenuPortalElement = (0, import_react127.useCallback)(function(menuPortalElement) {
       menuPortalRef.current = menuPortalElement;
       runAutoUpdate();
     }, [runAutoUpdate]);
@@ -61976,7 +62936,7 @@
     }), "menuPortal", {
       "menu-portal": true
     }), css7 = _getStyleProps5.css, className = _getStyleProps5.className;
-    var menuWrapper = /* @__PURE__ */ React83.createElement("div", _extends({
+    var menuWrapper = /* @__PURE__ */ React82.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([menuPortalStyles.root, cx(className, xcss2, "-MenuPortal")]),
       ref: setMenuPortalElement,
@@ -61988,14 +62948,14 @@
         "--menu-width": "".concat(computedPosition.rect.width, "px")
       }, css7)
     }, innerProps), children);
-    return /* @__PURE__ */ React83.createElement(PortalPlacementContext.Provider, {
+    return /* @__PURE__ */ React82.createElement(PortalPlacementContext.Provider, {
       value: portalPlacementContext
     }, appendTo ? /* @__PURE__ */ (0, import_react_dom3.createPortal)(menuWrapper, appendTo) : menuWrapper);
   };
 
   // node_modules/@atlaskit/react-select/dist/esm/components/multi-value.js
   init_defineProperty();
-  var React84 = __toESM(require_react());
+  var React83 = __toESM(require_react());
   var import_cross3 = __toESM(require_cross());
   var import_select_clear = __toESM(require_select_clear());
   var import_platform_feature_flags19 = __toESM(require_cjs3());
@@ -62048,27 +63008,27 @@
   };
   var MultiValueContainer = function MultiValueContainer2(_ref2) {
     var children = _ref2.children, innerProps = _ref2.innerProps, isFocused = _ref2.isFocused, isDisabled = _ref2.isDisabled, className = _ref2.className, xcss2 = _ref2.xcss;
-    return /* @__PURE__ */ React84.createElement("div", _extends({}, innerProps, {
+    return /* @__PURE__ */ React83.createElement("div", _extends({}, innerProps, {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([multiValueStyles.root, isDisabled && multiValueStyles.disabled, isFocused && multiValueStyles.focused, (0, import_platform_feature_flags19.fg)("platform-component-visual-refresh") && multiValueStyles.refresh, cx(className, xcss2, "-multiValue")])
     }), children);
   };
   var MultiValueLabel = function MultiValueLabel2(_ref2) {
     var children = _ref2.children, innerProps = _ref2.innerProps, isDisabled = _ref2.isDisabled, hasEllipsis = _ref2.hasEllipsis, className = _ref2.className, xcss2 = _ref2.xcss;
-    return /* @__PURE__ */ React84.createElement("div", _extends({}, innerProps, {
+    return /* @__PURE__ */ React83.createElement("div", _extends({}, innerProps, {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([multiValueLabelStyles.root, isDisabled && multiValueLabelStyles.disabled, hasEllipsis && multiValueLabelStyles.ellipsis, (0, import_platform_feature_flags19.fg)("platform-component-visual-refresh") && multiValueLabelStyles.refresh, cx(className, xcss2, "-MultiValueLabel")])
     }), children);
   };
   function MultiValueRemove(_ref3) {
     var isDisabled = _ref3.isDisabled, isFocused = _ref3.isFocused, innerProps = _ref3.innerProps, className = _ref3.className, xcss2 = _ref3.xcss;
-    return /* @__PURE__ */ React84.createElement("div", _extends({}, innerProps, {
+    return /* @__PURE__ */ React83.createElement("div", _extends({}, innerProps, {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([multiValueRemoveStyles.root, isFocused && multiValueRemoveStyles.focused, (0, import_platform_feature_flags19.fg)("platform-component-visual-refresh") && multiValueRemoveStyles.refresh, cx(className, xcss2, "-MultiValueRemove")])
-    }), /* @__PURE__ */ React84.createElement("div", {
+    }), /* @__PURE__ */ React83.createElement("div", {
       "data-testid": isDisabled ? "hide-clear-icon" : "show-clear-icon",
       className: ax([isDisabled && "_1e0cglyw", !isDisabled && "_1e0c1kw7"])
-    }, /* @__PURE__ */ React84.createElement(import_cross3.default, {
+    }, /* @__PURE__ */ React83.createElement(import_cross3.default, {
       label: "",
       color: "currentColor",
       LEGACY_fallbackIcon: import_select_clear.default,
@@ -62092,7 +63052,7 @@
     var _getStyleProps3 = getStyleProps(props, "multiValueRemove", {
       "multi-value__remove": true
     }), removeCss = _getStyleProps3.css, removeClassName = _getStyleProps3.className;
-    return /* @__PURE__ */ React84.createElement(Container, {
+    return /* @__PURE__ */ React83.createElement(Container, {
       data,
       innerProps: _objectSpread19({
         style: containerCss,
@@ -62102,7 +63062,7 @@
       isFocused,
       isDisabled,
       selectProps
-    }, /* @__PURE__ */ React84.createElement(Label, {
+    }, /* @__PURE__ */ React83.createElement(Label, {
       data,
       innerProps: {
         style: labelCss,
@@ -62111,7 +63071,7 @@
       className: labelClassName,
       hasEllipsis: cropWithEllipsis || cropWithEllipsis === void 0,
       selectProps
-    }, children), /* @__PURE__ */ React84.createElement(Remove, {
+    }, children), /* @__PURE__ */ React83.createElement(Remove, {
       data,
       innerProps: _objectSpread19({
         style: removeCss,
@@ -62128,7 +63088,7 @@
   var multi_value_default = MultiValue;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/option.js
-  var React85 = __toESM(require_react());
+  var React84 = __toESM(require_react());
   var optionCSS = function optionCSS2() {
     return {};
   };
@@ -62147,7 +63107,7 @@
       "option--is-focused": isFocused,
       "option--is-selected": isSelected
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React85.createElement("div", _extends({
+    return /* @__PURE__ */ React84.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([optionStyles.root, isFocused && optionStyles.focused, isSelected && optionStyles.selected, isFocused && isSelected && optionStyles.focusedSelected, isDisabled && optionStyles.disabled, cx(className, xcss2, "-option")]),
@@ -62159,7 +63119,7 @@
   var option_default = Option;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/placeholder.js
-  var React86 = __toESM(require_react());
+  var React85 = __toESM(require_react());
   var placeholderCSS = function placeholderCSS2() {
     return {};
   };
@@ -62172,7 +63132,7 @@
     var _getStyleProps = getStyleProps(props, "placeholder", {
       placeholder: true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React86.createElement("div", _extends({
+    return /* @__PURE__ */ React85.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([placeholderStyles.root, isDisabled && placeholderStyles.disabled, cx(className, xcss2, "-placeholder")])
@@ -62181,7 +63141,7 @@
   var placeholder_default = Placeholder;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/single-value.js
-  var React87 = __toESM(require_react());
+  var React86 = __toESM(require_react());
   var css5 = function css6() {
     return {};
   };
@@ -62195,7 +63155,7 @@
       "single-value": true,
       "single-value--is-disabled": isDisabled
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React87.createElement("div", _extends({
+    return /* @__PURE__ */ React86.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([styles14.root, isDisabled && styles14.disalbed, cx(className, xcss2, "-singleValue")])
@@ -62254,9 +63214,9 @@
   };
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/a11y-text.js
-  var React88 = __toESM(require_react());
+  var React87 = __toESM(require_react());
   var A11yText = function A11yText2(props) {
-    return /* @__PURE__ */ React88.createElement("span", _extends({
+    return /* @__PURE__ */ React87.createElement("span", _extends({
       // eslint-disable-next-line  @atlaskit/ui-styling-standard/no-classname-prop
       className: ax(["_ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _19itidpf _1reo15vq _18m915vq _1bsbt94y _4t3it94y _kqswstnw _1pbydx66 _ogto7mnp _uiztglyw _o5721q9c", "-a11yText"])
       // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
@@ -62265,22 +63225,22 @@
   var a11y_text_default = A11yText;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/dummy-input.js
-  var React89 = __toESM(require_react());
+  var React88 = __toESM(require_react());
   var _excluded19 = ["innerRef"];
   function DummyInput(_ref2) {
     var innerRef = _ref2.innerRef, props = _objectWithoutProperties(_ref2, _excluded19);
     var filteredProps = removeProps(props, "onExited", "in", "enter", "exit", "appear");
-    return /* @__PURE__ */ React89.createElement("input", _extends({
+    return /* @__PURE__ */ React88.createElement("input", _extends({
       ref: innerRef,
       className: ax(["_ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _11q7idpf _19itidpf _nd5l1sux _12ji1r31 _1qu2glyw _12y3idpf _1bsbt94y _kqswh2mm _1n5d1j28 _syaz1j28 _1e02p1rm _tzy4idpf _t9ec1kuz", "-dummyInput"])
     }, filteredProps));
   }
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/scroll-manager.js
-  var import_react136 = __toESM(require_react());
+  var import_react135 = __toESM(require_react());
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/use-scroll-capture.js
-  var import_react134 = __toESM(require_react());
+  var import_react133 = __toESM(require_react());
   var cancelScroll = function cancelScroll2(event) {
     if (event.cancelable) {
       event.preventDefault();
@@ -62289,11 +63249,11 @@
   };
   function useScrollCapture(_ref2) {
     var isEnabled = _ref2.isEnabled, onBottomArrive = _ref2.onBottomArrive, onBottomLeave = _ref2.onBottomLeave, onTopArrive = _ref2.onTopArrive, onTopLeave = _ref2.onTopLeave;
-    var isBottom = (0, import_react134.useRef)(false);
-    var isTop = (0, import_react134.useRef)(false);
-    var touchStart = (0, import_react134.useRef)(0);
-    var scrollTarget = (0, import_react134.useRef)(null);
-    var handleEventDelta = (0, import_react134.useCallback)(function(event, delta) {
+    var isBottom = (0, import_react133.useRef)(false);
+    var isTop = (0, import_react133.useRef)(false);
+    var touchStart = (0, import_react133.useRef)(0);
+    var scrollTarget = (0, import_react133.useRef)(null);
+    var handleEventDelta = (0, import_react133.useCallback)(function(event, delta) {
       if (scrollTarget.current === null) {
         return;
       }
@@ -62333,17 +63293,17 @@
         cancelScroll(event);
       }
     }, [onBottomArrive, onBottomLeave, onTopArrive, onTopLeave]);
-    var onWheel = (0, import_react134.useCallback)(function(event) {
+    var onWheel = (0, import_react133.useCallback)(function(event) {
       handleEventDelta(event, event.deltaY);
     }, [handleEventDelta]);
-    var onTouchStart = (0, import_react134.useCallback)(function(event) {
+    var onTouchStart = (0, import_react133.useCallback)(function(event) {
       touchStart.current = event.changedTouches[0].clientY;
     }, []);
-    var onTouchMove = (0, import_react134.useCallback)(function(event) {
+    var onTouchMove = (0, import_react133.useCallback)(function(event) {
       var deltaY = touchStart.current - event.changedTouches[0].clientY;
       handleEventDelta(event, deltaY);
     }, [handleEventDelta]);
-    var startListening = (0, import_react134.useCallback)(function(el) {
+    var startListening = (0, import_react133.useCallback)(function(el) {
       if (!el) {
         return;
       }
@@ -62354,7 +63314,7 @@
       el.addEventListener("touchstart", onTouchStart, notPassive);
       el.addEventListener("touchmove", onTouchMove, notPassive);
     }, [onTouchMove, onTouchStart, onWheel]);
-    var stopListening = (0, import_react134.useCallback)(function(el) {
+    var stopListening = (0, import_react133.useCallback)(function(el) {
       if (!el) {
         return;
       }
@@ -62362,7 +63322,7 @@
       el.removeEventListener("touchstart", onTouchStart, false);
       el.removeEventListener("touchmove", onTouchMove, false);
     }, [onTouchMove, onTouchStart, onWheel]);
-    (0, import_react134.useEffect)(function() {
+    (0, import_react133.useEffect)(function() {
       if (!isEnabled) {
         return;
       }
@@ -62378,7 +63338,7 @@
   }
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/use-scroll-lock.js
-  var import_react135 = __toESM(require_react());
+  var import_react134 = __toESM(require_react());
   var STYLE_KEYS = ["boxSizing", "height", "overflow", "paddingRight", "position"];
   var LOCK_STYLES = {
     boxSizing: "border-box",
@@ -62414,9 +63374,9 @@
   };
   function useScrollLock(_ref2) {
     var isEnabled = _ref2.isEnabled, _ref$accountForScroll = _ref2.accountForScrollbars, accountForScrollbars = _ref$accountForScroll === void 0 ? true : _ref$accountForScroll;
-    var originalStyles = (0, import_react135.useRef)({});
-    var scrollTarget = (0, import_react135.useRef)(null);
-    var addScrollLock = (0, import_react135.useCallback)(function(touchScrollTarget) {
+    var originalStyles = (0, import_react134.useRef)({});
+    var scrollTarget = (0, import_react134.useRef)(null);
+    var addScrollLock = (0, import_react134.useCallback)(function(touchScrollTarget) {
       if (!canUseDOM) {
         return;
       }
@@ -62451,7 +63411,7 @@
       }
       activeScrollLocks += 1;
     }, [accountForScrollbars]);
-    var removeScrollLock = (0, import_react135.useCallback)(function(touchScrollTarget) {
+    var removeScrollLock = (0, import_react134.useCallback)(function(touchScrollTarget) {
       if (!canUseDOM) {
         return;
       }
@@ -62474,7 +63434,7 @@
         }
       }
     }, [accountForScrollbars]);
-    (0, import_react135.useEffect)(function() {
+    (0, import_react134.useEffect)(function() {
       if (!isEnabled) {
         return;
       }
@@ -62510,8 +63470,8 @@
       setScrollCaptureTarget(element);
       setScrollLockTarget(element);
     };
-    return /* @__PURE__ */ import_react136.default.createElement(import_react136.Fragment, null, lockEnabled && // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, @atlassian/a11y/interactive-element-not-keyboard-focusable
-    /* @__PURE__ */ import_react136.default.createElement("div", {
+    return /* @__PURE__ */ import_react135.default.createElement(import_react135.Fragment, null, lockEnabled && // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, @atlassian/a11y/interactive-element-not-keyboard-focusable
+    /* @__PURE__ */ import_react135.default.createElement("div", {
       onClick: blurSelectInput,
       style: {
         // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
@@ -62529,10 +63489,10 @@
   }
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/required-input.js
-  var React91 = __toESM(require_react());
+  var React90 = __toESM(require_react());
   var RequiredInput = function RequiredInput2(_ref2) {
     var name = _ref2.name, onFocus3 = _ref2.onFocus;
-    return /* @__PURE__ */ React91.createElement("input", {
+    return /* @__PURE__ */ React90.createElement("input", {
       required: true,
       name,
       tabIndex: -1,
@@ -62558,7 +63518,7 @@
 
   // node_modules/@atlaskit/react-select/dist/esm/components/live-region.js
   init_defineProperty();
-  var import_react137 = __toESM(require_react());
+  var import_react136 = __toESM(require_react());
 
   // node_modules/@atlaskit/react-select/dist/esm/accessibility/index.js
   var defaultAriaLiveMessages = {
@@ -62609,10 +63569,10 @@
     var ariaSelection = props.ariaSelection, focusableOptions = props.focusableOptions, isFocused = props.isFocused, selectValue = props.selectValue, selectProps = props.selectProps, id = props.id;
     var ariaLiveMessages = selectProps.ariaLiveMessages, getOptionLabel5 = selectProps.getOptionLabel, inputValue = selectProps.inputValue, isOptionDisabled3 = selectProps.isOptionDisabled, menuIsOpen = selectProps.menuIsOpen, options2 = selectProps.options, screenReaderStatus2 = selectProps.screenReaderStatus, isLoading = selectProps.isLoading;
     var ariaLive = selectProps["aria-live"];
-    var messages = (0, import_react137.useMemo)(function() {
+    var messages = (0, import_react136.useMemo)(function() {
       return _objectSpread21(_objectSpread21({}, defaultAriaLiveMessages), ariaLiveMessages || {});
     }, [ariaLiveMessages]);
-    var ariaSelected = (0, import_react137.useMemo)(function() {
+    var ariaSelected = (0, import_react136.useMemo)(function() {
       var message2 = "";
       if (menuIsOpen) {
         return "";
@@ -62640,7 +63600,7 @@
       }
       return message2;
     }, [ariaSelection, messages, isOptionDisabled3, selectValue, getOptionLabel5, menuIsOpen]);
-    var ariaResults = (0, import_react137.useMemo)(function() {
+    var ariaResults = (0, import_react136.useMemo)(function() {
       var resultsMsg = "";
       if (isLoading) {
         resultsMsg = "Loading. ";
@@ -62660,14 +63620,14 @@
       return resultsMsg;
     }, [focusableOptions, inputValue, menuIsOpen, messages, options2, screenReaderStatus2, isLoading]);
     var isInitialFocus = (ariaSelection === null || ariaSelection === void 0 ? void 0 : ariaSelection.action) === "initial-input-focus";
-    var ScreenReaderText = /* @__PURE__ */ import_react137.default.createElement(import_react137.Fragment, null, /* @__PURE__ */ import_react137.default.createElement("span", {
+    var ScreenReaderText = /* @__PURE__ */ import_react136.default.createElement(import_react136.Fragment, null, /* @__PURE__ */ import_react136.default.createElement("span", {
       id: "aria-selection"
-    }, ariaSelected), /* @__PURE__ */ import_react137.default.createElement("span", {
+    }, ariaSelected), /* @__PURE__ */ import_react136.default.createElement("span", {
       id: "aria-results"
     }, ariaResults));
-    return /* @__PURE__ */ import_react137.default.createElement(import_react137.Fragment, null, /* @__PURE__ */ import_react137.default.createElement(a11y_text_default, {
+    return /* @__PURE__ */ import_react136.default.createElement(import_react136.Fragment, null, /* @__PURE__ */ import_react136.default.createElement(a11y_text_default, {
       id
-    }, isInitialFocus && ScreenReaderText), /* @__PURE__ */ import_react137.default.createElement(a11y_text_default, {
+    }, isInitialFocus && ScreenReaderText), /* @__PURE__ */ import_react136.default.createElement(a11y_text_default, {
       "aria-live": ariaLive,
       role: "status"
     }, isFocused && !isInitialFocus && ScreenReaderText));
@@ -64230,7 +65190,7 @@
             "aria-readonly": true
           }), this.calculateDescription());
           if (!isSearchable) {
-            return /* @__PURE__ */ import_react138.default.createElement(DummyInput, _extends({
+            return /* @__PURE__ */ import_react137.default.createElement(DummyInput, _extends({
               id,
               innerRef: this.getInputRef,
               onBlur: this.onInputBlur,
@@ -64244,7 +65204,7 @@
               "data-testid": testId && "".concat(testId, "-select--input")
             }, ariaAttributes));
           }
-          return /* @__PURE__ */ import_react138.default.createElement(Input3, _extends({}, commonProps, {
+          return /* @__PURE__ */ import_react137.default.createElement(Input3, _extends({}, commonProps, {
             autoCapitalize: "none",
             autoComplete: "off",
             autoCorrect: "off",
@@ -64273,7 +65233,7 @@
         var _this$props9 = this.props, controlShouldRenderValue = _this$props9.controlShouldRenderValue, isDisabled = _this$props9.isDisabled, isMulti = _this$props9.isMulti, inputValue = _this$props9.inputValue, placeholder = _this$props9.placeholder, testId = _this$props9.testId;
         var _this$state4 = this.state, selectValue = _this$state4.selectValue, focusedValue = _this$state4.focusedValue, isFocused = _this$state4.isFocused;
         if (!this.hasValue() || !controlShouldRenderValue) {
-          return inputValue ? null : /* @__PURE__ */ import_react138.default.createElement(Placeholder3, _extends({}, commonProps, {
+          return inputValue ? null : /* @__PURE__ */ import_react137.default.createElement(Placeholder3, _extends({}, commonProps, {
             key: "placeholder",
             isDisabled,
             isFocused,
@@ -64288,7 +65248,7 @@
           return selectValue.map(function(opt, index2) {
             var isOptionFocused = opt === focusedValue;
             var key = "".concat(_this5.getOptionLabel(opt), "-").concat(_this5.getOptionValue(opt));
-            return /* @__PURE__ */ import_react138.default.createElement(MultiValue3, _extends({}, commonProps, {
+            return /* @__PURE__ */ import_react137.default.createElement(MultiValue3, _extends({}, commonProps, {
               components: {
                 Container: MultiValueContainer3,
                 Label: MultiValueLabel3,
@@ -64326,7 +65286,7 @@
           return null;
         }
         var singleValue = selectValue[0];
-        return /* @__PURE__ */ import_react138.default.createElement(SingleValue3, _extends({}, commonProps, {
+        return /* @__PURE__ */ import_react137.default.createElement(SingleValue3, _extends({}, commonProps, {
           data: singleValue,
           isDisabled,
           innerProps: {
@@ -64351,7 +65311,7 @@
           "data-testid": "".concat(testId, "-select--clear-indicator")
         });
         var isCompact = spacing === "compact";
-        return /* @__PURE__ */ import_react138.default.createElement(ClearIndicator3, _extends({
+        return /* @__PURE__ */ import_react137.default.createElement(ClearIndicator3, _extends({
           clearControlLabel
         }, commonProps, {
           innerProps,
@@ -64373,7 +65333,7 @@
         var innerProps = {
           "aria-hidden": "true"
         };
-        return /* @__PURE__ */ import_react138.default.createElement(LoadingIndicator3, _extends({
+        return /* @__PURE__ */ import_react137.default.createElement(LoadingIndicator3, _extends({
           "data-testid": testId && "".concat(testId, "-select--loading-indicator")
         }, commonProps, {
           innerProps,
@@ -64400,7 +65360,7 @@
         }, testId && {
           "data-testid": "".concat(testId, "-select--dropdown-indicator")
         });
-        return /* @__PURE__ */ import_react138.default.createElement(DropdownIndicator3, _extends({}, commonProps, {
+        return /* @__PURE__ */ import_react137.default.createElement(DropdownIndicator3, _extends({}, commonProps, {
           innerProps,
           isDisabled,
           isFocused,
@@ -64441,7 +65401,7 @@
           }, testId && {
             "data-testid": "".concat(testId, "-select--option-").concat(id)
           });
-          return /* @__PURE__ */ import_react138.default.createElement(Option3, _extends({}, commonProps, {
+          return /* @__PURE__ */ import_react137.default.createElement(Option3, _extends({}, commonProps, {
             innerProps,
             data,
             isDisabled,
@@ -64462,7 +65422,7 @@
               var data = item.data, options2 = item.options, groupIndex = item.index;
               var groupId = "".concat(_this6.getElementId("group"), "-").concat(groupIndex);
               var headingId = "".concat(groupId, "-heading");
-              return /* @__PURE__ */ import_react138.default.createElement(Group3, _extends({}, commonProps, {
+              return /* @__PURE__ */ import_react137.default.createElement(Group3, _extends({}, commonProps, {
                 key: groupId,
                 data,
                 options: options2,
@@ -64488,7 +65448,7 @@
           if (message2 === null) {
             return null;
           }
-          menuUI = /* @__PURE__ */ import_react138.default.createElement(LoadingMessage3, commonProps, message2);
+          menuUI = /* @__PURE__ */ import_react137.default.createElement(LoadingMessage3, commonProps, message2);
         } else {
           var _message = noOptionsMessage2({
             inputValue
@@ -64496,7 +65456,7 @@
           if (_message === null) {
             return null;
           }
-          menuUI = /* @__PURE__ */ import_react138.default.createElement(NoOptionsMessage3, _extends({}, commonProps, {
+          menuUI = /* @__PURE__ */ import_react137.default.createElement(NoOptionsMessage3, _extends({}, commonProps, {
             innerProps: _objectSpread23({}, testId && {
               "data-testid": "".concat(testId, "-select--no-options")
             })
@@ -64509,9 +65469,9 @@
           menuPosition,
           menuShouldScrollIntoView
         };
-        var menuElement = /* @__PURE__ */ import_react138.default.createElement(MenuPlacer, _extends({}, commonProps, menuPlacementProps), function(_ref4) {
+        var menuElement = /* @__PURE__ */ import_react137.default.createElement(MenuPlacer, _extends({}, commonProps, menuPlacementProps), function(_ref4) {
           var ref = _ref4.ref, _ref4$placerProps = _ref4.placerProps, placement = _ref4$placerProps.placement, maxHeight = _ref4$placerProps.maxHeight;
-          return /* @__PURE__ */ import_react138.default.createElement(Menu3, _extends({}, commonProps, menuPlacementProps, {
+          return /* @__PURE__ */ import_react137.default.createElement(Menu3, _extends({}, commonProps, menuPlacementProps, {
             innerRef: ref,
             innerProps: _objectSpread23({
               onMouseDown: _this6.onMenuMouseDown,
@@ -64522,14 +65482,14 @@
             }),
             isLoading,
             placement
-          }), /* @__PURE__ */ import_react138.default.createElement(ScrollManager, {
+          }), /* @__PURE__ */ import_react137.default.createElement(ScrollManager, {
             captureEnabled: captureMenuScroll,
             onTopArrive: onMenuScrollToTop,
             onBottomArrive: onMenuScrollToBottom,
             lockEnabled: menuShouldBlockScroll
           }, function(scrollTargetRef) {
             var _this6$inputRef, _this6$inputRef2;
-            return /* @__PURE__ */ import_react138.default.createElement(MenuList3, _extends({}, commonProps, {
+            return /* @__PURE__ */ import_react137.default.createElement(MenuList3, _extends({}, commonProps, {
               innerRef: function innerRef(instance) {
                 _this6.getMenuListRef(instance);
                 scrollTargetRef(instance);
@@ -64549,12 +65509,12 @@
               isLoading,
               maxHeight,
               focusedOption
-            }), _this6.props["UNSAFE_is_experimental_generic"] ? /* @__PURE__ */ import_react138.default.createElement("div", {
+            }), _this6.props["UNSAFE_is_experimental_generic"] ? /* @__PURE__ */ import_react137.default.createElement("div", {
               role: "list"
             }, menuUI) : menuUI);
           }));
         });
-        return menuPortalTarget || menuPosition === "fixed" ? /* @__PURE__ */ import_react138.default.createElement(MenuPortal3, _extends({}, commonProps, {
+        return menuPortalTarget || menuPosition === "fixed" ? /* @__PURE__ */ import_react137.default.createElement(MenuPortal3, _extends({}, commonProps, {
           appendTo: menuPortalTarget,
           controlElement: this.controlRef,
           menuPlacement,
@@ -64568,7 +65528,7 @@
         var _this$props12 = this.props, delimiter2 = _this$props12.delimiter, isDisabled = _this$props12.isDisabled, isMulti = _this$props12.isMulti, required = _this$props12.required, name = _this$props12.name;
         var selectValue = this.state.selectValue;
         if (required && !this.hasValue() && !isDisabled) {
-          return /* @__PURE__ */ import_react138.default.createElement(required_input_default, {
+          return /* @__PURE__ */ import_react137.default.createElement(required_input_default, {
             name,
             onFocus: this.onValueInputFocus
           });
@@ -64581,29 +65541,29 @@
             var value = selectValue.map(function(opt) {
               return _this7.getOptionValue(opt);
             }).join(delimiter2);
-            return /* @__PURE__ */ import_react138.default.createElement("input", {
+            return /* @__PURE__ */ import_react137.default.createElement("input", {
               name,
               type: "hidden",
               value
             });
           } else {
             var input = selectValue.length > 0 ? selectValue.map(function(opt, i) {
-              return /* @__PURE__ */ import_react138.default.createElement("input", {
+              return /* @__PURE__ */ import_react137.default.createElement("input", {
                 key: "i-".concat(i),
                 name,
                 type: "hidden",
                 value: _this7.getOptionValue(opt)
               });
-            }) : /* @__PURE__ */ import_react138.default.createElement("input", {
+            }) : /* @__PURE__ */ import_react137.default.createElement("input", {
               name,
               type: "hidden",
               value: ""
             });
-            return /* @__PURE__ */ import_react138.default.createElement("div", null, input);
+            return /* @__PURE__ */ import_react137.default.createElement("div", null, input);
           }
         } else {
           var _value = selectValue[0] ? this.getOptionValue(selectValue[0]) : "";
-          return /* @__PURE__ */ import_react138.default.createElement("input", {
+          return /* @__PURE__ */ import_react137.default.createElement("input", {
             name,
             type: "hidden",
             value: _value
@@ -64616,7 +65576,7 @@
         var commonProps = this.commonProps;
         var _this$state5 = this.state, ariaSelection = _this$state5.ariaSelection, isFocused = _this$state5.isFocused, selectValue = _this$state5.selectValue;
         var focusableOptions = this.getFocusableOptions();
-        return /* @__PURE__ */ import_react138.default.createElement(live_region_default, _extends({}, commonProps, {
+        return /* @__PURE__ */ import_react137.default.createElement(live_region_default, _extends({}, commonProps, {
           id: this.getElementId("live-region"),
           ariaSelection,
           isFocused,
@@ -64630,7 +65590,7 @@
         var msg = ", multiple selections available, ".concat(this.state.selectValue.length ? "Use left or right arrow keys to navigate selected items" : "");
         return (
           // eslint-disable-next-line @atlaskit/design-system/use-primitives-text
-          /* @__PURE__ */ import_react138.default.createElement("span", {
+          /* @__PURE__ */ import_react137.default.createElement("span", {
             id: this.getElementId("multi-message"),
             hidden: true
           }, msg)
@@ -64644,7 +65604,7 @@
         var isFocused = this.state.isFocused;
         var commonProps = this.commonProps = this.getCommonProps();
         var isCompact = spacing === "compact";
-        return /* @__PURE__ */ import_react138.default.createElement(SelectContainer3, _extends({}, commonProps, {
+        return /* @__PURE__ */ import_react137.default.createElement(SelectContainer3, _extends({}, commonProps, {
           // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
           className,
           innerProps: _objectSpread23({
@@ -64655,7 +65615,7 @@
           }),
           isDisabled,
           isFocused
-        }), this.renderLiveRegion(), commonProps.isMulti && this.renderMultiselectMessage(), /* @__PURE__ */ import_react138.default.createElement(Control3, _extends({}, commonProps, {
+        }), this.renderLiveRegion(), commonProps.isMulti && this.renderMultiselectMessage(), /* @__PURE__ */ import_react137.default.createElement(Control3, _extends({}, commonProps, {
           innerRef: this.getControlRef,
           innerProps: _objectSpread23({
             onMouseDown: this.onControlMouseDown,
@@ -64669,7 +65629,7 @@
           isFocused,
           menuIsOpen,
           isCompact
-        }), /* @__PURE__ */ import_react138.default.createElement(ValueContainer3, _extends({}, commonProps, {
+        }), /* @__PURE__ */ import_react137.default.createElement(ValueContainer3, _extends({}, commonProps, {
           isDisabled,
           isCompact,
           innerProps: _objectSpread23(_objectSpread23({}, testId && {
@@ -64680,12 +65640,12 @@
             // DST Accessibility.
             role: "application"
           })
-        }), this.renderPlaceholderOrValue(), this.renderInput()), /* @__PURE__ */ import_react138.default.createElement(IndicatorsContainer3, _extends({}, commonProps, {
+        }), this.renderPlaceholderOrValue(), this.renderInput()), /* @__PURE__ */ import_react137.default.createElement(IndicatorsContainer3, _extends({}, commonProps, {
           isDisabled,
           innerProps: _objectSpread23({}, testId && {
             "data-testid": "".concat(testId, "-select--indicators-container")
           })
-        }), this.renderClearIndicator(), this.renderLoadingIndicator(), this.renderDropdownIndicator())), this.renderMenu(), this.renderFormField(), /* @__PURE__ */ import_react138.default.createElement(NotifyOpenLayerObserver, {
+        }), this.renderClearIndicator(), this.renderLoadingIndicator(), this.renderDropdownIndicator())), this.renderMenu(), this.renderFormField(), /* @__PURE__ */ import_react137.default.createElement(NotifyOpenLayerObserver, {
           isOpen: this.props.menuIsOpen,
           onClose: this.handleOpenLayerObserverCloseSignal
         }));
@@ -64736,16 +65696,16 @@
         });
       }
     }]);
-  })(import_react138.Component);
+  })(import_react137.Component);
   _defineProperty(Select, "defaultProps", defaultProps);
 
   // node_modules/@atlaskit/react-select/dist/esm/async.js
-  var import_react140 = __toESM(require_react());
+  var import_react139 = __toESM(require_react());
 
   // node_modules/@atlaskit/react-select/dist/esm/use-async.js
   init_defineProperty();
   init_slicedToArray();
-  var import_react139 = __toESM(require_react());
+  var import_react138 = __toESM(require_react());
   var _excluded20 = ["defaultOptions", "cacheOptions", "loadOptions", "options", "isLoading", "onInputChange", "filterOption"];
   function ownKeys24(e, r) {
     var t = Object.keys(e);
@@ -64771,17 +65731,17 @@
   function useAsync(_ref2) {
     var _ref$defaultOptions = _ref2.defaultOptions, propsDefaultOptions = _ref$defaultOptions === void 0 ? false : _ref$defaultOptions, _ref$cacheOptions = _ref2.cacheOptions, cacheOptions = _ref$cacheOptions === void 0 ? false : _ref$cacheOptions, propsLoadOptions = _ref2.loadOptions, propsOptions = _ref2.options, _ref$isLoading = _ref2.isLoading, propsIsLoading = _ref$isLoading === void 0 ? false : _ref$isLoading, propsOnInputChange = _ref2.onInputChange, _ref$filterOption = _ref2.filterOption, filterOption = _ref$filterOption === void 0 ? null : _ref$filterOption, restSelectProps = _objectWithoutProperties(_ref2, _excluded20);
     var propsInputValue = restSelectProps.inputValue;
-    var lastRequest = (0, import_react139.useRef)(void 0);
-    var mounted = (0, import_react139.useRef)(false);
-    var _useState = (0, import_react139.useState)(Array.isArray(propsDefaultOptions) ? propsDefaultOptions : void 0), _useState2 = _slicedToArray(_useState, 2), defaultOptions4 = _useState2[0], setDefaultOptions = _useState2[1];
-    var _useState3 = (0, import_react139.useState)(typeof propsInputValue !== "undefined" ? propsInputValue : ""), _useState4 = _slicedToArray(_useState3, 2), stateInputValue = _useState4[0], setStateInputValue = _useState4[1];
-    var _useState5 = (0, import_react139.useState)(propsDefaultOptions === true), _useState6 = _slicedToArray(_useState5, 2), isLoading = _useState6[0], setIsLoading = _useState6[1];
-    var _useState7 = (0, import_react139.useState)(void 0), _useState8 = _slicedToArray(_useState7, 2), loadedInputValue = _useState8[0], setLoadedInputValue = _useState8[1];
-    var _useState9 = (0, import_react139.useState)([]), _useState0 = _slicedToArray(_useState9, 2), loadedOptions = _useState0[0], setLoadedOptions = _useState0[1];
-    var _useState1 = (0, import_react139.useState)(false), _useState10 = _slicedToArray(_useState1, 2), passEmptyOptions = _useState10[0], setPassEmptyOptions = _useState10[1];
-    var _useState11 = (0, import_react139.useState)({}), _useState12 = _slicedToArray(_useState11, 2), optionsCache = _useState12[0], setOptionsCache = _useState12[1];
-    var _useState13 = (0, import_react139.useState)(void 0), _useState14 = _slicedToArray(_useState13, 2), prevDefaultOptions = _useState14[0], setPrevDefaultOptions = _useState14[1];
-    var _useState15 = (0, import_react139.useState)(void 0), _useState16 = _slicedToArray(_useState15, 2), prevCacheOptions = _useState16[0], setPrevCacheOptions = _useState16[1];
+    var lastRequest = (0, import_react138.useRef)(void 0);
+    var mounted = (0, import_react138.useRef)(false);
+    var _useState = (0, import_react138.useState)(Array.isArray(propsDefaultOptions) ? propsDefaultOptions : void 0), _useState2 = _slicedToArray(_useState, 2), defaultOptions4 = _useState2[0], setDefaultOptions = _useState2[1];
+    var _useState3 = (0, import_react138.useState)(typeof propsInputValue !== "undefined" ? propsInputValue : ""), _useState4 = _slicedToArray(_useState3, 2), stateInputValue = _useState4[0], setStateInputValue = _useState4[1];
+    var _useState5 = (0, import_react138.useState)(propsDefaultOptions === true), _useState6 = _slicedToArray(_useState5, 2), isLoading = _useState6[0], setIsLoading = _useState6[1];
+    var _useState7 = (0, import_react138.useState)(void 0), _useState8 = _slicedToArray(_useState7, 2), loadedInputValue = _useState8[0], setLoadedInputValue = _useState8[1];
+    var _useState9 = (0, import_react138.useState)([]), _useState0 = _slicedToArray(_useState9, 2), loadedOptions = _useState0[0], setLoadedOptions = _useState0[1];
+    var _useState1 = (0, import_react138.useState)(false), _useState10 = _slicedToArray(_useState1, 2), passEmptyOptions = _useState10[0], setPassEmptyOptions = _useState10[1];
+    var _useState11 = (0, import_react138.useState)({}), _useState12 = _slicedToArray(_useState11, 2), optionsCache = _useState12[0], setOptionsCache = _useState12[1];
+    var _useState13 = (0, import_react138.useState)(void 0), _useState14 = _slicedToArray(_useState13, 2), prevDefaultOptions = _useState14[0], setPrevDefaultOptions = _useState14[1];
+    var _useState15 = (0, import_react138.useState)(void 0), _useState16 = _slicedToArray(_useState15, 2), prevCacheOptions = _useState16[0], setPrevCacheOptions = _useState16[1];
     if (cacheOptions !== prevCacheOptions) {
       setOptionsCache({});
       setPrevCacheOptions(cacheOptions);
@@ -64790,13 +65750,13 @@
       setDefaultOptions(Array.isArray(propsDefaultOptions) ? propsDefaultOptions : void 0);
       setPrevDefaultOptions(propsDefaultOptions);
     }
-    (0, import_react139.useEffect)(function() {
+    (0, import_react138.useEffect)(function() {
       mounted.current = true;
       return function() {
         mounted.current = false;
       };
     }, []);
-    var loadOptions = (0, import_react139.useCallback)(function(inputValue, callback) {
+    var loadOptions = (0, import_react138.useCallback)(function(inputValue, callback) {
       if (!propsLoadOptions) {
         return callback();
       }
@@ -64807,7 +65767,7 @@
         });
       }
     }, [propsLoadOptions]);
-    (0, import_react139.useEffect)(function() {
+    (0, import_react138.useEffect)(function() {
       if (propsDefaultOptions === true) {
         loadOptions(stateInputValue, function(options3) {
           if (!mounted.current) {
@@ -64818,7 +65778,7 @@
         });
       }
     }, []);
-    var onInputChange = (0, import_react139.useCallback)(function(newValue, actionMeta) {
+    var onInputChange = (0, import_react138.useCallback)(function(newValue, actionMeta) {
       var inputValue = handleInputChange(newValue, actionMeta, propsOnInputChange);
       if (!inputValue) {
         lastRequest.current = void 0;
@@ -64866,25 +65826,25 @@
   }
 
   // node_modules/@atlaskit/react-select/dist/esm/async.js
-  var AsyncSelect = /* @__PURE__ */ (0, import_react140.forwardRef)(function(props, ref) {
+  var AsyncSelect = /* @__PURE__ */ (0, import_react139.forwardRef)(function(props, ref) {
     var isAsyncEnabledInBaseSelect = props.isAsync && !props.options && (!!props.loadOptions || !!props.defaultOptions);
     var stateManagedProps = useAsync(props);
     var selectAsyncProps = !props.isAsync || isAsyncEnabledInBaseSelect ? stateManagedProps : props;
     var selectProps = useStateManager(selectAsyncProps);
-    return /* @__PURE__ */ import_react140.default.createElement(Select, _extends({
+    return /* @__PURE__ */ import_react139.default.createElement(Select, _extends({
       ref
     }, selectProps));
   });
   var async_default = AsyncSelect;
 
   // node_modules/@atlaskit/select/dist/esm/createSelect.js
-  var import_react141 = __toESM(require_react());
+  var import_react140 = __toESM(require_react());
   var _excluded21 = ["ariaLiveMessages", "isInvalid", "onClickPreventDefault", "tabSelectsValue", "validationState"];
   function createSelect(WrappedComponent) {
-    var AtlaskitSelect = /* @__PURE__ */ (0, import_react141.forwardRef)(function AtlaskitSelect2(props, forwardedRef) {
+    var AtlaskitSelect = /* @__PURE__ */ (0, import_react140.forwardRef)(function AtlaskitSelect2(props, forwardedRef) {
       var ariaLiveMessages = props.ariaLiveMessages, isInvalid = props.isInvalid, _props$onClickPrevent = props.onClickPreventDefault, onClickPreventDefault = _props$onClickPrevent === void 0 ? true : _props$onClickPrevent, _props$tabSelectsValu = props.tabSelectsValue, tabSelectsValue = _props$tabSelectsValu === void 0 ? false : _props$tabSelectsValu, _props$validationStat = props.validationState, validationState = _props$validationStat === void 0 ? "default" : _props$validationStat, restProps = _objectWithoutProperties(props, _excluded21);
-      var internalSelectRef = (0, import_react141.useRef)(null);
-      (0, import_react141.useImperativeHandle)(forwardedRef, function() {
+      var internalSelectRef = (0, import_react140.useRef)(null);
+      (0, import_react140.useImperativeHandle)(forwardedRef, function() {
         return {
           select: internalSelectRef.current,
           focus: function focus() {
@@ -64897,7 +65857,7 @@
           }
         };
       }, []);
-      return /* @__PURE__ */ import_react141.default.createElement(WrappedComponent, _extends({
+      return /* @__PURE__ */ import_react140.default.createElement(WrappedComponent, _extends({
         ref: internalSelectRef,
         ariaLiveMessages,
         tabSelectsValue,
@@ -64936,14 +65896,25 @@
   var Select_default = Select2;
 
   // src/components/Legend.jsx
-  var import_react142 = __toESM(require_react());
+  var import_react141 = __toESM(require_react());
+  var import_jsx_runtime7 = __toESM(require_jsx_runtime());
   function Legend() {
-    return /* @__PURE__ */ import_react142.default.createElement("div", { className: "timeline-legend" }, /* @__PURE__ */ import_react142.default.createElement("span", { className: "legend-item legend-on-track" }, "On Track"), /* @__PURE__ */ import_react142.default.createElement("span", { className: "legend-item legend-off-track" }, "Off Track"), /* @__PURE__ */ import_react142.default.createElement("span", { className: "legend-item legend-at-risk" }, "At Risk"), /* @__PURE__ */ import_react142.default.createElement("span", { className: "legend-item legend-pending" }, "Pending"), /* @__PURE__ */ import_react142.default.createElement("span", { className: "legend-item legend-paused" }, "Paused"), /* @__PURE__ */ import_react142.default.createElement("span", { className: "legend-item legend-cancelled" }, "Cancelled"), /* @__PURE__ */ import_react142.default.createElement("span", { className: "legend-item legend-done" }, "Done"), /* @__PURE__ */ import_react142.default.createElement("span", { className: "legend-item legend-missed-update" }, "Missed Update"));
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "timeline-legend", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "legend-item legend-on-track", children: "On Track" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "legend-item legend-off-track", children: "Off Track" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "legend-item legend-at-risk", children: "At Risk" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "legend-item legend-pending", children: "Pending" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "legend-item legend-paused", children: "Paused" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "legend-item legend-cancelled", children: "Cancelled" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "legend-item legend-done", children: "Done" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "legend-item legend-missed-update", children: "Missed Update" })
+    ] });
   }
 
   // src/components/Modal.jsx
+  var import_jsx_runtime8 = __toESM(require_jsx_runtime());
   function Modal({ open, onClose, children }) {
-    const [weekLimit, setWeekLimit] = (0, import_react143.useState)(12);
+    const [weekLimit, setWeekLimit] = (0, import_react142.useState)(12);
     const weekOptions = [
       { label: "4 weeks", value: 4 },
       { label: "8 weeks", value: 8 },
@@ -64951,22 +65922,29 @@
       { label: "24 weeks", value: 24 },
       { label: "All", value: Infinity }
     ];
-    return /* @__PURE__ */ import_react143.default.createElement(modal_transition_default, null, open && /* @__PURE__ */ import_react143.default.createElement(FullScreenModalDialog, { onClose }, /* @__PURE__ */ import_react143.default.createElement(modal_header_default, { hasCloseButton: true }, /* @__PURE__ */ import_react143.default.createElement(modal_title_default, null, "Atlas-Xray Project History Timeline")), /* @__PURE__ */ import_react143.default.createElement(modal_body_default, { hasInlinePadding: true }, /* @__PURE__ */ import_react143.default.createElement(
-      box_default2,
-      {
-        style: { maxWidth: "1128px", margin: "0 auto", width: "100%" }
-      },
-      /* @__PURE__ */ import_react143.default.createElement(grid_default, null, /* @__PURE__ */ import_react143.default.createElement(Legend, null), /* @__PURE__ */ import_react143.default.createElement("div", { style: { marginBottom: 16, maxWidth: 200 } }, /* @__PURE__ */ import_react143.default.createElement(
-        Select_default,
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(modal_transition_default, { children: open && /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(FullScreenModalDialog, { onClose, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(modal_header_default, { hasCloseButton: true, children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(modal_title_default, { children: "Atlas-Xray Project History Timeline" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(modal_body_default, { hasInlinePadding: true, children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+        box_default2,
         {
-          options: weekOptions,
-          value: weekOptions.find((opt) => opt.value === weekLimit),
-          onChange: (option) => setWeekLimit(option.value),
-          placeholder: "Weeks to show",
-          isSearchable: false
+          style: { maxWidth: "1128px", margin: "0 auto", width: "100%" },
+          children: /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(grid_default, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Legend, {}),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)("div", { style: { marginBottom: 16, maxWidth: 200 }, children: /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(
+              Select_default,
+              {
+                options: weekOptions,
+                value: weekOptions.find((opt) => opt.value === weekLimit),
+                onChange: (option) => setWeekLimit(option.value),
+                placeholder: "Weeks to show",
+                isSearchable: false
+              }
+            ) }),
+            /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(TimelineProvider, { weekLimit, children: typeof children === "function" ? children(weekLimit) : children })
+          ] })
         }
-      )), /* @__PURE__ */ import_react143.default.createElement(TimelineProvider, { weekLimit }, typeof children === "function" ? children(weekLimit) : children))
-    ))));
+      ) })
+    ] }) });
   }
 
   // node_modules/ts-invariant/lib/invariant.js
@@ -79322,6 +80300,7 @@ fragment UserAvatar on User {
   }
 
   // src/components/FloatingButton.jsx
+  var import_jsx_runtime9 = __toESM(require_jsx_runtime());
   var FloatingButton = () => {
     const projectCount = useLiveQuery(() => db.projectView.count(), []);
     const projects = useLiveQuery(() => db.projectView.toArray(), []);
@@ -79338,14 +80317,14 @@ fragment UserAvatar on User {
       },
       []
     );
-    const [modalOpen, setModalOpen] = (0, import_react144.useState)(false);
-    const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react144.useState)([]);
-    const observerRef = (0, import_react144.useRef)(null);
+    const [modalOpen, setModalOpen] = (0, import_react143.useState)(false);
+    const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react143.useState)([]);
+    const observerRef = (0, import_react143.useRef)(null);
     const updateVisibleProjects = async () => {
       const matches = await downloadProjectData();
       setVisibleProjectKeys(matches.map((m) => m.projectId));
     };
-    (0, import_react144.useEffect)(() => {
+    (0, import_react143.useEffect)(() => {
       updateVisibleProjects();
       const observer2 = new window.MutationObserver(() => {
         updateVisibleProjects();
@@ -79363,14 +80342,21 @@ fragment UserAvatar on User {
     }));
     const filteredProjects = visibleProjectKeys.length > 0 ? projectViewModel.filter((p) => visibleProjectKeys.includes(p.projectKey)) : projectViewModel;
     const handleOpenModal = () => setModalOpen(true);
-    return /* @__PURE__ */ import_react144.default.createElement(import_react144.default.Fragment, null, /* @__PURE__ */ import_react144.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal }, "Atlas Xray", visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react144.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, (weekLimit) => /* @__PURE__ */ import_react144.default.createElement(ProjectList, null)));
+    return /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)(import_jsx_runtime9.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsxs)("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal, children: [
+        "Atlas Xray",
+        visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(Modal, { open: modalOpen, onClose: () => setModalOpen(false), children: (weekLimit) => /* @__PURE__ */ (0, import_jsx_runtime9.jsx)(ProjectList, {}) })
+    ] });
   };
   var FloatingButton_default = FloatingButton;
 
   // src/floatingButtonContentScript.js
+  var import_jsx_runtime10 = __toESM(require_jsx_runtime());
   var container = document.createElement("div");
   document.body.appendChild(container);
-  (0, import_client3.createRoot)(container).render(/* @__PURE__ */ import_react145.default.createElement(FloatingButton_default, null));
+  (0, import_client3.createRoot)(container).render(/* @__PURE__ */ (0, import_jsx_runtime10.jsx)(FloatingButton_default, {}));
   downloadProjectData();
   var observer = new MutationObserver(() => {
     downloadProjectData();
@@ -79465,4 +80451,15 @@ exenv/index.js:
     Based on code that is Copyright 2013-2015, Facebook, Inc.
     All rights reserved.
   *)
+
+react/cjs/react-jsx-runtime.development.js:
+  (**
+   * @license React
+   * react-jsx-runtime.development.js
+   *
+   * Copyright (c) Facebook, Inc. and its affiliates.
+   *
+   * This source code is licensed under the MIT license found in the
+   * LICENSE file in the root directory of this source tree.
+   *)
 */

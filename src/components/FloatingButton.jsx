@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../utils/database";
-import ProjectList from "./ProjectList.jsx";
-import Modal from "./Modal.jsx";
+import ProjectList from "./ProjectList";
+import Modal from "./Modal";
 import { downloadProjectData } from "../utils/projectIdScanner";
 
 const FloatingButton = () => {

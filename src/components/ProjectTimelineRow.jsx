@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
-import DateChangeModal from "./DateChangeModal.jsx";
+import DateChangeModal from "./DateChangeModal";
 import { buildProjectUrlFromKey } from "../utils/linkUtils";
 import {
   getTimelineWeekCells,

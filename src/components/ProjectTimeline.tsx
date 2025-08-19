@@ -1,12 +1,13 @@
 import React from "react";
-import ProjectTimelineRow from "./ProjectTimelineRow.jsx";
-import ProjectTimelineHeader from "./ProjectTimelineHeader.jsx";
+import ProjectTimelineRow from "./ProjectTimelineRow";
+import ProjectTimelineHeader from "./ProjectTimelineHeader";
 import { useTimelineContext } from "../contexts/TimelineContext";
+import type { ProjectTimelineProps } from "../types";
 
 /**
  * Renders the project timeline grid. Now uses context for data.
  */
-const ProjectTimeline = ({ projects }) => {
+const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projects }) => {
   const { weekRanges, updatesByProject } = useTimelineContext();
 
   console.log('ProjectTimeline render:', { 

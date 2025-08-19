@@ -7,7 +7,7 @@ import {
   ModalTransition,
 } from "@atlaskit/modal-dialog/full-screen";
 import Select from "@atlaskit/select";
-import Legend from "./Legend.jsx";
+import Legend from "./Legend";
 import { Grid, Box } from "@atlaskit/primitives";
 import { TimelineProvider } from "../contexts/TimelineContext";
 

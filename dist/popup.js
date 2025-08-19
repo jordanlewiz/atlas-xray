@@ -1,3 +1,4 @@
+"use strict";
 (() => {
   var __create = Object.create;
   var __defProp = Object.defineProperty;
@@ -13180,6 +13181,43 @@
     }
   });
 
+  // node_modules/react/cjs/react-jsx-runtime.production.min.js
+  var require_react_jsx_runtime_production_min = __commonJS({
+    "node_modules/react/cjs/react-jsx-runtime.production.min.js"(exports) {
+      "use strict";
+      var f = require_react();
+      var k = Symbol.for("react.element");
+      var l = Symbol.for("react.fragment");
+      var m = Object.prototype.hasOwnProperty;
+      var n = f.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner;
+      var p = { key: true, ref: true, __self: true, __source: true };
+      function q(c, a, g) {
+        var b, d = {}, e = null, h = null;
+        void 0 !== g && (e = "" + g);
+        void 0 !== a.key && (e = "" + a.key);
+        void 0 !== a.ref && (h = a.ref);
+        for (b in a) m.call(a, b) && !p.hasOwnProperty(b) && (d[b] = a[b]);
+        if (c && c.defaultProps) for (b in a = c.defaultProps, a) void 0 === d[b] && (d[b] = a[b]);
+        return { $$typeof: k, type: c, key: e, ref: h, props: d, _owner: n.current };
+      }
+      exports.Fragment = l;
+      exports.jsx = q;
+      exports.jsxs = q;
+    }
+  });
+
+  // node_modules/react/jsx-runtime.js
+  var require_jsx_runtime = __commonJS({
+    "node_modules/react/jsx-runtime.js"(exports, module) {
+      "use strict";
+      if (true) {
+        module.exports = require_react_jsx_runtime_production_min();
+      } else {
+        module.exports = null;
+      }
+    }
+  });
+
   // src/popup.jsx
   var import_react3 = __toESM(require_react());
   var import_client = __toESM(require_client());
@@ -13305,6 +13343,7 @@
   }
 
   // src/PopupApp.jsx
+  var import_jsx_runtime = __toESM(require_jsx_runtime());
   var STORAGE_KEY = "demoValue";
   var Popup = () => {
     console.log("PopupApp");
@@ -13324,13 +13363,23 @@
       setRefreshMsg(`Project count refreshed! >> ${projectCount} <<`);
       setTimeout(() => setRefreshMsg(""), 1500);
     };
-    return /* @__PURE__ */ import_react2.default.createElement("div", { style: { width: 250 } }, /* @__PURE__ */ import_react2.default.createElement("div", { style: { marginTop: 8 } }, "Projects in DB: ", /* @__PURE__ */ import_react2.default.createElement("b", null, projectCount === void 0 ? "Loading..." : projectCount)), /* @__PURE__ */ import_react2.default.createElement("button", { onClick: handleResetDB, style: { marginTop: 8, width: "100%", background: "#e74c3c", color: "#fff" } }, "Clear All AtlasXrayDB Data"), /* @__PURE__ */ import_react2.default.createElement("button", { onClick: handleRefreshUpdates, style: { marginTop: 8, width: "100%", background: "#2980b9", color: "#fff" } }, "Refresh Project Count"), resetMsg && /* @__PURE__ */ import_react2.default.createElement("div", { style: { color: "#27ae60", marginTop: 8 } }, resetMsg), refreshMsg && /* @__PURE__ */ import_react2.default.createElement("div", { style: { color: "#2980b9", marginTop: 8 } }, refreshMsg));
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { width: 250 }, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { style: { marginTop: 8 }, children: [
+        "Projects in DB: ",
+        /* @__PURE__ */ (0, import_jsx_runtime.jsx)("b", { children: projectCount === void 0 ? "Loading..." : projectCount })
+      ] }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: handleResetDB, style: { marginTop: 8, width: "100%", background: "#e74c3c", color: "#fff" }, children: "Clear All AtlasXrayDB Data" }),
+      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("button", { onClick: handleRefreshUpdates, style: { marginTop: 8, width: "100%", background: "#2980b9", color: "#fff" }, children: "Refresh Project Count" }),
+      resetMsg && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { color: "#27ae60", marginTop: 8 }, children: resetMsg }),
+      refreshMsg && /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { style: { color: "#2980b9", marginTop: 8 }, children: refreshMsg })
+    ] });
   };
   var PopupApp_default = Popup;
 
   // src/popup.jsx
+  var import_jsx_runtime2 = __toESM(require_jsx_runtime());
   var root = (0, import_client.createRoot)(document.getElementById("root"));
-  root.render(/* @__PURE__ */ import_react3.default.createElement(PopupApp_default, null));
+  root.render(/* @__PURE__ */ (0, import_jsx_runtime2.jsx)(PopupApp_default, {}));
 })();
 /*! Bundled license information:
 
@@ -13380,4 +13429,15 @@ dexie/dist/dexie.js:
   OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
   PERFORMANCE OF THIS SOFTWARE.
   ***************************************************************************** *)
+
+react/cjs/react-jsx-runtime.production.min.js:
+  (**
+   * @license React
+   * react-jsx-runtime.production.min.js
+   *
+   * Copyright (c) Facebook, Inc. and its affiliates.
+   *
+   * This source code is licensed under the MIT license found in the
+   * LICENSE file in the root directory of this source tree.
+   *)
 */

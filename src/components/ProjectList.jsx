@@ -1,5 +1,5 @@
 import React from "react";
-import ProjectTimeline from "./ProjectTimeline.jsx";
+import ProjectTimeline from "./ProjectTimeline";
 import { useTimelineContext } from "../contexts/TimelineContext";
 
 /**
