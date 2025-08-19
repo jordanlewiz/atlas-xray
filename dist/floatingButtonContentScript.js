@@ -61056,6 +61056,12 @@
     });
     return { minDate, maxDate };
   }
+  function buildProjectUrlFromKey(projectKey) {
+    const cloudId2 = getGlobalCloudId();
+    const sectionId2 = getGlobalSectionId();
+    if (!cloudId2 || !sectionId2 || !projectKey) return void 0;
+    return `https://home.atlassian.com/o/${cloudId2}/s/${sectionId2}/project/${projectKey}/updates`;
+  }
   function parseFlexibleDateChrono(dateStr, year = (/* @__PURE__ */ new Date()).getFullYear(), isEnd = false) {
     if (!dateStr || typeof dateStr !== "string") return null;
     if (dateStr.includes("-")) {
@@ -61099,25 +61105,6 @@
   }
 
   // src/utils/timeline/timelineViewModels.ts
-  function getTimelineCellClass(lastUpdate, weekUpdates) {
-    let stateClass = "state-none";
-    if (lastUpdate) {
-      if (lastUpdate.missedUpdate) stateClass = "state-missed-update";
-      else if (lastUpdate.state && typeof lastUpdate.state === "string") {
-        stateClass = `state-${lastUpdate.state.replace(/_/g, "-").toLowerCase()}`;
-      }
-    }
-    let oldStateClass = "";
-    if (lastUpdate && lastUpdate.oldState && typeof lastUpdate.oldState === "string") {
-      oldStateClass = `old-state-${lastUpdate.oldState.replace(/_/g, "-").toLowerCase()}`;
-    }
-    return [
-      "timeline-cell",
-      weekUpdates.length > 0 ? "has-update" : "",
-      stateClass,
-      oldStateClass
-    ].filter(Boolean).join(" ");
-  }
   function getTargetDateDisplay(dateStr) {
     if (!dateStr || typeof dateStr !== "string") {
       return "No date";
@@ -61149,8 +61136,25 @@
         return d && d >= weekStart && d < weekEnd;
       });
       const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : void 0;
+      let stateClass = "state-none";
+      if (lastUpdate) {
+        if (lastUpdate.missedUpdate) stateClass = "state-missed-update";
+        else if (lastUpdate.state && typeof lastUpdate.state === "string") {
+          stateClass = `state-${lastUpdate.state.replace(/_/g, "-").toLowerCase()}`;
+        }
+      }
+      let oldStateClass = "";
+      if (lastUpdate && lastUpdate.oldState && typeof lastUpdate.oldState === "string") {
+        oldStateClass = `old-state-${lastUpdate.oldState.replace(/_/g, "-").toLowerCase()}`;
+      }
+      const cellClass = [
+        "timeline-cell",
+        weekUpdates.length > 0 ? "has-update" : "",
+        stateClass,
+        oldStateClass
+      ].filter(Boolean).join(" ");
       return {
-        cellClass: getTimelineCellClass(lastUpdate, weekUpdates),
+        cellClass,
         weekUpdates
       };
     });
@@ -61376,14 +61380,6 @@
         ]
       }
     ) });
-  }
-
-  // src/utils/linkUtils.ts
-  function buildProjectUrlFromKey(projectKey) {
-    const cloudId2 = getGlobalCloudId();
-    const sectionId2 = getGlobalSectionId();
-    if (!cloudId2 || !sectionId2 || !projectKey) return void 0;
-    return `https://home.atlassian.com/o/${cloudId2}/s/${sectionId2}/project/${projectKey}/updates`;
   }
 
   // src/components/timeline/ProjectTimelineRow.tsx

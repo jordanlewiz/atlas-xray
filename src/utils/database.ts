@@ -24,28 +24,6 @@ export async function setProjectView(projectKey: string, data: any): Promise<voi
   await db.projectView.put({ projectKey, ...data });
 }
 
-export async function getProjectView(projectKey: string): Promise<any> {
-  return db.projectView.get(projectKey);
-}
-
-// ProjectStatusHistory store
-export async function setProjectStatusHistory(projectKey: string, data: any): Promise<void> {
-  await db.projectStatusHistory.put({ projectKey, ...data });
-}
-
-export async function getProjectStatusHistory(projectKey: string): Promise<any> {
-  return db.projectStatusHistory.get(projectKey);
-}
-
-// ProjectUpdates store (full updates query result per project)
-export async function setProjectUpdates(projectKey: string, data: any): Promise<void> {
-  await db.projectUpdates.put({ projectKey, ...data });
-}
-
-export async function getProjectUpdates(projectKey: string): Promise<any> {
-  return db.projectUpdates.get(projectKey);
-}
-
 // Meta store
 export async function setMeta(key: string, value: any): Promise<void> {
   await db.meta.put({ key, value });
@@ -63,10 +41,6 @@ export async function setItem(key: string, value: any): Promise<void> {
 
 export async function getItem(key: string): Promise<any> {
   return getMeta(key);
-}
-
-export async function getProjectViewCount(): Promise<number> {
-  return db.projectView.count();
 }
 
 // GraphQL node types

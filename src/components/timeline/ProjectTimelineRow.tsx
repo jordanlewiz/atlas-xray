@@ -3,7 +3,7 @@ import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
 import ProjectUpdateModal from "../modal/ProjectUpdateModal";
-import { buildProjectUrlFromKey } from "../../utils/linkUtils";
+import { buildProjectUrlFromKey } from "../../utils/timeline";
 import {
   getTimelineWeekCells,
   getTargetDateDisplay,

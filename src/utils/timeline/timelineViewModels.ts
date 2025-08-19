@@ -13,28 +13,7 @@ interface LastUpdate {
   oldState?: string;
 }
 
-export function getTimelineCellClass(lastUpdate: LastUpdate | undefined, weekUpdates: ProjectUpdate[]): string {
-  let stateClass = 'state-none';
-  if (lastUpdate) {
-    // Based on console logs, data is directly accessible
-    if (lastUpdate.missedUpdate) stateClass = 'state-missed-update';
-    else if (lastUpdate.state && typeof lastUpdate.state === 'string') {
-      stateClass = `state-${lastUpdate.state.replace(/_/g, '-').toLowerCase()}`;
-    }
-  }
-  
-  let oldStateClass = '';
-  if (lastUpdate && lastUpdate.oldState && typeof lastUpdate.oldState === 'string') {
-    oldStateClass = `old-state-${lastUpdate.oldState.replace(/_/g, '-').toLowerCase()}`;
-  }
-  
-  return [
-    'timeline-cell',
-    weekUpdates.length > 0 ? 'has-update' : '',
-    stateClass,
-    oldStateClass
-  ].filter(Boolean).join(' ');
-}
+
 
 export function getTargetDateDisplay(dateStr: string | null | undefined): string {
   if (!dateStr || typeof dateStr !== 'string') {
@@ -71,8 +50,30 @@ export function getTimelineWeekCells(weekRanges: WeekRange[], updates: ProjectUp
       return d && d >= weekStart && d < weekEnd;
     });
     const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : undefined;
+    
+    // Generate cell class inline
+    let stateClass = 'state-none';
+    if (lastUpdate) {
+      if (lastUpdate.missedUpdate) stateClass = 'state-missed-update';
+      else if (lastUpdate.state && typeof lastUpdate.state === 'string') {
+        stateClass = `state-${lastUpdate.state.replace(/_/g, '-').toLowerCase()}`;
+      }
+    }
+    
+    let oldStateClass = '';
+    if (lastUpdate && lastUpdate.oldState && typeof lastUpdate.oldState === 'string') {
+      oldStateClass = `old-state-${lastUpdate.oldState.replace(/_/g, '-').toLowerCase()}`;
+    }
+    
+    const cellClass = [
+      'timeline-cell',
+      weekUpdates.length > 0 ? 'has-update' : '',
+      stateClass,
+      oldStateClass
+    ].filter(Boolean).join(' ');
+    
     return {
-      cellClass: getTimelineCellClass(lastUpdate, weekUpdates),
+      cellClass,
       weekUpdates,
     };
   });

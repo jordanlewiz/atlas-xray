@@ -10,7 +10,7 @@ export interface ProjectUpdate {
   creationDate?: string;
   state?: string;
   missedUpdate?: boolean;
-  targetDate?: string;
+  targetDate?: string; // Maps to newTargetDate from GraphQL
   newDueDate?: string;
   oldDueDate?: string;
   oldState?: string;
