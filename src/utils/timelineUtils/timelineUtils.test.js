@@ -1,4 +1,4 @@
-import { daysBetweenFlexibleDates, parseFlexibleDateChrono } from './timelineUtils.js';
+import { daysBetweenFlexibleDates, parseFlexibleDateChrono } from './timeline';
 
 describe("parseFlexibleDateChrono", () => {
   it("should parse 'Apr-Jun' in 2025 to Jun 30, 2025 (end of range)", () => {

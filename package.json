@@ -9,7 +9,9 @@
     "build:content": "esbuild src/components/FloatingButton.jsx --bundle --outfile=dist/floatingButton.js --format=iife --loader:.js=jsx --loader:.jsx=jsx",
     "build:floatingButtonContentScript": "esbuild src/floatingButtonContentScript.js --bundle --outfile=dist/floatingButtonContentScript.js --format=iife --loader:.js=jsx",
     "build:background": "esbuild src/background.js --bundle --outfile=dist/background.js --format=iife",
-    "build": "npm run build:js && npm run build:css && npm run build:content && npm run build:floatingButtonContentScript && npm run build:background",
+    "build": "npm test && npm run build:js && npm run build:css && npm run build:content && npm run build:floatingButtonContentScript && npm run build:background",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "type-check": "tsc --noEmit",
     "type-check:watch": "tsc --noEmit --watch"
   },
@@ -32,6 +34,7 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.3",
+    "@babel/preset-typescript": "^7.27.1",
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
