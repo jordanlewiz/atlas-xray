@@ -203,5 +203,5 @@
 @import "global";
 
 // Import component-specific styles
-@import "statusLegend";
-@import "projectUpdateModal";
+@import "../../components/ui/StatusLegend/StatusLegend";
+@import "../../components/modal/ProjectUpdateModal/ProjectUpdateModal";
