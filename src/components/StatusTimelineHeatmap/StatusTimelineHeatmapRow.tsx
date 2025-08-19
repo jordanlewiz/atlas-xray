@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
-import ProjectUpdateModal from "../modal/ProjectUpdateModal";
+import ProjectUpdateModal from "../ProjectUpdateModal";
 import { buildProjectUrlFromKey } from "../../utils/timelineUtils";
 import {
   getTimelineWeekCells,

@@ -7,7 +7,7 @@ import {
   ModalTransition,
 } from "@atlaskit/modal-dialog/full-screen";
 import Select from "@atlaskit/select";
-import StatusLegend from "../../ui/StatusLegend";
+import StatusLegend from "../StatusLegend";
 import { Grid, Box } from "@atlaskit/primitives";
 import type { ProjectStatusHistoryModalProps } from "../../types";
 

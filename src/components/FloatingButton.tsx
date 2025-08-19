@@ -3,7 +3,7 @@ import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../utils/database";
 import type { AtlasXrayDB } from "../types/database";
 import StatusTimelineHeatmap from "./StatusTimelineHeatmap/StatusTimelineHeatmap";
-import ProjectStatusHistoryModal from "./modal/ProjectStatusHistoryModal";
+import ProjectStatusHistoryModal from "./ProjectStatusHistoryModal";
 import { downloadProjectData } from "../utils/projectIdScanner";
 
 /**

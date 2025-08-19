@@ -61232,7 +61232,7 @@
     return html;
   }
 
-  // src/components/modal/ProjectUpdateModal/ProjectUpdateModal.tsx
+  // src/components/ProjectUpdateModal/ProjectUpdateModal.tsx
   var import_jsx_runtime = __toESM(require_jsx_runtime());
   function ProjectUpdateModal({
     selectedUpdate,
@@ -61526,7 +61526,7 @@
     ] });
   }
 
-  // src/components/modal/ProjectStatusHistoryModal/ProjectStatusHistoryModal.tsx
+  // src/components/ProjectStatusHistoryModal/ProjectStatusHistoryModal.tsx
   var import_react137 = __toESM(require_react());
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/full-screen.js
@@ -65919,7 +65919,7 @@
   })(SelectWithoutAnalytics));
   var Select_default = Select2;
 
-  // src/components/ui/StatusLegend/StatusLegend.tsx
+  // src/components/StatusLegend/StatusLegend.tsx
   var import_jsx_runtime5 = __toESM(require_jsx_runtime());
   function StatusLegend() {
     return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "legend", children: [
@@ -65933,7 +65933,7 @@
     ] });
   }
 
-  // src/components/modal/ProjectStatusHistoryModal/ProjectStatusHistoryModal.tsx
+  // src/components/ProjectStatusHistoryModal/ProjectStatusHistoryModal.tsx
   var import_jsx_runtime6 = __toESM(require_jsx_runtime());
   function ProjectStatusHistoryModal({ open, onClose, children }) {
     const [weekLimit, setWeekLimit] = (0, import_react137.useState)(12);
