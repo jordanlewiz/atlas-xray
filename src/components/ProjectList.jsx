@@ -1,12 +1,12 @@
 import React from "react";
 import ProjectTimeline from "./ProjectTimeline";
-import { useTimelineContext } from "../contexts/TimelineContext";
+import { useTimeline } from "../hooks/useTimelineData";
 
 /**
- * Main project list component. Now uses context instead of props for data.
+ * Main project list component. Now uses the hook directly for data.
  */
-export default function ProjectList() {
-  const { projectViewModels, isLoading } = useTimelineContext();
+export default function ProjectList({ weekLimit = 12 }) {
+  const { projectViewModels, weekRanges, updatesByProject, isLoading } = useTimeline(weekLimit);
 
   if (isLoading) {
     return <div>Loading timeline data...</div>;
@@ -14,7 +14,11 @@ export default function ProjectList() {
 
   return (
     <>
-      <ProjectTimeline projects={projectViewModels} />
+      <ProjectTimeline 
+        projects={projectViewModels} 
+        weekRanges={weekRanges}
+        updatesByProject={updatesByProject}
+      />
     </>
   );
 }

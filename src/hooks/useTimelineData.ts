@@ -12,14 +12,14 @@ import type {
 } from "../types";
 import type { AtlasXrayDB } from "../types/database";
 
-export function useTimelineData(weekLimit: number = 12): UseTimelineDataReturn {
+export function useTimeline(weekLimit: number = 12) {
   // Fetch raw data from database
   const projects = useLiveQuery(() => (db as AtlasXrayDB).projectView.toArray(), []) as ProjectView[] | undefined;
   const allUpdates = useLiveQuery(() => (db as AtlasXrayDB).projectUpdates.toArray(), []) as ProjectUpdate[] | undefined;
   const allStatusHistory = useLiveQuery(() => (db as AtlasXrayDB).projectStatusHistory.toArray(), []) as ProjectStatusHistory[] | undefined;
 
   // Transform data into clean view models
-  const timelineData = useMemo((): UseTimelineDataReturn => {
+  return useMemo(() => {
     if (!projects || !allUpdates || !allStatusHistory) {
       return {
         weekRanges: [],
@@ -58,24 +58,13 @@ export function useTimelineData(weekLimit: number = 12): UseTimelineDataReturn {
     const projectViewModels: ProjectViewModel[] = projects.map((project: ProjectView) => ({
       projectKey: project.projectKey,
       name: project.project?.name || "Unknown Project",
-      // Keep it simple - just store the raw project data
       rawProject: project
     }));
 
-    // Get week ranges for the timeline using the correct parameters
-    console.log('About to call getAllProjectDates with:', { 
-      projectViewModelsCount: projectViewModels.length,
-      updatesByProjectKeys: Object.keys(updatesByProject),
-      sampleProject: projectViewModels[0],
-      sampleUpdates: updatesByProject[Object.keys(updatesByProject)[0]]
-    });
-    
+    // Get week ranges for the timeline
     const allDates = getAllProjectDates(projectViewModels, updatesByProject);
-    console.log('getAllProjectDates result:', allDates);
     
-    // Handle case where no valid dates are found
     if (!allDates.minDate || !allDates.maxDate) {
-      console.warn('No valid dates found for timeline');
       return {
         weekRanges: [],
         projectViewModels,
@@ -85,12 +74,8 @@ export function useTimelineData(weekLimit: number = 12): UseTimelineDataReturn {
       };
     }
     
-    console.log('Creating week ranges from:', allDates.minDate, 'to', allDates.maxDate);
     const weekRanges: WeekRange[] = getWeekRanges(allDates.minDate, allDates.maxDate);
-    console.log('Week ranges created:', weekRanges);
-    
     const limitedWeekRanges: WeekRange[] = weekRanges.slice(-weekLimit);
-    console.log('Limited week ranges:', limitedWeekRanges);
 
     return {
       weekRanges: limitedWeekRanges,
@@ -100,6 +85,4 @@ export function useTimelineData(weekLimit: number = 12): UseTimelineDataReturn {
       isLoading: false
     };
   }, [projects, allUpdates, allStatusHistory, weekLimit]);
-
-  return timelineData;
 }

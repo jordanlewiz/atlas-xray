@@ -60,6 +60,8 @@ export interface TimelineContextType {
 // Component prop types
 export interface ProjectTimelineProps {
   projects: ProjectViewModel[];
+  weekRanges: WeekRange[];
+  updatesByProject: Record<string, ProjectUpdate[]>;
 }
 
 export interface ProjectTimelineRowProps {

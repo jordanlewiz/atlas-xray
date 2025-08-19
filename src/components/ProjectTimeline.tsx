@@ -1,21 +1,13 @@
 import React from "react";
 import ProjectTimelineRow from "./ProjectTimelineRow";
 import ProjectTimelineHeader from "./ProjectTimelineHeader";
-import { useTimelineContext } from "../contexts/TimelineContext";
+
 import type { ProjectTimelineProps } from "../types";
 
 /**
- * Renders the project timeline grid. Now uses context for data.
+ * Renders the project timeline grid. Now receives data as props.
  */
-const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projects }) => {
-  const { weekRanges, updatesByProject } = useTimelineContext();
-
-  console.log('ProjectTimeline render:', { 
-    projectsCount: projects?.length, 
-    weekRangesCount: weekRanges?.length,
-    weekRanges,
-    updatesByProjectKeys: Object.keys(updatesByProject || {})
-  });
+const ProjectTimeline: React.FC<ProjectTimelineProps> = ({ projects, weekRanges, updatesByProject }) => {
 
   return (
     <div className="project-timeline">
