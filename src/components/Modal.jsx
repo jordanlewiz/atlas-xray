@@ -16,7 +16,7 @@ export default function Modal({ open, onClose, children }) {
       {open && (
         <ModalDialog
           onClose={onClose}
-          heading="Atlas-Xray Project History Timeine"
+          heading="Atlas-Xray Project History Timeline"
           width="x-large"
           shouldScrollInViewport
           actions={[
