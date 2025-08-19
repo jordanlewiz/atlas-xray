@@ -45957,14 +45957,6 @@
   // src/components/ProjectTimelineRow.jsx
   var import_react39 = __toESM(require_react());
 
-  // src/utils/linkUtils.js
-  function buildProjectUrlFromKey(projectKey) {
-    const cloudId2 = getGlobalCloudId();
-    const sectionId2 = getGlobalSectionId();
-    if (!cloudId2 || !sectionId2 || !projectKey) return void 0;
-    return `https://home.atlassian.com/o/${cloudId2}/s/${sectionId2}/project/${projectKey}/updates`;
-  }
-
   // node_modules/@babel/runtime/helpers/esm/extends.js
   function _extends() {
     return _extends = Object.assign ? Object.assign.bind() : function(n) {
@@ -49925,13 +49917,77 @@
   }
   var tooltip_default = Tooltip;
 
+  // src/utils/linkUtils.js
+  function buildProjectUrlFromKey(projectKey) {
+    const cloudId2 = getGlobalCloudId();
+    const sectionId2 = getGlobalSectionId();
+    if (!cloudId2 || !sectionId2 || !projectKey) return void 0;
+    return `https://home.atlassian.com/o/${cloudId2}/s/${sectionId2}/project/${projectKey}/updates`;
+  }
+
+  // src/utils/timelineViewModels.js
+  function getTimelineCellClass(lastUpdate, weekUpdates) {
+    let stateClass = "state-none";
+    if (lastUpdate) {
+      if (lastUpdate.missedUpdate) stateClass = "state-missed-update";
+      else if (lastUpdate.state) stateClass = `state-${lastUpdate.state.replace(/_/g, "-").toLowerCase()}`;
+    }
+    let oldStateClass = "";
+    if (lastUpdate && lastUpdate.oldState) {
+      oldStateClass = `old-state-${lastUpdate.oldState.replace(/_/g, "-").toLowerCase()}`;
+    }
+    return [
+      "timeline-cell",
+      weekUpdates.length > 0 ? "has-update" : "",
+      stateClass,
+      oldStateClass
+    ].filter(Boolean).join(" ");
+  }
+  function getTargetDateDisplay(dateStr) {
+    const d = safeParseDate(dateStr);
+    if (d && !isNaN(d.getTime())) {
+      return format(d, "d MMM yyyy");
+    }
+    return dateStr;
+  }
+  function getTimelineWeekCells(weekRanges, updates) {
+    const validUpdates = updates.filter((u) => u && typeof u.creationDate === "string");
+    return weekRanges.map((w2) => {
+      const weekStart = w2.start;
+      const weekEnd = w2.end;
+      const weekUpdates = validUpdates.filter((u) => {
+        const d = safeParseDate(u.creationDate);
+        return d && d >= weekStart && d < weekEnd;
+      });
+      const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : void 0;
+      return {
+        cellClass: getTimelineCellClass(lastUpdate, weekUpdates),
+        weekUpdates
+      };
+    });
+  }
+  function getDueDateTooltip(u) {
+    if (u.oldDueDate && u.newDueDate) {
+      return `${u.oldDueDate} \u2192 ${u.newDueDate}`;
+    }
+    return null;
+  }
+  function getDueDateDiff(u) {
+    if (u.oldDueDate && u.newDueDate) {
+      return daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate);
+    }
+    return null;
+  }
+
   // src/components/ProjectTimelineRow.jsx
   function ProjectTimelineRow({ project, weekRanges, updates }) {
     if (!project) {
       console.warn("ProjectTimelineRow received undefined project");
       return null;
     }
-    const validUpdates = updates.filter((u) => u && typeof u.creationDate === "string");
+    const weekCells = getTimelineWeekCells(weekRanges, updates);
+    const targetDateRaw = project.newDueDate || project.targetDate;
+    const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
     return /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-row" }, /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-y-label" }, /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: project.name, position: "bottom-start" }, /* @__PURE__ */ import_react39.default.createElement("h3", { className: "project-title-ellipsis" }, project.name)), /* @__PURE__ */ import_react39.default.createElement(
       "a",
       {
@@ -49940,41 +49996,7 @@
         rel: "noopener noreferrer"
       },
       project.projectKey
-    )), weekRanges.map((w2, i) => {
-      const weekStart = w2.start;
-      const weekEnd = w2.end;
-      const weekUpdates = validUpdates.filter((u) => {
-        const d = safeParseDate(u.creationDate);
-        return d && d >= weekStart && d < weekEnd;
-      });
-      const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : void 0;
-      let stateClass = "state-none";
-      if (lastUpdate) {
-        if (lastUpdate.missedUpdate) {
-          stateClass = "state-missed-update";
-        } else if (lastUpdate.state) {
-          stateClass = `state-${lastUpdate.state.replace(/_/g, "-").toLowerCase()}`;
-        }
-      }
-      let oldStateClass = "";
-      if (lastUpdate && lastUpdate.oldState) {
-        oldStateClass = `old-state-${lastUpdate.oldState.replace(/_/g, "-").toLowerCase()}`;
-      }
-      const cellClass = [
-        "timeline-cell",
-        weekUpdates.length > 0 ? "has-update" : "",
-        stateClass,
-        oldStateClass
-      ].filter(Boolean).join(" ");
-      return /* @__PURE__ */ import_react39.default.createElement("div", { key: i, className: cellClass }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react39.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: `${u.oldDueDate} \u2192 ${u.newDueDate}` }, /* @__PURE__ */ import_react39.default.createElement("span", null, daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate))))));
-    }), /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-target-date" }, project.newDueDate || project.targetDate ? /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: project.newDueDate || project.targetDate }, /* @__PURE__ */ import_react39.default.createElement("span", null, (() => {
-      const dateStr = project.newDueDate || project.targetDate;
-      const d = safeParseDate(dateStr);
-      if (d && !isNaN(d.getTime())) {
-        return format(d, "d MMM yyyy");
-      }
-      return dateStr;
-    })())) : null));
+    )), weekCells.map((cell, i) => /* @__PURE__ */ import_react39.default.createElement("div", { key: i, className: cell.cellClass }, cell.weekUpdates.map((u, idx) => /* @__PURE__ */ import_react39.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: getDueDateTooltip(u) }, /* @__PURE__ */ import_react39.default.createElement("span", null, getDueDateDiff(u))))))), /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-target-date" }, targetDateRaw ? /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: targetDateRaw }, /* @__PURE__ */ import_react39.default.createElement("span", null, targetDateDisplay)) : null));
   }
 
   // src/components/ProjectTimelineHeader.jsx
