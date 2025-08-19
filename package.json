@@ -13,6 +13,11 @@
   },
   "dependencies": {
     "@apollo/client": "^3.13.9",
+    "@atlaskit/button": "^23.4.0",
+    "@atlaskit/modal-dialog": "^14.3.4",
+    "@atlaskit/select": "^21.2.4",
+    "chrono-node": "^2.8.4",
+    "date-fns": "^4.1.0",
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
     "graphql": "^16.11.0",

@@ -4,6 +4,7 @@ import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
 import { PROJECT_STATUS_HISTORY_QUERY } from "../graphql/projectStatusHistoryQuery";
 import { PROJECT_UPDATES_QUERY } from "../graphql/projectUpdatesQuery";
+import { setGlobalCloudAndSection } from "./globalState";
 
 // Regex for /o/{cloudId}/s/{sectionId}/project/{ORG-123}
 const projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
@@ -15,11 +16,14 @@ export function findMatchingProjectLinksFromHrefs(hrefs) {
     const match = href.match(projectLinkPattern);
     if (match && match[3]) {
       const cloudId = match[1];
+      const sectionId = match[2]; // Extract sectionId
       const projectId = match[3];
       const key = `${cloudId}:${projectId}`;
       if (!seen.has(key)) {
         seen.add(key);
-        results.push({ projectId, cloudId });
+        // Set global state for cloudId and sectionId
+        setGlobalCloudAndSection({ newCloudId: cloudId, newSectionId: sectionId });
+        results.push({ projectId, cloudId, sectionId }); // Return sectionId too
       }
     }
   });

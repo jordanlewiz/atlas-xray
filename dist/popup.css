@@ -9,7 +9,7 @@
 
 .atlas-xray-floating-btn {
   position: fixed;
-  top: 20px;
+  top: 40px;
   right: 20px;
   z-index: 9999;
   padding: 10px 18px;
@@ -23,49 +23,126 @@
   font-family: inherit;
 }
 
-.atlas-xray-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.8);
-  color: #fff;
-  z-index: 10000;
+.project-timeline {
+  width: 92%;
+  margin: 0 5% 20px 3%;
+  overflow-x: visible;
+}
+
+.timeline-row {
   display: flex;
-  flex-direction: column;
+  width: 100%;
+  align-items: center;
+  margin-bottom: 4px;
+}
+.timeline-row.timeline-labels {
+  height: 130px;
+}
+
+.timeline-x-label {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  font-size: 14px;
+  color: #bbb;
+  padding: 2px 4px;
+  position: relative;
+}
+.timeline-x-label div {
+  width: 100px;
+  transform: rotate(-45deg);
+  bottom: -20px;
+  left: 20px;
+  transform-origin: bottom left;
+  position: relative;
+  display: block;
+  bottom: -45px;
+  left: 0;
+  border-bottom: none;
+  text-align: left;
+  padding-left: 30px;
+}
+
+.timeline-y-label {
+  flex: 0 0 20%;
+  min-width: 250px;
+  max-width: 300px;
+  font-weight: bold;
+  color: #000000;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 8px;
+  padding-right: 20px;
+}
+
+.timeline-y-label a,
+.timeline-y-label span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+.timeline-cell {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 28px;
+  background: #333;
+  border: 1px solid #444;
+  margin-right: 2px;
+  display: flex;
   align-items: center;
   justify-content: center;
-}
-
-.atlas-xray-modal-close {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  font-size: 24px;
-  background: none;
   color: #fff;
-  border: none;
-  cursor: pointer;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.timeline-cell.state-on-track {
+  background: #4caf50;
+  color: #fff;
+}
+.timeline-cell.state-off-track {
+  background: #e53935;
+  color: #fff;
+}
+.timeline-cell.state-none {
+  background: #fff;
+  border: 1px solid #eee;
+  color: #000000;
+}
+.timeline-cell.state-at-risk {
+  background: orange;
+  color: #fff;
+}
+.timeline-cell.state-pending {
+  background: #e0e0e0;
+  color: #333;
+}
+.timeline-cell.state-cancelled {
+  background: #424242;
+  color: #fff;
+}
+.timeline-cell.state-completed {
+  background: #006400;
+  color: #fff;
+}
+.timeline-cell.state-missed-update {
+  background: #d3d3d3;
+  color: #000;
+}
+.timeline-cell .has-old-due-date {
+  font-size: 10px;
 }
 
-.atlas-xray-modal-list {
-  font-size: 20px;
-  max-height: 70vh;
-  overflow-y: auto;
-  background: #222;
-  padding: 24px;
-  border-radius: 8px;
-}
-
-.atlas-xray-modal-list-item {
-  margin-bottom: 12px;
-}
-
-.atlas-xray-update-list {
-  margin-top: 8px;
-  margin-left: 24px;
-  font-size: 16px;
+.timeline-labels {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: -30px;
 }
 
 /*# sourceMappingURL=popup.css.map */

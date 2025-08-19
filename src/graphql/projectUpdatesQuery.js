@@ -447,7 +447,7 @@ export const PROJECT_UPDATES_QUERY = `
   }
 
   fragment ProjectUpdates on Project {
-    updates(first: 10) {
+    updates(first: 100) {
       edges {
         node {
           uuid

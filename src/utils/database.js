@@ -1,4 +1,5 @@
 import Dexie from "dexie";
+import { getGlobalCloudId, getGlobalSectionId } from "./globalState";
 
 const db = new Dexie("AtlasXrayDB");
 db.version(8).stores({
@@ -10,6 +11,7 @@ db.version(8).stores({
 
 // ProjectView store
 export async function setProjectView(projectKey, data) {
+  // No longer store projectUrl
   await db.projectView.put({ projectKey, ...data });
 }
 export async function getProjectView(projectKey) {
@@ -46,7 +48,7 @@ export async function setItem(key, value) {
   await setMeta(key, value);
 }
 export async function getItem(key) {
-  console.log('[AtlasXray] getItem', key);
+  /*console.log('[AtlasXray] getItem', key);*/
   return getMeta(key);
 }
 
@@ -60,16 +62,17 @@ export async function getProjectViewCount() {
  * @returns {Promise}
  */
 function upsertProjectUpdates(nodes) {
+  console.log("nodes", nodes);
   const rows = nodes.map((n) => ({
     id: n.id ?? n.uuid,
     projectKey: n.project?.key,
-    creationDate: n.creationDate,
-    state: n.newState?.value,
+    creationDate: n.creationDate ? new Date(n.creationDate).toISOString() : undefined,
+    state: n.newState?.projectStateValue,
     missedUpdate: !!n.missedUpdate,
     targetDate: n.newTargetDate,
     newDueDate: n.newDueDate?.label,
     oldDueDate: n.oldDueDate?.label,
-    oldState: n.oldState?.label,
+    oldState: n.oldState?.projectStateValue,
     summary: n.summary,
     raw: n,
   }));
@@ -86,7 +89,7 @@ function upsertProjectStatusHistory(nodes, projectKey) {
     console.warn('[AtlasXray] upsertProjectStatusHistory called with undefined projectKey. Skipping.');
     return Promise.resolve();
   }
-  console.log('[AtlasXray] upsertProjectStatusHistory', nodes, projectKey);
+
   const rows = nodes.map((n) => ({
     id: n.id ?? n.uuid,
     projectKey: projectKey,
