@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
-import DateChangeModal from "../modal/DateChangeModal";
+import ProjectUpdateModal from "../modal/ProjectUpdateModal";
 import { buildProjectUrlFromKey } from "../../utils/linkUtils";
 import {
   getTimelineWeekCells,
@@ -98,7 +98,7 @@ export default function ProjectTimelineRow({
         )}
       </div>
       
-      <DateChangeModal
+      <ProjectUpdateModal
         selectedUpdate={selectedUpdate}
         project={project}
         onClose={() => setSelectedUpdate(null)}

@@ -3,7 +3,7 @@ import React from "react";
 /**
  * Displays the color legend for the timeline statuses.
  */
-export default function Legend(): React.JSX.Element {
+export default function StatusLegend(): React.JSX.Element {
   return (
     <div className="legend">
       <span className="legend-item legend-completed">Completed</span>

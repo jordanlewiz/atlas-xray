@@ -16520,7 +16520,7 @@
           var ContextProvider = REACT_PROVIDER_TYPE;
           var Element2 = REACT_ELEMENT_TYPE;
           var ForwardRef = REACT_FORWARD_REF_TYPE;
-          var Fragment14 = REACT_FRAGMENT_TYPE;
+          var Fragment13 = REACT_FRAGMENT_TYPE;
           var Lazy = REACT_LAZY_TYPE;
           var Memo = REACT_MEMO_TYPE;
           var Portal2 = REACT_PORTAL_TYPE;
@@ -16579,7 +16579,7 @@
           exports.ContextProvider = ContextProvider;
           exports.Element = Element2;
           exports.ForwardRef = ForwardRef;
-          exports.Fragment = Fragment14;
+          exports.Fragment = Fragment13;
           exports.Lazy = Lazy;
           exports.Memo = Memo;
           exports.Portal = Portal2;
@@ -17751,7 +17751,7 @@
           var HostPortal = 4;
           var HostComponent = 5;
           var HostText = 6;
-          var Fragment14 = 7;
+          var Fragment13 = 7;
           var Mode = 8;
           var ContextConsumer = 9;
           var ContextProvider = 10;
@@ -18908,7 +18908,7 @@
                 return "DehydratedFragment";
               case ForwardRef:
                 return getWrappedName$1(type, type.render, "ForwardRef");
-              case Fragment14:
+              case Fragment13:
                 return "Fragment";
               case HostComponent:
                 return type;
@@ -27337,7 +27337,7 @@
               }
             }
             function updateFragment2(returnFiber, current2, fragment, lanes, key) {
-              if (current2 === null || current2.tag !== Fragment14) {
+              if (current2 === null || current2.tag !== Fragment13) {
                 var created = createFiberFromFragment(fragment, returnFiber.mode, lanes, key);
                 created.return = returnFiber;
                 return created;
@@ -27740,7 +27740,7 @@
                 if (child.key === key) {
                   var elementType = element.type;
                   if (elementType === REACT_FRAGMENT_TYPE) {
-                    if (child.tag === Fragment14) {
+                    if (child.tag === Fragment13) {
                       deleteRemainingChildren(returnFiber, child.sibling);
                       var existing = useFiber(child, element.props.children);
                       existing.return = returnFiber;
@@ -33216,7 +33216,7 @@
                 var _resolvedProps2 = workInProgress2.elementType === type ? _unresolvedProps2 : resolveDefaultProps(type, _unresolvedProps2);
                 return updateForwardRef(current2, workInProgress2, type, _resolvedProps2, renderLanes2);
               }
-              case Fragment14:
+              case Fragment13:
                 return updateFragment(current2, workInProgress2, renderLanes2);
               case Mode:
                 return updateMode(current2, workInProgress2, renderLanes2);
@@ -33488,7 +33488,7 @@
               case SimpleMemoComponent:
               case FunctionComponent:
               case ForwardRef:
-              case Fragment14:
+              case Fragment13:
               case Mode:
               case Profiler:
               case ContextConsumer:
@@ -37749,7 +37749,7 @@
             return fiber;
           }
           function createFiberFromFragment(elements, mode, lanes, key) {
-            var fiber = createFiber(Fragment14, elements, key, mode);
+            var fiber = createFiber(Fragment13, elements, key, mode);
             fiber.lanes = lanes;
             return fiber;
           }
@@ -42597,10 +42597,10 @@
               return jsxWithValidation(type, props, key, false);
             }
           }
-          var jsx11 = jsxWithValidationDynamic;
+          var jsx10 = jsxWithValidationDynamic;
           var jsxs8 = jsxWithValidationStatic;
           exports.Fragment = REACT_FRAGMENT_TYPE;
-          exports.jsx = jsx11;
+          exports.jsx = jsx10;
           exports.jsxs = jsxs8;
         })();
       }
@@ -61230,9 +61230,9 @@
     return html;
   }
 
-  // src/components/modal/DateChangeModal.tsx
+  // src/components/modal/ProjectUpdateModal/ProjectUpdateModal.tsx
   var import_jsx_runtime = __toESM(require_jsx_runtime());
-  function DateChangeModal({
+  function ProjectUpdateModal({
     selectedUpdate,
     project,
     onClose
@@ -61405,7 +61405,7 @@
         }
       ) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { color: "#6b7280", fontSize: "12px" }, children: "No target date" }) }),
       /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
-        DateChangeModal,
+        ProjectUpdateModal,
         {
           selectedUpdate,
           project,
@@ -61426,28 +61426,6 @@
       " "
     ] });
   }
-
-  // src/components/timeline/ProjectTimeline.tsx
-  var import_jsx_runtime4 = __toESM(require_jsx_runtime());
-  var ProjectTimeline = ({
-    projects,
-    weekRanges,
-    updatesByProject
-  }) => {
-    return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "project-timeline", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(ProjectTimelineHeader, { weekRanges }),
-      projects.filter(Boolean).map((project, idx) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
-        ProjectTimelineRow,
-        {
-          project,
-          weekRanges,
-          updates: updatesByProject[project.projectKey] || []
-        },
-        project.projectKey || idx
-      ))
-    ] });
-  };
-  var ProjectTimeline_default = ProjectTimeline;
 
   // src/hooks/useTimelineData.ts
   var import_react114 = __toESM(require_react());
@@ -61533,21 +61511,25 @@
     }, [projects, allUpdates, allStatusHistory, weekLimit]);
   }
 
-  // src/components/ProjectList.tsx
-  var import_jsx_runtime5 = __toESM(require_jsx_runtime());
-  function ProjectList({ weekLimit = 12 }) {
+  // src/components/timeline/ProjectTimeline.tsx
+  var import_jsx_runtime4 = __toESM(require_jsx_runtime());
+  function ProjectTimeline({ weekLimit = 12 }) {
     const { projectViewModels, weekRanges, updatesByProject, isLoading } = useTimeline(weekLimit);
     if (isLoading) {
-      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { children: "Loading timeline data..." });
+      return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { children: "Loading timeline data..." });
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(import_jsx_runtime5.Fragment, { children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
-      ProjectTimeline_default,
-      {
-        projects: projectViewModels,
-        weekRanges,
-        updatesByProject
-      }
-    ) });
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "project-timeline", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(ProjectTimelineHeader, { weekRanges }),
+      projectViewModels.filter(Boolean).map((project, idx) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+        ProjectTimelineRow,
+        {
+          project,
+          weekRanges,
+          updates: updatesByProject[project.projectKey] || []
+        },
+        project.projectKey || idx
+      ))
+    ] });
   }
 
   // src/components/modal/Modal.tsx
@@ -65943,22 +65925,22 @@
   })(SelectWithoutAnalytics));
   var Select_default = Select2;
 
-  // src/components/ui/Legend.tsx
-  var import_jsx_runtime6 = __toESM(require_jsx_runtime());
-  function Legend() {
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "legend", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-completed", children: "Completed" }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-in-progress", children: "In Progress" }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-pending", children: "Pending" }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-paused", children: "Paused" }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-cancelled", children: "Cancelled" }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-missed-update", children: "Missed Update" }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-none", children: "No Status" })
+  // src/components/ui/StatusLegend/StatusLegend.tsx
+  var import_jsx_runtime5 = __toESM(require_jsx_runtime());
+  function StatusLegend() {
+    return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "legend", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-completed", children: "Completed" }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-in-progress", children: "In Progress" }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-pending", children: "Pending" }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-paused", children: "Paused" }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-cancelled", children: "Cancelled" }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-missed-update", children: "Missed Update" }),
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-none", children: "No Status" })
     ] });
   }
 
   // src/components/modal/Modal.tsx
-  var import_jsx_runtime7 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime6 = __toESM(require_jsx_runtime());
   function Modal({ open, onClose, children }) {
     const [weekLimit, setWeekLimit] = (0, import_react137.useState)(12);
     const weekOptions = [
@@ -65969,15 +65951,15 @@
       { label: "All", value: Infinity }
     ];
     if (!open) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(modal_transition_default, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(FullScreenModalDialog, { onClose, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(modal_header_default, { hasCloseButton: true, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(modal_title_default, { children: "Atlas-Xray Project History Timeline" }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(modal_body_default, { hasInlinePadding: true, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(modal_transition_default, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(FullScreenModalDialog, { onClose, children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(modal_header_default, { hasCloseButton: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(modal_title_default, { children: "Atlas-Xray Project History Timeline" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(modal_body_default, { hasInlinePadding: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
         box_default2,
         {
           style: { maxWidth: "1128px", margin: "0 auto", width: "100%" },
-          children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(grid_default, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Legend, {}),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { style: { marginBottom: 16, maxWidth: 200 }, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+          children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(grid_default, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(StatusLegend, {}),
+            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { style: { marginBottom: 16, maxWidth: 200 }, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
               Select_default,
               {
                 options: weekOptions,
@@ -80347,7 +80329,7 @@ fragment UserAvatar on User {
   }
 
   // src/components/FloatingButton.tsx
-  var import_jsx_runtime8 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime7 = __toESM(require_jsx_runtime());
   function FloatingButton() {
     const projectCount = useLiveQuery(() => db.projectView.count(), []);
     const projects = useLiveQuery(() => db.projectView.toArray(), []);
@@ -80389,12 +80371,12 @@ fragment UserAvatar on User {
     }));
     const filteredProjects = visibleProjectKeys.length > 0 ? projectViewModel.filter((p) => visibleProjectKeys.includes(p.projectKey)) : projectViewModel;
     const handleOpenModal = () => setModalOpen(true);
-    return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal, children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal, children: [
         "Atlas Xray",
         visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(Modal, { open: modalOpen, onClose: () => setModalOpen(false), children: (weekLimit) => /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(ProjectList, { weekLimit }) })
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(Modal, { open: modalOpen, onClose: () => setModalOpen(false), children: (weekLimit) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(ProjectTimeline, { weekLimit }) })
     ] });
   }
 })();

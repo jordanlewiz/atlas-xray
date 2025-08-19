@@ -1,2 +1,2 @@
-export { default as DateChangeModal } from './DateChangeModal';
+export { default as ProjectUpdateModal } from './ProjectUpdateModal';
 export { default as Modal } from './Modal';

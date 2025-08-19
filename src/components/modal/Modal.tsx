@@ -7,7 +7,7 @@ import {
   ModalTransition,
 } from "@atlaskit/modal-dialog/full-screen";
 import Select from "@atlaskit/select";
-import Legend from "../ui/Legend";
+import StatusLegend from "../ui/StatusLegend";
 import { Grid, Box } from "@atlaskit/primitives";
 import type { ModalProps } from "../../types";
 
@@ -37,7 +37,7 @@ export default function Modal({ open, onClose, children }: ModalProps): React.JS
             style={{ maxWidth: '1128px', margin: '0 auto', width: '100%' }}
           >
             <Grid>
-              <Legend />
+              <StatusLegend />
               <div style={{ marginBottom: 16, maxWidth: 200 }}>
                 <Select
                   options={weekOptions}

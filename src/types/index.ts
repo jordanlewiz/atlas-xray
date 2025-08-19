@@ -57,9 +57,7 @@ export interface TimelineContextType {
 
 // Component prop types
 export interface ProjectTimelineProps {
-  projects: ProjectViewModel[];
-  weekRanges: WeekRange[];
-  updatesByProject: Record<string, ProjectUpdate[]>;
+  weekLimit?: number;
 }
 
 export interface ProjectTimelineRowProps {
@@ -72,10 +70,10 @@ export interface ProjectTimelineHeaderProps {
   weekRanges: WeekRange[];
 }
 
-export interface DateChangeModalProps {
+export interface ProjectUpdateModalProps {
   selectedUpdate: ProjectUpdate | null;
   project: ProjectViewModel;
-  onClose: () => void;
+  onClose: () => React.JSX.Element;
 }
 
 export interface ModalProps {
@@ -85,11 +83,6 @@ export interface ModalProps {
 }
 
 export interface FloatingButtonProps {}
-
-// New component interfaces
-export interface ProjectListProps {
-  weekLimit?: number;
-}
 
 // Hook types
 export interface UseTimelineDataReturn {
