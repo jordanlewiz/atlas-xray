@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
+import DateChangeModal from "./DateChangeModal.jsx";
 import { buildProjectUrlFromKey } from "../utils/linkUtils";
 import {
   getTimelineWeekCells,
@@ -19,6 +20,7 @@ import {
  */
 export default function ProjectTimelineRow({ project, weekRanges, updates }) {
   const [isOpen, setIsOpen] = useState(false);
+  const [selectedUpdate, setSelectedUpdate] = useState(null);
   
   if (!project) {
     console.warn('ProjectTimelineRow received undefined project');
@@ -50,35 +52,12 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
             <div key={idx} className={u.oldDueDate ? 'has-old-due-date' : ''}>
               {u.oldDueDate && u.newDueDate && (
                 <Tooltip content={getDueDateTooltip(u)} position="top">
-                  <Popup
-                    trigger={(triggerProps) => (
-                      <span 
-                        {...triggerProps} 
-                        style={{ cursor: 'pointer', padding: '2px' }}
-                      >
-                        {getDueDateDiff(u)}
-                      </span>
-                    )}
-                    content={() => (
-                      <div style={{ padding: '8px', maxWidth: '300px' }}>
-                        <strong>Date Change</strong>
-                        <br />
-                        <span style={{ color: 'red' }}>{u.oldDueDate}</span> → <span style={{ color: 'green' }}>{u.newDueDate}</span>
-                        <br />
-                        <small>Difference: {getDueDateDiff(u)} days</small>
-                        {u.summary && (
-                          <>
-                            <br />
-                            <br />
-                            <strong>Summary:</strong>
-                            <br />
-                            {u.summary}
-                          </>
-                        )}
-                      </div>
-                    )}
-                    placement="top"
-                  />
+                  <span 
+                    style={{ cursor: 'pointer', padding: '2px' }}
+                    onClick={() => setSelectedUpdate(u)}
+                  >
+                    {getDueDateDiff(u)}
+                  </span>
                 </Tooltip>
               )}
             </div>
@@ -108,6 +87,12 @@ export default function ProjectTimelineRow({ project, weekRanges, updates }) {
           zIndex={1000}
         />
       </div>
+      
+      <DateChangeModal
+        selectedUpdate={selectedUpdate}
+        project={project}
+        onClose={() => setSelectedUpdate(null)}
+      />
     </div>
   );
 }

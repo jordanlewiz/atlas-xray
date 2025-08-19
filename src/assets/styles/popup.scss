@@ -67,9 +67,9 @@
 
 
 .timeline-y-label {
-  flex: 0 0 20%;
+  flex: 0 0 30%;
   min-width: 250px;
-  max-width: 300px;
+  max-width: 600px;
   font-weight: bold;
   color: #000000;
   text-align: left;
@@ -111,13 +111,12 @@
     background: #4caf50; // green
     border-color: #4caf50;
     color: #fff;
-    border: none;
+
   }
   &.state-off-track {
     background: #e53935; // red
     border-color: #e53935;
     color: #fff;
-    border: none;
   }
   &.state-none {
     background: #fff;
@@ -128,19 +127,16 @@
     background: orange;
     border-color: orange;
     color: #fff;
-    border: none;
   }
   &.state-pending {
     background: #85b8ff;
     border-color: #85b8ff;
     color: #333;
-    border: none;
   }
   &.state-paused {
     background: #7f7f7f;
     border-color: #7f7f7f;
     color: #fff;
-    border: none;
     &:after{
       content: "⏸️";
     }
@@ -149,7 +145,6 @@
     background: #424242; // dark grey
     border-color: #424242;
     color: #fff;
-    border: none;
     &:before{
       content: "❌";
     }
@@ -159,12 +154,11 @@
     background: #006400; // dark green
     border-color: #006400;
     color: #fff;
-    border: none;
   }
   &.state-missed-update {
     background: #dadada; 
+    border-color: #dadada;
     color: #000;
-    border: none;
     }
 
   .has-old-due-date {
