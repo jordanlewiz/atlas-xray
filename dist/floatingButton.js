@@ -18010,9 +18010,9 @@
           if (typeof __REACT_DEVTOOLS_GLOBAL_HOOK__ !== "undefined" && typeof __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart === "function") {
             __REACT_DEVTOOLS_GLOBAL_HOOK__.registerInternalModuleStart(new Error());
           }
-          var React69 = require_react();
+          var React70 = require_react();
           var Scheduler = require_scheduler();
-          var ReactSharedInternals = React69.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+          var ReactSharedInternals = React70.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
           var suppressWarning = false;
           function setSuppressWarning(newSuppressWarning) {
             {
@@ -19619,7 +19619,7 @@
             {
               if (props.value == null) {
                 if (typeof props.children === "object" && props.children !== null) {
-                  React69.Children.forEach(props.children, function(child) {
+                  React70.Children.forEach(props.children, function(child) {
                     if (child == null) {
                       return;
                     }
@@ -40103,7 +40103,7 @@
       };
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.useCache = void 0;
-      var React69 = __importStar(require_react());
+      var React70 = __importStar(require_react());
       var react_1 = require_react();
       var cache_1 = require_cache();
       var is_server_environment_1 = require_is_server_environment();
@@ -40127,7 +40127,7 @@
       var StyleCacheProvider = (props) => {
         if ((0, is_server_environment_1.isServerEnvironment)()) {
           const inserted = (0, exports.useCache)();
-          return React69.createElement(Cache2.Provider, { value: inserted }, props.children);
+          return React70.createElement(Cache2.Provider, { value: inserted }, props.children);
         }
         return props.children;
       };
@@ -40430,7 +40430,7 @@
       exports.default = exports.Icon = void 0;
       require_icon_new_compiled();
       var _react = _interopRequireWildcard(require_react());
-      var React69 = _react;
+      var React70 = _react;
       var _runtime = require_runtime2();
       var _platformFeatureFlags = require_cjs3();
       function _interopRequireWildcard(e, t) {
@@ -40499,7 +40499,7 @@
           __html: dangerouslySetGlyph
         } : void 0;
         if (FallbackIcon && !(0, _platformFeatureFlags.fg)("platform-visual-refresh-icons")) {
-          return /* @__PURE__ */ React69.createElement(FallbackIcon, {
+          return /* @__PURE__ */ React70.createElement(FallbackIcon, {
             primaryColor: LEGACY_primaryColor !== null && LEGACY_primaryColor !== void 0 ? LEGACY_primaryColor : color,
             secondaryColor: LEGACY_secondaryColor,
             size: LEGACY_size,
@@ -40516,7 +40516,7 @@
         var baseSize = baseSizeMap[type];
         var viewBoxPadding = paddingMap[type][size2][spacing];
         var viewBoxSize = baseSize + 2 * viewBoxPadding;
-        return /* @__PURE__ */ React69.createElement("span", {
+        return /* @__PURE__ */ React70.createElement("span", {
           "data-testid": testId,
           role: label ? "img" : void 0,
           "aria-label": label ? label : void 0,
@@ -40525,7 +40525,7 @@
             color
           },
           className: (0, _runtime.ax)(["_1e0c1o8l _vchhusvi _1o9zidpf _vwz4kb7n _y4ti1igz _bozg1mb9", "_12va1onz _jcxd1r8n", shouldScale && "_1bsb1kw7 _4t3i1kw7", (type === "utility" || size2 === "small") && "_vwz4utpp"])
-        }, /* @__PURE__ */ React69.createElement("svg", {
+        }, /* @__PURE__ */ React70.createElement("svg", {
           fill: "none",
           viewBox: "".concat(0 - viewBoxPadding, " ").concat(0 - viewBoxPadding, " ").concat(viewBoxSize, " ").concat(viewBoxSize),
           role: "presentation",
@@ -40632,7 +40632,7 @@
       exports.default = exports.Icon = void 0;
       require_icon_compiled();
       var _react = _interopRequireWildcard(require_react());
-      var React69 = _react;
+      var React70 = _react;
       var _runtime = require_runtime2();
       var _extends2 = _interopRequireDefault(require_extends());
       var _defineProperty2 = _interopRequireDefault(require_defineProperty());
@@ -40684,7 +40684,7 @@
             __html: dangerouslySetGlyph
           }
         } : {
-          children: Glyph ? /* @__PURE__ */ React69.createElement(Glyph, {
+          children: Glyph ? /* @__PURE__ */ React70.createElement(Glyph, {
             role: "presentation"
           }) : null
         };
@@ -40692,7 +40692,7 @@
           width: width2 + "px",
           height: height + "px"
         } : null;
-        return /* @__PURE__ */ React69.createElement("span", (0, _extends2.default)({
+        return /* @__PURE__ */ React70.createElement("span", (0, _extends2.default)({
           "data-testid": testId,
           "data-vc": "icon-".concat(testId),
           role: label ? "img" : void 0,
@@ -40969,7 +40969,7 @@
   });
 
   // src/components/FloatingButton.jsx
-  var import_react100 = __toESM(require_react());
+  var import_react101 = __toESM(require_react());
 
   // node_modules/dexie/import-wrapper.mjs
   var import_dexie = __toESM(require_dexie(), 1);
@@ -50038,7 +50038,7 @@
   }
 
   // src/components/Modal.jsx
-  var import_react99 = __toESM(require_react());
+  var import_react100 = __toESM(require_react());
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/modal-dialog.js
   var import_react64 = __toESM(require_react());
@@ -59410,9 +59410,15 @@
   })(SelectWithoutAnalytics));
   var Select_default = Select2;
 
+  // src/components/Legend.jsx
+  var import_react99 = __toESM(require_react());
+  function Legend() {
+    return /* @__PURE__ */ import_react99.default.createElement("div", { className: "timeline-legend" }, /* @__PURE__ */ import_react99.default.createElement("span", { className: "legend-item legend-on-track" }, "On Track"), /* @__PURE__ */ import_react99.default.createElement("span", { className: "legend-item legend-off-track" }, "Off Track"), /* @__PURE__ */ import_react99.default.createElement("span", { className: "legend-item legend-at-risk" }, "At Risk"), /* @__PURE__ */ import_react99.default.createElement("span", { className: "legend-item legend-pending" }, "Pending"), /* @__PURE__ */ import_react99.default.createElement("span", { className: "legend-item legend-paused" }, "Paused"), /* @__PURE__ */ import_react99.default.createElement("span", { className: "legend-item legend-cancelled" }, "Cancelled"), /* @__PURE__ */ import_react99.default.createElement("span", { className: "legend-item legend-done" }, "Done"));
+  }
+
   // src/components/Modal.jsx
   function Modal({ open, onClose, children }) {
-    const [weekLimit, setWeekLimit] = (0, import_react99.useState)(12);
+    const [weekLimit, setWeekLimit] = (0, import_react100.useState)(12);
     const weekOptions = [
       { label: "4 weeks", value: 4 },
       { label: "8 weeks", value: 8 },
@@ -59420,18 +59426,19 @@
       { label: "24 weeks", value: 24 },
       { label: "All", value: Infinity }
     ];
-    return /* @__PURE__ */ import_react99.default.createElement(modal_transition_default, null, open && /* @__PURE__ */ import_react99.default.createElement(
+    return /* @__PURE__ */ import_react100.default.createElement(modal_transition_default, null, open && /* @__PURE__ */ import_react100.default.createElement(
       ModalWrapper,
       {
         onClose,
-        heading: "Atlas-Xray Project History Timeine",
+        heading: "Atlas-Xray Project History Timeline",
         width: "x-large",
         shouldScrollInViewport: true,
         actions: [
           { text: "Close", onClick: onClose, appearance: "subtle" }
         ]
       },
-      /* @__PURE__ */ import_react99.default.createElement("div", { style: { marginBottom: 16, maxWidth: 200 } }, /* @__PURE__ */ import_react99.default.createElement(
+      /* @__PURE__ */ import_react100.default.createElement(Legend, null),
+      /* @__PURE__ */ import_react100.default.createElement("div", { style: { marginBottom: 16, maxWidth: 200 } }, /* @__PURE__ */ import_react100.default.createElement(
         Select_default,
         {
           options: weekOptions,
@@ -73814,14 +73821,14 @@ fragment UserAvatar on User {
       },
       []
     );
-    const [modalOpen, setModalOpen] = (0, import_react100.useState)(false);
-    const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react100.useState)([]);
-    const observerRef = (0, import_react100.useRef)(null);
+    const [modalOpen, setModalOpen] = (0, import_react101.useState)(false);
+    const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react101.useState)([]);
+    const observerRef = (0, import_react101.useRef)(null);
     const updateVisibleProjects = async () => {
       const matches = await downloadProjectData();
       setVisibleProjectKeys(matches.map((m) => m.projectId));
     };
-    (0, import_react100.useEffect)(() => {
+    (0, import_react101.useEffect)(() => {
       updateVisibleProjects();
       const observer = new window.MutationObserver(() => {
         updateVisibleProjects();
@@ -73839,7 +73846,7 @@ fragment UserAvatar on User {
     }));
     const filteredProjects = visibleProjectKeys.length > 0 ? projectViewModel.filter((p) => visibleProjectKeys.includes(p.projectKey)) : projectViewModel;
     const handleOpenModal = () => setModalOpen(true);
-    return /* @__PURE__ */ import_react100.default.createElement(import_react100.default.Fragment, null, /* @__PURE__ */ import_react100.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal }, "Atlas Xray", visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react100.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, (weekLimit) => /* @__PURE__ */ import_react100.default.createElement(ProjectList, { projects: filteredProjects, weekLimit })));
+    return /* @__PURE__ */ import_react101.default.createElement(import_react101.default.Fragment, null, /* @__PURE__ */ import_react101.default.createElement("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal }, "Atlas Xray", visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""), /* @__PURE__ */ import_react101.default.createElement(Modal, { open: modalOpen, onClose: () => setModalOpen(false) }, (weekLimit) => /* @__PURE__ */ import_react101.default.createElement(ProjectList, { projects: filteredProjects, weekLimit })));
   };
   var FloatingButton_default = FloatingButton;
 })();

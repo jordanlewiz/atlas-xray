@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import ModalDialog, { ModalTransition } from "@atlaskit/modal-dialog";
 import Select from "@atlaskit/select";
+import Legend from "./Legend.jsx";
 
 export default function Modal({ open, onClose, children }) {
   const [weekLimit, setWeekLimit] = useState(12); // default to 12 weeks
@@ -16,13 +17,14 @@ export default function Modal({ open, onClose, children }) {
       {open && (
         <ModalDialog
           onClose={onClose}
-          heading="Atlas-Xray Project History Timeine"
+          heading="Atlas-Xray Project History Timeline"
           width="x-large"
           shouldScrollInViewport
           actions={[
             { text: 'Close', onClick: onClose, appearance: 'subtle' }
           ]}
         >
+          <Legend />
           <div style={{ marginBottom: 16, maxWidth: 200 }}>
             <Select
               options={weekOptions}
