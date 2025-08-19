@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import ModalDialog, { ModalTransition } from "@atlaskit/modal-dialog";
+import {
+  FullScreenModalDialog,
+  ModalBody,
+  ModalHeader,
+  ModalTitle,
+  ModalTransition,
+} from "@atlaskit/modal-dialog/full-screen";
 import Select from "@atlaskit/select";
 import Legend from "./Legend.jsx";
 
@@ -15,28 +21,25 @@ export default function Modal({ open, onClose, children }) {
   return (
     <ModalTransition>
       {open && (
-        <ModalDialog
-          onClose={onClose}
-          heading="Atlas-Xray Project History Timeline"
-          width="x-large"
-          shouldScrollInViewport
-          actions={[
-            { text: 'Close', onClick: onClose, appearance: 'subtle' }
-          ]}
-        >
-          <Legend />
-          <div style={{ marginBottom: 16, maxWidth: 200 }}>
-            <Select
-              options={weekOptions}
-              value={weekOptions.find(opt => opt.value === weekLimit)}
-              onChange={option => setWeekLimit(option.value)}
-              placeholder="Weeks to show"
-              isSearchable={false}
-            />
-          </div>
-          {/* Pass weekLimit as a prop to children if children is a function */}
-          {typeof children === 'function' ? children(weekLimit) : children}
-        </ModalDialog>
+        <FullScreenModalDialog onClose={onClose}>
+          <ModalHeader hasCloseButton>
+            <ModalTitle>Atlas-Xray Project History Timeline</ModalTitle>
+          </ModalHeader>
+          <ModalBody hasInlinePadding={true}>
+            <Legend />
+            <div style={{ marginBottom: 16, maxWidth: 200 }}>
+              <Select
+                options={weekOptions}
+                value={weekOptions.find(opt => opt.value === weekLimit)}
+                onChange={option => setWeekLimit(option.value)}
+                placeholder="Weeks to show"
+                isSearchable={false}
+              />
+            </div>
+            {/* Pass weekLimit as a prop to children if children is a function */}
+            {typeof children === 'function' ? children(weekLimit) : children}
+          </ModalBody>
+        </FullScreenModalDialog>
       )}
     </ModalTransition>
   );
