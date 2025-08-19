@@ -49967,7 +49967,14 @@
         oldStateClass
       ].filter(Boolean).join(" ");
       return /* @__PURE__ */ import_react39.default.createElement("div", { key: i, className: cellClass }, weekUpdates.map((u, idx) => /* @__PURE__ */ import_react39.default.createElement("div", { key: idx, className: u.oldDueDate ? "has-old-due-date" : "" }, u.oldDueDate && u.newDueDate && /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: `${u.oldDueDate} \u2192 ${u.newDueDate}` }, /* @__PURE__ */ import_react39.default.createElement("span", null, daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate))))));
-    }), /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-target-date" }, projectUpdate.newDueDate || projectUpdate.targetDate ? /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: projectUpdate.newDueDate || projectUpdate.targetDate }, /* @__PURE__ */ import_react39.default.createElement("span", null, projectUpdate.newDueDate || projectUpdate.targetDate)) : null));
+    }), /* @__PURE__ */ import_react39.default.createElement("div", { className: "timeline-target-date" }, projectUpdate.newDueDate || projectUpdate.targetDate ? /* @__PURE__ */ import_react39.default.createElement(tooltip_default, { content: projectUpdate.newDueDate || projectUpdate.targetDate }, /* @__PURE__ */ import_react39.default.createElement("span", null, (() => {
+      const dateStr = projectUpdate.newDueDate || projectUpdate.targetDate;
+      const d = safeParseDate(dateStr);
+      if (d && !isNaN(d.getTime())) {
+        return format(d, "d MMM yyyy");
+      }
+      return dateStr;
+    })())) : null));
   }
 
   // src/components/ProjectTimeline.jsx

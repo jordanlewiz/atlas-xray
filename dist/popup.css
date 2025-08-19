@@ -138,7 +138,7 @@
 .timeline-cell.state-paused {
   background: #7f7f7f;
   border-color: #7f7f7f;
-  color: #333;
+  color: #fff;
   border: none;
 }
 .timeline-cell.state-paused:after {

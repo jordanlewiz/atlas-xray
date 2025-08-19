@@ -76,7 +76,14 @@ export default function ProjectTimelineRow({ projectUpdate, weekRanges, updates 
       <div className="timeline-target-date">
         {projectUpdate.newDueDate || projectUpdate.targetDate ? (
           <Tooltip content={projectUpdate.newDueDate || projectUpdate.targetDate}>
-            <span>{projectUpdate.newDueDate || projectUpdate.targetDate}</span>
+            <span>{(() => {
+              const dateStr = projectUpdate.newDueDate || projectUpdate.targetDate;
+              const d = safeParseDate(dateStr);
+              if (d && !isNaN(d.getTime())) {
+                return format(d, 'd MMM yyyy');
+              }
+              return dateStr;
+            })()}</span>
           </Tooltip>
         ) : null}
       </div>
