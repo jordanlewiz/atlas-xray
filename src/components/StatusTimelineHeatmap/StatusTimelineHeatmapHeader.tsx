@@ -3,9 +3,9 @@ import Tooltip from "@atlaskit/tooltip";
 import type { ProjectTimelineHeaderProps } from "../../types";
 
 /**
- * Renders the header row of the timeline with week labels.
+ * Renders the header row of the status timeline heatmap with week labels.
  */
-export default function ProjectTimelineHeader({ weekRanges }: ProjectTimelineHeaderProps): React.JSX.Element {
+export default function StatusTimelineHeatmapHeader({ weekRanges }: StatusTimelineHeatmapHeaderProps): React.JSX.Element {
   return (
     <div className="timeline-row timeline-labels">
       <div className="timeline-y-label" /> {/* Empty cell for project names */}

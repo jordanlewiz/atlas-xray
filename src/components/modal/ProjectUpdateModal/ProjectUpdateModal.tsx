@@ -9,7 +9,7 @@ import {
 import SectionMessage from "@atlaskit/section-message";
 import Lozenge from "@atlaskit/lozenge";
 import { Grid, Box } from "@atlaskit/primitives";
-import { getDueDateDiff } from "../../../utils/timeline";
+import { getDueDateDiff } from "../../../utils/timelineUtils";
 import type { ProjectUpdateModalProps } from "../../../types";
 import { renderProseMirror } from "../../../utils/proseMirrorRenderer";
 

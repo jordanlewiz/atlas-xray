@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../utils/database";
 import type { AtlasXrayDB } from "../types/database";
-import ProjectTimeline from "./timeline/ProjectTimeline";
+import StatusTimelineHeatmap from "./StatusTimelineHeatmap/StatusTimelineHeatmap";
 import ProjectStatusHistoryModal from "./modal/ProjectStatusHistoryModal";
 import { downloadProjectData } from "../utils/projectIdScanner";
 
@@ -73,7 +73,7 @@ export default function FloatingButton(): React.JSX.Element {
       
       <ProjectStatusHistoryModal open={modalOpen} onClose={() => setModalOpen(false)}>
         {(weekLimit: number) => (
-          <ProjectTimeline weekLimit={weekLimit} />
+          <StatusTimelineHeatmap weekLimit={weekLimit} />
         )}
       </ProjectStatusHistoryModal>
     </>

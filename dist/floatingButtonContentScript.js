@@ -42952,7 +42952,7 @@
     return db.projectStatusHistory.bulkPut(rows);
   }
 
-  // src/components/timeline/ProjectTimelineRow.tsx
+  // src/components/StatusTimelineHeatmap/StatusTimelineHeatmapRow.tsx
   var import_react113 = __toESM(require_react());
 
   // node_modules/@babel/runtime/helpers/esm/extends.js
@@ -60980,7 +60980,7 @@
     return sectionId;
   }
 
-  // src/utils/timeline/timelineUtils.ts
+  // src/utils/timelineUtils/timeline.ts
   var MONTHS = [
     "jan",
     "feb",
@@ -61103,8 +61103,6 @@
     if (diff === 0) return 1;
     return diff > 0 ? diff + 1 : diff - 1;
   }
-
-  // src/utils/timeline/timelineViewModels.ts
   function getTargetDateDisplay(dateStr) {
     if (!dateStr || typeof dateStr !== "string") {
       return "No date";
@@ -61382,9 +61380,9 @@
     ) });
   }
 
-  // src/components/timeline/ProjectTimelineRow.tsx
+  // src/components/StatusTimelineHeatmap/StatusTimelineHeatmapRow.tsx
   var import_jsx_runtime2 = __toESM(require_jsx_runtime());
-  function ProjectTimelineRow({
+  function StatusTimelineHeatmapRow({
     project,
     weekRanges,
     updates
@@ -61446,9 +61444,9 @@
     ] });
   }
 
-  // src/components/timeline/ProjectTimelineHeader.tsx
+  // src/components/StatusTimelineHeatmap/StatusTimelineHeatmapHeader.tsx
   var import_jsx_runtime3 = __toESM(require_jsx_runtime());
-  function ProjectTimelineHeader({ weekRanges }) {
+  function StatusTimelineHeatmapHeader({ weekRanges }) {
     return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "timeline-row timeline-labels", children: [
       /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "timeline-y-label" }),
       " ",
@@ -61542,17 +61540,17 @@
     }, [projects, allUpdates, allStatusHistory, weekLimit]);
   }
 
-  // src/components/timeline/ProjectTimeline.tsx
+  // src/components/StatusTimelineHeatmap/StatusTimelineHeatmap.tsx
   var import_jsx_runtime4 = __toESM(require_jsx_runtime());
-  function ProjectTimeline({ weekLimit = 12 }) {
+  function StatusTimelineHeatmap({ weekLimit = 12 }) {
     const { projectViewModels, weekRanges, updatesByProject, isLoading } = useTimeline(weekLimit);
     if (isLoading) {
       return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { children: "Loading timeline data..." });
     }
     return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "project-timeline", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(ProjectTimelineHeader, { weekRanges }),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(StatusTimelineHeatmapHeader, { weekRanges }),
       projectViewModels.filter(Boolean).map((project, idx) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
-        ProjectTimelineRow,
+        StatusTimelineHeatmapRow,
         {
           project,
           weekRanges,
@@ -80408,7 +80406,7 @@ fragment UserAvatar on User {
         "Atlas Xray",
         visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(ProjectStatusHistoryModal, { open: modalOpen, onClose: () => setModalOpen(false), children: (weekLimit) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(ProjectTimeline, { weekLimit }) })
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(ProjectStatusHistoryModal, { open: modalOpen, onClose: () => setModalOpen(false), children: (weekLimit) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(StatusTimelineHeatmap, { weekLimit }) })
     ] });
   }
 

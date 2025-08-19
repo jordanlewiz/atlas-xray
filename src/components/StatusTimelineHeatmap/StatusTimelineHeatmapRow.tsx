@@ -3,23 +3,23 @@ import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
 import ProjectUpdateModal from "../modal/ProjectUpdateModal";
-import { buildProjectUrlFromKey } from "../../utils/timeline";
+import { buildProjectUrlFromKey } from "../../utils/timelineUtils";
 import {
   getTimelineWeekCells,
   getTargetDateDisplay,
   getDueDateTooltip,
   getDueDateDiff
-} from "../../utils/timeline";
+} from "../../utils/timelineUtils";
 import type { ProjectTimelineRowProps } from "../../types";
 
 /**
- * Renders a single project row in the timeline.
+ * Renders a single project row in the status timeline heatmap.
  */
-export default function ProjectTimelineRow({ 
+export default function StatusTimelineHeatmapRow({ 
   project, 
   weekRanges, 
   updates 
-}: ProjectTimelineRowProps): React.JSX.Element | null {
+}: StatusTimelineHeatmapRowProps): React.JSX.Element | null {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedUpdate, setSelectedUpdate] = useState(null);
   

@@ -56,17 +56,17 @@ export interface TimelineContextType {
 }
 
 // Component prop types
-export interface ProjectTimelineProps {
+export interface StatusTimelineHeatmapProps {
   weekLimit?: number;
 }
 
-export interface ProjectTimelineRowProps {
+export interface StatusTimelineHeatmapRowProps {
   project: ProjectViewModel;
   weekRanges: WeekRange[];
   updates: ProjectUpdate[];
 }
 
-export interface ProjectTimelineHeaderProps {
+export interface StatusTimelineHeatmapHeaderProps {
   weekRanges: WeekRange[];
 }
 

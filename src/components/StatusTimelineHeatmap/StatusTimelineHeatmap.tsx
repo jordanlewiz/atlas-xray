@@ -1,16 +1,16 @@
 import React from "react";
-import ProjectTimelineRow from "./ProjectTimelineRow";
-import ProjectTimelineHeader from "./ProjectTimelineHeader";
+import StatusTimelineHeatmapRow from "./StatusTimelineHeatmapRow";
+import StatusTimelineHeatmapHeader from "./StatusTimelineHeatmapHeader";
 import { useTimeline } from "../../hooks/useTimelineData";
 
-interface ProjectTimelineProps {
+interface StatusTimelineHeatmapProps {
   weekLimit?: number;
 }
 
 /**
- * Main project timeline component. Uses the hook directly for data and renders the timeline grid.
+ * Main project status timeline heatmap component. Uses the hook directly for data and renders the timeline grid.
  */
-export default function ProjectTimeline({ weekLimit = 12 }: ProjectTimelineProps): React.JSX.Element {
+export default function StatusTimelineHeatmap({ weekLimit = 12 }: StatusTimelineHeatmapProps): React.JSX.Element {
   const { projectViewModels, weekRanges, updatesByProject, isLoading } = useTimeline(weekLimit);
 
   if (isLoading) {
@@ -19,9 +19,9 @@ export default function ProjectTimeline({ weekLimit = 12 }: ProjectTimelineProps
 
   return (
     <div className="project-timeline">
-      <ProjectTimelineHeader weekRanges={weekRanges} />
+      <StatusTimelineHeatmapHeader weekRanges={weekRanges} />
       {projectViewModels.filter(Boolean).map((project, idx) => (
-        <ProjectTimelineRow
+        <StatusTimelineHeatmapRow
           key={project.projectKey || idx}
           project={project}
           weekRanges={weekRanges}

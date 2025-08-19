@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "../utils/database";
-import { getWeekRanges, getAllProjectDates } from "../utils/timeline";
+import { getWeekRanges, getAllProjectDates } from "../utils/timelineUtils";
 import type { 
   ProjectView, 
   ProjectUpdate, 
