@@ -8,36 +8,22 @@ export interface AtlasXrayDB extends Dexie {
   meta: Dexie.Table<any, string>;
 }
 
-// Database record types
+// Database record types - simplified to just what we need
 export interface ProjectViewRecord {
   projectKey: string;
-  project?: {
-    name: string;
-    key: string;
-  };
+  raw: any; // Full GraphQL response
 }
 
 export interface ProjectUpdateRecord {
   id: string;
   projectKey: string;
-  creationDate?: string;
-  state?: string;
-  missedUpdate?: boolean;
-  targetDate?: string;
-  newDueDate?: string;
-  oldDueDate?: string;
-  oldState?: string;
-  summary?: string;
-  raw?: any;
+  raw: any; // Full GraphQL response
 }
 
 export interface ProjectStatusHistoryRecord {
   id: string;
   projectKey: string;
-  creationDate?: string;
-  startDate?: string;
-  targetDate?: string;
-  raw?: any;
+  raw: any; // Full GraphQL response
 }
 
 export interface MetaRecord {

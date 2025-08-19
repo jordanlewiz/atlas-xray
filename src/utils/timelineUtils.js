@@ -63,9 +63,14 @@ export function getAllProjectDates(projects, updatesByProject) {
   (projects || []).forEach(proj => {
     const updates = updatesByProject[proj.projectKey] || [];
     updates.forEach(u => {
-      const date = safeParseDate(u.creationDate);
-      if (!minDate || isBefore(date, minDate)) minDate = date;
-      if (!maxDate || isAfter(date, maxDate)) maxDate = date;
+      if (u && u.creationDate) {
+        // Based on console logs, creationDate is directly accessible
+        const date = safeParseDate(u.creationDate);
+        if (date && !isNaN(date.getTime())) {
+          if (!minDate || isBefore(date, minDate)) minDate = date;
+          if (!maxDate || isAfter(date, maxDate)) maxDate = date;
+        }
+      }
     });
   });
   return { minDate, maxDate };
@@ -80,7 +85,7 @@ export function buildProjectUrlFromKey(projectKey) {
 
 // Flexible date parser for ranges and month names using chrono-node
 export function parseFlexibleDateChrono(dateStr, year = new Date().getFullYear(), isEnd = false) {
-  if (!dateStr) return null;
+  if (!dateStr || typeof dateStr !== 'string') return null;
   // If it's a range, always use the end of the range
   if (dateStr.includes('-')) {
     const [start, end] = dateStr.split('-').map(s => s.trim());
@@ -116,6 +121,11 @@ export function parseFlexibleDateChrono(dateStr, year = new Date().getFullYear()
 }
 
 export function daysBetweenFlexibleDates(dateStr1, dateStr2, year) {
+  // Safety checks for input parameters
+  if (!dateStr1 || !dateStr2 || typeof dateStr1 !== 'string' || typeof dateStr2 !== 'string') {
+    return null;
+  }
+  
   // Always use isEnd=true for the first argument if it's a range
   const d1 = parseFlexibleDateChrono(dateStr1, year, dateStr1.includes('-') ? true : false);
   const d2 = parseFlexibleDateChrono(dateStr2, year, true);

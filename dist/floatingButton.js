@@ -61011,15 +61011,19 @@
     (projects || []).forEach((proj) => {
       const updates = updatesByProject[proj.projectKey] || [];
       updates.forEach((u) => {
-        const date = safeParseDate(u.creationDate);
-        if (!minDate || isBefore(date, minDate)) minDate = date;
-        if (!maxDate || isAfter(date, maxDate)) maxDate = date;
+        if (u && u.creationDate) {
+          const date = safeParseDate(u.creationDate);
+          if (date && !isNaN(date.getTime())) {
+            if (!minDate || isBefore(date, minDate)) minDate = date;
+            if (!maxDate || isAfter(date, maxDate)) maxDate = date;
+          }
+        }
       });
     });
     return { minDate, maxDate };
   }
   function parseFlexibleDateChrono(dateStr, year = (/* @__PURE__ */ new Date()).getFullYear(), isEnd = false) {
-    if (!dateStr) return null;
+    if (!dateStr || typeof dateStr !== "string") return null;
     if (dateStr.includes("-")) {
       const [start3, end2] = dateStr.split("-").map((s) => s.trim());
       return parseFlexibleDateChrono(end2, year, true);
@@ -61049,6 +61053,9 @@
     return null;
   }
   function daysBetweenFlexibleDates(dateStr1, dateStr2, year) {
+    if (!dateStr1 || !dateStr2 || typeof dateStr1 !== "string" || typeof dateStr2 !== "string") {
+      return null;
+    }
     const d1 = parseFlexibleDateChrono(dateStr1, year, dateStr1.includes("-") ? true : false);
     const d2 = parseFlexibleDateChrono(dateStr2, year, true);
     if (!d1 || !d2) return null;
@@ -61062,10 +61069,12 @@
     let stateClass = "state-none";
     if (lastUpdate) {
       if (lastUpdate.missedUpdate) stateClass = "state-missed-update";
-      else if (lastUpdate.state) stateClass = `state-${lastUpdate.state.replace(/_/g, "-").toLowerCase()}`;
+      else if (lastUpdate.state && typeof lastUpdate.state === "string") {
+        stateClass = `state-${lastUpdate.state.replace(/_/g, "-").toLowerCase()}`;
+      }
     }
     let oldStateClass = "";
-    if (lastUpdate && lastUpdate.oldState) {
+    if (lastUpdate && lastUpdate.oldState && typeof lastUpdate.oldState === "string") {
       oldStateClass = `old-state-${lastUpdate.oldState.replace(/_/g, "-").toLowerCase()}`;
     }
     return [
@@ -61076,6 +61085,9 @@
     ].filter(Boolean).join(" ");
   }
   function getTargetDateDisplay(dateStr) {
+    if (!dateStr || typeof dateStr !== "string") {
+      return "No date";
+    }
     const d = safeParseDate(dateStr);
     if (d && !isNaN(d.getTime())) {
       return format(d, "d MMM yyyy");
@@ -61083,12 +61095,23 @@
     return dateStr;
   }
   function getTimelineWeekCells(weekRanges, updates) {
-    const validUpdates = updates.filter((u) => u && typeof u.creationDate === "string");
+    if (!updates || !Array.isArray(updates)) {
+      return weekRanges.map(() => ({
+        cellClass: "timeline-cell state-none",
+        weekUpdates: []
+      }));
+    }
+    const validUpdates = updates.filter((u) => {
+      if (!u) return false;
+      const creationDate = u.creationDate || u.raw?.creationDate;
+      return creationDate && typeof creationDate === "string";
+    });
     return weekRanges.map((w2) => {
       const weekStart = w2.start;
       const weekEnd = w2.end;
       const weekUpdates = validUpdates.filter((u) => {
-        const d = safeParseDate(u.creationDate);
+        const creationDate = u.creationDate || u.raw?.creationDate;
+        const d = safeParseDate(creationDate);
         return d && d >= weekStart && d < weekEnd;
       });
       const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : void 0;
@@ -61099,13 +61122,13 @@
     });
   }
   function getDueDateTooltip(u) {
-    if (u.oldDueDate && u.newDueDate) {
+    if (u && u.oldDueDate && u.newDueDate) {
       return `${u.oldDueDate} \u2192 ${u.newDueDate}`;
     }
     return null;
   }
   function getDueDateDiff(u) {
-    if (u.oldDueDate && u.newDueDate) {
+    if (u && u.oldDueDate && u.newDueDate) {
       return daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate);
     }
     return null;
@@ -61311,7 +61334,7 @@
       return null;
     }
     const weekCells = getTimelineWeekCells(weekRanges, updates);
-    const targetDateRaw = updates.find((u) => u.targetDate)?.targetDate || updates.find((u) => u.newDueDate)?.newDueDate;
+    const targetDateRaw = updates.find((u) => u.newTargetDate)?.newTargetDate || updates.find((u) => u.targetDate)?.targetDate || updates.find((u) => u.newDueDate)?.newDueDate || null;
     const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
     return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "timeline-row", children: [
       /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "timeline-y-label", children: [
@@ -61421,6 +61444,22 @@
           updatesByProject[key].push(update);
         }
       });
+      console.log("=== UPDATE DATA DEBUG ===");
+      console.log("Total updates found:", allUpdates.length);
+      console.log("All updates array:", allUpdates);
+      if (allUpdates.length > 0) {
+        console.log("First update object:", allUpdates[0]);
+        console.log("First update raw:", allUpdates[0]?.raw);
+        console.log("First update keys:", Object.keys(allUpdates[0] || {}));
+        if (allUpdates[0]?.raw) {
+          console.log("First update raw keys:", Object.keys(allUpdates[0].raw || {}));
+        }
+        if (allUpdates[0]?.projectUpdates?.edges) {
+          console.log("Found GraphQL edges structure");
+          console.log("First edge:", allUpdates[0].projectUpdates.edges[0]);
+        }
+      }
+      console.log("=== END UPDATE DEBUG ===");
       const statusByProject = {};
       allStatusHistory.forEach((status) => {
         const key = status.projectKey;
@@ -61431,11 +61470,16 @@
           statusByProject[key].push(status);
         }
       });
-      const projectViewModels = projects.map((project) => ({
-        projectKey: project.projectKey,
-        name: project.project?.name || "Unknown Project",
-        rawProject: project
-      }));
+      const projectViewModels = projects.map((project) => {
+        console.log("Project data:", project);
+        console.log("Project raw:", project.raw);
+        const projectName = project.raw?.project?.name || project.raw?.name || project.project?.name || "Unknown Project";
+        return {
+          projectKey: project.projectKey,
+          name: projectName,
+          rawProject: project
+        };
+      });
       const allDates = getAllProjectDates(projectViewModels, updatesByProject);
       if (!allDates.minDate || !allDates.maxDate) {
         return {

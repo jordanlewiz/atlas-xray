@@ -31,8 +31,11 @@ export default function ProjectTimelineRow({
   const weekCells = getTimelineWeekCells(weekRanges, updates);
   
   // Get target date from the most recent update that has one
-  const targetDateRaw = updates.find(u => u.targetDate)?.targetDate || 
-                       updates.find(u => u.newDueDate)?.newDueDate;
+  // Based on console logs, look for newTargetDate, targetDate, newDueDate
+  const targetDateRaw = updates.find(u => u.newTargetDate)?.newTargetDate ||
+                       updates.find(u => u.targetDate)?.targetDate ||
+                       updates.find(u => u.newDueDate)?.newDueDate ||
+                       null;
   const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
 
   return (

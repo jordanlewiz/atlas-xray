@@ -59,7 +59,7 @@ export default function DateChangeModal({
                     <small>Project Key:</small> {project?.projectKey}
                   </div>
 
-                  {selectedUpdate.oldDueDate && (
+                                    {selectedUpdate.oldDueDate && (
                     <SectionMessage
                       appearance="error"
                       title="Date Change Detected"

@@ -41,6 +41,25 @@ export function useTimeline(weekLimit: number = 12) {
         updatesByProject[key].push(update);
       }
     });
+    
+    // Debug: Log update data structure
+    console.log('=== UPDATE DATA DEBUG ===');
+    console.log('Total updates found:', allUpdates.length);
+    console.log('All updates array:', allUpdates);
+    if (allUpdates.length > 0) {
+      console.log('First update object:', allUpdates[0]);
+      console.log('First update raw:', allUpdates[0]?.raw);
+      console.log('First update keys:', Object.keys(allUpdates[0] || {}));
+      if (allUpdates[0]?.raw) {
+        console.log('First update raw keys:', Object.keys(allUpdates[0].raw || {}));
+      }
+      // Check if it's a GraphQL structure
+      if (allUpdates[0]?.projectUpdates?.edges) {
+        console.log('Found GraphQL edges structure');
+        console.log('First edge:', allUpdates[0].projectUpdates.edges[0]);
+      }
+    }
+    console.log('=== END UPDATE DEBUG ===');
 
     // Group status history by project
     const statusByProject: Record<string, ProjectStatusHistory[]> = {};
@@ -55,11 +74,20 @@ export function useTimeline(weekLimit: number = 12) {
     });
 
     // Simple project view models - just basic info + references to data
-    const projectViewModels: ProjectViewModel[] = projects.map((project: ProjectView) => ({
-      projectKey: project.projectKey,
-      name: project.project?.name || "Unknown Project",
-      rawProject: project
-    }));
+    const projectViewModels: ProjectViewModel[] = projects.map((project: ProjectView) => {
+      console.log('Project data:', project);
+      console.log('Project raw:', project.raw);
+      // Try both raw and direct access patterns
+      const projectName = project.raw?.project?.name || 
+                         project.raw?.name || 
+                         (project as any).project?.name || 
+                         "Unknown Project";
+      return {
+        projectKey: project.projectKey,
+        name: projectName,
+        rawProject: project
+      };
+    });
 
     // Get week ranges for the timeline
     const allDates = getAllProjectDates(projectViewModels, updatesByProject);
