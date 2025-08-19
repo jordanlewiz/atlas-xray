@@ -425,7 +425,10 @@
 .summary-content li, .details-content li {
   margin: 4px 0;
   display: list-item;
-  list-style: inherit;
+  list-style: disc outside;
+}
+.summary-content li p, .details-content li p {
+  display: inline;
 }
 .summary-content a, .details-content a {
   color: #0052CC;
@@ -462,7 +465,19 @@
 .note-item li {
   margin: 4px 0;
   display: list-item !important;
-  list-style: inherit !important;
+  list-style: disc outside !important;
+}
+.note-item li p {
+  display: inline;
+}
+.note-item .no-details {
+  color: #6B778C;
+  font-style: italic;
+  text-align: center;
+  padding: 20px;
+  background: #F4F5F7;
+  border-radius: 4px;
+  border: 1px dashed #C1C7D0;
 }
 
 /*# sourceMappingURL=popup.css.map */

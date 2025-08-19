@@ -98,7 +98,7 @@ export default function DateChangeModal({
                     </SectionMessage>
                   )}
 
-                                     {selectedUpdate.summary && (
+                  {selectedUpdate.summary && (
                      <div className="summary-section">
                        <h3>Update Summary:</h3>
                        <div className="summary-content">
@@ -113,17 +113,19 @@ export default function DateChangeModal({
                        <div className="details-content">
                          {(() => {
                            try {
-                             const notesArray = JSON.parse(selectedUpdate.details);
-                             return notesArray.map((note: any, idx: number) => (
-                               <div key={idx} className="note-item">
-                                 <strong>{note.title}:</strong>
-                                 <div dangerouslySetInnerHTML={{ __html: renderProseMirror(note.summary) }} />
-                               </div>
-                             ));
+                             const parsedDetails = JSON.parse(selectedUpdate.details);
+                             if (Array.isArray(parsedDetails) && parsedDetails.length > 0) {
+                               return parsedDetails.map((note: any, idx: number) => (
+                                 <div key={idx} className="note-item">
+                                   <strong>{note.title || 'Note'}:</strong>
+                                   <div dangerouslySetInnerHTML={{ __html: renderProseMirror(note.summary) }} />
+                                 </div>
+                               ));
+                             }
                            } catch (e) {
                              console.error('Error parsing details:', e);
-                             return <div>Error parsing details: {e instanceof Error ? e.message : String(e)}</div>;
                            }
+                           return <div className="no-details">No detailed update provided</div>;
                          })()}
                        </div>
                      </div>

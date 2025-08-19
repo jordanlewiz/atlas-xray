@@ -61356,21 +61356,20 @@
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "Update Details:" }),
               /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "details-content", children: (() => {
                 try {
-                  const notesArray = JSON.parse(selectedUpdate.details);
-                  return notesArray.map((note, idx) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "note-item", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { children: [
-                      note.title,
-                      ":"
-                    ] }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { dangerouslySetInnerHTML: { __html: renderProseMirror(note.summary) } })
-                  ] }, idx));
+                  const parsedDetails = JSON.parse(selectedUpdate.details);
+                  if (Array.isArray(parsedDetails) && parsedDetails.length > 0) {
+                    return parsedDetails.map((note, idx) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "note-item", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { children: [
+                        note.title || "Note",
+                        ":"
+                      ] }),
+                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { dangerouslySetInnerHTML: { __html: renderProseMirror(note.summary) } })
+                    ] }, idx));
+                  }
                 } catch (e) {
                   console.error("Error parsing details:", e);
-                  return /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { children: [
-                    "Error parsing details: ",
-                    e instanceof Error ? e.message : String(e)
-                  ] });
                 }
+                return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "no-details", children: "No detailed update provided" });
               })() })
             ] })
           ] }) }) }) })

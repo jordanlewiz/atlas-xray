@@ -114,7 +114,10 @@
   li {
     margin: 4px 0;
     display: list-item;
-    list-style: inherit;
+    list-style: disc outside;
+    p {
+      display: inline;
+    }
   }
   
   // Ensure links in lists are styled properly
@@ -160,6 +163,19 @@
   li {
     margin: 4px 0;
     display: list-item !important;
-    list-style: inherit !important;
+    list-style: disc outside !important; // Force bullet points
+    p{
+      display: inline;
+    }
+  }
+  
+  .no-details {
+    color: #6B778C;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    background: #F4F5F7;
+    border-radius: 4px;
+    border: 1px dashed #C1C7D0;
   }
 }
