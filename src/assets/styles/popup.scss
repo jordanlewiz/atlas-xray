@@ -199,5 +199,9 @@
   white-space: nowrap;
 }
 
+// Import global styles
+@import "global";
+
+// Import component-specific styles
 @import "legend";
 @import "dateChangeModal";

@@ -2,14 +2,14 @@ import React, { useState } from "react";
 import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
-import DateChangeModal from "../ui/DateChangeModal";
+import DateChangeModal from "../modal/DateChangeModal";
 import { buildProjectUrlFromKey } from "../../utils/linkUtils";
 import {
   getTimelineWeekCells,
   getTargetDateDisplay,
   getDueDateTooltip,
   getDueDateDiff
-} from "../../utils/timelineViewModels";
+} from "../../utils/timeline";
 import type { ProjectTimelineRowProps } from "../../types";
 
 /**

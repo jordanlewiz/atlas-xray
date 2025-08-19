@@ -3,6 +3,7 @@ import ProjectTimelineRow from "./ProjectTimelineRow";
 import ProjectTimelineHeader from "./ProjectTimelineHeader";
 import type { ProjectTimelineProps } from "../../types";
 
+
 /**
  * Renders the project timeline grid. Receives data as props.
  */

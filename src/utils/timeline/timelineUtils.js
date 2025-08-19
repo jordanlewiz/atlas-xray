@@ -1,6 +1,6 @@
 import * as chrono from "chrono-node";
 import { parse, differenceInCalendarDays, isValid, parseISO, isAfter, isBefore, startOfWeek, addWeeks, format, isSameWeek, subWeeks, subDays, lastDayOfMonth } from "date-fns";
-import { getGlobalCloudId, getGlobalSectionId } from "./globalState";
+import { getGlobalCloudId, getGlobalSectionId } from "../globalState";
 
 const MONTHS = [
   'jan', 'feb', 'mar', 'apr', 'may', 'jun',

@@ -23,6 +23,9 @@
   "include": [
     "src/**/*"
   ],
+  "files": [
+    "src/types/scss.d.ts"
+  ],
   "exclude": [
     "node_modules",
     "dist"

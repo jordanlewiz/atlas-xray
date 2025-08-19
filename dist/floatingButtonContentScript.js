@@ -60980,7 +60980,7 @@
     return addWeeks(date, -amount, options2);
   }
 
-  // src/utils/timelineUtils.js
+  // src/utils/timeline/timelineUtils.js
   var MONTHS = [
     "jan",
     "feb",
@@ -61098,7 +61098,7 @@
     return diff > 0 ? diff + 1 : diff - 1;
   }
 
-  // src/utils/timelineViewModels.js
+  // src/utils/timeline/timelineViewModels.js
   function getTimelineCellClass(lastUpdate, weekUpdates) {
     let stateClass = "state-none";
     if (lastUpdate) {
@@ -61265,7 +61265,7 @@
     return html;
   }
 
-  // src/components/ui/DateChangeModal.tsx
+  // src/components/modal/DateChangeModal.tsx
   var import_jsx_runtime = __toESM(require_jsx_runtime());
   function DateChangeModal({
     selectedUpdate,
@@ -61585,7 +61585,7 @@
     ) });
   }
 
-  // src/components/layout/Modal.tsx
+  // src/components/modal/Modal.tsx
   var import_react137 = __toESM(require_react());
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/full-screen.js
@@ -65992,7 +65992,7 @@
     ] });
   }
 
-  // src/components/layout/Modal.tsx
+  // src/components/modal/Modal.tsx
   var import_jsx_runtime7 = __toESM(require_jsx_runtime());
   function Modal({ open, onClose, children }) {
     const [weekLimit, setWeekLimit] = (0, import_react137.useState)(12);

@@ -1,0 +1,173 @@
+// Timeline Grid Layout
+.projectTimeline {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow-x: auto;
+}
+
+// Timeline Row
+.timelineRow {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  border-bottom: 1px solid #DFE1E6;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+// Y-axis Label (Project Names)
+.timelineYLabel {
+  min-width: 250px;
+  padding: 8px 20px 8px 0;
+  font-weight: 500;
+  color: #172B4D;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+  a {
+    color: #0052CC;
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+// Timeline Cell
+.timelineCell {
+  flex: 1;
+  min-width: 80px;
+  height: 40px;
+  border: 1px solid #DFE1E6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: #F4F5F7;
+  }
+}
+
+// State-based Cell Classes
+.stateNone {
+  background-color: #F4F5F7;
+}
+
+.stateOnTrack {
+  background-color: #D3F1A7;
+}
+
+.stateOffTrack {
+  background-color: #FFE2A3;
+}
+
+.stateAtRisk {
+  background-color: #FFD3B3;
+}
+
+.statePending {
+  background-color: #DEEBFF;
+}
+
+.statePaused {
+  background-color: #F4F5F7;
+}
+
+.stateCancelled {
+  background-color: #FFE2A3;
+}
+
+.stateDone {
+  background-color: #ABEB56;
+}
+
+.stateMissedUpdate {
+  background-color: #FF8B73;
+}
+
+// Old State Indicators
+.oldStateOnTrack {
+  border: 2px solid #36B37E;
+}
+
+.oldStateOffTrack {
+  border: 2px solid #FF8B73;
+}
+
+.oldStateAtRisk {
+  border: 2px solid #FF8B73;
+}
+
+.oldStatePending {
+  border: 2px solid #0052CC;
+}
+
+.oldStatePaused {
+  border: 2px solid #6B778C;
+}
+
+.oldStateCancelled {
+  border: 2px solid #FF8B73;
+}
+
+.oldStateDone {
+  border: 2px solid #36B37E;
+}
+
+// Date Change Indicators
+.hasOldDueDate {
+  border: 2px solid #FF69B4;
+}
+
+// Target Date Column
+.timelineTargetDate {
+  min-width: 120px;
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 12px;
+  color: #6B778C;
+  border-left: 1px solid #DFE1E6;
+}
+
+// Week Labels (X-axis)
+.weekLabel {
+  min-width: 80px;
+  padding: 8px 4px;
+  text-align: center;
+  font-size: 11px;
+  color: #6B778C;
+  font-weight: 500;
+  border-bottom: 1px solid #DFE1E6;
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Target Date Header
+.targetDateHeader {
+  min-width: 120px;
+  padding: 8px 16px;
+  text-align: center;
+  font-size: 12px;
+  color: #6B778C;
+  font-weight: 600;
+  border-left: 1px solid #DFE1E6;
+  border-bottom: 1px solid #DFE1E6;
+}
