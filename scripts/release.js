@@ -58,7 +58,7 @@ function createReleaseNotes(version, type) {
   const date = new Date().toISOString().split('T')[0];
   const nextVersion = getNextVersion(type);
   
-  return `## Release ${nextVersion} (${date})
+  return `## Release ${version} (${date})
 
 ### What's New
 - 🚀 Automated release process
