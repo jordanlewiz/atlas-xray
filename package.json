@@ -1,6 +1,6 @@
 {
   "name": "atlas-xray-extension",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Bare bones Chrome extension using React, IndexedDB, and Sass.",
   "main": "background.js",
   "scripts": {
@@ -9,7 +9,6 @@
     "build:js": "node esbuild.config.js popup",
     "build:css": "npx sass src/components/ChromeExtension/ChromeExtensionPopup.scss dist/popup.css --source-map && npx sass src/styles/main.scss dist/main.css --source-map",
     "build:html": "echo '<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>Atlas Xray</title><link rel=\"stylesheet\" href=\"popup.css\"></head><body><div id=\"root\"></div><script src=\"popup.js\"></script></body></html>' > dist/popup.html",
-
     "build:chromeExtension": "node esbuild.config.js chromeExtension",
     "build:background": "node esbuild.config.js background",
     "build:merge-css": "touch dist/contentScript.css && cat dist/main.css >> dist/contentScript.css && rm dist/main.css dist/main.css.map",
