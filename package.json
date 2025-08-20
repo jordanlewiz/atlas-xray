@@ -4,28 +4,46 @@
   "description": "Bare bones Chrome extension using React, IndexedDB, and Sass.",
   "main": "background.js",
   "scripts": {
-    "build:js": "esbuild src/popup.jsx --bundle --outfile=dist/popup.js --format=iife --loader:.js=jsx --define:process.env.NODE_ENV='\"production\"'",
+    "build:js": "node esbuild.config.js popup",
     "build:css": "sass src/assets/styles/popup.scss dist/popup.css --source-map",
-    "build:content": "esbuild src/components/FloatingButton.jsx --bundle --outfile=dist/floatingButton.js --format=iife --loader:.js=jsx --loader:.jsx=jsx",
-    "build:floatingButtonContentScript": "esbuild src/floatingButtonContentScript.js --bundle --outfile=dist/floatingButtonContentScript.js --format=iife --loader:.js=jsx",
-    "build:background": "esbuild src/background.js --bundle --outfile=dist/background.js --format=iife",
-    "build": "npm run build:js && npm run build:css && npm run build:content && npm run build:floatingButtonContentScript"
+    "build:content": "node esbuild.config.js content",
+    "build:chromeExtension": "node esbuild.config.js chromeExtension",
+    "build:background": "node esbuild.config.js background",
+    "build": "npm test && npm run build:js && npm run build:css && npm run build:content && npm run build:chromeExtension && npm run build:background",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "type-check": "tsc --noEmit",
+    "type-check:watch": "tsc --noEmit --watch"
   },
   "dependencies": {
     "@apollo/client": "^3.13.9",
     "@atlaskit/button": "^23.4.0",
+    "@atlaskit/lozenge": "^13.0.5",
     "@atlaskit/modal-dialog": "^14.3.4",
+    "@atlaskit/popup": "^4.3.7",
+    "@atlaskit/section-message": "^8.5.1",
     "@atlaskit/select": "^21.2.4",
     "chrono-node": "^2.8.4",
     "date-fns": "^4.1.0",
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
     "graphql": "^16.11.0",
+    "prosemirror-to-html": "^1.0.1-c",
     "react": "^18.0.0",
     "react-dom": "^18.0.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-typescript": "^7.27.1",
+    "@types/node": "^24.3.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
+    "@typescript-eslint/parser": "^8.40.0",
+    "babel-jest": "^30.0.5",
     "esbuild": "^0.25.9",
-    "sass": "^1.69.0"
+    "jest": "^30.0.5",
+    "sass": "^1.69.0",
+    "typescript": "^5.9.2"
   }
 }

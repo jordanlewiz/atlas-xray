@@ -1,0 +1,181 @@
+.date-change-modal-content {
+  max-width: 1128px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.date-change-modal-body {
+  padding: 16px;
+}
+
+.project-name {
+  margin: 0 0 16px 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #172B4D;
+}
+
+.project-key {
+  margin: 16px 0;
+  color: #6B778C;
+  
+  small {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.change-section {
+  margin: 8px 0;
+  font-weight: 600;
+}
+
+.date-change-display {
+  font-size: 16px;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  .old-date {
+    color: #DE350B;
+    font-weight: 500;
+  }
+  
+  .arrow {
+    color: #6B778C;
+    font-weight: bold;
+  }
+  
+  .new-date {
+    color: #36B37E;
+    font-weight: 500;
+  }
+}
+
+.change-difference {
+  margin: 8px 0;
+  font-weight: 500;
+}
+
+.status-change-display {
+  font-size: 16px;
+  margin: 8px 0;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  .arrow {
+    color: #6B778C;
+    font-weight: bold;
+  }
+}
+
+.summary-section, .details-section {
+  margin: 8px 0;
+  
+  h3 {
+    margin: 16px 0 8px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #172B4D;
+  }
+}
+
+.summary-content, .details-content {
+  margin: 8px 0;
+  line-height: 1.6;
+  color: #172B4D;
+  
+  // Style the rendered HTML content
+  p {
+    margin: 8px 0;
+  }
+  
+  strong, b {
+    font-weight: 600;
+  }
+  
+  em, i {
+    font-style: italic;
+  }
+  
+  ul, ol {
+    margin: 8px 0;
+    padding-left: 24px;
+    list-style: disc outside;
+  }
+  
+  ol {
+    list-style: decimal outside;
+  }
+  
+  li {
+    margin: 4px 0;
+    display: list-item;
+    list-style: disc outside;
+    p {
+      display: inline;
+    }
+  }
+  
+  // Ensure links in lists are styled properly
+  a {
+    color: #0052CC;
+    text-decoration: underline;
+    
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+.note-item {
+  margin-bottom: 15px;
+  padding: 10px;
+  background: #FAFBFC;
+  border-radius: 4px;
+  border: 1px solid #DFE1E6;
+  
+  &:last-child {
+    margin-bottom: 0;
+  }
+  
+  strong {
+    color: #172B4D;
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+  }
+  
+  // Ensure list styling works inside note items
+  ul, ol {
+    margin: 8px 0;
+    padding-left: 24px;
+    list-style: disc outside;
+  }
+  
+  ol {
+    list-style: decimal outside;
+  }
+  
+  li {
+    margin: 4px 0;
+    display: list-item !important;
+    list-style: disc outside !important; // Force bullet points
+    p{
+      display: inline;
+    }
+  }
+  
+  .no-details {
+    color: #6B778C;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+    background: #F4F5F7;
+    border-radius: 4px;
+    border: 1px dashed #C1C7D0;
+  }
+}

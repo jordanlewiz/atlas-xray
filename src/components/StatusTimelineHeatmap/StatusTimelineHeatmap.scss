@@ -1,0 +1,203 @@
+// Timeline-specific styles
+.project-timeline {
+  overflow-x: auto;
+}
+
+.timeline-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  margin-bottom: 4px;
+
+  &.timeline-labels{
+    height: 130px;
+  }
+}
+
+.timeline-x-label {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  font-size: 14px;
+  color: #bbb;
+  padding: 2px 4px;
+  position: relative;
+  
+  div {
+    width: 100px;
+    transform: rotate(-45deg);
+    bottom: -20px;
+    left: 20px;
+    transform-origin: bottom left;
+    position: relative;
+    display: block;
+    bottom: -45px;
+    left: 0;
+    border-bottom: none;
+    text-align: left;
+    padding-left: 30px;
+  }
+}
+
+.timeline-y-label {
+  flex: 0 0 30%;
+  min-width: 250px;
+  max-width: 600px;
+  font-weight: bold;
+  color: #000000;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-left: 8px;
+  padding-right: 20px;
+  h3 {
+    font-size: 14px;
+    cursor: default;
+  }
+  a {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+    color: #aaa;
+    font-size: 10px;
+   }
+}
+
+.timeline-cell {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 28px;
+  margin-right: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  border: 1px solid #000000;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &.has-update {
+    background: #e3f2fd;
+    border-color: #2196f3;
+  }
+
+  &.state-on-track {
+    background: #4caf50; // green
+    border-color: #4caf50;
+    color: #fff;
+  }
+  &.state-off-track {
+    background: #e53935; // red
+    border-color: #e53935;
+    color: #fff;
+  }
+  &.state-none {
+    background: #fff;
+    border: 1px solid #eee;
+    color: #000000;
+  }
+  &.state-at-risk {
+    background: orange;
+    border-color: orange;
+    color: #fff;
+  }
+  &.state-pending {
+    background: #85b8ff;
+    border-color: #85b8ff;
+    color: #333;
+  }
+  &.state-paused {
+    background: #7f7f7f;
+    border-color: #7f7f7f;
+    color: #fff;
+    &:after{
+      content: "⏸️";
+    }
+  }
+  &.state-cancelled {
+    background: #424242; // dark grey
+    border-color: #424242;
+    color: #fff;
+    &:before{
+      content: "❌";
+    }
+  }
+  &.state-done {
+    background: #006400; // dark green
+    border-color: #006400;
+    color: #fff;
+  }
+  &.state-missed-update {
+    background: #dadada; 
+    border-color: #dadada;
+    color: #000;
+  }
+
+  .has-old-due-date {
+    font-size: 10px;
+    cursor: pointer;
+  }
+  
+  .timeline-cell-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      .update-indicator {
+        opacity: 1;
+      }
+    }
+    
+    .date-difference {
+      font-size: 10px;
+      font-weight: bold;
+      color: #fff;
+    }
+    
+    .update-indicator {
+      font-size: 12px;
+      color: #fff;
+      font-weight: bold;
+      opacity: 0.5;
+    }
+  }
+}
+
+.timeline-labels {
+  font-size: 13px;
+  color: #aaa;
+  margin-bottom: -30px;
+}
+
+.project-title-ellipsis {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: top;
+}
+
+.timeline-target-date {
+  min-width: 120px;
+  max-width: 180px;
+  margin-left: 12px;
+  text-align: right;
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  white-space: nowrap;
+}

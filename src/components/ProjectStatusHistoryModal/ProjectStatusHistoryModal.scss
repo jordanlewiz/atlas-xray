@@ -1,0 +1,55 @@
+// ProjectStatusHistoryModal specific styles
+.project-status-history-modal {
+  // Ensure the modal takes full height and enables scrolling
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  
+  .custom-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background-color: #172B4D;
+    color: white;
+    border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0; // Prevent header from shrinking
+    
+    .custom-modal-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      color: white;
+      line-height: 1.2;
+    }
+    
+    // Style the close button to be white
+    button {
+      color: white !important;
+      
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+      }
+      
+      // Target the icon inside the button
+      span[role="img"] {
+        color: white !important;
+      }
+      
+      // Target SVG icons
+      svg {
+        color: white !important;
+        fill: white !important;
+      }
+    }
+  }
+  
+  // Ensure modal body can scroll
+  [data-testid="modal-body"] {
+    flex: 1;
+    overflow: auto;
+    min-height: 0; // Allow flex shrinking
+  }
+}
