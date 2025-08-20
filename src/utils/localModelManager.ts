@@ -6,6 +6,10 @@ const LOCAL_MODELS = [
   'Xenova/distilbert-base-uncased-distilled-squad'
 ];
 
+// Singleton model cache
+let cachedModel: any = null;
+let isModelLoading = false;
+
 // Monitor for unexpected network requests (should not happen with local models)
 function setupNetworkInterception() {
   if (typeof window !== 'undefined') {
@@ -48,6 +52,22 @@ function configureLocalModels() {
  * Create a local model pipeline with fallback options
  */
 export async function createLocalModelPipeline(): Promise<any> {
+  // Return cached model if available
+  if (cachedModel) {
+    return cachedModel;
+  }
+  
+  // If model is currently loading, wait for it
+  if (isModelLoading) {
+    while (isModelLoading) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    if (cachedModel) {
+      return cachedModel;
+    }
+  }
+  
+  isModelLoading = true;
   console.log('🏠 Attempting to create local model pipeline...');
   
   // Configure environment first
@@ -66,6 +86,8 @@ export async function createLocalModelPipeline(): Promise<any> {
     const testResult = await localModel('Test?', 'Test context.');
     if (testResult && testResult.answer) {
       console.log('✅ Local model working successfully!');
+      cachedModel = localModel;
+      isModelLoading = false;
       return localModel;
     }
   } catch (localError) {
@@ -105,6 +127,8 @@ export async function createLocalModelPipeline(): Promise<any> {
       }
       
       console.log('✅ Model loaded and tested successfully!');
+      cachedModel = model;
+      isModelLoading = false;
       return model;
       
     } catch (error) {
@@ -125,7 +149,27 @@ export async function createLocalModelPipeline(): Promise<any> {
   console.log('   3. Then try the analysis again');
   console.log('');
   
+  isModelLoading = false;
   throw new Error(`No local models available. Run "npm run download:models" to download models locally. Last error: ${lastError?.message || 'Unknown error'}`);
+}
+
+/**
+ * Get cached model or create new one (with minimal logging for cached access)
+ */
+export async function getModel(): Promise<any> {
+  if (cachedModel) {
+    return cachedModel;
+  }
+  
+  return await createLocalModelPipeline();
+}
+
+/**
+ * Clear the cached model (useful for testing or forcing reload)
+ */
+export function clearModelCache(): void {
+  cachedModel = null;
+  isModelLoading = false;
 }
 
 /**

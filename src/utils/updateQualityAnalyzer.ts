@@ -1,5 +1,5 @@
 import { pipeline, env } from '@xenova/transformers';
-import { createLocalModelPipeline, checkLocalModels } from './localModelManager';
+import { getModel, checkLocalModels, clearModelCache } from './localModelManager';
 
 // Configure transformers to use local models and avoid CDN issues
 env.allowRemoteModels = true; // Allow fallback to remote if local fails
@@ -237,18 +237,13 @@ export async function analyzeUpdateQuality(
   updateType?: string,
   state?: string
 ): Promise<UpdateQualityResult> {
-  // Add detailed logging to debug what's being passed
-  console.log('🔍 DEBUG: analyzeUpdateQuality called with:');
-  console.log('  updateText:', JSON.stringify(updateText));
-  console.log('  updateType:', updateType);
-  console.log('  state:', state);
-  console.log('  updateText length:', updateText?.length || 0);
-  console.log('  updateText type:', typeof updateText);
-  console.log('  updateText is empty:', !updateText || updateText.trim() === '');
+  // Basic validation logging
+  if (!updateText || typeof updateText !== 'string' || updateText.trim() === '') {
+    console.log('⚠️ Invalid or empty update text provided for analysis');
+  }
   
   // Validate input
   if (!updateText || typeof updateText !== 'string' || updateText.trim() === '') {
-    console.error('❌ ERROR: Invalid updateText provided:', updateText);
     return {
       overallScore: 0,
       qualityLevel: 'poor',
@@ -261,35 +256,24 @@ export async function analyzeUpdateQuality(
   }
   
   try {
-    console.log('🤖 Initializing AI model...');
     const model = await initializeQAModel();
-    
-    console.log('🔥 Warming up AI model...');
     await warmupModel(model);
     
-    console.log('📋 Determining applicable criteria...');
     const applicableCriteria = determineApplicableCriteria(updateType, state, updateText);
-    console.log('  Found', applicableCriteria.length, 'applicable criteria:', applicableCriteria.map(c => c.id));
     
     // Analyze each applicable criterion
     const analysis: QualityAnalysis[] = [];
     
-    for (let i = 0; i < applicableCriteria.length; i++) {
-      const criteria = applicableCriteria[i];
-      console.log(`🔍 Analyzing criteria ${i + 1}/${applicableCriteria.length}: ${criteria.id}`);
+    for (const criteria of applicableCriteria) {
       const criteriaAnalysis = await analyzeCriteria(criteria, updateText, model);
       analysis.push(criteriaAnalysis);
-      console.log(`  ✅ Criteria ${criteria.id} analysis complete:`, criteriaAnalysis.score, '/', criteriaAnalysis.maxScore);
     }
     
-    console.log('📊 Calculating overall score...');
     const overallScore = calculateOverallScore(analysis);
     const qualityLevel = determineQualityLevel(overallScore);
     const missingInfo = generateMissingInfo(analysis);
     const recommendations = generateRecommendations(analysis);
     const summary = getQualitySummary(overallScore, qualityLevel, missingInfo);
-    
-    console.log('🎯 Analysis complete! Score:', overallScore, 'Quality:', qualityLevel);
     
     return {
       overallScore,
@@ -306,7 +290,6 @@ export async function analyzeUpdateQuality(
     
     // Try one more time with a fresh model
     try {
-      console.log('🔄 First attempt failed, trying with fresh model...');
       qaModel = null; // Reset model
       const freshModel = await initializeQAModel();
       await warmupModel(freshModel);
@@ -336,7 +319,6 @@ export async function analyzeUpdateQuality(
       };
       
     } catch (retryError) {
-      console.error('❌ Retry attempt also failed:', retryError);
       
       // Provide specific error messages
       let errorMessage = 'AI analysis failed - manual review required';
@@ -373,14 +355,11 @@ export async function analyzeUpdateQuality(
  */
 async function warmupModel(model: any): Promise<void> {
   try {
-    console.log('Warming up AI model...');
     const testResult = await model('What is this?', 'This is a test context for warming up the AI model.');
     if (!testResult || !testResult.answer) {
       throw new Error('Model warmup failed - no answer generated');
     }
-    console.log('AI model warmed up successfully');
   } catch (error) {
-    console.error('Model warmup failed:', error);
     throw new Error(`Model warmup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
@@ -447,58 +426,41 @@ async function analyzeCriteria(
   const answers: string[] = [];
   const missingInfo: string[] = [];
   
-  console.log(`  🔍 Analyzing ${criteria.questions.length} questions for criteria: ${criteria.id}`);
-  
   // Analyze each question for this criterion
-  for (let i = 0; i < criteria.questions.length; i++) {
-    const question = criteria.questions[i];
-    console.log(`    📝 Question ${i + 1}/${criteria.questions.length}: "${question}"`);
-    
+  for (const question of criteria.questions) {
     try {
       // Ensure model is still working
       if (!model || typeof model !== 'function') {
-        console.warn('    ⚠️ Model appears to be invalid, reinitializing...');
         const freshModel = await initializeQAModel();
         model = freshModel;
       }
       
-      console.log(`    🤖 Sending to AI model: Question="${question}", Context="${updateText.substring(0, 100)}..."`);
       const result = await model(question, updateText);
       lastModelUsage = Date.now(); // Track model usage
       
-      console.log(`    📊 AI Response:`, result);
       const answer = result.answer.trim();
       
       if (answer && answer !== '') {
-        console.log(`    ✅ Answer found: "${answer}"`);
         answers.push(answer);
       } else {
-        console.log(`    ❌ No answer generated for question`);
         missingInfo.push(question);
       }
     } catch (error) {
-      console.error(`    ❌ Error analyzing question "${question}":`, error);
-      
       // Try to recover the model if it failed
       try {
-        console.log('    🔄 Attempting to recover AI model...');
         const recoveredModel = await initializeQAModel();
         model = recoveredModel;
         
         // Retry the question with recovered model
-        console.log(`    🔄 Retrying question with recovered model...`);
         const retryResult = await model(question, updateText);
         const retryAnswer = retryResult.answer.trim();
         
         if (retryAnswer && retryAnswer !== '') {
-          console.log(`    ✅ Retry successful: "${retryAnswer}"`);
           answers.push(retryAnswer);
         } else {
-          console.log(`    ❌ Retry also failed - no answer generated`);
           missingInfo.push(question);
         }
       } catch (recoveryError) {
-        console.error('    ❌ Model recovery failed:', recoveryError);
         missingInfo.push(question);
       }
     }
@@ -507,8 +469,6 @@ async function analyzeCriteria(
   // Calculate score for this criterion
   const score = Math.min(answers.length, criteria.requiredAnswers);
   const maxScore = criteria.requiredAnswers;
-  
-  console.log(`  📊 Criteria ${criteria.id} results: ${score}/${maxScore} questions answered`);
   
   // Generate recommendations based on missing information
   const recommendations = missingInfo.map(info => `Provide: ${info}`);

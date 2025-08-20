@@ -75,8 +75,6 @@ export function useTimeline(weekLimit: number = 12) {
 
     // Simple project view models - just basic info + references to data
     const projectViewModels: ProjectViewModel[] = projects.map((project: ProjectView) => {
-      console.log('Project data:', project);
-      console.log('Project raw:', project.raw);
       // Try both raw and direct access patterns
       const projectName = project.raw?.project?.name || 
                          project.raw?.name || 
