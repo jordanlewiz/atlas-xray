@@ -135,7 +135,7 @@ async function main() {
   
   // Step 6.5: Create and commit release notes
   log('\n📝 Creating release notes...', 'cyan');
-  const releaseNotes = createReleaseNotes(currentVersion, releaseType);
+  const releaseNotes = createReleaseNotes(nextVersion, releaseType);
   const releaseFile = `RELEASE_v${nextVersion}.md`;
   fs.writeFileSync(releaseFile, releaseNotes);
   
