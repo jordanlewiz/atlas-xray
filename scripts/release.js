@@ -133,16 +133,22 @@ async function main() {
   exec('git add package.json package-lock.json manifest.json');
   exec(`git commit -m "chore: bump version to ${nextVersion}"`);
   
+  // Step 6.5: Create and commit release notes
+  log('\n📝 Creating release notes...', 'cyan');
+  const releaseNotes = createReleaseNotes(currentVersion, releaseType);
+  const releaseFile = `RELEASE_v${nextVersion}.md`;
+  fs.writeFileSync(releaseFile, releaseNotes);
+  
+  log('\n💾 Committing release notes...', 'cyan');
+  exec(`git add ${releaseFile}`);
+  exec(`git commit -m "docs: add release notes for v${nextVersion}"`);
+  
   // Step 7: Push changes and tags
   log('\n📤 Pushing to GitHub...', 'cyan');
   exec('git push');
   exec('git push --tags');
   
-  // Step 8: Create release notes
-  log('\n📝 Creating release notes...', 'cyan');
-  const releaseNotes = createReleaseNotes(currentVersion, releaseType);
-  const releaseFile = `RELEASE_v${nextVersion}.md`;
-  fs.writeFileSync(releaseFile, releaseNotes);
+  // Step 8: Release notes already created and committed in Step 6.5
   
   log('\n✅ Release process completed!', 'green');
   log(`🎉 Version ${nextVersion} has been released!`, 'green');
