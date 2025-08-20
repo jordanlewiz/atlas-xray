@@ -6,6 +6,18 @@ import StatusTimelineHeatmap from "../StatusTimelineHeatmap/StatusTimelineHeatma
 import ProjectStatusHistoryModal from "../ProjectStatusHistoryModal";
 import { downloadProjectData } from "../../utils/projectIdScanner";
 
+// Utility function to debounce function calls
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
+
 /**
  * Floating button that opens the timeline modal.
  */
@@ -30,17 +42,40 @@ export default function FloatingButton(): React.JSX.Element {
   const [visibleProjectKeys, setVisibleProjectKeys] = useState<string[]>([]);
   const observerRef = useRef<MutationObserver | null>(null);
 
-  const updateVisibleProjects = async (): Promise<void> => {
-    const matches = await downloadProjectData();
-    setVisibleProjectKeys(matches.map(m => m.projectId));
-  };
+  const updateVisibleProjects = useRef(
+    debounce(async (): Promise<void> => {
+      const matches = await downloadProjectData();
+      setVisibleProjectKeys(matches.map(m => m.projectId));
+    }, 1000) // Debounce to 1 second
+  );
 
   useEffect(() => {
-    updateVisibleProjects();
-    const observer = new window.MutationObserver(() => {
-      updateVisibleProjects();
+    // Initial load
+    updateVisibleProjects.current();
+    
+    // Only observe for project link additions, not all DOM changes
+    const observer = new window.MutationObserver((mutations) => {
+      // Only trigger if we see new project links
+      const hasNewProjectLinks = mutations.some(mutation => 
+        Array.from(mutation.addedNodes).some(node => 
+          node.nodeType === Node.ELEMENT_NODE && 
+          (node as Element).querySelector?.('a[href*="/project/"]')
+        )
+      );
+      
+      if (hasNewProjectLinks) {
+        updateVisibleProjects.current();
+      }
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+    
+    // More targeted observation - only watch for new nodes
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true,
+      attributes: false, // Don't watch attribute changes
+      characterData: false // Don't watch text changes
+    });
+    
     observerRef.current = observer;
     
     return () => {

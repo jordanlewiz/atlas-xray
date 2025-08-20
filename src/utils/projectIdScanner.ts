@@ -76,13 +76,12 @@ async function fetchAndStoreProjectData(projectId: string, cloudId: string): Pro
       query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
       variables: { projectKey: projectId }
     });
-    console.log("[AtlasXray] Status history API response for", projectId, data);
     // Normalize: extract all .node from edges
     if (!projectId) {
       console.error('[AtlasXray] projectId is undefined when saving status history!');
+      return;
     }
     const nodes = data?.project?.updates?.edges?.map((edge: any) => edge.node).filter(Boolean) || [];
-    console.log('[AtlasXray] Calling upsertProjectStatusHistory with projectId:', projectId, nodes);
     if (nodes.length > 0) {
       await upsertProjectStatusHistory(nodes, projectId);
     }
@@ -111,13 +110,33 @@ export async function downloadProjectData(): Promise<ProjectMatch[]> {
   const hrefs = links.map(link => link.getAttribute('href'));
   const matches = findMatchingProjectLinksFromHrefs(hrefs);
   
+  // Only fetch data for new projects we haven't seen before
+  const newProjects = [];
   for (const { projectId, cloudId } of matches) {
     const key = `projectId:${projectId}`;
     const existing = await getItem(key);
     if (!existing) {
-      await setItem(key, projectId);
-      await fetchAndStoreProjectData(projectId, cloudId);
+      newProjects.push({ projectId, cloudId });
     }
   }
+  
+  // Batch fetch data for new projects (limit to 5 at a time to avoid overwhelming the API)
+  const batchSize = 5;
+  for (let i = 0; i < newProjects.length; i += batchSize) {
+    const batch = newProjects.slice(i, i + batchSize);
+    await Promise.all(
+      batch.map(async ({ projectId, cloudId }) => {
+        const key = `projectId:${projectId}`;
+        await setItem(key, projectId);
+        await fetchAndStoreProjectData(projectId, cloudId);
+      })
+    );
+    
+    // Add a small delay between batches to be respectful to the API
+    if (i + batchSize < newProjects.length) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+  }
+  
   return matches;
 }
