@@ -10,6 +10,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -23,5 +27,26 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           files: chrome-extension.zip
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Chrome Extension Release ${{ github.ref_name }}
+            
+            ### What's New
+            - 🚀 Automated build and release
+            - 📦 Chrome extension package
+            - 🔧 Built with GitHub Actions
+            
+            ### Installation
+            1. Download the `chrome-extension.zip` file
+            2. Extract it to a folder
+            3. Go to `chrome://extensions/`
+            4. Enable "Developer mode"
+            5. Click "Load unpacked" and select the extracted folder
+            
+            ### Build Info
+            - Built on: ${{ github.event.head_commit.timestamp }}
+            - Commit: ${{ github.sha }}
+            - Workflow: ${{ github.workflow }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
