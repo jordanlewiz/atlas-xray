@@ -10,7 +10,9 @@
     "service_worker": "dist/background.js"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "notifications",
+    "alarms"
   ],
   "host_permissions": [
     "https://home.atlassian.com/*"

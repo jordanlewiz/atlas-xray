@@ -44,7 +44,8 @@ async function buildBackground() {
   await esbuild.build({
     ...commonOptions,
     entryPoints: ['src/background.js'],
-    outfile: 'dist/background.js'
+    outfile: 'dist/background.js',
+    loader: { '.ts': 'tsx' }
   });
 }
 
