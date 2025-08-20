@@ -1,27 +1,63 @@
 # Atlas Xray Chrome Extension
 
-Bare bones Chrome extension using React for UI, Sass for CSS, and IndexedDB for browser storage.
+A Chrome extension for Atlassian Projects that provides visual timeline insights into project status changes and updates.
 
-## Setup
+## Features
 
-1. Install dependencies:
-   ```sh
+- **Project Timeline**: Visual heatmap showing status changes over time
+- **Rich Content**: Renders ProseMirror content with images and formatting
+- **Modal Interface**: Clean, full-screen timeline view
+- **Smart Caching**: Intelligent data management with IndexedDB
+
+## Quick Start
+
+1. **Install dependencies:**
+   ```bash
    npm install
    ```
 
-2. Build the extension:
-   ```sh
+2. **Build the extension:**
+   ```bash
    npm run build
    ```
 
-3. Load the extension in Chrome:
+3. **Load in Chrome:**
    - Go to `chrome://extensions/`
    - Enable "Developer mode"
-   - Click "Load unpacked" and select this folder
+   - Click "Load unpacked" and select the `dist/` folder
 
 ## Development
 
-- Edit React code in `PopupApp.jsx` and `popup.jsx`.
-- Edit styles in `popup.scss`.
-- IndexedDB utilities are in `indexeddb.js`.
-- Run `npm run build` after making changes.
+- **Build**: `npm run build` - Creates extension files
+- **Test**: `npm test` - Runs test suite
+- **Release**: `npm run release:patch` - Creates new version and triggers GitHub release
+
+## Tech Stack
+
+- React 18 + TypeScript
+- Atlaskit UI components
+- IndexedDB with Dexie.js
+- esbuild for bundling
+- GitHub Actions for CI/CD
+
+## Project Structure
+
+```
+src/
+├── components/          # React components
+├── utils/              # Utility functions
+├── types/              # TypeScript definitions
+├── assets/styles/      # Global styles
+└── graphql/            # GraphQL queries
+```
+
+## Contributing
+
+1. Make your changes
+2. Run tests: `npm test`
+3. Build: `npm run build`
+4. Create release: `npm run release:minor`
+
+## License
+
+MIT License
