@@ -34,6 +34,9 @@ function configureLocalModels() {
   env.allowRemoteModels = false; // Force local only - no CDN requests!
   env.useBrowserCache = true;
   
+  // Also set the local model path to ensure models are found
+  env.localModelPath = './models_cache';
+  
   console.log('🏠 Local-only model environment configured');
   console.log('   Cache directory:', env.cacheDir);
   console.log('   Remote models:', env.allowRemoteModels ? 'ENABLED' : 'DISABLED');
@@ -76,7 +79,8 @@ export async function createLocalModelPipeline(): Promise<any> {
     config: {
       local_files_only: true,
       quantized: true,
-      cache_dir: './models_cache'
+      cache_dir: './models_cache',
+      local_files_only: true // Double-ensure local only
     }
   }));
   
@@ -165,7 +169,7 @@ export async function checkLocalModels(): Promise<boolean> {
     const hasAnswer = testResult && testResult.answer;
     
     console.log(hasAnswer ? '✅ Local models available' : '❌ Local models not working');
-    return hasAnswer;
+    return !!hasAnswer; // Convert to boolean
     
   } catch (error) {
     console.log('❌ No local models found:', error);
