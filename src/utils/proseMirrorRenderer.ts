@@ -82,9 +82,11 @@ function renderNode(node: any): string {
       return node.attrs?.text || '😊';
     
     case 'bullet_list':
+    case 'bulletList':
       return `<ul>${renderNodeContent(node.content)}</ul>`;
     
     case 'ordered_list':
+    case 'orderedList':
       return `<ol>${renderNodeContent(node.content)}</ol>`;
     
     case 'list_item':
@@ -102,6 +104,45 @@ function renderNode(node: any): string {
     
     case 'hardBreak':
       return '<br>';
+    
+    case 'status':
+      // Handle Confluence status nodes (colored labels)
+      const statusText = node.attrs?.text || 'Status';
+      const statusColor = node.attrs?.color || 'neutral';
+      const colorMap: Record<string, string> = {
+        'blue': '#0052CC',
+        'green': '#36B37E', 
+        'yellow': '#FFAB00',
+        'red': '#DE350B',
+        'purple': '#6554C0',
+        'neutral': '#6B778C'
+      };
+      const bgColor = colorMap[statusColor] || colorMap['neutral'];
+      return `<span style="background-color: ${bgColor}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">${statusText}</span>`;
+    
+    case 'mediaSingle':
+      // Handle Confluence media containers - render the media content inside
+      if (node.content && Array.isArray(node.content)) {
+        return `<div class="media-container">${renderNodeContent(node.content)}</div>`;
+      }
+      return '';
+    
+    case 'media':
+      // Handle Confluence media nodes (images, files, etc.)
+      const mediaType = node.attrs?.type || 'file';
+      const mediaId = node.attrs?.id || '';
+      const mediaCollection = node.attrs?.collection || '';
+      
+      if (mediaType === 'file' && mediaId) {
+        // For files, show a link or placeholder
+        return `<div class="media-file" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin: 4px 0;">
+          <span style="color: #6B778C;">📎 Media file (${mediaId})</span>
+        </div>`;
+      }
+      
+      return `<div class="media-placeholder" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin: 4px 0; color: #6B778C;">
+        📎 Media content
+      </div>`;
     
     default:
       // Log unknown node types for debugging

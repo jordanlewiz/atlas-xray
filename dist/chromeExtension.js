@@ -43452,8 +43452,10 @@
       case "emoji":
         return node2.attrs?.text || "\u{1F60A}";
       case "bullet_list":
+      case "bulletList":
         return `<ul>${renderNodeContent(node2.content)}</ul>`;
       case "ordered_list":
+      case "orderedList":
         return `<ol>${renderNodeContent(node2.content)}</ol>`;
       case "list_item":
       case "listItem":
@@ -43466,6 +43468,36 @@
         return `<a href="${url}" target="_blank" style="color: #0052CC; text-decoration: underline;">${url}</a>`;
       case "hardBreak":
         return "<br>";
+      case "status":
+        const statusText = node2.attrs?.text || "Status";
+        const statusColor = node2.attrs?.color || "neutral";
+        const colorMap = {
+          "blue": "#0052CC",
+          "green": "#36B37E",
+          "yellow": "#FFAB00",
+          "red": "#DE350B",
+          "purple": "#6554C0",
+          "neutral": "#6B778C"
+        };
+        const bgColor = colorMap[statusColor] || colorMap["neutral"];
+        return `<span style="background-color: ${bgColor}; color: white; padding: 2px 6px; border-radius: 3px; font-size: 11px; font-weight: bold;">${statusText}</span>`;
+      case "mediaSingle":
+        if (node2.content && Array.isArray(node2.content)) {
+          return `<div class="media-container">${renderNodeContent(node2.content)}</div>`;
+        }
+        return "";
+      case "media":
+        const mediaType = node2.attrs?.type || "file";
+        const mediaId = node2.attrs?.id || "";
+        const mediaCollection = node2.attrs?.collection || "";
+        if (mediaType === "file" && mediaId) {
+          return `<div class="media-file" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin: 4px 0;">
+          <span style="color: #6B778C;">\u{1F4CE} Media file (${mediaId})</span>
+        </div>`;
+        }
+        return `<div class="media-placeholder" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin: 4px 0; color: #6B778C;">
+        \u{1F4CE} Media content
+      </div>`;
       default:
         if (node2.type) {
           console.warn(`Unknown ProseMirror node type: ${node2.type}`, node2);
