@@ -15,6 +15,8 @@ import { createRoot } from "react-dom/client";
 import FloatingButton from "../components/FloatingButton/FloatingButton";
 import { downloadProjectData } from "../utils/projectIdScanner";
 
+// Custom styles will be merged with contentScript.css during build
+
 const container = document.createElement("div");
 document.body.appendChild(container);
 createRoot(container).render(<FloatingButton />);

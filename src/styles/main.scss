@@ -1,0 +1,13 @@
+// Main SCSS bundle - imports all component styles
+// This will be compiled into a single CSS file
+
+// Global styles
+@use '../assets/styles/global.scss';
+
+// Component styles
+@use '../components/FloatingButton/FloatingButton.scss';
+@use '../components/ChromeExtension/ChromeExtensionPopup.scss';
+@use '../components/StatusLegend/StatusLegend.scss';
+@use '../components/ProjectUpdateModal/ProjectUpdateModal.scss';
+@use '../components/ProjectStatusHistoryModal/ProjectStatusHistoryModal.scss';
+@use '../components/StatusTimelineHeatmap/StatusTimelineHeatmap.scss';
