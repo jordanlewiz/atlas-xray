@@ -1,4 +1,5 @@
-import { pipeline, AutoTokenizer, AutoModelForSequenceClassification, AutoModelForQuestionAnswering } from '@xenova/transformers';
+// @ts-ignore
+import { pipeline } from '@xenova/transformers';
 
 // Fixed criteria IDs and questions
 export const QUESTIONS = [

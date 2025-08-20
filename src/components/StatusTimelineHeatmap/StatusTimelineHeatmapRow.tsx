@@ -3,7 +3,14 @@ import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
 import ProjectUpdateModal from "../ProjectUpdateModal";
-import QualityIndicator from "../QualityIndicator/QualityIndicator";
+// Conditionally import QualityIndicator
+let QualityIndicator: any = null;
+try {
+  QualityIndicator = require("../QualityIndicator/QualityIndicator").default;
+} catch (error) {
+  // QualityIndicator not available in this context
+  console.log("QualityIndicator not available in content script context");
+}
 import { buildProjectUrlFromKey } from "../../utils/timelineUtils";
 import {
   getTimelineWeekCells,
@@ -11,7 +18,15 @@ import {
   getDueDateTooltip,
   getDueDateDiff
 } from "../../utils/timelineUtils";
-import { useUpdateQuality } from "../../hooks/useUpdateQuality";
+// Conditionally import AI functionality
+let useUpdateQuality: any = null;
+try {
+  const hook = require("../../hooks/useUpdateQuality");
+  useUpdateQuality = hook.useUpdateQuality;
+} catch (error) {
+  // AI functionality not available in this context
+  console.log("AI functionality not available in content script context");
+}
 import type { StatusTimelineHeatmapRowProps } from "../../types";
 
 /**
@@ -24,7 +39,8 @@ export default function StatusTimelineHeatmapRow({
 }: StatusTimelineHeatmapRowProps): React.JSX.Element | null {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedUpdate, setSelectedUpdate] = useState(null);
-  const { getUpdateQuality } = useUpdateQuality();
+  const updateQualityHook = useUpdateQuality ? useUpdateQuality() : null;
+  const getUpdateQuality = updateQualityHook?.getUpdateQuality;
   
   if (!project) {
     console.warn('ProjectTimelineRow received undefined project');
@@ -78,8 +94,8 @@ export default function StatusTimelineHeatmapRow({
               )}
               
               {/* Show quality indicator if available */}
-              {u.id && (() => {
-                const quality = getUpdateQuality(u.id);
+              {u.id && QualityIndicator && (() => {
+                const quality = getUpdateQuality?.(u.id);
                 if (quality) {
                   return (
                     <QualityIndicator

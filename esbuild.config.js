@@ -32,7 +32,7 @@ async function buildPopup() {
     entryPoints: ['src/components/ChromeExtension/ChromeExtensionEntry.tsx'],
     outfile: 'dist/popup.js',
     loader: { '.ts': 'tsx', '.tsx': 'tsx' },
-    external: ['chrome'],
+    external: ['chrome', '@xenova/transformers'],
     plugins: [scssLoader]
   });
 }
@@ -45,7 +45,7 @@ async function buildChromeExtension() {
     entryPoints: ['src/contentScripts/contentScript.js'],
     outfile: 'dist/contentScript.js',
     loader: { '.js': 'jsx', '.tsx': 'tsx' },
-    external: ['chrome']
+    external: ['chrome', '@xenova/transformers']
   });
 }
 
