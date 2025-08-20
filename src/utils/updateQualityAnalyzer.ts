@@ -123,17 +123,41 @@ export const QUALITY_CRITERIA: QualityCriteria[] = [
 
 // Initialize QA model for analysis
 let qaModel: any = null;
+let modelInitializing = false;
+let modelError: string | null = null;
 
 async function initializeQAModel() {
-  if (!qaModel) {
-    try {
-      qaModel = await pipeline('question-answering', 'Xenova/distilbert-base-cased-distilled-squad');
-    } catch (error) {
-      console.error('Failed to initialize QA model:', error);
-      throw error;
-    }
+  if (qaModel) {
+    return qaModel;
   }
-  return qaModel;
+  
+  if (modelInitializing) {
+    // Wait for initialization to complete
+    while (modelInitializing) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    if (qaModel) return qaModel;
+    if (modelError) throw new Error(modelError);
+  }
+  
+  if (modelError) {
+    throw new Error(modelError);
+  }
+  
+  modelInitializing = true;
+  
+  try {
+    console.log('Initializing AI model...');
+    qaModel = await pipeline('question-answering', 'Xenova/distilbert-base-cased-distilled-squad');
+    console.log('AI model initialized successfully');
+    return qaModel;
+  } catch (error) {
+    console.error('Failed to initialize QA model:', error);
+    modelError = error instanceof Error ? error.message : 'Unknown error';
+    throw new Error(`AI model initialization failed: ${modelError}`);
+  } finally {
+    modelInitializing = false;
+  }
 }
 
 /**
@@ -177,17 +201,134 @@ export async function analyzeUpdateQuality(
     
   } catch (error) {
     console.error('Error analyzing update quality:', error);
-    // Return a basic analysis if AI fails
-    return {
-      overallScore: 0,
-      qualityLevel: 'poor',
-      analysis: [],
-      missingInfo: ['AI analysis failed - manual review required'],
-      recommendations: ['Review update content manually'],
-      summary: 'Quality analysis failed - manual review required',
-      timestamp: new Date()
-    };
+    
+    // Fallback to basic text analysis when AI fails
+    try {
+      return await performBasicQualityAnalysis(updateText, updateType, state);
+    } catch (fallbackError) {
+      console.error('Fallback analysis also failed:', fallbackError);
+      
+      // Provide more specific error messages
+      let errorMessage = 'AI analysis failed - manual review required';
+      let recommendation = 'Review update content manually';
+      
+      if (error instanceof Error) {
+        if (error.message.includes('AI model initialization failed')) {
+          errorMessage = 'AI model failed to load - check internet connection and try again';
+          recommendation = 'Ensure stable internet connection and retry analysis';
+        } else if (error.message.includes('Failed to fetch')) {
+          errorMessage = 'Network error - AI model download failed';
+          recommendation = 'Check internet connection and retry';
+        } else if (error.message.includes('transformers')) {
+          errorMessage = 'AI library error - transformers library issue';
+          recommendation = 'Refresh page and try again';
+        }
+      }
+      
+      return {
+        overallScore: 0,
+        qualityLevel: 'poor',
+        analysis: [],
+        missingInfo: [errorMessage],
+        recommendations: [recommendation],
+        summary: errorMessage,
+        timestamp: new Date()
+      };
+    }
   }
+}
+
+/**
+ * Fallback quality analysis using basic text processing when AI fails
+ */
+async function performBasicQualityAnalysis(
+  updateText: string,
+  updateType?: string,
+  state?: string
+): Promise<UpdateQualityResult> {
+  const applicableCriteria = determineApplicableCriteria(updateType, state, updateText);
+  const analysis: QualityAnalysis[] = [];
+  
+  for (const criteria of applicableCriteria) {
+    const criteriaAnalysis = await analyzeCriteriaBasic(criteria, updateText);
+    analysis.push(criteriaAnalysis);
+  }
+  
+  const overallScore = calculateOverallScore(analysis);
+  const qualityLevel = determineQualityLevel(overallScore);
+  const missingInfo = generateMissingInfo(analysis);
+  const recommendations = generateRecommendations(analysis);
+  const summary = getQualitySummary(overallScore, qualityLevel, missingInfo);
+  
+  return {
+    overallScore,
+    qualityLevel,
+    analysis,
+    missingInfo,
+    recommendations,
+    summary,
+    timestamp: new Date()
+  };
+}
+
+/**
+ * Basic criteria analysis using text search instead of AI
+ */
+async function analyzeCriteriaBasic(
+  criteria: QualityCriteria,
+  updateText: string
+): Promise<QualityAnalysis> {
+  const answers: string[] = [];
+  const missingInfo: string[] = [];
+  const lowerText = updateText.toLowerCase();
+  
+  // Simple keyword-based analysis for each question
+  for (const question of criteria.questions) {
+    const lowerQuestion = question.toLowerCase();
+    
+    // Check if the question topic is mentioned in the text
+    let hasRelevantContent = false;
+    
+    if (lowerQuestion.includes('why') && lowerQuestion.includes('prioritised')) {
+      hasRelevantContent = lowerText.includes('priorit') || lowerText.includes('important') || lowerText.includes('urgent');
+    } else if (lowerQuestion.includes('why') && lowerQuestion.includes('paused')) {
+      hasRelevantContent = lowerText.includes('pause') || lowerText.includes('stop') || lowerText.includes('hold');
+    } else if (lowerQuestion.includes('off-track')) {
+      hasRelevantContent = lowerText.includes('off track') || lowerText.includes('behind') || lowerText.includes('delay');
+    } else if (lowerQuestion.includes('at-risk')) {
+      hasRelevantContent = lowerText.includes('risk') || lowerText.includes('issue') || lowerText.includes('problem');
+    } else if (lowerQuestion.includes('date change')) {
+      hasRelevantContent = lowerText.includes('date') || lowerText.includes('due') || lowerText.includes('timeline');
+    } else if (lowerQuestion.includes('back on-track')) {
+      hasRelevantContent = lowerText.includes('back on track') || lowerText.includes('recovered') || lowerText.includes('fixed');
+    } else if (lowerQuestion.includes('decision')) {
+      hasRelevantContent = lowerText.includes('decision') || lowerText.includes('choose') || lowerText.includes('select');
+    } else {
+      // Generic check for question keywords
+      const keywords = question.split(' ').filter(word => word.length > 3);
+      hasRelevantContent = keywords.some(keyword => lowerText.includes(keyword.toLowerCase()));
+    }
+    
+    if (hasRelevantContent) {
+      answers.push(`Basic analysis: ${question} - Relevant content found`);
+    } else {
+      missingInfo.push(question);
+    }
+  }
+  
+  const score = Math.min(answers.length, criteria.requiredAnswers);
+  const maxScore = criteria.requiredAnswers;
+  const recommendations = missingInfo.map(info => `Provide: ${info}`);
+  
+  return {
+    criteriaId: criteria.id,
+    title: criteria.title,
+    score,
+    maxScore,
+    answers,
+    missingInfo,
+    recommendations
+  };
 }
 
 /**
