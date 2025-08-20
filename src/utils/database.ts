@@ -84,7 +84,7 @@ interface StatusHistoryNode {
  * @param nodes - Array of GraphQL nodes
  * @returns Promise
  */
-function upsertProjectUpdates(nodes: GraphQLNode[]): Promise<void> {
+function upsertProjectUpdates(nodes: GraphQLNode[]): Promise<string> {
   console.log("nodes", nodes);
   const rows = nodes.map((n) => ({
     id: n.id ?? n.uuid,
@@ -98,6 +98,7 @@ function upsertProjectUpdates(nodes: GraphQLNode[]): Promise<void> {
     oldState: n.oldState?.projectStateValue,
     summary: n.summary,
     details: n.notes ? JSON.stringify(n.notes) : null,
+    updateQuality: null, // Will be populated by AI analysis
   }));
   return db.projectUpdates.bulkPut(rows);
 }
@@ -108,10 +109,10 @@ function upsertProjectUpdates(nodes: GraphQLNode[]): Promise<void> {
  * @param projectKey - Project key
  * @returns Promise
  */
-function upsertProjectStatusHistory(nodes: StatusHistoryNode[], projectKey: string): Promise<void> {
+function upsertProjectStatusHistory(nodes: StatusHistoryNode[], projectKey: string): Promise<string> {
   if (!projectKey) {
     console.warn('[AtlasXray] upsertProjectStatusHistory called with undefined projectKey. Skipping.');
-    return Promise.resolve();
+    return Promise.resolve('');
   }
 
   const rows = nodes.map((n) => ({
