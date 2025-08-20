@@ -1,4 +1,11 @@
-import { pipeline } from '@xenova/transformers';
+import { pipeline, env } from '@xenova/transformers';
+import { createLocalModelPipeline, checkLocalModels } from './localModelManager';
+
+// Configure transformers to use local models and avoid CDN issues
+env.allowRemoteModels = true; // Allow fallback to remote if local fails
+env.allowLocalModels = true;
+env.useBrowserCache = true;
+env.useCustomCache = true;
 
 // Quality criteria for different types of project updates
 export interface QualityCriteria {
@@ -125,6 +132,10 @@ export const QUALITY_CRITERIA: QualityCriteria[] = [
 let qaModel: any = null;
 let modelInitializing = false;
 let modelError: string | null = null;
+let retryCount = 0;
+const MAX_RETRIES = 3;
+let modelHealthCheckInterval: NodeJS.Timeout | null = null;
+let lastModelUsage = Date.now();
 
 async function initializeQAModel() {
   if (qaModel) {
@@ -137,26 +148,84 @@ async function initializeQAModel() {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
     if (qaModel) return qaModel;
-    if (modelError) throw new Error(modelError);
+    if (modelError && retryCount >= MAX_RETRIES) throw new Error(modelError);
   }
   
-  if (modelError) {
+  if (modelError && retryCount >= MAX_RETRIES) {
     throw new Error(modelError);
   }
   
   modelInitializing = true;
   
   try {
-    console.log('Initializing AI model...');
-    qaModel = await pipeline('question-answering', 'Xenova/distilbert-base-cased-distilled-squad');
-    console.log('AI model initialized successfully');
+    console.log(`🤖 Initializing AI model using local model manager (attempt ${retryCount + 1}/${MAX_RETRIES})...`);
+    
+    // First, check if we have local models available
+    const hasLocalModels = await checkLocalModels();
+    console.log(hasLocalModels ? '✅ Local models detected' : '⚠️ No local models, will download');
+    
+    // Use the local model manager to create the pipeline
+    qaModel = await createLocalModelPipeline();
+    
+    console.log('✅ AI model initialized successfully using local model manager!');
+    retryCount = 0; // Reset retry count on success
+    
+    // Start health monitoring
+    if (!modelHealthCheckInterval) {
+      startModelHealthMonitoring();
+    }
+    
     return qaModel;
+    
   } catch (error) {
-    console.error('Failed to initialize QA model:', error);
+    console.error('❌ Local model manager failed:', error);
+    retryCount++;
+    
+    if (retryCount < MAX_RETRIES) {
+      console.log(`🔄 Retrying in 5 seconds... (${retryCount}/${MAX_RETRIES})`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+      modelInitializing = false;
+      return initializeQAModel(); // Retry
+    }
+    
     modelError = error instanceof Error ? error.message : 'Unknown error';
-    throw new Error(`AI model initialization failed: ${modelError}`);
+    throw new Error(`AI model initialization failed after ${MAX_RETRIES} attempts: ${modelError}`);
   } finally {
     modelInitializing = false;
+  }
+}
+
+/**
+ * Start monitoring model health and preload if needed
+ */
+function startModelHealthMonitoring() {
+  if (modelHealthCheckInterval) return;
+  
+  modelHealthCheckInterval = setInterval(async () => {
+    const timeSinceLastUsage = Date.now() - lastModelUsage;
+    
+    // If model hasn't been used for 5 minutes, preload it to keep it warm
+    if (timeSinceLastUsage > 5 * 60 * 1000 && qaModel) {
+      try {
+        console.log('Preloading AI model to maintain performance...');
+        await qaModel('test question', 'test context');
+        console.log('AI model preloaded successfully');
+      } catch (error) {
+        console.warn('Model preloading failed, will reinitialize on next use:', error);
+        // Reset model to force reinitialization
+        qaModel = null;
+      }
+    }
+  }, 60000); // Check every minute
+}
+
+/**
+ * Stop health monitoring
+ */
+function stopModelHealthMonitoring() {
+  if (modelHealthCheckInterval) {
+    clearInterval(modelHealthCheckInterval);
+    modelHealthCheckInterval = null;
   }
 }
 
@@ -168,26 +237,59 @@ export async function analyzeUpdateQuality(
   updateType?: string,
   state?: string
 ): Promise<UpdateQualityResult> {
+  // Add detailed logging to debug what's being passed
+  console.log('🔍 DEBUG: analyzeUpdateQuality called with:');
+  console.log('  updateText:', JSON.stringify(updateText));
+  console.log('  updateType:', updateType);
+  console.log('  state:', state);
+  console.log('  updateText length:', updateText?.length || 0);
+  console.log('  updateText type:', typeof updateText);
+  console.log('  updateText is empty:', !updateText || updateText.trim() === '');
+  
+  // Validate input
+  if (!updateText || typeof updateText !== 'string' || updateText.trim() === '') {
+    console.error('❌ ERROR: Invalid updateText provided:', updateText);
+    return {
+      overallScore: 0,
+      qualityLevel: 'poor',
+      analysis: [],
+      missingInfo: ['No update text provided for analysis'],
+      recommendations: ['Provide update content for quality analysis'],
+      summary: 'Cannot analyze empty or invalid update text',
+      timestamp: new Date()
+    };
+  }
+  
   try {
+    console.log('🤖 Initializing AI model...');
     const model = await initializeQAModel();
     
-    // Determine which criteria are applicable based on update type and state
+    console.log('🔥 Warming up AI model...');
+    await warmupModel(model);
+    
+    console.log('📋 Determining applicable criteria...');
     const applicableCriteria = determineApplicableCriteria(updateType, state, updateText);
+    console.log('  Found', applicableCriteria.length, 'applicable criteria:', applicableCriteria.map(c => c.id));
     
     // Analyze each applicable criterion
     const analysis: QualityAnalysis[] = [];
     
-    for (const criteria of applicableCriteria) {
+    for (let i = 0; i < applicableCriteria.length; i++) {
+      const criteria = applicableCriteria[i];
+      console.log(`🔍 Analyzing criteria ${i + 1}/${applicableCriteria.length}: ${criteria.id}`);
       const criteriaAnalysis = await analyzeCriteria(criteria, updateText, model);
       analysis.push(criteriaAnalysis);
+      console.log(`  ✅ Criteria ${criteria.id} analysis complete:`, criteriaAnalysis.score, '/', criteriaAnalysis.maxScore);
     }
     
-    // Calculate overall score and generate recommendations
+    console.log('📊 Calculating overall score...');
     const overallScore = calculateOverallScore(analysis);
     const qualityLevel = determineQualityLevel(overallScore);
     const missingInfo = generateMissingInfo(analysis);
     const recommendations = generateRecommendations(analysis);
     const summary = getQualitySummary(overallScore, qualityLevel, missingInfo);
+    
+    console.log('🎯 Analysis complete! Score:', overallScore, 'Quality:', qualityLevel);
     
     return {
       overallScore,
@@ -200,26 +302,54 @@ export async function analyzeUpdateQuality(
     };
     
   } catch (error) {
-    console.error('Error analyzing update quality:', error);
+    console.error('❌ Error analyzing update quality:', error);
     
-    // Fallback to basic text analysis when AI fails
+    // Try one more time with a fresh model
     try {
-      return await performBasicQualityAnalysis(updateText, updateType, state);
-    } catch (fallbackError) {
-      console.error('Fallback analysis also failed:', fallbackError);
+      console.log('🔄 First attempt failed, trying with fresh model...');
+      qaModel = null; // Reset model
+      const freshModel = await initializeQAModel();
+      await warmupModel(freshModel);
       
-      // Provide more specific error messages
+      const applicableCriteria = determineApplicableCriteria(updateType, state, updateText);
+      const analysis: QualityAnalysis[] = [];
+      
+      for (const criteria of applicableCriteria) {
+        const criteriaAnalysis = await analyzeCriteria(criteria, updateText, freshModel);
+        analysis.push(criteriaAnalysis);
+      }
+      
+      const overallScore = calculateOverallScore(analysis);
+      const qualityLevel = determineQualityLevel(overallScore);
+      const missingInfo = generateMissingInfo(analysis);
+      const recommendations = generateRecommendations(analysis);
+      const summary = getQualitySummary(overallScore, qualityLevel, missingInfo);
+      
+      return {
+        overallScore,
+        qualityLevel,
+        analysis,
+        missingInfo,
+        recommendations,
+        summary,
+        timestamp: new Date()
+      };
+      
+    } catch (retryError) {
+      console.error('❌ Retry attempt also failed:', retryError);
+      
+      // Provide specific error messages
       let errorMessage = 'AI analysis failed - manual review required';
       let recommendation = 'Review update content manually';
       
-      if (error instanceof Error) {
-        if (error.message.includes('AI model initialization failed')) {
+      if (retryError instanceof Error) {
+        if (retryError.message.includes('AI model initialization failed')) {
           errorMessage = 'AI model failed to load - check internet connection and try again';
           recommendation = 'Ensure stable internet connection and retry analysis';
-        } else if (error.message.includes('Failed to fetch')) {
+        } else if (retryError.message.includes('Failed to fetch')) {
           errorMessage = 'Network error - AI model download failed';
           recommendation = 'Check internet connection and retry';
-        } else if (error.message.includes('transformers')) {
+        } else if (retryError.message.includes('transformers')) {
           errorMessage = 'AI library error - transformers library issue';
           recommendation = 'Refresh page and try again';
         }
@@ -239,97 +369,23 @@ export async function analyzeUpdateQuality(
 }
 
 /**
- * Fallback quality analysis using basic text processing when AI fails
+ * Warm up the model to ensure it's working properly
  */
-async function performBasicQualityAnalysis(
-  updateText: string,
-  updateType?: string,
-  state?: string
-): Promise<UpdateQualityResult> {
-  const applicableCriteria = determineApplicableCriteria(updateType, state, updateText);
-  const analysis: QualityAnalysis[] = [];
-  
-  for (const criteria of applicableCriteria) {
-    const criteriaAnalysis = await analyzeCriteriaBasic(criteria, updateText);
-    analysis.push(criteriaAnalysis);
+async function warmupModel(model: any): Promise<void> {
+  try {
+    console.log('Warming up AI model...');
+    const testResult = await model('What is this?', 'This is a test context for warming up the AI model.');
+    if (!testResult || !testResult.answer) {
+      throw new Error('Model warmup failed - no answer generated');
+    }
+    console.log('AI model warmed up successfully');
+  } catch (error) {
+    console.error('Model warmup failed:', error);
+    throw new Error(`Model warmup failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
-  
-  const overallScore = calculateOverallScore(analysis);
-  const qualityLevel = determineQualityLevel(overallScore);
-  const missingInfo = generateMissingInfo(analysis);
-  const recommendations = generateRecommendations(analysis);
-  const summary = getQualitySummary(overallScore, qualityLevel, missingInfo);
-  
-  return {
-    overallScore,
-    qualityLevel,
-    analysis,
-    missingInfo,
-    recommendations,
-    summary,
-    timestamp: new Date()
-  };
 }
 
-/**
- * Basic criteria analysis using text search instead of AI
- */
-async function analyzeCriteriaBasic(
-  criteria: QualityCriteria,
-  updateText: string
-): Promise<QualityAnalysis> {
-  const answers: string[] = [];
-  const missingInfo: string[] = [];
-  const lowerText = updateText.toLowerCase();
-  
-  // Simple keyword-based analysis for each question
-  for (const question of criteria.questions) {
-    const lowerQuestion = question.toLowerCase();
-    
-    // Check if the question topic is mentioned in the text
-    let hasRelevantContent = false;
-    
-    if (lowerQuestion.includes('why') && lowerQuestion.includes('prioritised')) {
-      hasRelevantContent = lowerText.includes('priorit') || lowerText.includes('important') || lowerText.includes('urgent');
-    } else if (lowerQuestion.includes('why') && lowerQuestion.includes('paused')) {
-      hasRelevantContent = lowerText.includes('pause') || lowerText.includes('stop') || lowerText.includes('hold');
-    } else if (lowerQuestion.includes('off-track')) {
-      hasRelevantContent = lowerText.includes('off track') || lowerText.includes('behind') || lowerText.includes('delay');
-    } else if (lowerQuestion.includes('at-risk')) {
-      hasRelevantContent = lowerText.includes('risk') || lowerText.includes('issue') || lowerText.includes('problem');
-    } else if (lowerQuestion.includes('date change')) {
-      hasRelevantContent = lowerText.includes('date') || lowerText.includes('due') || lowerText.includes('timeline');
-    } else if (lowerQuestion.includes('back on-track')) {
-      hasRelevantContent = lowerText.includes('back on track') || lowerText.includes('recovered') || lowerText.includes('fixed');
-    } else if (lowerQuestion.includes('decision')) {
-      hasRelevantContent = lowerText.includes('decision') || lowerText.includes('choose') || lowerText.includes('select');
-    } else {
-      // Generic check for question keywords
-      const keywords = question.split(' ').filter(word => word.length > 3);
-      hasRelevantContent = keywords.some(keyword => lowerText.includes(keyword.toLowerCase()));
-    }
-    
-    if (hasRelevantContent) {
-      answers.push(`Basic analysis: ${question} - Relevant content found`);
-    } else {
-      missingInfo.push(question);
-    }
-  }
-  
-  const score = Math.min(answers.length, criteria.requiredAnswers);
-  const maxScore = criteria.requiredAnswers;
-  const recommendations = missingInfo.map(info => `Provide: ${info}`);
-  
-  return {
-    criteriaId: criteria.id,
-    title: criteria.title,
-    score,
-    maxScore,
-    answers,
-    missingInfo,
-    recommendations
-  };
-}
+
 
 /**
  * Determine which quality criteria are applicable to this update
@@ -391,26 +447,68 @@ async function analyzeCriteria(
   const answers: string[] = [];
   const missingInfo: string[] = [];
   
+  console.log(`  🔍 Analyzing ${criteria.questions.length} questions for criteria: ${criteria.id}`);
+  
   // Analyze each question for this criterion
-  for (const question of criteria.questions) {
+  for (let i = 0; i < criteria.questions.length; i++) {
+    const question = criteria.questions[i];
+    console.log(`    📝 Question ${i + 1}/${criteria.questions.length}: "${question}"`);
+    
     try {
+      // Ensure model is still working
+      if (!model || typeof model !== 'function') {
+        console.warn('    ⚠️ Model appears to be invalid, reinitializing...');
+        const freshModel = await initializeQAModel();
+        model = freshModel;
+      }
+      
+      console.log(`    🤖 Sending to AI model: Question="${question}", Context="${updateText.substring(0, 100)}..."`);
       const result = await model(question, updateText);
+      lastModelUsage = Date.now(); // Track model usage
+      
+      console.log(`    📊 AI Response:`, result);
       const answer = result.answer.trim();
       
       if (answer && answer !== '') {
+        console.log(`    ✅ Answer found: "${answer}"`);
         answers.push(answer);
       } else {
+        console.log(`    ❌ No answer generated for question`);
         missingInfo.push(question);
       }
     } catch (error) {
-      console.error(`Error analyzing question "${question}":`, error);
-      missingInfo.push(question);
+      console.error(`    ❌ Error analyzing question "${question}":`, error);
+      
+      // Try to recover the model if it failed
+      try {
+        console.log('    🔄 Attempting to recover AI model...');
+        const recoveredModel = await initializeQAModel();
+        model = recoveredModel;
+        
+        // Retry the question with recovered model
+        console.log(`    🔄 Retrying question with recovered model...`);
+        const retryResult = await model(question, updateText);
+        const retryAnswer = retryResult.answer.trim();
+        
+        if (retryAnswer && retryAnswer !== '') {
+          console.log(`    ✅ Retry successful: "${retryAnswer}"`);
+          answers.push(retryAnswer);
+        } else {
+          console.log(`    ❌ Retry also failed - no answer generated`);
+          missingInfo.push(question);
+        }
+      } catch (recoveryError) {
+        console.error('    ❌ Model recovery failed:', recoveryError);
+        missingInfo.push(question);
+      }
     }
   }
   
   // Calculate score for this criterion
   const score = Math.min(answers.length, criteria.requiredAnswers);
   const maxScore = criteria.requiredAnswers;
+  
+  console.log(`  📊 Criteria ${criteria.id} results: ${score}/${maxScore} questions answered`);
   
   // Generate recommendations based on missing information
   const recommendations = missingInfo.map(info => `Provide: ${info}`);

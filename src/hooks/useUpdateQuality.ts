@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../utils/database';
 import { analyzeUpdateQuality } from '../utils/updateQualityAnalyzer';
+import { preloadModels } from '../utils/localModelManager';
 import type { UpdateQualityResult } from '../utils/updateQualityAnalyzer';
 import type { ProjectUpdate } from '../types';
 
@@ -27,6 +28,25 @@ export interface QualityMetrics {
 export function useUpdateQuality() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [modelsPreloaded, setModelsPreloaded] = useState(false);
+  
+  // Preload models on hook initialization
+  useEffect(() => {
+    const initializeModels = async () => {
+      try {
+        console.log('🚀 Preloading AI models...');
+        await preloadModels();
+        setModelsPreloaded(true);
+        console.log('✅ AI models preloaded successfully');
+      } catch (error) {
+        console.warn('⚠️ Model preloading failed:', error);
+        // Don't block the UI if preloading fails
+        setModelsPreloaded(false);
+      }
+    };
+    
+    initializeModels();
+  }, []);
   
   // Fetch all project updates
   const updates = useLiveQuery(() => db.projectUpdates.toArray(), []);
@@ -63,11 +83,18 @@ export function useUpdateQuality() {
    */
   const analyzeUpdate = useCallback(async (update: ProjectUpdate): Promise<void> => {
     try {
+      console.log('🔍 DEBUG: analyzeUpdate called with update:', update);
+      
       // Combine update text from summary and details
       const updateText = [
         update.summary || '',
         update.details || ''
       ].filter(Boolean).join(' ');
+      
+      console.log('🔍 DEBUG: Combined update text:', JSON.stringify(updateText));
+      console.log('🔍 DEBUG: Summary:', update.summary);
+      console.log('🔍 DEBUG: Details:', update.details);
+      console.log('🔍 DEBUG: State:', update.state);
       
       if (!updateText.trim()) {
         console.warn(`Update ${update.id} has no text content to analyze`);
@@ -75,11 +102,19 @@ export function useUpdateQuality() {
       }
       
       // Analyze the update quality
+      console.log('🤖 Calling analyzeUpdateQuality with:', {
+        updateText: updateText.substring(0, 100) + '...',
+        state: update.state,
+        updateType: update.state // Using state as updateType for now
+      });
+      
       const qualityResult = await analyzeUpdateQuality(
         updateText,
         update.state, // This could be enhanced to detect update type
         update.state
       );
+      
+      console.log('✅ Analysis result:', qualityResult);
       
       // Store the result in the database
       await db.projectUpdates.update(update.id, {
@@ -194,6 +229,7 @@ export function useUpdateQuality() {
     // State
     isAnalyzing,
     analysisProgress,
+    modelsPreloaded,
     
     // Computed values
     getQualityMetrics,
