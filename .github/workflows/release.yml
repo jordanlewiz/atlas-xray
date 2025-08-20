@@ -21,6 +21,13 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build
+      - name: Update manifest version
+        run: |
+          # Get the version from package.json (set by npm version)
+          VERSION=$(node -p "require('./package.json').version")
+          # Update manifest.json version
+          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" manifest.json
+          echo "Updated manifest.json to version $VERSION"
       - name: Zip dist
         run: zip -r chrome-extension.zip dist
       - name: Upload Release Asset

@@ -47,6 +47,15 @@ chrome.alarms.create('version-check', {
  */
 async function checkForUpdates() {
   try {
+    // Skip update checks for local development builds
+    const currentVersion = chrome.runtime.getManifest().version;
+    const isLocalDev = currentVersion === '0.0.0';
+    
+    if (isLocalDev) {
+      console.log('[AtlasXray] Local dev build detected, skipping update checks');
+      return;
+    }
+    
     const updateInfo = await VersionChecker.checkForUpdates();
     
     if (updateInfo.hasUpdate) {

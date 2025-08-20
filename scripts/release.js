@@ -113,13 +113,24 @@ async function main() {
   log('\n⬆️  Bumping version...', 'cyan');
   exec(`npm version ${releaseType} --no-git-tag-version`);
   
+  // Step 4.5: Update manifest.json version
+  log('\n📋 Updating manifest.json version...', 'cyan');
+  const manifestPath = path.join(__dirname, '../manifest.json');
+  let manifestContent = fs.readFileSync(manifestPath, 'utf8');
+  manifestContent = manifestContent.replace(
+    /"version": "[^"]*"/,
+    `"version": "${nextVersion}"`
+  );
+  fs.writeFileSync(manifestPath, manifestContent);
+  log(`✅ Updated manifest.json to version ${nextVersion}`, 'green');
+  
   // Step 5: Create git tag
   log('\n🏷️  Creating git tag...', 'cyan');
   exec(`git tag v${nextVersion}`);
   
   // Step 6: Commit version bump
   log('\n💾 Committing version bump...', 'cyan');
-  exec('git add package.json package-lock.json');
+  exec('git add package.json package-lock.json manifest.json');
   exec(`git commit -m "chore: bump version to ${nextVersion}"`);
   
   // Step 7: Push changes and tags

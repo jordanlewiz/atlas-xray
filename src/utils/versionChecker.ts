@@ -9,6 +9,30 @@ export class VersionChecker {
   private static readonly GITHUB_API_URL = 'https://api.github.com/repos/jordanlewiz/atlas-xray/releases/latest';
   private static readonly CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
   private static readonly STORAGE_KEY = 'lastVersionCheck';
+  
+  /**
+   * Check if current version is a local development build
+   */
+  static isLocalDevVersion(): boolean {
+    const currentVersion = chrome.runtime.getManifest().version;
+    
+    // Local dev versions typically have patterns like:
+    // - 0.0.0 (default version - Chrome allows this)
+    // - 0.0.1-dev (Chrome doesn't allow this)
+    // - 0.0.1-local (Chrome doesn't allow this)
+    // - 0.0.1+dev (Chrome doesn't allow this)
+    return currentVersion === '0.0.0';
+  }
+  
+  /**
+   * Get version type description
+   */
+  static getVersionType(): string {
+    if (this.isLocalDevVersion()) {
+      return 'Local Development Build';
+    }
+    return 'Release Version';
+  }
 
   /**
    * Check if a new version is available
