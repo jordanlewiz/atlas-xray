@@ -12,13 +12,28 @@ const commonOptions = {
   }
 };
 
+// SCSS loader for esbuild
+const scssLoader = {
+  name: 'scss',
+  setup(build) {
+    build.onLoad({ filter: /\.scss$/ }, () => {
+      return {
+        contents: '/* SCSS files are processed separately by the CSS build step */',
+        loader: 'js'
+      };
+    });
+  }
+};
+
 // Build functions
 async function buildPopup() {
   await esbuild.build({
     ...commonOptions,
-    entryPoints: ['src/popup.tsx'],
+    entryPoints: ['src/components/ChromeExtension/ChromeExtensionEntry.tsx'],
     outfile: 'dist/popup.js',
-    loader: { '.ts': 'tsx' }
+    loader: { '.ts': 'tsx', '.tsx': 'tsx' },
+    external: ['chrome'],
+    plugins: [scssLoader]
   });
 }
 
@@ -34,8 +49,8 @@ async function buildContent() {
 async function buildChromeExtension() {
   await esbuild.build({
     ...commonOptions,
-    entryPoints: ['src/chromeExtension.js'],
-    outfile: 'dist/chromeExtension.js',
+    entryPoints: ['src/contentScripts/contentScript.js'],
+    outfile: 'dist/contentScript.js',
     loader: { '.js': 'jsx' }
   });
 }
@@ -43,8 +58,9 @@ async function buildChromeExtension() {
 async function buildBackground() {
   await esbuild.build({
     ...commonOptions,
-    entryPoints: ['src/background.js'],
-    outfile: 'dist/background.js'
+    entryPoints: ['src/background/background.js'],
+    outfile: 'dist/background.js',
+    loader: { '.ts': 'tsx' }
   });
 }
 

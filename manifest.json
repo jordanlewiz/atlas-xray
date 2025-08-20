@@ -1,16 +1,28 @@
 {
   "manifest_version": 3,
   "name": "Atlas Xray",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Chrome Plugin to add program management view to Atlassian Projects",
+  "icons": {
+    "16": "dist/icons/icon-16.png",
+    "48": "dist/icons/icon-48.png",
+    "128": "dist/icons/icon-128.png"
+  },
   "action": {
-    "default_popup": "dist/popup.html"
+    "default_popup": "dist/popup.html",
+    "default_icon": {
+      "16": "dist/icons/icon-16.png",
+      "48": "dist/icons/icon-48.png",
+      "128": "dist/icons/icon-128.png"
+    }
   },
   "background": {
     "service_worker": "dist/background.js"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "notifications",
+    "alarms"
   ],
   "host_permissions": [
     "https://home.atlassian.com/*"
@@ -18,7 +30,7 @@
   "content_scripts": [
     {
       "matches": ["https://home.atlassian.com/*"],
-      "js": ["dist/chromeExtension.js"],
+      "js": ["dist/contentScript.js"],
       "css": ["dist/popup.css"]
     }
   ]
