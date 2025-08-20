@@ -1,8 +1,9 @@
-// Import global styles
-@import "global";
+// Use global styles
+@use "global";
 
-// Import component-specific styles
-@import "../../components/StatusLegend/StatusLegend";
-@import "../../components/ProjectUpdateModal/ProjectUpdateModal";
-@import "../../components/StatusTimelineHeatmap/StatusTimelineHeatmap";
-@import "../../components/FloatingButton/FloatingButton";
+// Use component-specific styles
+@use "../../components/StatusLegend/StatusLegend";
+@use "../../components/ProjectUpdateModal/ProjectUpdateModal";
+@use "../../components/StatusTimelineHeatmap/StatusTimelineHeatmap";
+@use "../../components/FloatingButton/FloatingButton";
+@use "../../components/ProjectStatusHistoryModal/ProjectStatusHistoryModal";

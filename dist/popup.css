@@ -510,4 +510,47 @@ body {
   box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.3);
 }
 
+.project-status-history-modal {
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.project-status-history-modal .custom-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  background-color: #172B4D;
+  color: white;
+  border-bottom: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+.project-status-history-modal .custom-modal-header .custom-modal-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: white;
+  line-height: 1.2;
+}
+.project-status-history-modal .custom-modal-header button {
+  color: white !important;
+}
+.project-status-history-modal .custom-modal-header button:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+}
+.project-status-history-modal .custom-modal-header button span[role=img] {
+  color: white !important;
+}
+.project-status-history-modal .custom-modal-header button svg {
+  color: white !important;
+  fill: white !important;
+}
+.project-status-history-modal [data-testid=modal-body] {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+}
+
 /*# sourceMappingURL=popup.css.map */

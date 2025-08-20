@@ -40731,12 +40731,12 @@
       function _interopRequireDefault(e) {
         return e && e.__esModule ? e : { default: e };
       }
-      var CrossIcon5 = (props) => /* @__PURE__ */ _react.default.createElement(_baseNew.default, Object.assign({
+      var CrossIcon6 = (props) => /* @__PURE__ */ _react.default.createElement(_baseNew.default, Object.assign({
         dangerouslySetGlyph: `<path fill="currentcolor" d="M14.03 3.03 9.06 8l4.97 4.97-1.06 1.06L8 9.06l-4.97 4.97-1.06-1.06L6.94 8 1.97 3.03l1.06-1.06L8 6.94l4.97-4.97z"/>`
         // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
       }, props));
-      CrossIcon5.displayName = "CrossIcon";
-      var _default = exports.default = CrossIcon5;
+      CrossIcon6.displayName = "CrossIcon";
+      var _default = exports.default = CrossIcon6;
     }
   });
 
@@ -40987,13 +40987,13 @@
       function _interopRequireDefault(e) {
         return e && e.__esModule ? e : { default: e };
       }
-      var CrossIcon5 = (props) => /* @__PURE__ */ _react.default.createElement(_base.IconFacade, Object.assign({
+      var CrossIcon6 = (props) => /* @__PURE__ */ _react.default.createElement(_base.IconFacade, Object.assign({
         dangerouslySetGlyph: `<svg width="24" height="24" viewBox="0 0 24 24" role="presentation"><path fill="currentcolor" d="M12 10.586 6.707 5.293a1 1 0 0 0-1.414 1.414L10.586 12l-5.293 5.293a1 1 0 0 0 1.414 1.414L12 13.414l5.293 5.293a1 1 0 0 0 1.414-1.414L13.414 12l5.293-5.293a1 1 0 1 0-1.414-1.414z"/></svg>`
       }, props, {
         newIcon: _cross.default
       }));
-      CrossIcon5.displayName = "CrossIcon";
-      var _default = exports.default = CrossIcon5;
+      CrossIcon6.displayName = "CrossIcon";
+      var _default = exports.default = CrossIcon6;
     }
   });
 
@@ -41011,12 +41011,12 @@
       function _interopRequireDefault(e) {
         return e && e.__esModule ? e : { default: e };
       }
-      var CrossIcon5 = (props) => /* @__PURE__ */ _react.default.createElement(_cross.default, Object.assign({
+      var CrossIcon6 = (props) => /* @__PURE__ */ _react.default.createElement(_cross.default, Object.assign({
         LEGACY_fallbackIcon: _cross2.default
         // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
       }, props));
-      CrossIcon5.Name = "CrossIconMigration";
-      var _default = exports.default = CrossIcon5;
+      CrossIcon6.Name = "CrossIconMigration";
+      var _default = exports.default = CrossIcon6;
     }
   });
 
@@ -61587,6 +61587,9 @@
     );
   }
 
+  // src/components/ProjectStatusHistoryModal/ProjectStatusHistoryModal.tsx
+  var import_cross4 = __toESM(require_cross2());
+
   // node_modules/@atlaskit/react-select/dist/esm/use-state-manager.js
   init_defineProperty();
   init_slicedToArray();
@@ -65970,6 +65973,21 @@
 
   // src/components/ProjectStatusHistoryModal/ProjectStatusHistoryModal.tsx
   var import_jsx_runtime6 = __toESM(require_jsx_runtime());
+  function CustomModalHeader() {
+    const { onClose, titleId } = useModal();
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "custom-modal-header", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h2", { id: titleId, className: "custom-modal-title", children: "Atlas-Xray Project History Timeline" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+        button_default,
+        {
+          appearance: "subtle",
+          onClick: onClose,
+          iconBefore: import_cross4.default,
+          children: "Close"
+        }
+      )
+    ] });
+  }
   function ProjectStatusHistoryModal({ open, onClose, children }) {
     const [weekLimit, setWeekLimit] = (0, import_react137.useState)(12);
     const weekOptions = [
@@ -65980,12 +65998,20 @@
       { label: "All", value: Infinity }
     ];
     if (!open) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(modal_transition_default, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(FullScreenModalDialog, { onClose, children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(modal_header_default, { hasCloseButton: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(modal_title_default, { children: "Atlas-Xray Project History Timeline" }) }),
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(modal_transition_default, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FullScreenModalDialog, { onClose, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "project-status-history-modal", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(CustomModalHeader, {}),
       /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(modal_body_default, { hasInlinePadding: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
         box_default2,
         {
-          style: { maxWidth: "1128px", margin: "0 auto", width: "100%" },
+          style: {
+            maxWidth: "1128px",
+            margin: "0 auto",
+            width: "100%",
+            minHeight: "calc(100vh - 200px)",
+            // Ensure minimum height for scrolling
+            overflow: "auto"
+            // Enable scrolling
+          },
           children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(grid_default, { children: [
             /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(StatusLegend, {}),
             /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { style: { marginBottom: 16, maxWidth: 200 }, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
@@ -66002,7 +66028,7 @@
           ] })
         }
       ) })
-    ] }) });
+    ] }) }) });
   }
 
   // node_modules/ts-invariant/lib/invariant.js
