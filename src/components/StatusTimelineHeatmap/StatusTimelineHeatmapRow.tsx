@@ -3,6 +3,7 @@ import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
 import ProjectUpdateModal from "../ProjectUpdateModal";
+import QualityIndicator from "../QualityIndicator/QualityIndicator";
 import { buildProjectUrlFromKey } from "../../utils/timelineUtils";
 import {
   getTimelineWeekCells,
@@ -10,6 +11,7 @@ import {
   getDueDateTooltip,
   getDueDateDiff
 } from "../../utils/timelineUtils";
+import { useUpdateQuality } from "../../hooks/useUpdateQuality";
 import type { StatusTimelineHeatmapRowProps } from "../../types";
 
 /**
@@ -22,6 +24,7 @@ export default function StatusTimelineHeatmapRow({
 }: StatusTimelineHeatmapRowProps): React.JSX.Element | null {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedUpdate, setSelectedUpdate] = useState(null);
+  const { getUpdateQuality } = useUpdateQuality();
   
   if (!project) {
     console.warn('ProjectTimelineRow received undefined project');
@@ -73,6 +76,22 @@ export default function StatusTimelineHeatmapRow({
                   </span>
                 </Tooltip>
               )}
+              
+              {/* Show quality indicator if available */}
+              {u.id && (() => {
+                const quality = getUpdateQuality(u.id);
+                if (quality) {
+                  return (
+                    <QualityIndicator
+                      score={quality.overallScore}
+                      level={quality.qualityLevel}
+                      size="small"
+                      className="quality-indicator-timeline"
+                    />
+                  );
+                }
+                return null;
+              })()}
               
               {/* Show update indicator for any cell with updates */}
               {!u.oldDueDate && (

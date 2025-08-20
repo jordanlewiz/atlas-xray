@@ -13,6 +13,8 @@ import { getDueDateDiff } from "../../utils/timelineUtils";
 import type { ProjectUpdateModalProps } from "../../types";
 import { renderProseMirror } from "../../utils/proseMirrorRenderer";
 import { ImageRenderer } from "../ImageRenderer";
+import QualityIndicator from "../QualityIndicator/QualityIndicator";
+import { useUpdateQuality } from "../../hooks/useUpdateQuality";
 
 /**
  * Extract media nodes from ProseMirror content
@@ -46,6 +48,8 @@ export default function ProjectUpdateModal({
   project, 
   onClose 
 }: ProjectUpdateModalProps): React.JSX.Element | null {
+  const { getUpdateQuality, analyzeUpdate } = useUpdateQuality();
+  
   const getLozengeAppearance = (status: string | undefined): any => {
     if (!status) return 'new';
     const normalizedStatus = status.toLowerCase().replace(/_/g, '-');
@@ -83,6 +87,106 @@ export default function ProjectUpdateModal({
                   <div className="project-key">
                     <small>Project Key:</small> {project?.projectKey}
                   </div>
+
+                  {/* Quality Analysis Section */}
+                  {selectedUpdate.id && (() => {
+                    const quality = getUpdateQuality(selectedUpdate.id);
+                    if (quality) {
+                      return (
+                        <SectionMessage
+                          appearance="info"
+                          title="AI Quality Analysis"
+                        >
+                          <div className="quality-analysis-section">
+                            <div className="quality-header">
+                              <QualityIndicator
+                                score={quality.overallScore}
+                                level={quality.qualityLevel}
+                                size="large"
+                                showScore={true}
+                                className="quality-indicator-modal"
+                              />
+                              <span className="quality-summary">{quality.summary}</span>
+                            </div>
+                            
+                            {quality.analysis.length > 0 && (
+                              <div className="quality-details">
+                                <h4>Quality Criteria Analysis:</h4>
+                                {quality.analysis.map((criteria, idx) => (
+                                  <div key={idx} className="criteria-item">
+                                    <div className="criteria-header">
+                                      <span className="criteria-title">{criteria.title}</span>
+                                      <span className="criteria-score">
+                                        {criteria.score}/{criteria.maxScore}
+                                      </span>
+                                    </div>
+                                    {criteria.missingInfo.length > 0 && (
+                                      <div className="missing-info">
+                                        <strong>Missing Information:</strong>
+                                        <ul>
+                                          {criteria.missingInfo.map((info, infoIdx) => (
+                                            <li key={infoIdx}>{info}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                    {criteria.recommendations.length > 0 && (
+                                      <div className="recommendations">
+                                        <strong>Recommendations:</strong>
+                                        <ul>
+                                          {criteria.recommendations.map((rec, recIdx) => (
+                                            <li key={recIdx}>{rec}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {quality.missingInfo.length > 0 && (
+                              <div className="overall-missing">
+                                <strong>Overall Missing Information:</strong>
+                                <ul>
+                                  {quality.missingInfo.map((info, idx) => (
+                                    <li key={idx}>{info}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </SectionMessage>
+                      );
+                    } else {
+                      // Show analysis trigger button for updates without quality data
+                      return (
+                        <SectionMessage
+                          appearance="warning"
+                          title="Quality Analysis Not Available"
+                        >
+                          <div className="quality-analysis-trigger">
+                            <p>This update hasn't been analyzed for quality yet.</p>
+                            <button 
+                              className="analyze-quality-btn"
+                              onClick={async () => {
+                                try {
+                                  await analyzeUpdate(selectedUpdate);
+                                  // Force a re-render to show the new quality data
+                                  window.location.reload();
+                                } catch (error) {
+                                  console.error('Failed to analyze update:', error);
+                                  alert('Failed to analyze update quality. Please try again.');
+                                }
+                              }}
+                            >
+                              🔍 Analyze Update Quality
+                            </button>
+                          </div>
+                        </SectionMessage>
+                      );
+                    }
+                  })()}
 
                                     {selectedUpdate.oldDueDate && (
                     <SectionMessage
