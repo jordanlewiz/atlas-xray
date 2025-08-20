@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ModalDialog from "@atlaskit/modal-dialog";
 import {
   ModalTransition,
@@ -49,6 +49,8 @@ export default function ProjectUpdateModal({
   onClose 
 }: ProjectUpdateModalProps): React.JSX.Element | null {
   const { getUpdateQuality, analyzeUpdate } = useUpdateQuality();
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisTrigger, setAnalysisTrigger] = useState(0);
   
   const getLozengeAppearance = (status: string | undefined): any => {
     if (!status) return 'new';
@@ -90,6 +92,7 @@ export default function ProjectUpdateModal({
 
                   {/* Quality Analysis Section */}
                   {selectedUpdate.id && (() => {
+                    // Use analysisTrigger to force re-evaluation of quality data
                     const quality = getUpdateQuality(selectedUpdate.id);
                     if (quality) {
                       return (
@@ -169,18 +172,22 @@ export default function ProjectUpdateModal({
                             <p>This update hasn't been analyzed for quality yet.</p>
                             <button 
                               className="analyze-quality-btn"
+                              disabled={isAnalyzing}
                               onClick={async () => {
                                 try {
+                                  setIsAnalyzing(true);
                                   await analyzeUpdate(selectedUpdate);
-                                  // Force a re-render to show the new quality data
-                                  window.location.reload();
+                                  // Trigger a re-render by updating state
+                                  setAnalysisTrigger(prev => prev + 1);
                                 } catch (error) {
                                   console.error('Failed to analyze update:', error);
                                   alert('Failed to analyze update quality. Please try again.');
+                                } finally {
+                                  setIsAnalyzing(false);
                                 }
                               }}
                             >
-                              🔍 Analyze Update Quality
+                              {isAnalyzing ? '🔍 Analyzing...' : '🔍 Analyze Update Quality'}
                             </button>
                           </div>
                         </SectionMessage>
