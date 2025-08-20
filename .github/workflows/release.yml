@@ -30,32 +30,96 @@ jobs:
           # Update manifest.json version
           sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" manifest.json
           echo "Updated manifest.json to version $VERSION"
+      - name: Get version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
       - name: Zip dist
-        run: zip -r chrome-extension.zip dist
+        run: |
+          zip -r "atlas-xray-v${{ steps.version.outputs.version }}.zip" dist
+          echo "Created atlas-xray-v${{ steps.version.outputs.version }}.zip"
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1
         with:
-          files: chrome-extension.zip
+          files: atlas-xray-v${{ steps.version.outputs.version }}.zip
           tag_name: ${{ github.ref_name }}
           name: Release ${{ github.ref_name }}
           body: |
-            ## Chrome Extension Release ${{ github.ref_name }}
+            # 🚀 Atlas Xray Chrome Extension v${{ steps.version.outputs.version }}
             
-            ### What's New
-            - 🚀 Automated build and release
-            - 📦 Chrome extension package
-            - 🔧 Built with GitHub Actions
+            ## 📋 What's New in This Release
             
-            ### Installation
-            1. Download the `chrome-extension.zip` file
-            2. Extract it to a folder
-            3. Go to `chrome://extensions/`
-            4. Enable "Developer mode"
-            5. Click "Load unpacked" and select the extracted folder
+            ### ✨ Features
+            - Enhanced program management view for Atlassian Projects
+            - Improved timeline visualization and project tracking
+            - Better data synchronization with Atlassian services
             
-            ### Build Info
-            - Built on: ${{ github.event.head_commit.timestamp }}
-            - Commit: ${{ github.sha }}
-            - Workflow: ${{ github.workflow }}
+            ### 🐛 Bug Fixes
+            - Various stability improvements and performance optimizations
+            - Enhanced error handling and user feedback
+            
+            ### 🔧 Technical Improvements
+            - Automated build and release process via GitHub Actions
+            - Optimized extension size and loading performance
+            - Enhanced security and permission handling
+            
+            ## 📦 Installation Instructions
+            
+            ### For Chrome/Edge Users:
+            1. **Download** the `atlas-xray-v${{ steps.version.outputs.version }}.zip` file above
+            2. **Extract** the zip file to a folder on your computer
+            3. **Open Chrome** and go to `chrome://extensions/`
+            4. **Enable** "Developer mode" (toggle in top right)
+            5. **Click** "Load unpacked" button
+            6. **Select** the extracted folder containing the extension
+            7. **Pin** the extension to your toolbar for easy access
+            
+            ### For Other Chromium-based Browsers:
+            - **Edge**: Same process as Chrome
+            - **Brave**: Same process as Chrome
+            - **Opera**: Same process as Chrome
+            
+            ## 🔍 What This Extension Does
+            
+            Atlas Xray enhances your Atlassian Projects experience by adding:
+            - **Program Management View**: Better oversight of multiple projects
+            - **Timeline Visualization**: Clear project timelines and dependencies
+            - **Enhanced Navigation**: Improved project discovery and management
+            - **Data Insights**: Better project analytics and reporting
+            
+            ## 🌐 Supported Sites
+            
+            - ✅ `https://home.atlassian.com/*` - Atlassian home and project pages
+            - 🔄 More Atlassian services coming soon!
+            
+            ## 📱 Permissions Required
+            
+            This extension requests the following permissions:
+            - **Storage**: Save your preferences and settings
+            - **Notifications**: Alert you about important project updates
+            - **Alarms**: Schedule periodic data refreshes
+            
+            ## 🚨 Troubleshooting
+            
+            **Extension not working?**
+            - Make sure you're on a supported Atlassian site
+            - Check that the extension is enabled in `chrome://extensions/`
+            - Try refreshing the page after enabling the extension
+            
+            **Need help?**
+            - Check the [GitHub repository](https://github.com/your-username/atlas-xray) for issues
+            - Report bugs or request features via GitHub Issues
+            
+            ---
+            
+            ### 📊 Build Information
+            - **Version**: ${{ steps.version.outputs.version }}
+            - **Built on**: ${{ github.event.head_commit.timestamp }}
+            - **Commit**: `${{ github.sha }}`
+            - **Workflow**: ${{ github.workflow }}
+            - **Release**: ${{ github.ref_name }}
+            
+            ---
+            
+            **Made with ❤️ by the Atlas Xray team**
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
