@@ -19,6 +19,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: npm ci
+      - name: Check version consistency
+        run: npm run check:versions
       - name: Build
         run: npm run build
       - name: Copy manifest and assets
