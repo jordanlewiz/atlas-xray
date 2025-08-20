@@ -48,14 +48,24 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     // Clear notification when alarm fires
     const notificationId = alarm.name.replace('atlas-xray-clear-', '');
     chrome.notifications.clear(notificationId);
+    
+    // Clean up the notification mapping
+    if (typeof VersionChecker !== 'undefined') {
+      VersionChecker.cleanupNotification(notificationId);
+    }
+    
     console.log('[AtlasXray] Cleared notification:', notificationId);
   }
 });
 
-// Set up periodic version checking
-chrome.alarms.create('version-check', {
-  delayInMinutes: 1, // First check after 1 minute
-  periodInMinutes: 1440 // Then every 24 hours
+// Set up periodic version checking (only if it doesn't already exist)
+chrome.alarms.get('version-check', (alarm) => {
+  if (!alarm) {
+    chrome.alarms.create('version-check', {
+      delayInMinutes: 1, // First check after 1 minute
+      periodInMinutes: 1440 // Then every 24 hours
+    });
+  }
 });
 
 /**

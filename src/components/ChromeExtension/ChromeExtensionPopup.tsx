@@ -77,10 +77,6 @@ const Popup: React.FC = () => {
     }
   };
 
-
-
-
-
   const openReleasePage = (): void => {
     if (versionInfo?.releaseUrl) {
       chrome.tabs.create({ url: versionInfo.releaseUrl });

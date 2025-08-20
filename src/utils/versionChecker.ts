@@ -10,6 +10,12 @@ export class VersionChecker {
   private static readonly CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
   private static readonly STORAGE_KEY = 'lastVersionCheck';
   
+  // Static map to store notification ID to release URL mapping
+  private static readonly notificationReleaseUrls = new Map<string, string>();
+  
+  // Static flag to ensure listener is registered only once
+  private static isListenerRegistered = false;
+  
   /**
    * Check if current version is a local development build
    */
@@ -118,8 +124,8 @@ export class VersionChecker {
    * Compare two semantic versions
    */
   public static isNewerVersion(latest: string, current: string): boolean {
-    const l = latest.split('.').map(Number);
-    const c = current.split('.').map(Number);
+    const l = latest.split('.').map(part => parseInt(part, 10) || 0);
+    const c = current.split('.').map(part => parseInt(part, 10) || 0);
     
     for (let i = 0; i < Math.max(l.length, c.length); i++) {
       const lNum = (l[i] || 0);
@@ -156,12 +162,43 @@ export class VersionChecker {
   }
 
   /**
+   * Register notification click listener (called only once)
+   */
+  private static registerNotificationListener(): void {
+    if (this.isListenerRegistered) return;
+    
+    chrome.notifications.onClicked.addListener((id) => {
+      const releaseUrl = this.notificationReleaseUrls.get(id);
+      if (releaseUrl) {
+        chrome.tabs.create({ url: releaseUrl });
+        chrome.notifications.clear(id);
+        this.notificationReleaseUrls.delete(id);
+      }
+    });
+    
+    this.isListenerRegistered = true;
+  }
+
+  /**
+   * Clean up notification mapping (called when notification is cleared)
+   */
+  static cleanupNotification(notificationId: string): void {
+    this.notificationReleaseUrls.delete(notificationId);
+  }
+
+  /**
    * Show update notification to user
    */
   static async showUpdateNotification(latestVersion: string, releaseUrl: string): Promise<void> {
     try {
+      // Ensure listener is registered
+      this.registerNotificationListener();
+      
       // Create notification
       const notificationId = `atlas-xray-update-${Date.now()}`;
+      
+      // Store mapping for notification click handler
+      this.notificationReleaseUrls.set(notificationId, releaseUrl);
       
       await chrome.notifications.create(notificationId, {
         type: 'basic',
@@ -169,14 +206,6 @@ export class VersionChecker {
         title: 'Atlas Xray Update Available',
         message: `A new version (${latestVersion}) is available! Click to download.`,
         priority: 1
-      });
-
-      // Handle notification click
-      chrome.notifications.onClicked.addListener((id) => {
-        if (id === notificationId) {
-          chrome.tabs.create({ url: releaseUrl });
-          chrome.notifications.clear(id);
-        }
       });
 
       // Auto-clear notification after 10 seconds using chrome.alarms
