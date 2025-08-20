@@ -1,0 +1,27 @@
+name: Build and Release Chrome Extension
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Zip dist
+        run: zip -r chrome-extension.zip dist
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: chrome-extension.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

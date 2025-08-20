@@ -1,5 +1,5 @@
 node_modules/
-dist/ - Commented out to allow committing when needed
+dist/
 *.log
 .DS_Store
 .env
