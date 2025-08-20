@@ -4,7 +4,7 @@ console.log('[AtlasXray] Background service worker is running');
 // Handles version checking and extension lifecycle
 
 // Import version checker (will be bundled by esbuild)
-import { VersionChecker } from './utils/versionChecker.js';
+import { VersionChecker } from './utils/versionChecker';
 
 // Check for updates when extension starts
 chrome.runtime.onStartup.addListener(async () => {

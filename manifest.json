@@ -4,16 +4,16 @@
   "version": "0.0.0",
   "description": "Chrome Plugin to add program management view to Atlassian Projects",
   "icons": {
-    "16": "src/assets/icons/icon-16.png",
-    "48": "src/assets/icons/icon-48.png",
-    "128": "src/assets/icons/icon-128.png"
+    "16": "dist/icons/icon-16.png",
+    "48": "dist/icons/icon-48.png",
+    "128": "dist/icons/icon-128.png"
   },
   "action": {
     "default_popup": "dist/popup.html",
     "default_icon": {
-      "16": "src/assets/icons/icon-16.png",
-      "48": "src/assets/icons/icon-48.png",
-      "128": "src/assets/icons/icon-128.png"
+      "16": "dist/icons/icon-16.png",
+      "48": "dist/icons/icon-48.png",
+      "128": "dist/icons/icon-128.png"
     }
   },
   "background": {

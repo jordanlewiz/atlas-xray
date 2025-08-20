@@ -18,7 +18,8 @@ async function buildPopup() {
     ...commonOptions,
     entryPoints: ['src/popup.tsx'],
     outfile: 'dist/popup.js',
-    loader: { '.ts': 'tsx' }
+    loader: { '.ts': 'tsx', '.tsx': 'tsx' },
+    external: ['chrome']
   });
 }
 

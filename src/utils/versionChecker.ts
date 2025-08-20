@@ -79,7 +79,7 @@ export class VersionChecker {
   /**
    * Compare two semantic versions
    */
-  private static isNewerVersion(latest: string, current: string): boolean {
+  public static isNewerVersion(latest: string, current: string): boolean {
     const l = latest.split('.').map(Number);
     const c = current.split('.').map(Number);
     
@@ -127,7 +127,7 @@ export class VersionChecker {
       
       await chrome.notifications.create(notificationId, {
         type: 'basic',
-        iconUrl: chrome.runtime.getURL('icon-48.png'), // You'll need to add this icon
+        iconUrl: chrome.runtime.getURL('icons/icon-48.png'),
         title: 'Atlas Xray Update Available',
         message: `A new version (${latestVersion}) is available! Click to download.`,
         priority: 1

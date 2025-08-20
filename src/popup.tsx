@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
+import { VersionChecker } from "./utils/versionChecker";
+
+// Chrome extension types
+declare const chrome: any;
 
 interface VersionInfo {
   hasUpdate: boolean;
@@ -20,7 +24,7 @@ const Popup: React.FC = () => {
     checkForUpdates();
     
     // Get current tab's URL
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {
       if (tabs[0]?.url) {
         setCurrentTabUrl(tabs[0].url);
       }
@@ -35,8 +39,8 @@ const Popup: React.FC = () => {
         const release = await response.json();
         const latestVersion = release.tag_name.replace(/^v/, '');
         
-        // Compare versions
-        const hasUpdate = isNewerVersion(latestVersion, currentVersion);
+        // Compare versions using VersionChecker
+        const hasUpdate = VersionChecker.isNewerVersion(latestVersion, currentVersion);
         
         setVersionInfo({
           hasUpdate,
@@ -51,20 +55,7 @@ const Popup: React.FC = () => {
     }
   };
 
-  const isNewerVersion = (latest: string, current: string): boolean => {
-    const l = latest.split('.').map(Number);
-    const c = current.split('.').map(Number);
-    
-    for (let i = 0; i < Math.max(l.length, c.length); i++) {
-      const lNum = (l[i] || 0);
-      const cNum = (c[i] || 0);
-      
-      if (lNum > cNum) return true;
-      if (lNum < cNum) return false;
-    }
-    
-    return false;
-  };
+
 
 
 
@@ -155,34 +146,13 @@ const Popup: React.FC = () => {
 
       {/* Domain Status */}
       <div style={{ marginBottom: '12px' }}>
-        <div style={{ fontSize: '14px', marginBottom: '8px' }}>
-          {(() => {
-            const currentUrl = window.location.href;
-            const isAtlassianDomain = currentUrl.includes('atlassian.com') || currentUrl.includes('jira.com') || currentUrl.includes('confluence.com');
-            
-            if (isAtlassianDomain) {
-              return (
-                <div style={{ color: '#27ae60', fontWeight: 'bold' }}>
-                  🟢 Running on Atlassian domain
-                </div>
-              );
-            } else {
-              return (
-                <div style={{ color: '#e74c3c', fontWeight: 'bold' }}>
-                  🔴 Not on Atlassian domain
-                </div>
-              );
-            }
-          })()}
-        </div>
-        
         {/* Current Domain Info */}
-        <div style={{ fontSize: '12px', color: '#888', wordBreak: 'break-all' }}>
+        <div style={{ fontSize: '14px', color: '#888', wordBreak: 'break-all', marginBottom: '4px' }}>
           {currentTabUrl ? new URL(currentTabUrl).hostname : 'Loading...'}
         </div>
         
-        {/* Extension Permissions Status */}
-        <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>
+        {/* Extension Access Status */}
+        <div style={{ fontSize: '12px' }}>
           {(() => {
             if (!currentTabUrl) {
               return (
