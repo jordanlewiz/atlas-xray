@@ -25,73 +25,82 @@
     }
 
     .header-right {
-      .week-selector {
+      .controls-group {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 20px;
 
-        .week-select-label {
-          font-size: 14px;
-          font-weight: 500;
-          color: #5e6c84;
-          margin: 0;
-          white-space: nowrap;
+        .week-selector {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .week-select-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #5e6c84;
+            white-space: nowrap;
+          }
+
+          .week-select {
+            min-width: 120px;
+          }
         }
 
-        .week-select {
-          min-width: 140px;
-          
-          // Custom styling for the select component
-          .week-select__control {
-            border: 2px solid #dfe1e6;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            transition: all 0.2s ease;
-            
-            &:hover {
-              border-color: #c1c7d0;
-              box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-            }
-            
-            &.week-select__control--is-focused {
-              border-color: #0052cc;
-              box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.1);
-            }
-          }
+        .ai-display-toggle {
+          display: flex;
+          align-items: center;
+          gap: 12px;
 
-          .week-select__menu {
-            border: 1px solid #dfe1e6;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            margin-top: 4px;
-          }
-
-          .week-select__option {
-            padding: 10px 16px;
+          .toggle-label {
             font-size: 14px;
-            color: #172b4d;
-            
-            &.week-select__option--is-focused {
-              background-color: #f4f5f7;
-            }
-            
-            &.week-select__option--is-selected {
-              background-color: #0052cc;
-              color: white;
-            }
-          }
-
-          .week-select__single-value {
-            color: #172b4d;
             font-weight: 500;
-          }
-
-          .week-select__indicator-separator {
-            background-color: #dfe1e6;
-          }
-
-          .week-select__indicator {
             color: #5e6c84;
+            white-space: nowrap;
+          }
+
+          .toggle-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            background: white;
+            color: #5e6c84;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 100px;
+            justify-content: center;
+
+            &:hover {
+              border-color: #85b8ff;
+              background: #f8f9fa;
+              transform: translateY(-1px);
+            }
+
+            &:active {
+              transform: translateY(0);
+            }
+
+            &.active {
+              border-color: #0052cc;
+              background: #0052cc;
+              color: white;
+              box-shadow: 0 2px 4px rgba(0, 82, 204, 0.2);
+            }
+
+            .toggle-text {
+              font-size: 16px;
+              line-height: 1;
+            }
+
+            .toggle-description {
+              font-size: 12px;
+              font-weight: 400;
+            }
           }
         }
       }

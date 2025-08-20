@@ -65,6 +65,7 @@ export interface StatusTimelineHeatmapRowProps {
   project: ProjectViewModel;
   weekRanges: WeekRange[];
   updates: ProjectUpdate[];
+  showEmojis: boolean;
 }
 
 export interface StatusTimelineHeatmapHeaderProps {

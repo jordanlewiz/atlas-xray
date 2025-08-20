@@ -3,14 +3,7 @@ import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
 import ProjectUpdateModal from "../ProjectUpdateModal";
-// Conditionally import QualityIndicator
-let QualityIndicator: any = null;
-try {
-  QualityIndicator = require("../QualityIndicator/QualityIndicator").default;
-} catch (error) {
-  // QualityIndicator not available in this context
-  console.log("QualityIndicator not available in content script context");
-}
+import QualityIndicator from "../QualityIndicator/QualityIndicator";
 import { buildProjectUrlFromKey } from "../../utils/timelineUtils";
 import {
   getTimelineWeekCells,
@@ -35,7 +28,8 @@ import type { StatusTimelineHeatmapRowProps } from "../../types";
 export default function StatusTimelineHeatmapRow({ 
   project, 
   weekRanges, 
-  updates 
+  updates,
+  showEmojis
 }: StatusTimelineHeatmapRowProps): React.JSX.Element | null {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedUpdate, setSelectedUpdate] = useState(null);
@@ -93,26 +87,27 @@ export default function StatusTimelineHeatmapRow({
                 </Tooltip>
               )}
               
-              {/* Show quality indicator if available */}
-              {u.id && QualityIndicator && (() => {
-                const quality = getUpdateQuality?.(u.id);
-                if (quality) {
-                  return (
-                    <QualityIndicator
-                      score={quality.overallScore}
-                      level={quality.qualityLevel}
-                      size="small"
-                      className="quality-indicator-timeline"
-                    />
-                  );
-                }
-                return null;
-              })()}
-              
               {/* Show update indicator for any cell with updates */}
               {!u.oldDueDate && (
                 <Tooltip content="Click to view update details" position="top">
-                  <span className="update-indicator">•</span>
+                  {showEmojis && u.id ? (
+                    // Show quality indicator when toggle is on and quality data is available
+                    (() => {
+                      const quality = getUpdateQuality?.(u.id);
+                      if (quality) {
+                        return (
+                          <QualityIndicator
+                            score={quality.overallScore}
+                            level={quality.qualityLevel}
+                            size="small"
+                            className="quality-indicator-timeline"
+                          />
+                        );
+                      }
+                      // Show nothing if no quality data
+                      return null;
+                    })()
+                  ) : null}
                 </Tooltip>
               )}
             </div>

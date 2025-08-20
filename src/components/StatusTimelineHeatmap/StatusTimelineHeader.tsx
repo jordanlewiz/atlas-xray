@@ -5,12 +5,19 @@ import StatusLegend from "../StatusLegend";
 interface StatusTimelineHeaderProps {
   weekLimit: number;
   onWeekLimitChange: (weekLimit: number) => void;
+  showEmojis: boolean;
+  onToggleEmojis: (showEmojis: boolean) => void;
 }
 
 /**
- * Header component for the status timeline that includes the legend and week range selector.
+ * Header component for the status timeline that includes the legend, week range selector, and AI display toggle.
  */
-export default function StatusTimelineHeader({ weekLimit, onWeekLimitChange }: StatusTimelineHeaderProps): React.JSX.Element {
+export default function StatusTimelineHeader({ 
+  weekLimit, 
+  onWeekLimitChange, 
+  showEmojis, 
+  onToggleEmojis 
+}: StatusTimelineHeaderProps): React.JSX.Element {
   const weekOptions = [
     { label: "4 weeks", value: 4 },
     { label: "8 weeks", value: 8 },
@@ -24,6 +31,10 @@ export default function StatusTimelineHeader({ weekLimit, onWeekLimitChange }: S
     onWeekLimitChange(option.value);
   };
 
+  const handleToggleEmojis = () => {
+    onToggleEmojis(!showEmojis);
+  };
+
   return (
     <div className="status-timeline-header">
       <div className="header-content">
@@ -31,18 +42,35 @@ export default function StatusTimelineHeader({ weekLimit, onWeekLimitChange }: S
           <h2 className="timeline-title">Project Status Timeline</h2>
         </div>
         <div className="header-right">
-          <div className="week-selector">
-            <label htmlFor="week-select" className="week-select-label">Time Range:</label>
-            <Select
-              inputId="week-select"
-              className="week-select"
-              classNamePrefix="week-select"
-              options={weekOptions}
-              value={weekOptions.find(opt => opt.value === weekLimit)}
-              onChange={handleWeekLimitChange}
-              placeholder="Select weeks"
-              isSearchable={false}
-            />
+          <div className="controls-group">
+            <div className="week-selector">
+              <label htmlFor="week-select" className="week-select-label">Time Range:</label>
+              <Select
+                inputId="week-select"
+                className="week-select"
+                classNamePrefix="week-select"
+                options={weekOptions}
+                value={weekOptions.find(opt => opt.value === weekLimit)}
+                onChange={handleWeekLimitChange}
+                placeholder="Select weeks"
+                isSearchable={false}
+              />
+            </div>
+            <div className="ai-display-toggle">
+              <label htmlFor="emoji-toggle" className="toggle-label">AI Display:</label>
+              <button
+                id="emoji-toggle"
+                className={`toggle-button ${showEmojis ? 'active' : ''}`}
+                onClick={handleToggleEmojis}
+                type="button"
+                aria-label={`Show ${showEmojis ? 'quality indicators' : 'bullets'} for AI analysis`}
+              >
+                <span className="toggle-text">{showEmojis ? '🎯' : '•'}</span>
+                <span className="toggle-description">
+                  {showEmojis ? 'Quality' : 'Bullets'}
+                </span>
+              </button>
+            </div>
           </div>
         </div>
       </div>

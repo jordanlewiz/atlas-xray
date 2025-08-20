@@ -63,11 +63,26 @@ jest.mock('../ProjectUpdateModal/ProjectUpdateModal', () => ({
 
 jest.mock('../QualityIndicator/QualityIndicator', () => ({
   __esModule: true,
-  default: ({ score, level, size, className }: any) => (
-    <div data-testid="quality-indicator" className={className}>
-      {level}: {score}
-    </div>
-  )
+  default: ({ score, level, size, className }: any) => {
+    // Return emoji based on quality level, matching the real component
+    const getEmoji = () => {
+      switch (level) {
+        case 'excellent': return '🟢';
+        case 'good': return '🟡';
+        case 'fair': return '🟠';
+        case 'poor': return '🔴';
+        default: return '⚪';
+      }
+    };
+    
+    return (
+      <div data-testid="quality-indicator" className={className}>
+        <span className="quality-emoji" role="img" aria-label={`${level} quality`}>
+          {getEmoji()}
+        </span>
+      </div>
+    );
+  }
 }));
 
 // Mock timeline utilities
@@ -169,16 +184,17 @@ describe('StatusTimelineHeatmap', () => {
 
     it('should show no projects message when empty', () => {
       mockUseTimeline.mockReturnValue({
-        weekRanges: [],
         projectViewModels: [],
+        weekRanges: [],
         updatesByProject: {},
+        statusByProject: {},
         isLoading: false
       });
 
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // The component might not show this message if it has a different empty state
-      expect(screen.getByText('Target Date')).toBeInTheDocument();
+      // The component should show the empty state message
+      expect(screen.getByText('No projects found for the selected criteria.')).toBeInTheDocument();
     });
   });
 
@@ -199,9 +215,14 @@ describe('StatusTimelineHeatmap', () => {
     it('should show update indicators for cells with updates', () => {
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Should show update indicators (•) for cells with updates
-      const updateIndicators = screen.getAllByText('•');
-      expect(updateIndicators.length).toBeGreaterThan(0);
+      // By default, no timeline cell indicators should be shown (toggle is off)
+      // Note: The bullet (•) appears in the toggle button, which is correct
+      const toggleButton = screen.getByText('Bullets');
+      expect(toggleButton).toBeInTheDocument();
+      
+      // Quality indicators should be hidden by default
+      const qualityIndicators = screen.queryAllByTestId('quality-indicator');
+      expect(qualityIndicators.length).toBe(0);
     });
 
     it('should show date differences when dates change', () => {
@@ -292,12 +313,9 @@ describe('StatusTimelineHeatmap', () => {
     it('should display quality indicators for updates with quality data', () => {
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Should show quality indicators
-      const qualityIndicators = screen.getAllByTestId('quality-indicator');
-      expect(qualityIndicators.length).toBeGreaterThan(0);
-      
-      // Verify quality data is displayed
-      expect(screen.getByText('good: 85')).toBeInTheDocument();
+      // Should NOT show quality indicators by default (toggle is off)
+      const qualityIndicators = screen.queryAllByTestId('quality-indicator');
+      expect(qualityIndicators.length).toBe(0);
     });
 
     it('should handle missing quality data gracefully', () => {
@@ -461,6 +479,183 @@ describe('StatusTimelineHeatmap', () => {
       
       // Should show no projects when empty visible keys
       expect(screen.queryByText('Project 1')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('AI Display Toggle', () => {
+    it('should hide quality indicators by default', () => {
+      mockUseTimeline.mockReturnValue({
+        projectViewModels: [
+          {
+            projectKey: 'TEST',
+            name: 'Test Project',
+            rawProject: { projectKey: 'TEST' }
+          }
+        ],
+        weekRanges: [
+          { label: 'This week', start: new Date('2024-01-01'), end: new Date('2024-01-08') }
+        ],
+        updatesByProject: { 'TEST': [
+          {
+            id: 'update1',
+            creationDate: '2024-01-02',
+            summary: 'Test update',
+            state: 'on-track',
+            targetDate: '2024-01-15' // Add target date
+          }
+        ] },
+        statusByProject: {},
+        isLoading: false
+      });
+
+      render(<StatusTimelineHeatmap weekLimit={12} />);
+      
+      // Quality indicators should be hidden by default
+      expect(screen.queryByText('🟢')).not.toBeInTheDocument();
+      expect(screen.queryByText('🟡')).not.toBeInTheDocument();
+      expect(screen.queryByText('🟠')).not.toBeInTheDocument();
+      expect(screen.queryByText('🔴')).not.toBeInTheDocument();
+    });
+
+    it('should show quality indicators when toggle is turned on', async () => {
+      mockUseTimeline.mockReturnValue({
+        projectViewModels: [
+          {
+            projectKey: 'TEST',
+            name: 'Test Project',
+            rawProject: { projectKey: 'TEST' }
+          }
+        ],
+        weekRanges: [
+          { label: 'This week', start: new Date('2024-01-01'), end: new Date('2024-01-08') }
+        ],
+        updatesByProject: { 'TEST': [
+          {
+            id: 'update1',
+            creationDate: '2024-01-02',
+            summary: 'Test update',
+            state: 'on-track',
+            targetDate: '2024-01-15' // Add target date
+          }
+        ] },
+        statusByProject: {},
+        isLoading: false
+      });
+
+      mockUseUpdateQuality.mockReturnValue({
+        getUpdateQuality: jest.fn().mockReturnValue({
+          overallScore: 85,
+          qualityLevel: 'good'
+        }),
+        analyzeUpdate: jest.fn()
+      });
+
+      render(<StatusTimelineHeatmap weekLimit={12} />);
+      
+      // Find and click the toggle button to turn on quality indicators
+      const toggleButton = screen.getByLabelText('Show bullets for AI analysis');
+      fireEvent.click(toggleButton);
+      
+      // Wait for the toggle to update
+      await waitFor(() => {
+        expect(screen.getByLabelText('Show quality indicators for AI analysis')).toBeInTheDocument();
+      });
+      
+      // Quality indicators should now be visible
+      expect(screen.getByText('🟡')).toBeInTheDocument(); // Good quality emoji
+    });
+
+    it('should hide quality indicators when toggle is turned off', async () => {
+      mockUseTimeline.mockReturnValue({
+        projectViewModels: [
+          {
+            projectKey: 'TEST',
+            name: 'Test Project',
+            rawProject: { projectKey: 'TEST' }
+          }
+        ],
+        weekRanges: [
+          { label: 'This week', start: new Date('2024-01-01'), end: new Date('2024-01-08') }
+        ],
+        updatesByProject: { 'TEST': [
+          {
+            id: 'update1',
+            creationDate: '2024-01-02',
+            summary: 'Test update',
+            state: 'on-track',
+            targetDate: '2024-01-15' // Add target date
+          }
+        ] },
+        statusByProject: {},
+        isLoading: false
+      });
+
+      mockUseUpdateQuality.mockReturnValue({
+        getUpdateQuality: jest.fn().mockReturnValue({
+          overallScore: 85,
+          qualityLevel: 'good'
+        }),
+        analyzeUpdate: jest.fn()
+      });
+
+      render(<StatusTimelineHeatmap weekLimit={12} />);
+      
+      // Turn on quality indicators first
+      const toggleButton = screen.getByLabelText('Show bullets for AI analysis');
+      fireEvent.click(toggleButton);
+      
+      // Wait for toggle to update
+      await waitFor(() => {
+        expect(screen.getByText('🟡')).toBeInTheDocument();
+      });
+      
+      // Turn off quality indicators
+      fireEvent.click(toggleButton);
+      
+      // Wait for toggle to update back
+      await waitFor(() => {
+        expect(screen.queryByText('🟡')).not.toBeInTheDocument();
+      });
+    });
+
+    it('should show correct toggle state in button', () => {
+      mockUseTimeline.mockReturnValue({
+        projectViewModels: [
+          {
+            projectKey: 'TEST',
+            name: 'Test Project',
+            rawProject: { projectKey: 'TEST' }
+          }
+        ],
+        weekRanges: [
+          { label: 'This week', start: new Date('2024-01-01'), end: new Date('2024-01-08') }
+        ],
+        updatesByProject: { 'TEST': [
+          {
+            id: 'update1',
+            creationDate: '2024-01-02',
+            summary: 'Test update',
+            state: 'on-track',
+            targetDate: '2024-01-15' // Add target date
+          }
+        ] },
+        statusByProject: {},
+        isLoading: false
+      });
+
+      render(<StatusTimelineHeatmap weekLimit={12} />);
+      
+      // Default state should show bullets
+      expect(screen.getByText('Bullets')).toBeInTheDocument();
+      expect(screen.getByText('•')).toBeInTheDocument();
+      
+      // Click toggle to change state
+      const toggleButton = screen.getByLabelText('Show bullets for AI analysis');
+      fireEvent.click(toggleButton);
+      
+      // Should now show quality
+      expect(screen.getByText('Quality')).toBeInTheDocument();
+      expect(screen.getByText('🎯')).toBeInTheDocument();
     });
   });
 });
