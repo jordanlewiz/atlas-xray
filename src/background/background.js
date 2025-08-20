@@ -1,10 +1,20 @@
+/**
+ * Atlas Xray Chrome Extension - Background Service Worker
+ * 
+ * This background script runs in the extension's service worker context and:
+ * 1. Manages extension lifecycle events (install, update, startup)
+ * 2. Performs periodic version checks against GitHub releases
+ * 3. Shows update notifications to users when new versions are available
+ * 4. Handles extension icon clicks and other background tasks
+ * 
+ * The service worker remains active to handle version checking and
+ * extension management even when no tabs are open.
+ */
+
 console.log('[AtlasXray] Background service worker is running');
 
-// Background script for Atlas Xray Chrome Extension
-// Handles version checking and extension lifecycle
-
 // Import version checker (will be bundled by esbuild)
-import { VersionChecker } from './utils/versionChecker';
+import { VersionChecker } from '../utils/versionChecker';
 
 // Check for updates when extension starts
 chrome.runtime.onStartup.addListener(async () => {

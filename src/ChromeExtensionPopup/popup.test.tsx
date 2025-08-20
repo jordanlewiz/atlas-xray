@@ -1,21 +1,21 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Popup from './popup';
+import Popup from './PopupApp';
 
 // Mock chrome global
 const mockTabsQuery = jest.fn();
-global.chrome = {
+(global as any).chrome = {
   runtime: {
     getManifest: () => ({ version: '0.0.0' })
   },
   tabs: {
     query: mockTabsQuery
   }
-} as any;
+};
 
 // Mock VersionChecker
-jest.mock('./utils/versionChecker', () => ({
+jest.mock('../utils/versionChecker', () => ({
   VersionChecker: {
     getLatestVersionInfo: jest.fn(),
     isLocalDevVersion: () => true,
@@ -23,7 +23,7 @@ jest.mock('./utils/versionChecker', () => ({
   }
 }));
 
-import { VersionChecker } from './utils/versionChecker';
+import { VersionChecker } from '../utils/versionChecker';
 
 describe('Popup', () => {
   beforeEach(() => {
@@ -220,6 +220,73 @@ describe('Popup', () => {
         expect(screen.getByText('Unknown page')).toBeInTheDocument();
         expect(screen.getByText('⚠️ Unable to determine site')).toBeInTheDocument();
       });
+    });
+
+    it('should handle chrome.tabs.query timeout gracefully', async () => {
+      // Mock chrome.tabs.query to never call the callback (simulating timeout)
+      mockTabsQuery.mockImplementation((query, callback) => {
+        // Don't call callback - this simulates the timeout scenario
+        // The timeout should fire after 2 seconds and set currentTabUrl to 'about:blank'
+      });
+
+      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+        hasUpdate: false,
+        latestVersion: 'v1.0.0'
+      });
+
+      render(<Popup />);
+
+      // Initially should show "Loading..."
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+
+      // Wait for timeout to fire (2 seconds + buffer)
+      await waitFor(() => {
+        expect(screen.getByText('Unknown page')).toBeInTheDocument();
+        expect(screen.getByText('⚠️ Unable to determine site')).toBeInTheDocument();
+      }, { timeout: 3000 });
+
+      // Verify that the timeout fallback was used
+      expect(mockTabsQuery).toHaveBeenCalledWith(
+        { active: true, currentWindow: true },
+        expect.any(Function)
+      );
+    });
+
+    it('should clear timeout when chrome.tabs.query succeeds', async () => {
+      let savedCallback: ((tabs: any[]) => void) | null = null;
+      
+      // Mock chrome.tabs.query to save the callback and call it immediately
+      mockTabsQuery.mockImplementation((query, callback) => {
+        savedCallback = callback;
+        // Call callback immediately with success
+        callback([{ url: 'https://github.com' }]);
+      });
+
+      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+        hasUpdate: false,
+        latestVersion: 'v1.0.0'
+      });
+
+      render(<Popup />);
+
+      // Should show the actual domain, not "Unknown page"
+      await waitFor(() => {
+        expect(screen.getByText('github.com')).toBeInTheDocument();
+        expect(screen.getByText('❌ No access to this site')).toBeInTheDocument();
+      });
+
+      // Verify that the API was called
+      expect(mockTabsQuery).toHaveBeenCalledWith(
+        { active: true, currentWindow: true },
+        expect.any(Function)
+      );
+
+      // Wait longer than the timeout to ensure it doesn't fire
+      await new Promise(resolve => setTimeout(resolve, 2500));
+
+      // Should still show the correct domain, not "Unknown page"
+      expect(screen.getByText('github.com')).toBeInTheDocument();
+      expect(screen.getByText('❌ No access to this site')).toBeInTheDocument();
     });
   });
 

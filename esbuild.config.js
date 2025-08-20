@@ -16,7 +16,7 @@ const commonOptions = {
 async function buildPopup() {
   await esbuild.build({
     ...commonOptions,
-    entryPoints: ['src/popupEntry.tsx'],
+    entryPoints: ['src/ChromeExtensionPopup/popupEntry.tsx'],
     outfile: 'dist/popup.js',
     loader: { '.ts': 'tsx', '.tsx': 'tsx' },
     external: ['chrome']
@@ -35,8 +35,8 @@ async function buildContent() {
 async function buildChromeExtension() {
   await esbuild.build({
     ...commonOptions,
-    entryPoints: ['src/chromeExtension.js'],
-    outfile: 'dist/chromeExtension.js',
+    entryPoints: ['src/contentScripts/contentScript.js'],
+    outfile: 'dist/contentScript.js',
     loader: { '.js': 'jsx' }
   });
 }
@@ -44,7 +44,7 @@ async function buildChromeExtension() {
 async function buildBackground() {
   await esbuild.build({
     ...commonOptions,
-    entryPoints: ['src/background.js'],
+    entryPoints: ['src/background/background.js'],
     outfile: 'dist/background.js',
     loader: { '.ts': 'tsx' }
   });

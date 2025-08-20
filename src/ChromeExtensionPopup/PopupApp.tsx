@@ -1,5 +1,30 @@
+/**
+ * Atlas Xray Chrome Extension - Main Popup Component
+ * 
+ * This React component renders the main popup UI that appears when users click
+ * the extension icon in their Chrome toolbar. It provides:
+ * 
+ * 1. **Version Information**: Shows installed version and checks for updates
+ *    - Displays "Local Dev Build" for development versions (0.0.0)
+ *    - Shows release version numbers for production builds
+ *    - Checks GitHub for latest releases and shows update notifications
+ * 
+ * 2. **Site Access Status**: Determines if the extension can work on the current page
+ *    - Uses chrome.tabs.query to get the active tab's URL
+ *    - Checks if the domain matches host_permissions (home.atlassian.com)
+ *    - Shows appropriate access status with visual indicators
+ * 
+ * 3. **Update Management**: Handles extension version updates
+ *    - Fetches latest version info from GitHub API
+ *    - Shows download button when updates are available
+ *    - Opens release page in new tab when download is clicked
+ * 
+ * The component includes robust error handling with timeouts for Chrome API calls
+ * and gracefully degrades to fallback states when APIs fail or timeout.
+ */
+
 import React, { useState, useEffect, useRef } from "react";
-import { VersionChecker } from "./utils/versionChecker";
+import { VersionChecker } from "../utils/versionChecker";
 
 // Chrome extension types
 declare const chrome: any;
@@ -14,7 +39,6 @@ const Popup: React.FC = () => {
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
   const [isCheckingVersion, setIsCheckingVersion] = useState(false);
   const [currentTabUrl, setCurrentTabUrl] = useState<string>("");
-  const hasReceivedResponse = useRef(false);
   
   const currentVersion = chrome.runtime.getManifest().version;
   
@@ -22,12 +46,19 @@ const Popup: React.FC = () => {
     // Check for updates when popup opens
     checkForUpdates();
     
+    // Set a timeout fallback only if chrome.tabs.query never calls back
+    const timeoutId = setTimeout(() => {
+      console.warn('[AtlasXray] chrome.tabs.query timeout, setting fallback');
+      setCurrentTabUrl('about:blank');
+    }, 2000); // 2 second timeout - only fires if no response received
+
     // Get current tab's URL with timeout and error handling
-    
     const getCurrentTab = () => {
       try {
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {
-          hasReceivedResponse.current = true;
+          // Clear the timeout since we got a response
+          clearTimeout(timeoutId);
+          
           if (tabs && tabs[0]?.url) {
             setCurrentTabUrl(tabs[0].url);
           } else {
@@ -36,21 +67,14 @@ const Popup: React.FC = () => {
           }
         });
       } catch (error) {
-        hasReceivedResponse.current = true;
+        // Clear the timeout since we got an error
+        clearTimeout(timeoutId);
         console.warn('[AtlasXray] Failed to get current tab:', error);
         setCurrentTabUrl('about:blank');
       }
     };
 
     getCurrentTab();
-
-    // Set a timeout fallback only if chrome.tabs.query never calls back
-    const timeoutId = setTimeout(() => {
-      if (!hasReceivedResponse.current) {
-        console.warn('[AtlasXray] chrome.tabs.query timeout, setting fallback');
-        setCurrentTabUrl('about:blank');
-      }
-    }, 2000); // 2 second timeout - only fires if no response received
 
     return () => clearTimeout(timeoutId);
   }, []);
