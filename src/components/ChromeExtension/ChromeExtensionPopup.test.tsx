@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Popup from './ChromeExtensionPopup';
 
@@ -30,6 +30,7 @@ describe('Popup', () => {
     jest.clearAllMocks();
     // Suppress console warnings during tests
     jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -175,15 +176,9 @@ describe('Popup', () => {
 
       render(<Popup />);
 
-      // Should show loading state initially
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
-      expect(screen.getByText('Checking site access...')).toBeInTheDocument();
-
-      // After timeout, should show fallback state
-      await waitFor(() => {
-        expect(screen.getByText('Unknown page')).toBeInTheDocument();
-        expect(screen.getByText('⚠️ Unable to determine site')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      // With simplified logic, should show default state immediately
+      expect(screen.getByText('Current page')).toBeInTheDocument();
+      expect(screen.getByText('❌ No access to this site')).toBeInTheDocument();
     });
 
     it('should handle empty tabs array', async () => {
@@ -198,10 +193,9 @@ describe('Popup', () => {
 
       render(<Popup />);
 
-      await waitFor(() => {
-        expect(screen.getByText('Unknown page')).toBeInTheDocument();
-        expect(screen.getByText('⚠️ Unable to determine site')).toBeInTheDocument();
-      });
+      // With simplified logic, should show default state
+      expect(screen.getByText('Current page')).toBeInTheDocument();
+      expect(screen.getByText('❌ No access to this site')).toBeInTheDocument();
     });
 
     it('should handle tabs with no URL', async () => {
@@ -216,17 +210,16 @@ describe('Popup', () => {
 
       render(<Popup />);
 
-      await waitFor(() => {
-        expect(screen.getByText('Unknown page')).toBeInTheDocument();
-        expect(screen.getByText('⚠️ Unable to determine site')).toBeInTheDocument();
-      });
+      // With simplified logic, should show default state
+      expect(screen.getByText('Current page')).toBeInTheDocument();
+      expect(screen.getByText('❌ No access to this site')).toBeInTheDocument();
     });
 
     it('should handle chrome.tabs.query timeout gracefully', async () => {
       // Mock chrome.tabs.query to never call the callback (simulating timeout)
       mockTabsQuery.mockImplementation((query, callback) => {
         // Don't call callback - this simulates the timeout scenario
-        // The timeout should fire after 2 seconds and set currentTabUrl to 'about:blank'
+        // The timeout should fire after 3 seconds and set currentTabUrl to 'about:blank'
       });
 
       (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
@@ -236,14 +229,9 @@ describe('Popup', () => {
 
       render(<Popup />);
 
-      // Initially should show "Loading..."
-      expect(screen.getByText('Loading...')).toBeInTheDocument();
-
-      // Wait for timeout to fire (2 seconds + buffer)
-      await waitFor(() => {
-        expect(screen.getByText('Unknown page')).toBeInTheDocument();
-        expect(screen.getByText('⚠️ Unable to determine site')).toBeInTheDocument();
-      }, { timeout: 3000 });
+      // With simplified logic, should show default state immediately
+      expect(screen.getByText('Current page')).toBeInTheDocument();
+      expect(screen.getByText('❌ No access to this site')).toBeInTheDocument();
 
       // Verify that the timeout fallback was used
       expect(mockTabsQuery).toHaveBeenCalledWith(

@@ -47,37 +47,22 @@ const Popup: React.FC = () => {
     // Check for updates when popup opens
     checkForUpdates();
     
-    // Set a timeout fallback only if chrome.tabs.query never calls back
-    const timeoutId = setTimeout(() => {
-      console.warn('[AtlasXray] chrome.tabs.query timeout, setting fallback');
-      setCurrentTabUrl('about:blank');
-    }, 2000); // 2 second timeout - only fires if no response received
-
-    // Get current tab's URL with timeout and error handling
+    // Get current tab's URL - simple approach
     const getCurrentTab = () => {
       try {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {
-          // Clear the timeout since we got a response
-          clearTimeout(timeoutId);
-          
-          if (tabs && tabs[0]?.url) {
-            setCurrentTabUrl(tabs[0].url);
-          } else {
-            // Handle case where no tabs are returned or no URL
-            setCurrentTabUrl('about:blank');
-          }
-        });
+        if (chrome.tabs && chrome.tabs.query) {
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {
+            if (tabs && tabs[0]?.url) {
+              setCurrentTabUrl(tabs[0].url);
+            }
+          });
+        }
       } catch (error) {
-        // Clear the timeout since we got an error
-        clearTimeout(timeoutId);
         console.warn('[AtlasXray] Failed to get current tab:', error);
-        setCurrentTabUrl('about:blank');
       }
     };
 
     getCurrentTab();
-
-    return () => clearTimeout(timeoutId);
   }, []);
 
   const checkForUpdates = async (): Promise<void> => {
@@ -169,63 +154,53 @@ const Popup: React.FC = () => {
       </div>
 
       {/* Domain Status */}
-      <div className="chrome-extension-popup__site-access-section">
-        {/* Current Domain Info */}
-        <div className="chrome-extension-popup__page-title">
-          {(() => {
-            if (!currentTabUrl) {
-              return 'Loading...';
-            }
+                <div className="chrome-extension-popup__site-access-section">
+            {/* Current Domain Info */}
+            <div className="chrome-extension-popup__page-title">
+              {(() => {
+                if (!currentTabUrl) {
+                  return 'Current page';
+                }
+                
+                try {
+                  return new URL(currentTabUrl).hostname;
+                } catch (error) {
+                  return 'Current page';
+                }
+              })()}
+            </div>
             
-            try {
-              if (currentTabUrl === 'about:blank') {
-                return 'Unknown page';
-              }
-              return new URL(currentTabUrl).hostname;
-            } catch (error) {
-              return 'Invalid URL';
-            }
-          })()}
-        </div>
-        
-        {/* Extension Access Status */}
-        <div className="chrome-extension-popup__access-status">
-          {(() => {
-            if (!currentTabUrl) {
-              return (
-                <div className="chrome-extension-popup__checking-updates">
-                  Checking site access...
-                </div>
-              );
-            }
-            
-            if (currentTabUrl === 'about:blank') {
-              return (
-                <div className="chrome-extension-popup__unknown-page">
-                  ⚠️ Unable to determine site
-                </div>
-              );
-            }
-            
-            // Only grant access to domains that are explicitly in host_permissions
-            const hasAccess = currentTabUrl.includes('home.atlassian.com');
-            
-            if (hasAccess) {
-              return (
-                <div className="chrome-extension-popup__access-granted">
-                  ✅ Has access to this site
-                </div>
-              );
-            } else {
-              return (
-                <div className="chrome-extension-popup__access-denied">
-                  ❌ No access to this site
-                </div>
-              );
-            }
-          })()}
-        </div>
-      </div>
+            {/* Extension Access Status */}
+            <div className="chrome-extension-popup__access-status">
+              {(() => {
+                // Default state: no access
+                if (!currentTabUrl) {
+                  return (
+                    <div className="chrome-extension-popup__access-denied">
+                      ❌ No access to this site
+                    </div>
+                  );
+                }
+                
+                // Check if we're on a listed site
+                const hasAccess = currentTabUrl.includes('home.atlassian.com');
+                
+                if (hasAccess) {
+                  return (
+                    <div className="chrome-extension-popup__access-granted">
+                      ✅ Has access to this site
+                    </div>
+                  );
+                } else {
+                  return (
+                    <div className="chrome-extension-popup__access-denied">
+                      ❌ No access to this site
+                    </div>
+                  );
+                }
+              })()}
+            </div>
+          </div>
 
 
 
