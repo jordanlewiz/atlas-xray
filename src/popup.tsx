@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { createRoot } from "react-dom/client";
+import React, { useState, useEffect, useRef } from "react";
 import { VersionChecker } from "./utils/versionChecker";
 
 // Chrome extension types
@@ -12,10 +11,10 @@ interface VersionInfo {
 }
 
 const Popup: React.FC = () => {
-  console.log("PopupApp");
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
   const [isCheckingVersion, setIsCheckingVersion] = useState(false);
   const [currentTabUrl, setCurrentTabUrl] = useState<string>("");
+  const hasReceivedResponse = useRef(false);
   
   const currentVersion = chrome.runtime.getManifest().version;
   
@@ -23,12 +22,37 @@ const Popup: React.FC = () => {
     // Check for updates when popup opens
     checkForUpdates();
     
-    // Get current tab's URL
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {
-      if (tabs[0]?.url) {
-        setCurrentTabUrl(tabs[0].url);
+    // Get current tab's URL with timeout and error handling
+    
+    const getCurrentTab = () => {
+      try {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {
+          hasReceivedResponse.current = true;
+          if (tabs && tabs[0]?.url) {
+            setCurrentTabUrl(tabs[0].url);
+          } else {
+            // Handle case where no tabs are returned or no URL
+            setCurrentTabUrl('about:blank');
+          }
+        });
+      } catch (error) {
+        hasReceivedResponse.current = true;
+        console.warn('[AtlasXray] Failed to get current tab:', error);
+        setCurrentTabUrl('about:blank');
       }
-    });
+    };
+
+    getCurrentTab();
+
+    // Set a timeout fallback only if chrome.tabs.query never calls back
+    const timeoutId = setTimeout(() => {
+      if (!hasReceivedResponse.current) {
+        console.warn('[AtlasXray] chrome.tabs.query timeout, setting fallback');
+        setCurrentTabUrl('about:blank');
+      }
+    }, 2000); // 2 second timeout - only fires if no response received
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   const checkForUpdates = async (): Promise<void> => {
@@ -136,7 +160,20 @@ const Popup: React.FC = () => {
       <div style={{ marginBottom: '12px' }}>
         {/* Current Domain Info */}
         <div style={{ fontSize: '14px', color: '#888', wordBreak: 'break-all', marginBottom: '4px' }}>
-          {currentTabUrl ? new URL(currentTabUrl).hostname : 'Loading...'}
+          {(() => {
+            if (!currentTabUrl) {
+              return 'Loading...';
+            }
+            
+            try {
+              if (currentTabUrl === 'about:blank') {
+                return 'Unknown page';
+              }
+              return new URL(currentTabUrl).hostname;
+            } catch (error) {
+              return 'Invalid URL';
+            }
+          })()}
         </div>
         
         {/* Extension Access Status */}
@@ -150,7 +187,16 @@ const Popup: React.FC = () => {
               );
             }
             
-            const hasAccess = currentTabUrl.includes('atlassian.com') || currentTabUrl.includes('jira.com') || currentTabUrl.includes('confluence.com');
+            if (currentTabUrl === 'about:blank') {
+              return (
+                <div style={{ color: '#f39c12' }}>
+                  ⚠️ Unable to determine site
+                </div>
+              );
+            }
+            
+            // Only grant access to domains that are explicitly in host_permissions
+            const hasAccess = currentTabUrl.includes('home.atlassian.com');
             
             if (hasAccess) {
               return (
@@ -176,6 +222,4 @@ const Popup: React.FC = () => {
   );
 };
 
-// Bootstrap the React app
-const root = createRoot(document.getElementById("root")!);
-root.render(<Popup />);
+export default Popup;

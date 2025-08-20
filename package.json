@@ -12,7 +12,7 @@
     "build:content": "node esbuild.config.js content",
     "build:chromeExtension": "node esbuild.config.js chromeExtension",
     "build:background": "node esbuild.config.js background",
-    "build": "npm test && npm run build:js && npm run build:css && npm run build:html && npm run build:content && npm run build:chromeExtension && npm run build:background && npm run build:manifest",
+    "build": "npm test && npm run --silent build:js && npm run --silent build:css && npm run --silent build:html && npm run --silent build:content && npm run --silent build:chromeExtension && npm run --silent build:background && npm run --silent build:manifest",
     "release:patch": "node scripts/release.js patch",
     "release:minor": "node scripts/release.js minor",
     "release:major": "node scripts/release.js major",
@@ -42,7 +42,12 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.28.3",
+    "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
+    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.3.0",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
@@ -51,6 +56,8 @@
     "babel-jest": "^30.0.5",
     "esbuild": "^0.25.9",
     "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
+    "jsdom": "^26.1.0",
     "sass": "^1.69.0",
     "typescript": "^5.9.2"
   }

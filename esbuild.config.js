@@ -16,7 +16,7 @@ const commonOptions = {
 async function buildPopup() {
   await esbuild.build({
     ...commonOptions,
-    entryPoints: ['src/popup.tsx'],
+    entryPoints: ['src/popupEntry.tsx'],
     outfile: 'dist/popup.js',
     loader: { '.ts': 'tsx', '.tsx': 'tsx' },
     external: ['chrome']
