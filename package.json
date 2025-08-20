@@ -6,7 +6,7 @@
   "scripts": {
     "build:js": "esbuild src/popup.tsx --bundle --outfile=dist/popup.js --format=iife --loader:.ts=tsx --define:process.env.NODE_ENV='\"production\"'",
     "build:css": "sass src/assets/styles/popup.scss dist/popup.css --source-map",
-    "build:content": "esbuild src/components/FloatingButton.jsx --bundle --outfile=dist/floatingButton.js --format=iife --loader:.js=jsx --loader:.jsx=jsx",
+    "build:content": "esbuild src/components/FloatingButton/FloatingButton.tsx --bundle --outfile=dist/floatingButton.js --format=iife --loader:.ts=tsx",
     "build:chromeExtension": "esbuild src/chromeExtension.js --bundle --outfile=dist/chromeExtension.js --format=iife --loader:.js=jsx",
     "build:background": "esbuild src/background.js --bundle --outfile=dist/background.js --format=iife",
     "build": "npm test && npm run build:js && npm run build:css && npm run build:content && npm run build:chromeExtension && npm run build:background",

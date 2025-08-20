@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../utils/database";
-import type { AtlasXrayDB } from "../types/database";
-import StatusTimelineHeatmap from "./StatusTimelineHeatmap/StatusTimelineHeatmap";
-import ProjectStatusHistoryModal from "./ProjectStatusHistoryModal";
-import { downloadProjectData } from "../utils/projectIdScanner";
+import { db } from "../../utils/database";
+import type { AtlasXrayDB } from "../../types/database";
+import StatusTimelineHeatmap from "../StatusTimelineHeatmap/StatusTimelineHeatmap";
+import ProjectStatusHistoryModal from "../ProjectStatusHistoryModal";
+import { downloadProjectData } from "../../utils/projectIdScanner";
 
 /**
  * Floating button that opens the timeline modal.

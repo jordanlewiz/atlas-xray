@@ -42757,7 +42757,7 @@
     }
   });
 
-  // src/components/FloatingButton.tsx
+  // src/components/FloatingButton/FloatingButton.tsx
   var import_react138 = __toESM(require_react());
 
   // node_modules/dexie/import-wrapper.mjs
@@ -80323,7 +80323,7 @@ fragment UserAvatar on User {
     return matches;
   }
 
-  // src/components/FloatingButton.tsx
+  // src/components/FloatingButton/FloatingButton.tsx
   var import_jsx_runtime7 = __toESM(require_jsx_runtime());
   function FloatingButton() {
     const projectCount = useLiveQuery(() => db.projectView.count(), []);

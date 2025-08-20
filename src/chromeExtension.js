@@ -1,6 +1,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
-import FloatingButton from "./components/FloatingButton.jsx";
+import FloatingButton from "./components/FloatingButton/FloatingButton";
 import { downloadProjectData } from "./utils/projectIdScanner";
 
 const container = document.createElement("div");

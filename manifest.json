@@ -18,7 +18,7 @@
   "content_scripts": [
     {
       "matches": ["https://home.atlassian.com/*"],
-      "js": ["dist/floatingButtonContentScript.js"],
+      "js": ["dist/chromeExtension.js"],
       "css": ["dist/popup.css"]
     }
   ]

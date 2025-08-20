@@ -42788,11 +42788,11 @@
     }
   });
 
-  // src/floatingButtonContentScript.js
+  // src/chromeExtension.js
   var import_react139 = __toESM(require_react());
   var import_client3 = __toESM(require_client());
 
-  // src/components/FloatingButton.tsx
+  // src/components/FloatingButton/FloatingButton.tsx
   var import_react138 = __toESM(require_react());
 
   // node_modules/dexie/import-wrapper.mjs
@@ -80358,7 +80358,7 @@ fragment UserAvatar on User {
     return matches;
   }
 
-  // src/components/FloatingButton.tsx
+  // src/components/FloatingButton/FloatingButton.tsx
   var import_jsx_runtime7 = __toESM(require_jsx_runtime());
   function FloatingButton() {
     const projectCount = useLiveQuery(() => db.projectView.count(), []);
@@ -80410,7 +80410,7 @@ fragment UserAvatar on User {
     ] });
   }
 
-  // src/floatingButtonContentScript.js
+  // src/chromeExtension.js
   var import_jsx_runtime8 = __toESM(require_jsx_runtime());
   var container = document.createElement("div");
   document.body.appendChild(container);
