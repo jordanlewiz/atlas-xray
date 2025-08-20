@@ -58,6 +58,7 @@ export interface TimelineContextType {
 // Component prop types
 export interface StatusTimelineHeatmapProps {
   weekLimit?: number;
+  visibleProjectKeys?: string[];
 }
 
 export interface StatusTimelineHeatmapRowProps {

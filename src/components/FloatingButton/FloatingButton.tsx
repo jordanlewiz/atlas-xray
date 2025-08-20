@@ -108,7 +108,10 @@ export default function FloatingButton(): React.JSX.Element {
       
       <ProjectStatusHistoryModal open={modalOpen} onClose={() => setModalOpen(false)}>
         {(weekLimit: number) => (
-          <StatusTimelineHeatmap weekLimit={weekLimit} />
+          <StatusTimelineHeatmap 
+            weekLimit={weekLimit} 
+            visibleProjectKeys={visibleProjectKeys}
+          />
         )}
       </ProjectStatusHistoryModal>
     </>

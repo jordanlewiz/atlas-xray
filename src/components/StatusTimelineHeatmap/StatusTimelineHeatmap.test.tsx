@@ -358,4 +358,109 @@ describe('StatusTimelineHeatmap', () => {
       expect(screen.getByText('This week')).toBeInTheDocument();
     });
   });
+
+  describe('Project Filtering', () => {
+    it('should only show visible projects when visibleProjectKeys are provided', () => {
+      // Mock with multiple projects but only some visible
+      mockUseTimeline.mockReturnValue({
+        weekRanges: [
+          { label: 'This week', start: new Date('2024-01-01'), end: new Date('2024-01-08') }
+        ],
+        projectViewModels: [
+          {
+            projectKey: 'VISIBLE1',
+            name: 'Visible Project 1',
+            rawProject: { projectKey: 'VISIBLE1' }
+          },
+          {
+            projectKey: 'VISIBLE2',
+            name: 'Visible Project 2',
+            rawProject: { projectKey: 'VISIBLE2' }
+          },
+          {
+            projectKey: 'HIDDEN1',
+            name: 'Hidden Project 1',
+            rawProject: { projectKey: 'HIDDEN1' }
+          },
+          {
+            projectKey: 'HIDDEN2',
+            name: 'Hidden Project 2',
+            rawProject: { projectKey: 'HIDDEN2' }
+          }
+        ],
+        updatesByProject: {
+          'VISIBLE1': [],
+          'VISIBLE2': [],
+          'HIDDEN1': [],
+          'HIDDEN2': []
+        },
+        isLoading: false
+      });
+
+      render(<StatusTimelineHeatmap weekLimit={12} visibleProjectKeys={['VISIBLE1', 'VISIBLE2']} />);
+      
+      // Should only show visible projects
+      expect(screen.getByText('Visible Project 1')).toBeInTheDocument();
+      expect(screen.getByText('Visible Project 2')).toBeInTheDocument();
+      expect(screen.queryByText('Hidden Project 1')).not.toBeInTheDocument();
+      expect(screen.queryByText('Hidden Project 2')).not.toBeInTheDocument();
+    });
+
+    it('should show all projects when no visibleProjectKeys are provided', () => {
+      // Mock with multiple projects
+      mockUseTimeline.mockReturnValue({
+        weekRanges: [
+          { label: 'This week', start: new Date('2024-01-01'), end: new Date('2024-01-08') }
+        ],
+        projectViewModels: [
+          {
+            projectKey: 'PROJECT1',
+            name: 'Project 1',
+            rawProject: { projectKey: 'PROJECT1' }
+          },
+          {
+            projectKey: 'PROJECT2',
+            name: 'Project 2',
+            rawProject: { projectKey: 'PROJECT2' }
+          }
+        ],
+        updatesByProject: {
+          'PROJECT1': [],
+          'PROJECT2': []
+        },
+        isLoading: false
+      });
+
+      render(<StatusTimelineHeatmap weekLimit={12} />);
+      
+      // Should show all projects when no filtering
+      expect(screen.getByText('Project 1')).toBeInTheDocument();
+      expect(screen.getByText('Project 2')).toBeInTheDocument();
+    });
+
+    it('should handle empty visibleProjectKeys gracefully', () => {
+      // Mock with projects but empty visible keys
+      mockUseTimeline.mockReturnValue({
+        weekRanges: [
+          { label: 'This week', start: new Date('2024-01-01'), end: new Date('2024-01-08') }
+        ],
+        projectViewModels: [
+          {
+            projectKey: 'PROJECT1',
+            name: 'Project 1',
+            rawProject: { projectKey: 'PROJECT1' }
+          }
+        ],
+        updatesByProject: {
+          'PROJECT1': []
+        },
+        isLoading: false
+      });
+
+      render(<StatusTimelineHeatmap weekLimit={12} visibleProjectKeys={[]} />);
+      
+      // Should show no projects when empty visible keys
+      expect(screen.queryByText('Project 1')).not.toBeInTheDocument();
+    });
+  });
 });
