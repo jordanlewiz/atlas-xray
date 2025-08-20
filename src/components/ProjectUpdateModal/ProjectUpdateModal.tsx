@@ -79,7 +79,7 @@ export default function ProjectUpdateModal({
           shouldScrollInViewport
         >
           <ModalHeader>
-            <ModalTitle>Date Change Details</ModalTitle>
+            <ModalTitle>{project?.name || 'Project Update Details'}</ModalTitle>
           </ModalHeader>
           <ModalBody>
             <Box style={{ maxWidth: '1128px', margin: '0 auto', width: '100%' }}>

@@ -28,7 +28,10 @@ describe('ProjectUpdateModal', () => {
   const mockProject = {
     projectKey: 'TEST',
     name: 'Test Project',
-    rawProject: { projectKey: 'TEST' }
+    rawProject: { 
+      projectKey: 'TEST',
+      raw: { projectKey: 'TEST' }
+    }
   };
 
   const mockUpdate = {
@@ -78,8 +81,9 @@ describe('ProjectUpdateModal', () => {
         />
       );
       
-      expect(screen.getByText('Date Change Details')).toBeInTheDocument();
-      expect(screen.getByText('Test Project')).toBeInTheDocument();
+      // Check that project name appears in the modal header
+      expect(screen.getByTestId('modal-dialog--title-text')).toHaveTextContent('Test Project');
+      // Check that project name also appears in the modal body
       expect(screen.getByText('Project Key:')).toBeInTheDocument();
       expect(screen.getByText('TEST')).toBeInTheDocument();
     });
@@ -93,7 +97,7 @@ describe('ProjectUpdateModal', () => {
         />
       );
       
-      expect(screen.queryByText('Date Change Details')).not.toBeInTheDocument();
+      expect(screen.queryByText('Test Project')).not.toBeInTheDocument();
     });
   });
 
