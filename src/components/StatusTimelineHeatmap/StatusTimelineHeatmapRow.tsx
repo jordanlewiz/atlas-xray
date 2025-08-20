@@ -10,7 +10,7 @@ import {
   getDueDateTooltip,
   getDueDateDiff
 } from "../../utils/timelineUtils";
-import type { ProjectTimelineRowProps } from "../../types";
+import type { StatusTimelineHeatmapRowProps } from "../../types";
 
 /**
  * Renders a single project row in the status timeline heatmap.
@@ -31,9 +31,7 @@ export default function StatusTimelineHeatmapRow({
   const weekCells = getTimelineWeekCells(weekRanges, updates);
   
   // Get target date from the most recent update that has one
-  // Based on console logs, look for newTargetDate, targetDate, newDueDate
-  const targetDateRaw = updates.find(u => u.newTargetDate)?.newTargetDate ||
-                       updates.find(u => u.targetDate)?.targetDate ||
+  const targetDateRaw = updates.find(u => u.targetDate)?.targetDate ||
                        updates.find(u => u.newDueDate)?.newDueDate ||
                        null;
   const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
@@ -41,7 +39,7 @@ export default function StatusTimelineHeatmapRow({
   return (
     <div className="timeline-row">
       <div className="timeline-y-label">
-        <Tooltip content={project.name} position="bottom-start">
+        <Tooltip content={project.name} position="top-start">
           <h3 className="project-title-ellipsis">
             {project.name}
           </h3>
@@ -58,10 +56,23 @@ export default function StatusTimelineHeatmapRow({
       {weekCells.map((cell: any, i: number) => (
         <div key={i} className={cell.cellClass}>
           {cell.weekUpdates.map((u: any, idx: number) => (
-            <div key={idx} className={u.oldDueDate ? 'has-old-due-date' : ''} onClick={() => setSelectedUpdate(u)}>
+            <div 
+              key={idx} 
+              className={`timeline-cell-content ${u.oldDueDate ? 'has-old-due-date' : ''}`}
+              onClick={() => setSelectedUpdate(u)}
+              style={{ cursor: 'pointer' }}
+            >
+              {/* Show date difference tooltip if there's a date change */}
               {u.oldDueDate && u.newDueDate && (
                 <Tooltip content={getDueDateTooltip(u)} position="top">
-                  {getDueDateDiff(u)}
+                  <span className="date-difference">{getDueDateDiff(u)}</span>
+                </Tooltip>
+              )}
+              
+              {/* Show update indicator for any cell with updates */}
+              {!u.oldDueDate && (
+                <Tooltip content="Click to view update details" position="top">
+                  <span className="update-indicator">•</span>
                 </Tooltip>
               )}
             </div>

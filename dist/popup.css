@@ -449,6 +449,31 @@ body {
   font-size: 10px;
   cursor: pointer;
 }
+.timeline-cell .timeline-cell-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.timeline-cell .timeline-cell-content:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+.timeline-cell .timeline-cell-content .date-difference {
+  font-size: 10px;
+  font-weight: bold;
+  color: #fff;
+}
+.timeline-cell .timeline-cell-content .update-indicator {
+  font-size: 12px;
+  color: #fff;
+  font-weight: bold;
+  opacity: 0.5;
+}
+.timeline-cell .timeline-cell-content .update-indicator:hover {
+  opacity: 1;
+}
 
 .timeline-labels {
   font-size: 13px;

@@ -105,6 +105,24 @@ function renderNode(node: any): string {
     case 'hardBreak':
       return '<br>';
     
+    case 'date':
+      // Handle Confluence date nodes
+      const timestamp = node.attrs?.timestamp;
+      if (timestamp) {
+        try {
+          const date = new Date(parseInt(timestamp));
+          const formattedDate = date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric'
+          });
+          return `<span class="date-node" style="background-color: #F4F5F7; padding: 2px 4px; border-radius: 3px; font-size: 12px; color: #172B4D;">📅 ${formattedDate}</span>`;
+        } catch (error) {
+          return `<span class="date-node" style="background-color: #F4F5F7; padding: 2px 4px; border-radius: 3px; font-size: 12px; color: #172B4D;">📅 Date</span>`;
+        }
+      }
+      return `<span class="date-node" style="background-color: #F4F5F7; padding: 2px 4px; border-radius: 3px; font-size: 12px; color: #172B4D;">📅 Date</span>`;
+    
     case 'status':
       // Handle Confluence status nodes (colored labels)
       const statusText = node.attrs?.text || 'Status';
@@ -137,6 +155,13 @@ function renderNode(node: any): string {
         // For files, show a link or placeholder
         return `<div class="media-file" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin: 4px 0;">
           <span style="color: #6B778C;">📎 Media file (${mediaId})</span>
+        </div>`;
+      }
+      
+      // For images, we'll handle them specially in the component
+      if (mediaType === 'image' && mediaId) {
+        return `<div class="media-image" data-media-id="${mediaId}" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin: 4px 0;">
+          <span style="color: #6B778C;">🖼️ Image (${mediaId})</span>
         </div>`;
       }
       

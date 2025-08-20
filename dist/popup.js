@@ -13245,10 +13245,11 @@
 
   // src/utils/database.ts
   var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(8).stores({
+  db.version(9).stores({
     projectView: "projectKey",
     projectStatusHistory: "id,projectKey",
     projectUpdates: "id,projectKey",
+    projectImages: "id,projectKey,mediaId",
     meta: "key"
   });
   async function getMeta(key) {

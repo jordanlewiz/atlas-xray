@@ -1,10 +1,11 @@
-import { getItem, setItem, setProjectView, upsertProjectStatusHistory, upsertProjectUpdates } from "../utils/database";
+import { getItem, setItem, setProjectView, upsertProjectStatusHistory, upsertProjectUpdates, storeProjectImage } from "../utils/database";
 import { apolloClient } from "../services/apolloClient";
 import { gql } from "@apollo/client";
 import { PROJECT_VIEW_QUERY } from "../graphql/projectViewQuery";
 import { PROJECT_STATUS_HISTORY_QUERY } from "../graphql/projectStatusHistoryQuery";
 import { PROJECT_UPDATES_QUERY } from "../graphql/projectUpdatesQuery";
 import { setGlobalCloudAndSection } from "./globalState";
+import { fetchImageFromBlobUrl } from "./imageUtils";
 
 // Regex for /o/{cloudId}/s/{sectionId}/project/{ORG-123}
 const projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
@@ -46,6 +47,46 @@ export function findMatchingProjectLinksFromHrefs(hrefs: (string | null)[]): Pro
     }
   });
   return results;
+}
+
+/**
+ * Process ProseMirror content to find and store images
+ */
+async function processAndStoreImages(projectKey: string, content: any): Promise<void> {
+  if (!content || !Array.isArray(content)) return;
+  
+  for (const node of content) {
+    if (node.type === 'media' && node.attrs?.id) {
+      const mediaId = node.attrs.id;
+      
+      // Check if we already have this image
+      const existing = await getItem(`image:${projectKey}:${mediaId}`);
+      if (existing) continue;
+      
+      // Try to find the actual image URL in the DOM
+      const imageElement = document.querySelector(`[data-media-id="${mediaId}"], [data-attachment-id="${mediaId}"]`);
+      if (imageElement) {
+        const imgSrc = imageElement.getAttribute('src');
+        if (imgSrc && imgSrc.startsWith('blob:')) {
+          try {
+            const imageData = await fetchImageFromBlobUrl(imgSrc);
+            if (imageData) {
+              await storeProjectImage(projectKey, mediaId, imageData.imageData, imageData.mimeType);
+              await setItem(`image:${projectKey}:${mediaId}`, 'stored');
+              console.log(`[AtlasXray] Stored image for ${projectKey}:${mediaId}`);
+            }
+          } catch (error) {
+            console.warn(`[AtlasXray] Failed to store image ${mediaId}:`, error);
+          }
+        }
+      }
+    }
+    
+    // Recursively process nested content
+    if (node.content) {
+      await processAndStoreImages(projectKey, node.content);
+    }
+  }
 }
 
 async function fetchAndStoreProjectData(projectId: string, cloudId: string): Promise<void> {
@@ -99,6 +140,18 @@ async function fetchAndStoreProjectData(projectId: string, cloudId: string): Pro
     const nodes = data?.project?.updates?.edges?.map((edge: any) => edge.node).filter(Boolean) || [];
     if (nodes.length > 0) {
       await upsertProjectUpdates(nodes);
+      
+      // Process and store images from the updates
+      for (const node of nodes) {
+        if (node.summary) {
+          try {
+            const summaryContent = JSON.parse(node.summary);
+            await processAndStoreImages(projectId, summaryContent.content);
+          } catch (error) {
+            // Summary might not be valid JSON, skip image processing
+          }
+        }
+      }
     }
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);

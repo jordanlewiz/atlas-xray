@@ -23335,7 +23335,7 @@
       };
       Object.defineProperty(exports, "__esModule", { value: true });
       exports.useCache = void 0;
-      var React94 = __importStar(require_react());
+      var React95 = __importStar(require_react());
       var react_1 = require_react();
       var cache_1 = require_cache();
       var is_server_environment_1 = require_is_server_environment();
@@ -23359,7 +23359,7 @@
       var StyleCacheProvider = (props) => {
         if ((0, is_server_environment_1.isServerEnvironment)()) {
           const inserted = (0, exports.useCache)();
-          return React94.createElement(Cache2.Provider, { value: inserted }, props.children);
+          return React95.createElement(Cache2.Provider, { value: inserted }, props.children);
         }
         return props.children;
       };
@@ -23662,7 +23662,7 @@
       exports.default = exports.Icon = void 0;
       require_icon_new_compiled();
       var _react = _interopRequireWildcard(require_react());
-      var React94 = _react;
+      var React95 = _react;
       var _runtime = require_runtime2();
       var _platformFeatureFlags = require_cjs3();
       function _interopRequireWildcard(e, t) {
@@ -23731,7 +23731,7 @@
           __html: dangerouslySetGlyph
         } : void 0;
         if (FallbackIcon && !(0, _platformFeatureFlags.fg)("platform-visual-refresh-icons")) {
-          return /* @__PURE__ */ React94.createElement(FallbackIcon, {
+          return /* @__PURE__ */ React95.createElement(FallbackIcon, {
             primaryColor: LEGACY_primaryColor !== null && LEGACY_primaryColor !== void 0 ? LEGACY_primaryColor : color,
             secondaryColor: LEGACY_secondaryColor,
             size: LEGACY_size,
@@ -23748,7 +23748,7 @@
         var baseSize = baseSizeMap[type];
         var viewBoxPadding = paddingMap[type][size2][spacing];
         var viewBoxSize = baseSize + 2 * viewBoxPadding;
-        return /* @__PURE__ */ React94.createElement("span", {
+        return /* @__PURE__ */ React95.createElement("span", {
           "data-testid": testId,
           role: label ? "img" : void 0,
           "aria-label": label ? label : void 0,
@@ -23757,7 +23757,7 @@
             color
           },
           className: (0, _runtime.ax)(["_1e0c1o8l _vchhusvi _1o9zidpf _vwz4kb7n _y4ti1igz _bozg1mb9", "_12va1onz _jcxd1r8n", shouldScale && "_1bsb1kw7 _4t3i1kw7", (type === "utility" || size2 === "small") && "_vwz4utpp"])
-        }, /* @__PURE__ */ React94.createElement("svg", {
+        }, /* @__PURE__ */ React95.createElement("svg", {
           fill: "none",
           viewBox: "".concat(0 - viewBoxPadding, " ").concat(0 - viewBoxPadding, " ").concat(viewBoxSize, " ").concat(viewBoxSize),
           role: "presentation",
@@ -23864,7 +23864,7 @@
       exports.default = exports.Icon = void 0;
       require_icon_compiled();
       var _react = _interopRequireWildcard(require_react());
-      var React94 = _react;
+      var React95 = _react;
       var _runtime = require_runtime2();
       var _extends2 = _interopRequireDefault(require_extends());
       var _defineProperty2 = _interopRequireDefault(require_defineProperty());
@@ -23916,7 +23916,7 @@
             __html: dangerouslySetGlyph
           }
         } : {
-          children: Glyph ? /* @__PURE__ */ React94.createElement(Glyph, {
+          children: Glyph ? /* @__PURE__ */ React95.createElement(Glyph, {
             role: "presentation"
           }) : null
         };
@@ -23924,7 +23924,7 @@
           width: width2 + "px",
           height: height + "px"
         } : null;
-        return /* @__PURE__ */ React94.createElement("span", (0, _extends2.default)({
+        return /* @__PURE__ */ React95.createElement("span", (0, _extends2.default)({
           "data-testid": testId,
           "data-vc": "icon-".concat(testId),
           role: label ? "img" : void 0,
@@ -25010,11 +25010,11 @@
   });
 
   // src/chromeExtension.js
-  var import_react139 = __toESM(require_react());
+  var import_react140 = __toESM(require_react());
   var import_client3 = __toESM(require_client());
 
   // src/components/FloatingButton/FloatingButton.tsx
-  var import_react138 = __toESM(require_react());
+  var import_react139 = __toESM(require_react());
 
   // node_modules/dexie/import-wrapper.mjs
   var import_dexie = __toESM(require_dexie(), 1);
@@ -25119,10 +25119,11 @@
 
   // src/utils/database.ts
   var db = new import_wrapper_default("AtlasXrayDB");
-  db.version(8).stores({
+  db.version(9).stores({
     projectView: "projectKey",
     projectStatusHistory: "id,projectKey",
     projectUpdates: "id,projectKey",
+    projectImages: "id,projectKey,mediaId",
     meta: "key"
   });
   async function setProjectView(projectKey, data) {
@@ -25172,9 +25173,23 @@
     }));
     return db.projectStatusHistory.bulkPut(rows);
   }
+  async function storeProjectImage(projectKey, mediaId, imageData, mimeType) {
+    await db.projectImages.put({
+      id: `${projectKey}-${mediaId}`,
+      projectKey,
+      mediaId,
+      imageData,
+      mimeType,
+      storedAt: (/* @__PURE__ */ new Date()).toISOString()
+    });
+  }
+  async function getProjectImage(projectKey, mediaId) {
+    const image = await db.projectImages.get(`${projectKey}-${mediaId}`);
+    return image ? { imageData: image.imageData, mimeType: image.mimeType } : null;
+  }
 
   // src/components/StatusTimelineHeatmap/StatusTimelineHeatmapRow.tsx
-  var import_react113 = __toESM(require_react());
+  var import_react114 = __toESM(require_react());
 
   // node_modules/@babel/runtime/helpers/esm/extends.js
   function _extends() {
@@ -43468,6 +43483,22 @@
         return `<a href="${url}" target="_blank" style="color: #0052CC; text-decoration: underline;">${url}</a>`;
       case "hardBreak":
         return "<br>";
+      case "date":
+        const timestamp = node2.attrs?.timestamp;
+        if (timestamp) {
+          try {
+            const date = new Date(parseInt(timestamp));
+            const formattedDate = date.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric"
+            });
+            return `<span class="date-node" style="background-color: #F4F5F7; padding: 2px 4px; border-radius: 3px; font-size: 12px; color: #172B4D;">\u{1F4C5} ${formattedDate}</span>`;
+          } catch (error) {
+            return `<span class="date-node" style="background-color: #F4F5F7; padding: 2px 4px; border-radius: 3px; font-size: 12px; color: #172B4D;">\u{1F4C5} Date</span>`;
+          }
+        }
+        return `<span class="date-node" style="background-color: #F4F5F7; padding: 2px 4px; border-radius: 3px; font-size: 12px; color: #172B4D;">\u{1F4C5} Date</span>`;
       case "status":
         const statusText = node2.attrs?.text || "Status";
         const statusColor = node2.attrs?.color || "neutral";
@@ -43495,6 +43526,11 @@
           <span style="color: #6B778C;">\u{1F4CE} Media file (${mediaId})</span>
         </div>`;
         }
+        if (mediaType === "image" && mediaId) {
+          return `<div class="media-image" data-media-id="${mediaId}" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin: 4px 0;">
+          <span style="color: #6B778C;">\u{1F5BC}\uFE0F Image (${mediaId})</span>
+        </div>`;
+        }
         return `<div class="media-placeholder" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px; margin: 4px 0; color: #6B778C;">
         \u{1F4CE} Media content
       </div>`;
@@ -43517,8 +43553,111 @@
     return html;
   }
 
-  // src/components/ProjectUpdateModal/ProjectUpdateModal.tsx
+  // src/components/ImageRenderer/ImageRenderer.tsx
+  var import_react113 = __toESM(require_react());
+
+  // src/utils/imageUtils.ts
+  async function fetchImageFromBlobUrl(blobUrl) {
+    try {
+      const response = await fetch(blobUrl);
+      if (!response.ok) {
+        console.warn("[AtlasXray] Failed to fetch image from blob URL:", response.statusText);
+        return null;
+      }
+      const blob = await response.blob();
+      const mimeType = blob.type || "image/png";
+      const imageData = await blobToBase64(blob);
+      return { imageData, mimeType };
+    } catch (error) {
+      console.error("[AtlasXray] Error fetching image from blob URL:", error);
+      return null;
+    }
+  }
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result2 = reader.result;
+        const base64Data = result2.split(",")[1];
+        resolve(base64Data);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+  function base64ToDataUrl(imageData, mimeType) {
+    return `data:${mimeType};base64,${imageData}`;
+  }
+
+  // src/components/ImageRenderer/ImageRenderer.tsx
   var import_jsx_runtime = __toESM(require_jsx_runtime());
+  function ImageRenderer({ projectKey, mediaId, fallbackText }) {
+    const [imageUrl, setImageUrl] = (0, import_react113.useState)(null);
+    const [loading, setLoading] = (0, import_react113.useState)(true);
+    const [error, setError] = (0, import_react113.useState)(false);
+    (0, import_react113.useEffect)(() => {
+      async function loadImage() {
+        try {
+          setLoading(true);
+          const imageData = await getProjectImage(projectKey, mediaId);
+          if (imageData) {
+            const dataUrl = base64ToDataUrl(imageData.imageData, imageData.mimeType);
+            setImageUrl(dataUrl);
+          } else {
+            setError(true);
+          }
+        } catch (err) {
+          console.error("[AtlasXray] Error loading image:", err);
+          setError(true);
+        } finally {
+          setLoading(false);
+        }
+      }
+      if (projectKey && mediaId) {
+        loadImage();
+      }
+    }, [projectKey, mediaId]);
+    if (loading) {
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "image-loading", style: { padding: "8px", color: "#6B778C", fontStyle: "italic" }, children: "Loading image..." });
+    }
+    if (error || !imageUrl) {
+      return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "image-error", style: { padding: "8px", border: "1px solid #ddd", borderRadius: "4px", margin: "4px 0", color: "#6B778C" }, children: fallbackText || `\u{1F5BC}\uFE0F Image (${mediaId})` });
+    }
+    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "stored-image", style: { margin: "8px 0" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(
+      "img",
+      {
+        src: imageUrl,
+        alt: `Project update image ${mediaId}`,
+        style: {
+          maxWidth: "100%",
+          height: "auto",
+          borderRadius: "4px",
+          border: "1px solid #ddd"
+        },
+        onError: () => setError(true)
+      }
+    ) });
+  }
+
+  // src/components/ProjectUpdateModal/ProjectUpdateModal.tsx
+  var import_jsx_runtime2 = __toESM(require_jsx_runtime());
+  function extractMediaNodes(content) {
+    const mediaNodes = [];
+    function traverse(nodes) {
+      for (const node2 of nodes) {
+        if (node2.type === "media" && node2.attrs?.id) {
+          mediaNodes.push(node2);
+        }
+        if (node2.content && Array.isArray(node2.content)) {
+          traverse(node2.content);
+        }
+      }
+    }
+    if (content && Array.isArray(content)) {
+      traverse(content);
+    }
+    return mediaNodes;
+  }
   function ProjectUpdateModal({
     selectedUpdate,
     project,
@@ -43549,35 +43688,35 @@
       }
     };
     if (!selectedUpdate) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime.jsx)(modal_transition_default, { children: selectedUpdate && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+    return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(modal_transition_default, { children: selectedUpdate && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
       ModalWrapper,
       {
         onClose,
         width: "full",
         shouldScrollInViewport: true,
         children: [
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(modal_header_default, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(modal_title_default, { children: "Date Change Details" }) }),
-          /* @__PURE__ */ (0, import_jsx_runtime.jsx)(modal_body_default, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(box_default2, { style: { maxWidth: "1128px", margin: "0 auto", width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(grid_default, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "date-change-modal-body", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { className: "project-name", children: project?.name }),
-            /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "project-key", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("small", { children: "Project Key:" }),
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(modal_header_default, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(modal_title_default, { children: "Date Change Details" }) }),
+          /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(modal_body_default, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(box_default2, { style: { maxWidth: "1128px", margin: "0 auto", width: "100%" }, children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(grid_default, { children: /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "date-change-modal-body", children: [
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h3", { className: "project-name", children: project?.name }),
+            /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "project-key", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("small", { children: "Project Key:" }),
               " ",
               project?.projectKey
             ] }),
-            selectedUpdate.oldDueDate && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            selectedUpdate.oldDueDate && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
               section_message_default,
               {
                 appearance: "error",
                 title: "Date Change Detected",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "change-section", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Date Change:" }) }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "date-change-display", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "old-date", children: selectedUpdate.oldDueDate }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "arrow", children: "\u2192" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "new-date", children: selectedUpdate.newDueDate })
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "change-section", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: "Date Change:" }) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "date-change-display", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "old-date", children: selectedUpdate.oldDueDate }),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "arrow", children: "\u2192" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "new-date", children: selectedUpdate.newDueDate })
                   ] }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "change-difference", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Difference:" }),
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "change-difference", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: "Difference:" }),
                     " ",
                     getDueDateDiff(selectedUpdate),
                     " days"
@@ -43585,43 +43724,62 @@
                 ]
               }
             ),
-            selectedUpdate.oldState && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)(
+            selectedUpdate.oldState && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)(
               section_message_default,
               {
                 appearance: "error",
                 title: "Status Change Detected",
                 children: [
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "change-section", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("strong", { children: "Status Change:" }) }),
-                  /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "status-change-display", children: [
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.oldState), children: selectedUpdate.oldState }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)("span", { className: "arrow", children: "\u2192" }),
-                    /* @__PURE__ */ (0, import_jsx_runtime.jsx)(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.state), children: selectedUpdate.state })
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "change-section", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("strong", { children: "Status Change:" }) }),
+                  /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "status-change-display", children: [
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.oldState), children: selectedUpdate.oldState }),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { className: "arrow", children: "\u2192" }),
+                    /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(lozenge_default, { appearance: getLozengeAppearance(selectedUpdate.state), children: selectedUpdate.state })
                   ] })
                 ]
               }
             ),
-            selectedUpdate.summary && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "summary-section", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "Update Summary:" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "summary-content", children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { dangerouslySetInnerHTML: { __html: renderProseMirror(selectedUpdate.summary) } }) })
+            selectedUpdate.summary && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "summary-section", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h3", { children: "Update Summary:" }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "summary-content", children: [
+                /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { dangerouslySetInnerHTML: { __html: renderProseMirror(selectedUpdate.summary) } }),
+                (() => {
+                  try {
+                    const summaryContent = JSON.parse(selectedUpdate.summary);
+                    const mediaNodes = extractMediaNodes(summaryContent.content);
+                    return mediaNodes.map((mediaNode, idx) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+                      ImageRenderer,
+                      {
+                        projectKey: project?.projectKey || "",
+                        mediaId: mediaNode.attrs?.id || "",
+                        fallbackText: `\u{1F5BC}\uFE0F Image (${mediaNode.attrs?.id || ""})`
+                      },
+                      `summary-${idx}`
+                    ));
+                  } catch (e) {
+                    return null;
+                  }
+                })()
+              ] })
             ] }),
-            selectedUpdate.details && /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "details-section", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("h3", { children: "Update Details:" }),
-              /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "details-content", children: (() => {
+            selectedUpdate.details && /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "details-section", children: [
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h3", { children: "Update Details:" }),
+              /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "details-content", children: (() => {
                 try {
                   const parsedDetails = JSON.parse(selectedUpdate.details);
                   if (Array.isArray(parsedDetails) && parsedDetails.length > 0) {
-                    return parsedDetails.map((note, idx) => /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("div", { className: "note-item", children: [
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsxs)("strong", { children: [
+                    return parsedDetails.map((note, idx) => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "note-item", children: [
+                      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("strong", { children: [
                         note.title || "Note",
                         ":"
                       ] }),
-                      /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { dangerouslySetInnerHTML: { __html: renderProseMirror(note.summary) } })
+                      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { dangerouslySetInnerHTML: { __html: renderProseMirror(note.summary) } })
                     ] }, idx));
                   }
                 } catch (e) {
                   console.error("Error parsing details:", e);
                 }
-                return /* @__PURE__ */ (0, import_jsx_runtime.jsx)("div", { className: "no-details", children: "No detailed update provided" });
+                return /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "no-details", children: "No detailed update provided" });
               })() })
             ] })
           ] }) }) }) })
@@ -43631,25 +43789,25 @@
   }
 
   // src/components/StatusTimelineHeatmap/StatusTimelineHeatmapRow.tsx
-  var import_jsx_runtime2 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime3 = __toESM(require_jsx_runtime());
   function StatusTimelineHeatmapRow({
     project,
     weekRanges,
     updates
   }) {
-    const [isOpen, setIsOpen] = (0, import_react113.useState)(false);
-    const [selectedUpdate, setSelectedUpdate] = (0, import_react113.useState)(null);
+    const [isOpen, setIsOpen] = (0, import_react114.useState)(false);
+    const [selectedUpdate, setSelectedUpdate] = (0, import_react114.useState)(null);
     if (!project) {
       console.warn("ProjectTimelineRow received undefined project");
       return null;
     }
     const weekCells = getTimelineWeekCells(weekRanges, updates);
-    const targetDateRaw = updates.find((u) => u.newTargetDate)?.newTargetDate || updates.find((u) => u.targetDate)?.targetDate || updates.find((u) => u.newDueDate)?.newDueDate || null;
+    const targetDateRaw = updates.find((u) => u.targetDate)?.targetDate || updates.find((u) => u.newDueDate)?.newDueDate || null;
     const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
-    return /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "timeline-row", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { className: "timeline-y-label", children: [
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(tooltip_default, { content: project.name, position: "bottom-start", children: /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h3", { className: "project-title-ellipsis", children: project.name }) }),
-        /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "timeline-row", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "timeline-y-label", children: [
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(tooltip_default, { content: project.name, position: "top-start", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h3", { className: "project-title-ellipsis", children: project.name }) }),
+        /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
           "a",
           {
             href: buildProjectUrlFromKey(project.projectKey),
@@ -43659,17 +43817,29 @@
           }
         )
       ] }),
-      weekCells.map((cell, i) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: cell.cellClass, children: cell.weekUpdates.map((u, idx) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: u.oldDueDate ? "has-old-due-date" : "", onClick: () => setSelectedUpdate(u), children: u.oldDueDate && u.newDueDate && /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(tooltip_default, { content: getDueDateTooltip(u), position: "top", children: getDueDateDiff(u) }) }, idx)) }, i)),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("div", { className: "timeline-target-date", children: targetDateRaw ? /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+      weekCells.map((cell, i) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: cell.cellClass, children: cell.weekUpdates.map((u, idx) => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)(
+        "div",
+        {
+          className: `timeline-cell-content ${u.oldDueDate ? "has-old-due-date" : ""}`,
+          onClick: () => setSelectedUpdate(u),
+          style: { cursor: "pointer" },
+          children: [
+            u.oldDueDate && u.newDueDate && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(tooltip_default, { content: getDueDateTooltip(u), position: "top", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "date-difference", children: getDueDateDiff(u) }) }),
+            !u.oldDueDate && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(tooltip_default, { content: "Click to view update details", position: "top", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "update-indicator", children: "\u2022" }) })
+          ]
+        },
+        idx
+      )) }, i)),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "timeline-target-date", children: targetDateRaw ? /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
         esm_default3,
         {
           isOpen,
           onClose: () => setIsOpen(false),
-          content: () => /* @__PURE__ */ (0, import_jsx_runtime2.jsxs)("div", { style: { padding: "16px", maxWidth: "300px" }, children: [
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("h3", { children: "Target Date" }),
-            /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("p", { children: targetDateRaw })
+          content: () => /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { style: { padding: "16px", maxWidth: "300px" }, children: [
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("h3", { children: "Target Date" }),
+            /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("p", { children: targetDateRaw })
           ] }),
-          trigger: (triggerProps) => /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+          trigger: (triggerProps) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
             button_default,
             {
               ...triggerProps,
@@ -43682,8 +43852,8 @@
           placement: "bottom-start",
           zIndex: 1e3
         }
-      ) : /* @__PURE__ */ (0, import_jsx_runtime2.jsx)("span", { style: { color: "#6b7280", fontSize: "12px" }, children: "No target date" }) }),
-      /* @__PURE__ */ (0, import_jsx_runtime2.jsx)(
+      ) : /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { style: { color: "#6b7280", fontSize: "12px" }, children: "No target date" }) }),
+      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(
         ProjectUpdateModal,
         {
           selectedUpdate,
@@ -43695,24 +43865,24 @@
   }
 
   // src/components/StatusTimelineHeatmap/StatusTimelineHeatmapHeader.tsx
-  var import_jsx_runtime3 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime4 = __toESM(require_jsx_runtime());
   function StatusTimelineHeatmapHeader({ weekRanges }) {
-    return /* @__PURE__ */ (0, import_jsx_runtime3.jsxs)("div", { className: "timeline-row timeline-labels", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "timeline-y-label" }),
+    return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "timeline-row timeline-labels", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "timeline-y-label" }),
       " ",
-      weekRanges.map((w2, i) => /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "timeline-x-label", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(tooltip_default, { content: w2.label, children: w2.label }) }, i)),
-      /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("div", { className: "timeline-target-date", children: "Target Date" }),
+      weekRanges.map((w2, i) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "timeline-x-label", children: /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(tooltip_default, { content: w2.label, children: w2.label }) }, i)),
+      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { className: "timeline-target-date", children: "Target Date" }),
       " "
     ] });
   }
 
   // src/hooks/useTimelineData.ts
-  var import_react114 = __toESM(require_react());
+  var import_react115 = __toESM(require_react());
   function useTimeline(weekLimit = 12) {
     const projects = useLiveQuery(() => db.projectView.toArray(), []);
     const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []);
     const allStatusHistory = useLiveQuery(() => db.projectStatusHistory.toArray(), []);
-    return (0, import_react114.useMemo)(() => {
+    return (0, import_react115.useMemo)(() => {
       if (!projects || !allUpdates || !allStatusHistory) {
         return {
           weekRanges: [],
@@ -43791,15 +43961,15 @@
   }
 
   // src/components/StatusTimelineHeatmap/StatusTimelineHeatmap.tsx
-  var import_jsx_runtime4 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime5 = __toESM(require_jsx_runtime());
   function StatusTimelineHeatmap({ weekLimit = 12 }) {
     const { projectViewModels, weekRanges, updatesByProject, isLoading } = useTimeline(weekLimit);
     if (isLoading) {
-      return /* @__PURE__ */ (0, import_jsx_runtime4.jsx)("div", { children: "Loading timeline data..." });
+      return /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("div", { children: "Loading timeline data..." });
     }
-    return /* @__PURE__ */ (0, import_jsx_runtime4.jsxs)("div", { className: "project-timeline", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(StatusTimelineHeatmapHeader, { weekRanges }),
-      projectViewModels.filter(Boolean).map((project, idx) => /* @__PURE__ */ (0, import_jsx_runtime4.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "project-timeline", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(StatusTimelineHeatmapHeader, { weekRanges }),
+      projectViewModels.filter(Boolean).map((project, idx) => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
         StatusTimelineHeatmapRow,
         {
           project,
@@ -43812,12 +43982,12 @@
   }
 
   // src/components/ProjectStatusHistoryModal/ProjectStatusHistoryModal.tsx
-  var import_react137 = __toESM(require_react());
+  var import_react138 = __toESM(require_react());
 
   // node_modules/@atlaskit/modal-dialog/dist/esm/full-screen.js
-  var import_react115 = __toESM(require_react());
+  var import_react116 = __toESM(require_react());
   function FullScreenModalDialog(props) {
-    return /* @__PURE__ */ import_react115.default.createElement(
+    return /* @__PURE__ */ import_react116.default.createElement(
       modal_wrapper_default,
       _extends({}, props, {
         /**
@@ -43843,7 +44013,7 @@
   // node_modules/@atlaskit/react-select/dist/esm/use-state-manager.js
   init_defineProperty();
   init_slicedToArray();
-  var import_react116 = __toESM(require_react());
+  var import_react117 = __toESM(require_react());
   var _excluded13 = ["defaultInputValue", "defaultMenuIsOpen", "defaultValue", "inputValue", "menuIsOpen", "onChange", "onInputChange", "onMenuClose", "onMenuOpen", "value"];
   function ownKeys15(e, r) {
     var t = Object.keys(e);
@@ -43868,29 +44038,29 @@
   }
   function useStateManager(_ref2) {
     var _ref$defaultInputValu = _ref2.defaultInputValue, defaultInputValue = _ref$defaultInputValu === void 0 ? "" : _ref$defaultInputValu, _ref$defaultMenuIsOpe = _ref2.defaultMenuIsOpen, defaultMenuIsOpen = _ref$defaultMenuIsOpe === void 0 ? false : _ref$defaultMenuIsOpe, _ref$defaultValue = _ref2.defaultValue, defaultValue = _ref$defaultValue === void 0 ? null : _ref$defaultValue, propsInputValue = _ref2.inputValue, propsMenuIsOpen = _ref2.menuIsOpen, propsOnChange = _ref2.onChange, propsOnInputChange = _ref2.onInputChange, propsOnMenuClose = _ref2.onMenuClose, propsOnMenuOpen = _ref2.onMenuOpen, propsValue = _ref2.value, restSelectProps = _objectWithoutProperties(_ref2, _excluded13);
-    var _useState = (0, import_react116.useState)(propsInputValue !== void 0 ? propsInputValue : defaultInputValue), _useState2 = _slicedToArray(_useState, 2), stateInputValue = _useState2[0], setStateInputValue = _useState2[1];
-    var _useState3 = (0, import_react116.useState)(propsMenuIsOpen !== void 0 ? propsMenuIsOpen : defaultMenuIsOpen), _useState4 = _slicedToArray(_useState3, 2), stateMenuIsOpen = _useState4[0], setStateMenuIsOpen = _useState4[1];
-    var _useState5 = (0, import_react116.useState)(propsValue !== void 0 ? propsValue : defaultValue), _useState6 = _slicedToArray(_useState5, 2), stateValue = _useState6[0], setStateValue = _useState6[1];
-    var onChange2 = (0, import_react116.useCallback)(function(value2, actionMeta) {
+    var _useState = (0, import_react117.useState)(propsInputValue !== void 0 ? propsInputValue : defaultInputValue), _useState2 = _slicedToArray(_useState, 2), stateInputValue = _useState2[0], setStateInputValue = _useState2[1];
+    var _useState3 = (0, import_react117.useState)(propsMenuIsOpen !== void 0 ? propsMenuIsOpen : defaultMenuIsOpen), _useState4 = _slicedToArray(_useState3, 2), stateMenuIsOpen = _useState4[0], setStateMenuIsOpen = _useState4[1];
+    var _useState5 = (0, import_react117.useState)(propsValue !== void 0 ? propsValue : defaultValue), _useState6 = _slicedToArray(_useState5, 2), stateValue = _useState6[0], setStateValue = _useState6[1];
+    var onChange2 = (0, import_react117.useCallback)(function(value2, actionMeta) {
       if (typeof propsOnChange === "function") {
         propsOnChange(value2, actionMeta);
       }
       setStateValue(value2);
     }, [propsOnChange]);
-    var onInputChange = (0, import_react116.useCallback)(function(value2, actionMeta) {
+    var onInputChange = (0, import_react117.useCallback)(function(value2, actionMeta) {
       var newValue;
       if (typeof propsOnInputChange === "function") {
         newValue = propsOnInputChange(value2, actionMeta);
       }
       setStateInputValue(newValue !== void 0 ? newValue : value2);
     }, [propsOnInputChange]);
-    var onMenuOpen = (0, import_react116.useCallback)(function() {
+    var onMenuOpen = (0, import_react117.useCallback)(function() {
       if (typeof propsOnMenuOpen === "function") {
         propsOnMenuOpen();
       }
       setStateMenuIsOpen(true);
     }, [propsOnMenuOpen]);
-    var onMenuClose = (0, import_react116.useCallback)(function() {
+    var onMenuClose = (0, import_react117.useCallback)(function() {
       if (typeof propsOnMenuClose === "function") {
         propsOnMenuClose();
       }
@@ -43916,7 +44086,7 @@
   init_createClass();
   init_defineProperty();
   init_toConsumableArray();
-  var import_react133 = __toESM(require_react());
+  var import_react134 = __toESM(require_react());
   var import_platform_feature_flags20 = __toESM(require_cjs3());
 
   // node_modules/@atlaskit/react-select/dist/esm/builtins.js
@@ -43937,7 +44107,7 @@
   init_defineProperty();
 
   // node_modules/@atlaskit/react-select/dist/esm/components/containers.js
-  var React73 = __toESM(require_react());
+  var React74 = __toESM(require_react());
   var import_platform_feature_flags17 = __toESM(require_cjs3());
 
   // node_modules/@atlaskit/react-select/dist/esm/utils.js
@@ -44222,7 +44392,7 @@
       "--is-disabled": isDisabled,
       "--is-rtl": isRtl
     }), className = _getStyleProps.className, css7 = _getStyleProps.css;
-    return /* @__PURE__ */ React73.createElement("div", _extends({
+    return /* @__PURE__ */ React74.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([containerStyles.default, isRtl && containerStyles.rtl, isDisabled && containerStyles.disabled, (0, import_platform_feature_flags17.fg)("platform_design_system_team_safari_input_fix") && containerStyles.ff_safari_input_fix, cx(className, xcss2, "-container")]),
       style: css7
@@ -44243,7 +44413,7 @@
       "value-container--is-multi": isMulti,
       "value-container--has-value": hasValue
     }), css7 = _getStyleProps2.css, className = _getStyleProps2.className;
-    return /* @__PURE__ */ React73.createElement("div", _extends({
+    return /* @__PURE__ */ React74.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([valueContainerStyles.default, isMulti && hasValue && controlShouldRenderValue && valueContainerStyles.flex, isCompact && valueContainerStyles.compact, cx(className, xcss2, "-ValueContainer")]),
       style: css7
@@ -44257,7 +44427,7 @@
     var _getStyleProps3 = getStyleProps(props, "indicatorsContainer", {
       indicators: true
     }), css7 = _getStyleProps3.css, className = _getStyleProps3.className;
-    return /* @__PURE__ */ React73.createElement("div", _extends({
+    return /* @__PURE__ */ React74.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax(["_1e0c1txw _4cvr1h6o _1o9zidpf _1wpz1fhb _y4ti1b66", cx(className, xcss2, "-IndicatorsContainer")])
@@ -44265,7 +44435,7 @@
   };
 
   // node_modules/@atlaskit/react-select/dist/esm/components/control.js
-  var React74 = __toESM(require_react());
+  var React75 = __toESM(require_react());
   var styles12 = {
     default: "_12ji1r31 _1qu2glyw _12y3idpf _2rkosqtm _v564r5cv _1h6d1elr _1dqonqa1 _189ee4h9 _4cvr1h6o _80om73ad _1e0c1txw _1n261g80 _1bah1yb4 _kqswh2mm _bfhk1j9a _1tke1ylp _ca0qze3t _u5f3ze3t _n3tdze3t _19bvze3t _15peftgi _1ke8ftgi _jaboglyw _1u6l1bml _4cvx1elr _123byq51 _d0altlke _irr31d5g _1ogl1caj",
     compact: "_1tkezwfg",
@@ -44288,7 +44458,7 @@
       "control--is-focused": isFocused,
       "control--menu-is-open": menuIsOpen
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React74.createElement("div", _extends({
+    return /* @__PURE__ */ React75.createElement("div", _extends({
       ref: innerRef,
       className: ax([styles12.default, isDisabled && styles12.disabled, isInvalid && styles12.invalid, isCompact && styles12.compact, appearance === "subtle" && styles12.subtle, appearance === "subtle" && isFocused && styles12.subtleFocused, isFocused && styles12.focused, appearance === "none" && styles12.none, cx(className, xcss2, "-control")]),
       style: css7
@@ -44299,7 +44469,7 @@
   var control_default = Control;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/group.js
-  var React75 = __toESM(require_react());
+  var React76 = __toESM(require_react());
   var _excluded15 = ["data"];
   var styles13 = {
     root: "_n3tdu2gc _ca0qu2gc"
@@ -44312,18 +44482,18 @@
     var _getStyleProps = getStyleProps(props, "group", {
       group: true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React75.createElement("div", _extends({
+    return /* @__PURE__ */ React76.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7
     }, innerProps, {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([styles13.root, cx(className, xcss2, innerProps === null || innerProps === void 0 ? void 0 : innerProps.className, "-Group")])
-    }), label && /* @__PURE__ */ React75.createElement(Heading2, _extends({}, headingProps, {
+    }), label && /* @__PURE__ */ React76.createElement(Heading2, _extends({}, headingProps, {
       selectProps,
       getStyles,
       getClassNames,
       cx: builtinCX
-    }), label), /* @__PURE__ */ React75.createElement("div", null, children));
+    }), label), /* @__PURE__ */ React76.createElement("div", null, children));
   };
   var groupHeadingCSS = function groupHeadingCSS2() {
     return {};
@@ -44334,7 +44504,7 @@
     var _getStyleProps2 = getStyleProps(props, "groupHeading", {
       "group-heading": true
     }), css7 = _getStyleProps2.css, className = _getStyleProps2.className;
-    return /* @__PURE__ */ React75.createElement("div", _extends({
+    return /* @__PURE__ */ React76.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax(["_11c81o8v _1e0c1ule _syaz1gjq _80om73ad _k48pmoej _6rthpd1z _y4tiutpp _bozgutpp _1p1dglyw", cx(className, xcss2, "-group")]),
       style: css7
@@ -44344,7 +44514,7 @@
 
   // node_modules/@atlaskit/react-select/dist/esm/components/indicators.js
   init_defineProperty();
-  var React76 = __toESM(require_react());
+  var React77 = __toESM(require_react());
   var import_chevron_down = __toESM(require_chevron_down3());
   var import_cross_circle_select_clear = __toESM(require_cross_circle_select_clear());
   var _excluded16 = ["innerProps", "isRtl", "size", "isCompact", "xcss"];
@@ -44389,14 +44559,14 @@
       indicator: true,
       "dropdown-indicator": true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React76.createElement("div", _extends({
+    return /* @__PURE__ */ React77.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([dropdownStyles.default, isDisabled && dropdownStyles.disabled, isCompact && dropdownStyles.compact, cx(className, xcss2, "-indicatorContainer")])
-    }, innerProps), children ? children : /* @__PURE__ */ React76.createElement(inline_default, {
+    }, innerProps), children ? children : /* @__PURE__ */ React77.createElement(inline_default, {
       as: "span",
       xcss: dropdownWrapperStyles.root
-    }, /* @__PURE__ */ React76.createElement(import_chevron_down.default, {
+    }, /* @__PURE__ */ React77.createElement(import_chevron_down.default, {
       color: "currentColor",
       label: "open",
       LEGACY_margin: "var(--ds-space-negative-075, -0.375rem)",
@@ -44416,15 +44586,15 @@
       indicator: true,
       "clear-indicator": true
     }), css7 = _getStyleProps2.css, className = _getStyleProps2.className;
-    return /* @__PURE__ */ React76.createElement("div", _extends({
+    return /* @__PURE__ */ React77.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([clearIndicatorStyles.default, isCompact && clearIndicatorStyles.compact, cx(className, xcss2, "-indicatorContainer")])
-    }, innerProps), /* @__PURE__ */ React76.createElement(pressable_default, {
+    }, innerProps), /* @__PURE__ */ React77.createElement(pressable_default, {
       xcss: iconContainerStyles.root,
       tabIndex: -1,
       "aria-label": clearControlLabel
-    }, /* @__PURE__ */ React76.createElement(import_cross_circle_select_clear.default, {
+    }, /* @__PURE__ */ React77.createElement(import_cross_circle_select_clear.default, {
       label: "",
       color: "currentColor",
       LEGACY_size: "small",
@@ -44449,17 +44619,17 @@
       indicator: true,
       "loading-indicator": true
     }), css7 = _getStyleProps3.css, className = _getStyleProps3.className;
-    return /* @__PURE__ */ React76.createElement("div", _extends({
+    return /* @__PURE__ */ React77.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([loadingIndicatorStyles.default, isCompact && loadingIndicatorStyles.compact, cx(className, xcss2, "-loadingIndicator")])
-    }, innerProps), /* @__PURE__ */ React76.createElement(spinner_default, {
+    }, innerProps), /* @__PURE__ */ React77.createElement(spinner_default, {
       size: "small"
     }));
   };
 
   // node_modules/@atlaskit/react-select/dist/esm/components/input.js
-  var React77 = __toESM(require_react());
+  var React78 = __toESM(require_react());
   var import_platform_feature_flags18 = __toESM(require_cjs3());
   var _excluded17 = ["innerRef", "isDisabled", "isHidden", "inputClassName", "testId"];
   var inputCSS = function inputCSS2() {
@@ -44481,13 +44651,13 @@
       "input-container": true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
     if ((0, import_platform_feature_flags18.fg)("platform_do_not_clear_input_for_multiselect")) {
-      return /* @__PURE__ */ React77.createElement("div", {
+      return /* @__PURE__ */ React78.createElement("div", {
         // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
         style: css7,
         className: ax([inputStyles.root, isDisabled && inputStyles.disabled, cx(className, xcss2, "-Input")]),
         "data-value": value || "",
         "data-testid": dataId && "".concat(dataId, "-container")
-      }, /* @__PURE__ */ React77.createElement("input", _extends({
+      }, /* @__PURE__ */ React78.createElement("input", _extends({
         // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
         className: ax(["_19pkidpf _2hwxidpf _otyridpf _18u0idpf _ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _1r04idpf _11q7idpf _19itidpf _11c81kw7 _nd5l1yjy _12ji1r31 _1qu2glyw _12y3idpf _1bsb1osq _1ul9yh40 _kqswstnw _syaz1kw7 _tzy4kb7n", isHidden && "_tzy4idpf", builtinCX({
           input: true
@@ -44497,13 +44667,13 @@
         "data-testid": dataId
       }, innerProps)));
     }
-    return /* @__PURE__ */ React77.createElement("div", {
+    return /* @__PURE__ */ React78.createElement("div", {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([inputStylesOld.root, isDisabled && inputStylesOld.disabled, cx(className, xcss2, "-Input")]),
       "data-value": value || "",
       "data-testid": dataId && "".concat(dataId, "-container")
-    }, /* @__PURE__ */ React77.createElement("input", _extends({
+    }, /* @__PURE__ */ React78.createElement("input", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
       className: ax(["_19pkidpf _2hwxidpf _otyridpf _18u0idpf _ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _11q7idpf _19itidpf _11c81kw7 _nd5l1yjy _12ji1r31 _1qu2glyw _12y3idpf _1bsb1osq _1ul9yh40 _syaz1kw7 _tzy4kb7n", isHidden && "_tzy4idpf", builtinCX({
         input: true
@@ -44518,8 +44688,8 @@
   // node_modules/@atlaskit/react-select/dist/esm/components/menu.js
   init_defineProperty();
   init_slicedToArray();
-  var React78 = __toESM(require_react());
-  var import_react123 = __toESM(require_react());
+  var React79 = __toESM(require_react());
+  var import_react124 = __toESM(require_react());
 
   // node_modules/@floating-ui/utils/dist/floating-ui.utils.mjs
   var min2 = Math.min;
@@ -44924,8 +45094,8 @@
   var import_react_dom3 = __toESM(require_react_dom());
 
   // node_modules/use-isomorphic-layout-effect/dist/use-isomorphic-layout-effect.browser.esm.js
-  var import_react122 = __toESM(require_react());
-  var index = import_react122.useLayoutEffect;
+  var import_react123 = __toESM(require_react());
+  var index = import_react123.useLayoutEffect;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/menu.js
   var _excluded18 = ["children", "innerProps", "xcss"];
@@ -45074,13 +45244,13 @@
   var menuCSS = function menuCSS2() {
     return {};
   };
-  var PortalPlacementContext = /* @__PURE__ */ (0, import_react123.createContext)(null);
+  var PortalPlacementContext = /* @__PURE__ */ (0, import_react124.createContext)(null);
   var MenuPlacer = function MenuPlacer2(props) {
     var children = props.children, minMenuHeight = props.minMenuHeight, maxMenuHeight = props.maxMenuHeight, menuPlacement = props.menuPlacement, menuPosition = props.menuPosition, menuShouldScrollIntoView = props.menuShouldScrollIntoView;
-    var _ref2 = (0, import_react123.useContext)(PortalPlacementContext) || {}, setPortalPlacement = _ref2.setPortalPlacement;
-    var ref = (0, import_react123.useRef)(null);
-    var _useState = (0, import_react123.useState)(maxMenuHeight), _useState2 = _slicedToArray(_useState, 2), maxHeight = _useState2[0], setMaxHeight = _useState2[1];
-    var _useState3 = (0, import_react123.useState)(null), _useState4 = _slicedToArray(_useState3, 2), placement = _useState4[0], setPlacement = _useState4[1];
+    var _ref2 = (0, import_react124.useContext)(PortalPlacementContext) || {}, setPortalPlacement = _ref2.setPortalPlacement;
+    var ref = (0, import_react124.useRef)(null);
+    var _useState = (0, import_react124.useState)(maxMenuHeight), _useState2 = _slicedToArray(_useState, 2), maxHeight = _useState2[0], setMaxHeight = _useState2[1];
+    var _useState3 = (0, import_react124.useState)(null), _useState4 = _slicedToArray(_useState3, 2), placement = _useState4[0], setPlacement = _useState4[1];
     var controlHeight = 38;
     index(function() {
       var menuEl = ref.current;
@@ -45115,7 +45285,7 @@
     var _getStyleProps = getStyleProps(props, "menu", {
       menu: true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React78.createElement("div", _extends({
+    return /* @__PURE__ */ React79.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([menuStyles.root, menuStyles[placement], cx(xcss2, className, "-menu")]),
       style: css7,
@@ -45132,7 +45302,7 @@
       "menu-list": true,
       "menu-list--is-multi": isMulti
     }), css7 = _getStyleProps2.css, className = _getStyleProps2.className;
-    return /* @__PURE__ */ React78.createElement("div", _extends({
+    return /* @__PURE__ */ React79.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax(["_kqswh2mm _18m91wug _85i5u2gc _1q51u2gc _8am5i4x0", cx(className, xcss2, "-MenuList")]),
       style: _objectSpread18(_objectSpread18({}, css7), {}, {
@@ -45157,12 +45327,12 @@
       "menu-notice": true,
       "menu-notice--no-options": true
     }), css7 = _getStyleProps3.css, className = _getStyleProps3.className;
-    return /* @__PURE__ */ React78.createElement("div", _extends({
+    return /* @__PURE__ */ React79.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax(["_85i5u2gc _1q51u2gc _y4tiutpp _bozgutpp _y3gn1h6o", cx(className, xcss2, "-NoOptionsMessage")]),
       style: css7,
       role: "option"
-    }, innerProps), /* @__PURE__ */ React78.createElement(text_default, {
+    }, innerProps), /* @__PURE__ */ React79.createElement(text_default, {
       color: "color.text.subtle"
     }, children));
   };
@@ -45175,14 +45345,14 @@
       "menu-notice": true,
       "menu-notice--loading": true
     }), css7 = _getStyleProps4.css, className = _getStyleProps4.className;
-    return /* @__PURE__ */ React78.createElement("div", _extends({
+    return /* @__PURE__ */ React79.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax(["_85i5u2gc _1q51u2gc _y4tiutpp _bozgutpp _y3gn1h6o", cx(className, xcss2, "-LoadingMessage")]),
       style: css7
     }, innerProps, {
       // eslint-disable-next-line jsx-a11y/role-has-required-aria-props
       role: "option"
-    }), /* @__PURE__ */ React78.createElement(text_default, {
+    }), /* @__PURE__ */ React79.createElement(text_default, {
       color: "color.text.subtle"
     }, children));
   };
@@ -45194,16 +45364,16 @@
   };
   var MenuPortal = function MenuPortal2(props) {
     var appendTo = props.appendTo, children = props.children, controlElement = props.controlElement, innerProps = props.innerProps, menuPlacement = props.menuPlacement, menuPosition = props.menuPosition, xcss2 = props.xcss;
-    var menuPortalRef = (0, import_react123.useRef)(null);
-    var cleanupRef = (0, import_react123.useRef)(null);
-    var _useState5 = (0, import_react123.useState)(coercePlacement(menuPlacement)), _useState6 = _slicedToArray(_useState5, 2), placement = _useState6[0], setPortalPlacement = _useState6[1];
-    var portalPlacementContext = (0, import_react123.useMemo)(function() {
+    var menuPortalRef = (0, import_react124.useRef)(null);
+    var cleanupRef = (0, import_react124.useRef)(null);
+    var _useState5 = (0, import_react124.useState)(coercePlacement(menuPlacement)), _useState6 = _slicedToArray(_useState5, 2), placement = _useState6[0], setPortalPlacement = _useState6[1];
+    var portalPlacementContext = (0, import_react124.useMemo)(function() {
       return {
         setPortalPlacement
       };
     }, []);
-    var _useState7 = (0, import_react123.useState)(null), _useState8 = _slicedToArray(_useState7, 2), computedPosition = _useState8[0], setComputedPosition = _useState8[1];
-    var updateComputedPosition = (0, import_react123.useCallback)(function() {
+    var _useState7 = (0, import_react124.useState)(null), _useState8 = _slicedToArray(_useState7, 2), computedPosition = _useState8[0], setComputedPosition = _useState8[1];
+    var updateComputedPosition = (0, import_react124.useCallback)(function() {
       if (!controlElement) {
         return;
       }
@@ -45220,7 +45390,7 @@
     index(function() {
       updateComputedPosition();
     }, [updateComputedPosition]);
-    var runAutoUpdate = (0, import_react123.useCallback)(function() {
+    var runAutoUpdate = (0, import_react124.useCallback)(function() {
       if (typeof cleanupRef.current === "function") {
         cleanupRef.current();
         cleanupRef.current = null;
@@ -45234,7 +45404,7 @@
     index(function() {
       runAutoUpdate();
     }, [runAutoUpdate]);
-    var setMenuPortalElement = (0, import_react123.useCallback)(function(menuPortalElement) {
+    var setMenuPortalElement = (0, import_react124.useCallback)(function(menuPortalElement) {
       menuPortalRef.current = menuPortalElement;
       runAutoUpdate();
     }, [runAutoUpdate]);
@@ -45248,7 +45418,7 @@
     }), "menuPortal", {
       "menu-portal": true
     }), css7 = _getStyleProps5.css, className = _getStyleProps5.className;
-    var menuWrapper = /* @__PURE__ */ React78.createElement("div", _extends({
+    var menuWrapper = /* @__PURE__ */ React79.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([menuPortalStyles.root, cx(className, xcss2, "-MenuPortal")]),
       ref: setMenuPortalElement,
@@ -45260,14 +45430,14 @@
         "--menu-width": "".concat(computedPosition.rect.width, "px")
       }, css7)
     }, innerProps), children);
-    return /* @__PURE__ */ React78.createElement(PortalPlacementContext.Provider, {
+    return /* @__PURE__ */ React79.createElement(PortalPlacementContext.Provider, {
       value: portalPlacementContext
     }, appendTo ? /* @__PURE__ */ (0, import_react_dom3.createPortal)(menuWrapper, appendTo) : menuWrapper);
   };
 
   // node_modules/@atlaskit/react-select/dist/esm/components/multi-value.js
   init_defineProperty();
-  var React79 = __toESM(require_react());
+  var React80 = __toESM(require_react());
   var import_cross3 = __toESM(require_cross());
   var import_select_clear = __toESM(require_select_clear());
   var import_platform_feature_flags19 = __toESM(require_cjs3());
@@ -45320,27 +45490,27 @@
   };
   var MultiValueContainer = function MultiValueContainer2(_ref2) {
     var children = _ref2.children, innerProps = _ref2.innerProps, isFocused = _ref2.isFocused, isDisabled = _ref2.isDisabled, className = _ref2.className, xcss2 = _ref2.xcss;
-    return /* @__PURE__ */ React79.createElement("div", _extends({}, innerProps, {
+    return /* @__PURE__ */ React80.createElement("div", _extends({}, innerProps, {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([multiValueStyles.root, isDisabled && multiValueStyles.disabled, isFocused && multiValueStyles.focused, (0, import_platform_feature_flags19.fg)("platform-component-visual-refresh") && multiValueStyles.refresh, cx(className, xcss2, "-multiValue")])
     }), children);
   };
   var MultiValueLabel = function MultiValueLabel2(_ref2) {
     var children = _ref2.children, innerProps = _ref2.innerProps, isDisabled = _ref2.isDisabled, hasEllipsis = _ref2.hasEllipsis, className = _ref2.className, xcss2 = _ref2.xcss;
-    return /* @__PURE__ */ React79.createElement("div", _extends({}, innerProps, {
+    return /* @__PURE__ */ React80.createElement("div", _extends({}, innerProps, {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([multiValueLabelStyles.root, isDisabled && multiValueLabelStyles.disabled, hasEllipsis && multiValueLabelStyles.ellipsis, (0, import_platform_feature_flags19.fg)("platform-component-visual-refresh") && multiValueLabelStyles.refresh, cx(className, xcss2, "-MultiValueLabel")])
     }), children);
   };
   function MultiValueRemove(_ref3) {
     var isDisabled = _ref3.isDisabled, isFocused = _ref3.isFocused, innerProps = _ref3.innerProps, className = _ref3.className, xcss2 = _ref3.xcss;
-    return /* @__PURE__ */ React79.createElement("div", _extends({}, innerProps, {
+    return /* @__PURE__ */ React80.createElement("div", _extends({}, innerProps, {
       // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop, @atlaskit/ui-styling-standard/local-cx-xcss, @compiled/local-cx-xcss
       className: ax([multiValueRemoveStyles.root, isFocused && multiValueRemoveStyles.focused, (0, import_platform_feature_flags19.fg)("platform-component-visual-refresh") && multiValueRemoveStyles.refresh, cx(className, xcss2, "-MultiValueRemove")])
-    }), /* @__PURE__ */ React79.createElement("div", {
+    }), /* @__PURE__ */ React80.createElement("div", {
       "data-testid": isDisabled ? "hide-clear-icon" : "show-clear-icon",
       className: ax([isDisabled && "_1e0cglyw", !isDisabled && "_1e0c1kw7"])
-    }, /* @__PURE__ */ React79.createElement(import_cross3.default, {
+    }, /* @__PURE__ */ React80.createElement(import_cross3.default, {
       label: "",
       color: "currentColor",
       LEGACY_fallbackIcon: import_select_clear.default,
@@ -45364,7 +45534,7 @@
     var _getStyleProps3 = getStyleProps(props, "multiValueRemove", {
       "multi-value__remove": true
     }), removeCss = _getStyleProps3.css, removeClassName = _getStyleProps3.className;
-    return /* @__PURE__ */ React79.createElement(Container, {
+    return /* @__PURE__ */ React80.createElement(Container, {
       data,
       innerProps: _objectSpread19({
         style: containerCss,
@@ -45374,7 +45544,7 @@
       isFocused,
       isDisabled,
       selectProps
-    }, /* @__PURE__ */ React79.createElement(Label, {
+    }, /* @__PURE__ */ React80.createElement(Label, {
       data,
       innerProps: {
         style: labelCss,
@@ -45383,7 +45553,7 @@
       className: labelClassName,
       hasEllipsis: cropWithEllipsis || cropWithEllipsis === void 0,
       selectProps
-    }, children), /* @__PURE__ */ React79.createElement(Remove, {
+    }, children), /* @__PURE__ */ React80.createElement(Remove, {
       data,
       innerProps: _objectSpread19({
         style: removeCss,
@@ -45400,7 +45570,7 @@
   var multi_value_default = MultiValue;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/option.js
-  var React80 = __toESM(require_react());
+  var React81 = __toESM(require_react());
   var optionCSS = function optionCSS2() {
     return {};
   };
@@ -45419,7 +45589,7 @@
       "option--is-focused": isFocused,
       "option--is-selected": isSelected
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React80.createElement("div", _extends({
+    return /* @__PURE__ */ React81.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([optionStyles.root, isFocused && optionStyles.focused, isSelected && optionStyles.selected, isFocused && isSelected && optionStyles.focusedSelected, isDisabled && optionStyles.disabled, cx(className, xcss2, "-option")]),
@@ -45431,7 +45601,7 @@
   var option_default = Option;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/placeholder.js
-  var React81 = __toESM(require_react());
+  var React82 = __toESM(require_react());
   var placeholderCSS = function placeholderCSS2() {
     return {};
   };
@@ -45444,7 +45614,7 @@
     var _getStyleProps = getStyleProps(props, "placeholder", {
       placeholder: true
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React81.createElement("div", _extends({
+    return /* @__PURE__ */ React82.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([placeholderStyles.root, isDisabled && placeholderStyles.disabled, cx(className, xcss2, "-placeholder")])
@@ -45453,7 +45623,7 @@
   var placeholder_default = Placeholder;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/single-value.js
-  var React82 = __toESM(require_react());
+  var React83 = __toESM(require_react());
   var css5 = function css6() {
     return {};
   };
@@ -45467,7 +45637,7 @@
       "single-value": true,
       "single-value--is-disabled": isDisabled
     }), css7 = _getStyleProps.css, className = _getStyleProps.className;
-    return /* @__PURE__ */ React82.createElement("div", _extends({
+    return /* @__PURE__ */ React83.createElement("div", _extends({
       // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
       style: css7,
       className: ax([styles14.root, isDisabled && styles14.disalbed, cx(className, xcss2, "-singleValue")])
@@ -45526,9 +45696,9 @@
   };
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/a11y-text.js
-  var React83 = __toESM(require_react());
+  var React84 = __toESM(require_react());
   var A11yText = function A11yText2(props) {
-    return /* @__PURE__ */ React83.createElement("span", _extends({
+    return /* @__PURE__ */ React84.createElement("span", _extends({
       // eslint-disable-next-line  @atlaskit/ui-styling-standard/no-classname-prop
       className: ax(["_ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _19itidpf _1reo15vq _18m915vq _1bsbt94y _4t3it94y _kqswstnw _1pbydx66 _ogto7mnp _uiztglyw _o5721q9c", "-a11yText"])
       // eslint-disable-next-line @repo/internal/react/no-unsafe-spread-props
@@ -45537,22 +45707,22 @@
   var a11y_text_default = A11yText;
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/dummy-input.js
-  var React84 = __toESM(require_react());
+  var React85 = __toESM(require_react());
   var _excluded19 = ["innerRef"];
   function DummyInput(_ref2) {
     var innerRef = _ref2.innerRef, props = _objectWithoutProperties(_ref2, _excluded19);
     var filteredProps = removeProps(props, "onExited", "in", "enter", "exit", "appear");
-    return /* @__PURE__ */ React84.createElement("input", _extends({
+    return /* @__PURE__ */ React85.createElement("input", _extends({
       ref: innerRef,
       className: ax(["_ca0qidpf _u5f3idpf _n3tdidpf _19bvidpf _11q7idpf _19itidpf _nd5l1sux _12ji1r31 _1qu2glyw _12y3idpf _1bsbt94y _kqswh2mm _1n5d1j28 _syaz1j28 _1e02p1rm _tzy4idpf _t9ec1kuz", "-dummyInput"])
     }, filteredProps));
   }
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/scroll-manager.js
-  var import_react131 = __toESM(require_react());
+  var import_react132 = __toESM(require_react());
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/use-scroll-capture.js
-  var import_react129 = __toESM(require_react());
+  var import_react130 = __toESM(require_react());
   var cancelScroll = function cancelScroll2(event) {
     if (event.cancelable) {
       event.preventDefault();
@@ -45561,11 +45731,11 @@
   };
   function useScrollCapture(_ref2) {
     var isEnabled = _ref2.isEnabled, onBottomArrive = _ref2.onBottomArrive, onBottomLeave = _ref2.onBottomLeave, onTopArrive = _ref2.onTopArrive, onTopLeave = _ref2.onTopLeave;
-    var isBottom = (0, import_react129.useRef)(false);
-    var isTop = (0, import_react129.useRef)(false);
-    var touchStart = (0, import_react129.useRef)(0);
-    var scrollTarget = (0, import_react129.useRef)(null);
-    var handleEventDelta = (0, import_react129.useCallback)(function(event, delta) {
+    var isBottom = (0, import_react130.useRef)(false);
+    var isTop = (0, import_react130.useRef)(false);
+    var touchStart = (0, import_react130.useRef)(0);
+    var scrollTarget = (0, import_react130.useRef)(null);
+    var handleEventDelta = (0, import_react130.useCallback)(function(event, delta) {
       if (scrollTarget.current === null) {
         return;
       }
@@ -45605,17 +45775,17 @@
         cancelScroll(event);
       }
     }, [onBottomArrive, onBottomLeave, onTopArrive, onTopLeave]);
-    var onWheel = (0, import_react129.useCallback)(function(event) {
+    var onWheel = (0, import_react130.useCallback)(function(event) {
       handleEventDelta(event, event.deltaY);
     }, [handleEventDelta]);
-    var onTouchStart = (0, import_react129.useCallback)(function(event) {
+    var onTouchStart = (0, import_react130.useCallback)(function(event) {
       touchStart.current = event.changedTouches[0].clientY;
     }, []);
-    var onTouchMove = (0, import_react129.useCallback)(function(event) {
+    var onTouchMove = (0, import_react130.useCallback)(function(event) {
       var deltaY = touchStart.current - event.changedTouches[0].clientY;
       handleEventDelta(event, deltaY);
     }, [handleEventDelta]);
-    var startListening = (0, import_react129.useCallback)(function(el) {
+    var startListening = (0, import_react130.useCallback)(function(el) {
       if (!el) {
         return;
       }
@@ -45626,7 +45796,7 @@
       el.addEventListener("touchstart", onTouchStart, notPassive);
       el.addEventListener("touchmove", onTouchMove, notPassive);
     }, [onTouchMove, onTouchStart, onWheel]);
-    var stopListening = (0, import_react129.useCallback)(function(el) {
+    var stopListening = (0, import_react130.useCallback)(function(el) {
       if (!el) {
         return;
       }
@@ -45634,7 +45804,7 @@
       el.removeEventListener("touchstart", onTouchStart, false);
       el.removeEventListener("touchmove", onTouchMove, false);
     }, [onTouchMove, onTouchStart, onWheel]);
-    (0, import_react129.useEffect)(function() {
+    (0, import_react130.useEffect)(function() {
       if (!isEnabled) {
         return;
       }
@@ -45650,7 +45820,7 @@
   }
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/use-scroll-lock.js
-  var import_react130 = __toESM(require_react());
+  var import_react131 = __toESM(require_react());
   var STYLE_KEYS = ["boxSizing", "height", "overflow", "paddingRight", "position"];
   var LOCK_STYLES = {
     boxSizing: "border-box",
@@ -45686,9 +45856,9 @@
   };
   function useScrollLock(_ref2) {
     var isEnabled = _ref2.isEnabled, _ref$accountForScroll = _ref2.accountForScrollbars, accountForScrollbars = _ref$accountForScroll === void 0 ? true : _ref$accountForScroll;
-    var originalStyles = (0, import_react130.useRef)({});
-    var scrollTarget = (0, import_react130.useRef)(null);
-    var addScrollLock = (0, import_react130.useCallback)(function(touchScrollTarget) {
+    var originalStyles = (0, import_react131.useRef)({});
+    var scrollTarget = (0, import_react131.useRef)(null);
+    var addScrollLock = (0, import_react131.useCallback)(function(touchScrollTarget) {
       if (!canUseDOM) {
         return;
       }
@@ -45723,7 +45893,7 @@
       }
       activeScrollLocks += 1;
     }, [accountForScrollbars]);
-    var removeScrollLock = (0, import_react130.useCallback)(function(touchScrollTarget) {
+    var removeScrollLock = (0, import_react131.useCallback)(function(touchScrollTarget) {
       if (!canUseDOM) {
         return;
       }
@@ -45746,7 +45916,7 @@
         }
       }
     }, [accountForScrollbars]);
-    (0, import_react130.useEffect)(function() {
+    (0, import_react131.useEffect)(function() {
       if (!isEnabled) {
         return;
       }
@@ -45782,8 +45952,8 @@
       setScrollCaptureTarget(element);
       setScrollLockTarget(element);
     };
-    return /* @__PURE__ */ import_react131.default.createElement(import_react131.Fragment, null, lockEnabled && // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, @atlassian/a11y/interactive-element-not-keyboard-focusable
-    /* @__PURE__ */ import_react131.default.createElement("div", {
+    return /* @__PURE__ */ import_react132.default.createElement(import_react132.Fragment, null, lockEnabled && // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions, @atlassian/a11y/interactive-element-not-keyboard-focusable
+    /* @__PURE__ */ import_react132.default.createElement("div", {
       onClick: blurSelectInput,
       style: {
         // eslint-disable-next-line @atlaskit/ui-styling-standard/enforce-style-prop
@@ -45801,10 +45971,10 @@
   }
 
   // node_modules/@atlaskit/react-select/dist/esm/components/internal/required-input.js
-  var React86 = __toESM(require_react());
+  var React87 = __toESM(require_react());
   var RequiredInput = function RequiredInput2(_ref2) {
     var name = _ref2.name, onFocus3 = _ref2.onFocus;
-    return /* @__PURE__ */ React86.createElement("input", {
+    return /* @__PURE__ */ React87.createElement("input", {
       required: true,
       name,
       tabIndex: -1,
@@ -45830,7 +46000,7 @@
 
   // node_modules/@atlaskit/react-select/dist/esm/components/live-region.js
   init_defineProperty();
-  var import_react132 = __toESM(require_react());
+  var import_react133 = __toESM(require_react());
 
   // node_modules/@atlaskit/react-select/dist/esm/accessibility/index.js
   var defaultAriaLiveMessages = {
@@ -45881,10 +46051,10 @@
     var ariaSelection = props.ariaSelection, focusableOptions = props.focusableOptions, isFocused = props.isFocused, selectValue = props.selectValue, selectProps = props.selectProps, id = props.id;
     var ariaLiveMessages = selectProps.ariaLiveMessages, getOptionLabel5 = selectProps.getOptionLabel, inputValue = selectProps.inputValue, isOptionDisabled3 = selectProps.isOptionDisabled, menuIsOpen = selectProps.menuIsOpen, options2 = selectProps.options, screenReaderStatus2 = selectProps.screenReaderStatus, isLoading = selectProps.isLoading;
     var ariaLive = selectProps["aria-live"];
-    var messages = (0, import_react132.useMemo)(function() {
+    var messages = (0, import_react133.useMemo)(function() {
       return _objectSpread21(_objectSpread21({}, defaultAriaLiveMessages), ariaLiveMessages || {});
     }, [ariaLiveMessages]);
-    var ariaSelected = (0, import_react132.useMemo)(function() {
+    var ariaSelected = (0, import_react133.useMemo)(function() {
       var message2 = "";
       if (menuIsOpen) {
         return "";
@@ -45912,7 +46082,7 @@
       }
       return message2;
     }, [ariaSelection, messages, isOptionDisabled3, selectValue, getOptionLabel5, menuIsOpen]);
-    var ariaResults = (0, import_react132.useMemo)(function() {
+    var ariaResults = (0, import_react133.useMemo)(function() {
       var resultsMsg = "";
       if (isLoading) {
         resultsMsg = "Loading. ";
@@ -45932,14 +46102,14 @@
       return resultsMsg;
     }, [focusableOptions, inputValue, menuIsOpen, messages, options2, screenReaderStatus2, isLoading]);
     var isInitialFocus = (ariaSelection === null || ariaSelection === void 0 ? void 0 : ariaSelection.action) === "initial-input-focus";
-    var ScreenReaderText = /* @__PURE__ */ import_react132.default.createElement(import_react132.Fragment, null, /* @__PURE__ */ import_react132.default.createElement("span", {
+    var ScreenReaderText = /* @__PURE__ */ import_react133.default.createElement(import_react133.Fragment, null, /* @__PURE__ */ import_react133.default.createElement("span", {
       id: "aria-selection"
-    }, ariaSelected), /* @__PURE__ */ import_react132.default.createElement("span", {
+    }, ariaSelected), /* @__PURE__ */ import_react133.default.createElement("span", {
       id: "aria-results"
     }, ariaResults));
-    return /* @__PURE__ */ import_react132.default.createElement(import_react132.Fragment, null, /* @__PURE__ */ import_react132.default.createElement(a11y_text_default, {
+    return /* @__PURE__ */ import_react133.default.createElement(import_react133.Fragment, null, /* @__PURE__ */ import_react133.default.createElement(a11y_text_default, {
       id
-    }, isInitialFocus && ScreenReaderText), /* @__PURE__ */ import_react132.default.createElement(a11y_text_default, {
+    }, isInitialFocus && ScreenReaderText), /* @__PURE__ */ import_react133.default.createElement(a11y_text_default, {
       "aria-live": ariaLive,
       role: "status"
     }, isFocused && !isInitialFocus && ScreenReaderText));
@@ -47502,7 +47672,7 @@
             "aria-readonly": true
           }), this.calculateDescription());
           if (!isSearchable) {
-            return /* @__PURE__ */ import_react133.default.createElement(DummyInput, _extends({
+            return /* @__PURE__ */ import_react134.default.createElement(DummyInput, _extends({
               id,
               innerRef: this.getInputRef,
               onBlur: this.onInputBlur,
@@ -47516,7 +47686,7 @@
               "data-testid": testId && "".concat(testId, "-select--input")
             }, ariaAttributes));
           }
-          return /* @__PURE__ */ import_react133.default.createElement(Input3, _extends({}, commonProps, {
+          return /* @__PURE__ */ import_react134.default.createElement(Input3, _extends({}, commonProps, {
             autoCapitalize: "none",
             autoComplete: "off",
             autoCorrect: "off",
@@ -47545,7 +47715,7 @@
         var _this$props9 = this.props, controlShouldRenderValue = _this$props9.controlShouldRenderValue, isDisabled = _this$props9.isDisabled, isMulti = _this$props9.isMulti, inputValue = _this$props9.inputValue, placeholder = _this$props9.placeholder, testId = _this$props9.testId;
         var _this$state4 = this.state, selectValue = _this$state4.selectValue, focusedValue = _this$state4.focusedValue, isFocused = _this$state4.isFocused;
         if (!this.hasValue() || !controlShouldRenderValue) {
-          return inputValue ? null : /* @__PURE__ */ import_react133.default.createElement(Placeholder3, _extends({}, commonProps, {
+          return inputValue ? null : /* @__PURE__ */ import_react134.default.createElement(Placeholder3, _extends({}, commonProps, {
             key: "placeholder",
             isDisabled,
             isFocused,
@@ -47560,7 +47730,7 @@
           return selectValue.map(function(opt, index2) {
             var isOptionFocused = opt === focusedValue;
             var key = "".concat(_this5.getOptionLabel(opt), "-").concat(_this5.getOptionValue(opt));
-            return /* @__PURE__ */ import_react133.default.createElement(MultiValue3, _extends({}, commonProps, {
+            return /* @__PURE__ */ import_react134.default.createElement(MultiValue3, _extends({}, commonProps, {
               components: {
                 Container: MultiValueContainer3,
                 Label: MultiValueLabel3,
@@ -47598,7 +47768,7 @@
           return null;
         }
         var singleValue = selectValue[0];
-        return /* @__PURE__ */ import_react133.default.createElement(SingleValue3, _extends({}, commonProps, {
+        return /* @__PURE__ */ import_react134.default.createElement(SingleValue3, _extends({}, commonProps, {
           data: singleValue,
           isDisabled,
           innerProps: {
@@ -47623,7 +47793,7 @@
           "data-testid": "".concat(testId, "-select--clear-indicator")
         });
         var isCompact = spacing === "compact";
-        return /* @__PURE__ */ import_react133.default.createElement(ClearIndicator3, _extends({
+        return /* @__PURE__ */ import_react134.default.createElement(ClearIndicator3, _extends({
           clearControlLabel
         }, commonProps, {
           innerProps,
@@ -47645,7 +47815,7 @@
         var innerProps = {
           "aria-hidden": "true"
         };
-        return /* @__PURE__ */ import_react133.default.createElement(LoadingIndicator3, _extends({
+        return /* @__PURE__ */ import_react134.default.createElement(LoadingIndicator3, _extends({
           "data-testid": testId && "".concat(testId, "-select--loading-indicator")
         }, commonProps, {
           innerProps,
@@ -47672,7 +47842,7 @@
         }, testId && {
           "data-testid": "".concat(testId, "-select--dropdown-indicator")
         });
-        return /* @__PURE__ */ import_react133.default.createElement(DropdownIndicator3, _extends({}, commonProps, {
+        return /* @__PURE__ */ import_react134.default.createElement(DropdownIndicator3, _extends({}, commonProps, {
           innerProps,
           isDisabled,
           isFocused,
@@ -47713,7 +47883,7 @@
           }, testId && {
             "data-testid": "".concat(testId, "-select--option-").concat(id)
           });
-          return /* @__PURE__ */ import_react133.default.createElement(Option3, _extends({}, commonProps, {
+          return /* @__PURE__ */ import_react134.default.createElement(Option3, _extends({}, commonProps, {
             innerProps,
             data,
             isDisabled,
@@ -47734,7 +47904,7 @@
               var data = item.data, options2 = item.options, groupIndex = item.index;
               var groupId = "".concat(_this6.getElementId("group"), "-").concat(groupIndex);
               var headingId = "".concat(groupId, "-heading");
-              return /* @__PURE__ */ import_react133.default.createElement(Group3, _extends({}, commonProps, {
+              return /* @__PURE__ */ import_react134.default.createElement(Group3, _extends({}, commonProps, {
                 key: groupId,
                 data,
                 options: options2,
@@ -47760,7 +47930,7 @@
           if (message2 === null) {
             return null;
           }
-          menuUI = /* @__PURE__ */ import_react133.default.createElement(LoadingMessage3, commonProps, message2);
+          menuUI = /* @__PURE__ */ import_react134.default.createElement(LoadingMessage3, commonProps, message2);
         } else {
           var _message = noOptionsMessage2({
             inputValue
@@ -47768,7 +47938,7 @@
           if (_message === null) {
             return null;
           }
-          menuUI = /* @__PURE__ */ import_react133.default.createElement(NoOptionsMessage3, _extends({}, commonProps, {
+          menuUI = /* @__PURE__ */ import_react134.default.createElement(NoOptionsMessage3, _extends({}, commonProps, {
             innerProps: _objectSpread23({}, testId && {
               "data-testid": "".concat(testId, "-select--no-options")
             })
@@ -47781,9 +47951,9 @@
           menuPosition,
           menuShouldScrollIntoView
         };
-        var menuElement = /* @__PURE__ */ import_react133.default.createElement(MenuPlacer, _extends({}, commonProps, menuPlacementProps), function(_ref4) {
+        var menuElement = /* @__PURE__ */ import_react134.default.createElement(MenuPlacer, _extends({}, commonProps, menuPlacementProps), function(_ref4) {
           var ref = _ref4.ref, _ref4$placerProps = _ref4.placerProps, placement = _ref4$placerProps.placement, maxHeight = _ref4$placerProps.maxHeight;
-          return /* @__PURE__ */ import_react133.default.createElement(Menu3, _extends({}, commonProps, menuPlacementProps, {
+          return /* @__PURE__ */ import_react134.default.createElement(Menu3, _extends({}, commonProps, menuPlacementProps, {
             innerRef: ref,
             innerProps: _objectSpread23({
               onMouseDown: _this6.onMenuMouseDown,
@@ -47794,14 +47964,14 @@
             }),
             isLoading,
             placement
-          }), /* @__PURE__ */ import_react133.default.createElement(ScrollManager, {
+          }), /* @__PURE__ */ import_react134.default.createElement(ScrollManager, {
             captureEnabled: captureMenuScroll,
             onTopArrive: onMenuScrollToTop,
             onBottomArrive: onMenuScrollToBottom,
             lockEnabled: menuShouldBlockScroll
           }, function(scrollTargetRef) {
             var _this6$inputRef, _this6$inputRef2;
-            return /* @__PURE__ */ import_react133.default.createElement(MenuList3, _extends({}, commonProps, {
+            return /* @__PURE__ */ import_react134.default.createElement(MenuList3, _extends({}, commonProps, {
               innerRef: function innerRef(instance) {
                 _this6.getMenuListRef(instance);
                 scrollTargetRef(instance);
@@ -47821,12 +47991,12 @@
               isLoading,
               maxHeight,
               focusedOption
-            }), _this6.props["UNSAFE_is_experimental_generic"] ? /* @__PURE__ */ import_react133.default.createElement("div", {
+            }), _this6.props["UNSAFE_is_experimental_generic"] ? /* @__PURE__ */ import_react134.default.createElement("div", {
               role: "list"
             }, menuUI) : menuUI);
           }));
         });
-        return menuPortalTarget || menuPosition === "fixed" ? /* @__PURE__ */ import_react133.default.createElement(MenuPortal3, _extends({}, commonProps, {
+        return menuPortalTarget || menuPosition === "fixed" ? /* @__PURE__ */ import_react134.default.createElement(MenuPortal3, _extends({}, commonProps, {
           appendTo: menuPortalTarget,
           controlElement: this.controlRef,
           menuPlacement,
@@ -47840,7 +48010,7 @@
         var _this$props12 = this.props, delimiter2 = _this$props12.delimiter, isDisabled = _this$props12.isDisabled, isMulti = _this$props12.isMulti, required = _this$props12.required, name = _this$props12.name;
         var selectValue = this.state.selectValue;
         if (required && !this.hasValue() && !isDisabled) {
-          return /* @__PURE__ */ import_react133.default.createElement(required_input_default, {
+          return /* @__PURE__ */ import_react134.default.createElement(required_input_default, {
             name,
             onFocus: this.onValueInputFocus
           });
@@ -47853,29 +48023,29 @@
             var value = selectValue.map(function(opt) {
               return _this7.getOptionValue(opt);
             }).join(delimiter2);
-            return /* @__PURE__ */ import_react133.default.createElement("input", {
+            return /* @__PURE__ */ import_react134.default.createElement("input", {
               name,
               type: "hidden",
               value
             });
           } else {
             var input = selectValue.length > 0 ? selectValue.map(function(opt, i) {
-              return /* @__PURE__ */ import_react133.default.createElement("input", {
+              return /* @__PURE__ */ import_react134.default.createElement("input", {
                 key: "i-".concat(i),
                 name,
                 type: "hidden",
                 value: _this7.getOptionValue(opt)
               });
-            }) : /* @__PURE__ */ import_react133.default.createElement("input", {
+            }) : /* @__PURE__ */ import_react134.default.createElement("input", {
               name,
               type: "hidden",
               value: ""
             });
-            return /* @__PURE__ */ import_react133.default.createElement("div", null, input);
+            return /* @__PURE__ */ import_react134.default.createElement("div", null, input);
           }
         } else {
           var _value = selectValue[0] ? this.getOptionValue(selectValue[0]) : "";
-          return /* @__PURE__ */ import_react133.default.createElement("input", {
+          return /* @__PURE__ */ import_react134.default.createElement("input", {
             name,
             type: "hidden",
             value: _value
@@ -47888,7 +48058,7 @@
         var commonProps = this.commonProps;
         var _this$state5 = this.state, ariaSelection = _this$state5.ariaSelection, isFocused = _this$state5.isFocused, selectValue = _this$state5.selectValue;
         var focusableOptions = this.getFocusableOptions();
-        return /* @__PURE__ */ import_react133.default.createElement(live_region_default, _extends({}, commonProps, {
+        return /* @__PURE__ */ import_react134.default.createElement(live_region_default, _extends({}, commonProps, {
           id: this.getElementId("live-region"),
           ariaSelection,
           isFocused,
@@ -47902,7 +48072,7 @@
         var msg = ", multiple selections available, ".concat(this.state.selectValue.length ? "Use left or right arrow keys to navigate selected items" : "");
         return (
           // eslint-disable-next-line @atlaskit/design-system/use-primitives-text
-          /* @__PURE__ */ import_react133.default.createElement("span", {
+          /* @__PURE__ */ import_react134.default.createElement("span", {
             id: this.getElementId("multi-message"),
             hidden: true
           }, msg)
@@ -47916,7 +48086,7 @@
         var isFocused = this.state.isFocused;
         var commonProps = this.commonProps = this.getCommonProps();
         var isCompact = spacing === "compact";
-        return /* @__PURE__ */ import_react133.default.createElement(SelectContainer3, _extends({}, commonProps, {
+        return /* @__PURE__ */ import_react134.default.createElement(SelectContainer3, _extends({}, commonProps, {
           // eslint-disable-next-line @atlaskit/ui-styling-standard/no-classname-prop
           className,
           innerProps: _objectSpread23({
@@ -47927,7 +48097,7 @@
           }),
           isDisabled,
           isFocused
-        }), this.renderLiveRegion(), commonProps.isMulti && this.renderMultiselectMessage(), /* @__PURE__ */ import_react133.default.createElement(Control3, _extends({}, commonProps, {
+        }), this.renderLiveRegion(), commonProps.isMulti && this.renderMultiselectMessage(), /* @__PURE__ */ import_react134.default.createElement(Control3, _extends({}, commonProps, {
           innerRef: this.getControlRef,
           innerProps: _objectSpread23({
             onMouseDown: this.onControlMouseDown,
@@ -47941,7 +48111,7 @@
           isFocused,
           menuIsOpen,
           isCompact
-        }), /* @__PURE__ */ import_react133.default.createElement(ValueContainer3, _extends({}, commonProps, {
+        }), /* @__PURE__ */ import_react134.default.createElement(ValueContainer3, _extends({}, commonProps, {
           isDisabled,
           isCompact,
           innerProps: _objectSpread23(_objectSpread23({}, testId && {
@@ -47952,12 +48122,12 @@
             // DST Accessibility.
             role: "application"
           })
-        }), this.renderPlaceholderOrValue(), this.renderInput()), /* @__PURE__ */ import_react133.default.createElement(IndicatorsContainer3, _extends({}, commonProps, {
+        }), this.renderPlaceholderOrValue(), this.renderInput()), /* @__PURE__ */ import_react134.default.createElement(IndicatorsContainer3, _extends({}, commonProps, {
           isDisabled,
           innerProps: _objectSpread23({}, testId && {
             "data-testid": "".concat(testId, "-select--indicators-container")
           })
-        }), this.renderClearIndicator(), this.renderLoadingIndicator(), this.renderDropdownIndicator())), this.renderMenu(), this.renderFormField(), /* @__PURE__ */ import_react133.default.createElement(NotifyOpenLayerObserver, {
+        }), this.renderClearIndicator(), this.renderLoadingIndicator(), this.renderDropdownIndicator())), this.renderMenu(), this.renderFormField(), /* @__PURE__ */ import_react134.default.createElement(NotifyOpenLayerObserver, {
           isOpen: this.props.menuIsOpen,
           onClose: this.handleOpenLayerObserverCloseSignal
         }));
@@ -48008,16 +48178,16 @@
         });
       }
     }]);
-  })(import_react133.Component);
+  })(import_react134.Component);
   _defineProperty(Select, "defaultProps", defaultProps);
 
   // node_modules/@atlaskit/react-select/dist/esm/async.js
-  var import_react135 = __toESM(require_react());
+  var import_react136 = __toESM(require_react());
 
   // node_modules/@atlaskit/react-select/dist/esm/use-async.js
   init_defineProperty();
   init_slicedToArray();
-  var import_react134 = __toESM(require_react());
+  var import_react135 = __toESM(require_react());
   var _excluded20 = ["defaultOptions", "cacheOptions", "loadOptions", "options", "isLoading", "onInputChange", "filterOption"];
   function ownKeys24(e, r) {
     var t = Object.keys(e);
@@ -48043,17 +48213,17 @@
   function useAsync(_ref2) {
     var _ref$defaultOptions = _ref2.defaultOptions, propsDefaultOptions = _ref$defaultOptions === void 0 ? false : _ref$defaultOptions, _ref$cacheOptions = _ref2.cacheOptions, cacheOptions = _ref$cacheOptions === void 0 ? false : _ref$cacheOptions, propsLoadOptions = _ref2.loadOptions, propsOptions = _ref2.options, _ref$isLoading = _ref2.isLoading, propsIsLoading = _ref$isLoading === void 0 ? false : _ref$isLoading, propsOnInputChange = _ref2.onInputChange, _ref$filterOption = _ref2.filterOption, filterOption = _ref$filterOption === void 0 ? null : _ref$filterOption, restSelectProps = _objectWithoutProperties(_ref2, _excluded20);
     var propsInputValue = restSelectProps.inputValue;
-    var lastRequest = (0, import_react134.useRef)(void 0);
-    var mounted = (0, import_react134.useRef)(false);
-    var _useState = (0, import_react134.useState)(Array.isArray(propsDefaultOptions) ? propsDefaultOptions : void 0), _useState2 = _slicedToArray(_useState, 2), defaultOptions4 = _useState2[0], setDefaultOptions = _useState2[1];
-    var _useState3 = (0, import_react134.useState)(typeof propsInputValue !== "undefined" ? propsInputValue : ""), _useState4 = _slicedToArray(_useState3, 2), stateInputValue = _useState4[0], setStateInputValue = _useState4[1];
-    var _useState5 = (0, import_react134.useState)(propsDefaultOptions === true), _useState6 = _slicedToArray(_useState5, 2), isLoading = _useState6[0], setIsLoading = _useState6[1];
-    var _useState7 = (0, import_react134.useState)(void 0), _useState8 = _slicedToArray(_useState7, 2), loadedInputValue = _useState8[0], setLoadedInputValue = _useState8[1];
-    var _useState9 = (0, import_react134.useState)([]), _useState0 = _slicedToArray(_useState9, 2), loadedOptions = _useState0[0], setLoadedOptions = _useState0[1];
-    var _useState1 = (0, import_react134.useState)(false), _useState10 = _slicedToArray(_useState1, 2), passEmptyOptions = _useState10[0], setPassEmptyOptions = _useState10[1];
-    var _useState11 = (0, import_react134.useState)({}), _useState12 = _slicedToArray(_useState11, 2), optionsCache = _useState12[0], setOptionsCache = _useState12[1];
-    var _useState13 = (0, import_react134.useState)(void 0), _useState14 = _slicedToArray(_useState13, 2), prevDefaultOptions = _useState14[0], setPrevDefaultOptions = _useState14[1];
-    var _useState15 = (0, import_react134.useState)(void 0), _useState16 = _slicedToArray(_useState15, 2), prevCacheOptions = _useState16[0], setPrevCacheOptions = _useState16[1];
+    var lastRequest = (0, import_react135.useRef)(void 0);
+    var mounted = (0, import_react135.useRef)(false);
+    var _useState = (0, import_react135.useState)(Array.isArray(propsDefaultOptions) ? propsDefaultOptions : void 0), _useState2 = _slicedToArray(_useState, 2), defaultOptions4 = _useState2[0], setDefaultOptions = _useState2[1];
+    var _useState3 = (0, import_react135.useState)(typeof propsInputValue !== "undefined" ? propsInputValue : ""), _useState4 = _slicedToArray(_useState3, 2), stateInputValue = _useState4[0], setStateInputValue = _useState4[1];
+    var _useState5 = (0, import_react135.useState)(propsDefaultOptions === true), _useState6 = _slicedToArray(_useState5, 2), isLoading = _useState6[0], setIsLoading = _useState6[1];
+    var _useState7 = (0, import_react135.useState)(void 0), _useState8 = _slicedToArray(_useState7, 2), loadedInputValue = _useState8[0], setLoadedInputValue = _useState8[1];
+    var _useState9 = (0, import_react135.useState)([]), _useState0 = _slicedToArray(_useState9, 2), loadedOptions = _useState0[0], setLoadedOptions = _useState0[1];
+    var _useState1 = (0, import_react135.useState)(false), _useState10 = _slicedToArray(_useState1, 2), passEmptyOptions = _useState10[0], setPassEmptyOptions = _useState10[1];
+    var _useState11 = (0, import_react135.useState)({}), _useState12 = _slicedToArray(_useState11, 2), optionsCache = _useState12[0], setOptionsCache = _useState12[1];
+    var _useState13 = (0, import_react135.useState)(void 0), _useState14 = _slicedToArray(_useState13, 2), prevDefaultOptions = _useState14[0], setPrevDefaultOptions = _useState14[1];
+    var _useState15 = (0, import_react135.useState)(void 0), _useState16 = _slicedToArray(_useState15, 2), prevCacheOptions = _useState16[0], setPrevCacheOptions = _useState16[1];
     if (cacheOptions !== prevCacheOptions) {
       setOptionsCache({});
       setPrevCacheOptions(cacheOptions);
@@ -48062,13 +48232,13 @@
       setDefaultOptions(Array.isArray(propsDefaultOptions) ? propsDefaultOptions : void 0);
       setPrevDefaultOptions(propsDefaultOptions);
     }
-    (0, import_react134.useEffect)(function() {
+    (0, import_react135.useEffect)(function() {
       mounted.current = true;
       return function() {
         mounted.current = false;
       };
     }, []);
-    var loadOptions = (0, import_react134.useCallback)(function(inputValue, callback) {
+    var loadOptions = (0, import_react135.useCallback)(function(inputValue, callback) {
       if (!propsLoadOptions) {
         return callback();
       }
@@ -48079,7 +48249,7 @@
         });
       }
     }, [propsLoadOptions]);
-    (0, import_react134.useEffect)(function() {
+    (0, import_react135.useEffect)(function() {
       if (propsDefaultOptions === true) {
         loadOptions(stateInputValue, function(options3) {
           if (!mounted.current) {
@@ -48090,7 +48260,7 @@
         });
       }
     }, []);
-    var onInputChange = (0, import_react134.useCallback)(function(newValue, actionMeta) {
+    var onInputChange = (0, import_react135.useCallback)(function(newValue, actionMeta) {
       var inputValue = handleInputChange(newValue, actionMeta, propsOnInputChange);
       if (!inputValue) {
         lastRequest.current = void 0;
@@ -48138,25 +48308,25 @@
   }
 
   // node_modules/@atlaskit/react-select/dist/esm/async.js
-  var AsyncSelect = /* @__PURE__ */ (0, import_react135.forwardRef)(function(props, ref) {
+  var AsyncSelect = /* @__PURE__ */ (0, import_react136.forwardRef)(function(props, ref) {
     var isAsyncEnabledInBaseSelect = props.isAsync && !props.options && (!!props.loadOptions || !!props.defaultOptions);
     var stateManagedProps = useAsync(props);
     var selectAsyncProps = !props.isAsync || isAsyncEnabledInBaseSelect ? stateManagedProps : props;
     var selectProps = useStateManager(selectAsyncProps);
-    return /* @__PURE__ */ import_react135.default.createElement(Select, _extends({
+    return /* @__PURE__ */ import_react136.default.createElement(Select, _extends({
       ref
     }, selectProps));
   });
   var async_default = AsyncSelect;
 
   // node_modules/@atlaskit/select/dist/esm/createSelect.js
-  var import_react136 = __toESM(require_react());
+  var import_react137 = __toESM(require_react());
   var _excluded21 = ["ariaLiveMessages", "isInvalid", "onClickPreventDefault", "tabSelectsValue", "validationState"];
   function createSelect(WrappedComponent) {
-    var AtlaskitSelect = /* @__PURE__ */ (0, import_react136.forwardRef)(function AtlaskitSelect2(props, forwardedRef) {
+    var AtlaskitSelect = /* @__PURE__ */ (0, import_react137.forwardRef)(function AtlaskitSelect2(props, forwardedRef) {
       var ariaLiveMessages = props.ariaLiveMessages, isInvalid = props.isInvalid, _props$onClickPrevent = props.onClickPreventDefault, onClickPreventDefault = _props$onClickPrevent === void 0 ? true : _props$onClickPrevent, _props$tabSelectsValu = props.tabSelectsValue, tabSelectsValue = _props$tabSelectsValu === void 0 ? false : _props$tabSelectsValu, _props$validationStat = props.validationState, validationState = _props$validationStat === void 0 ? "default" : _props$validationStat, restProps = _objectWithoutProperties(props, _excluded21);
-      var internalSelectRef = (0, import_react136.useRef)(null);
-      (0, import_react136.useImperativeHandle)(forwardedRef, function() {
+      var internalSelectRef = (0, import_react137.useRef)(null);
+      (0, import_react137.useImperativeHandle)(forwardedRef, function() {
         return {
           select: internalSelectRef.current,
           focus: function focus() {
@@ -48169,7 +48339,7 @@
           }
         };
       }, []);
-      return /* @__PURE__ */ import_react136.default.createElement(WrappedComponent, _extends({
+      return /* @__PURE__ */ import_react137.default.createElement(WrappedComponent, _extends({
         ref: internalSelectRef,
         ariaLiveMessages,
         tabSelectsValue,
@@ -48208,26 +48378,26 @@
   var Select_default = Select2;
 
   // src/components/StatusLegend/StatusLegend.tsx
-  var import_jsx_runtime5 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime6 = __toESM(require_jsx_runtime());
   function StatusLegend() {
-    return /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("div", { className: "legend", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-completed", children: "Completed" }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-in-progress", children: "In Progress" }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-pending", children: "Pending" }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-paused", children: "Paused" }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-cancelled", children: "Cancelled" }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-missed-update", children: "Missed Update" }),
-      /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("span", { className: "legend-item legend-none", children: "No Status" })
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "legend", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-completed", children: "Completed" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-in-progress", children: "In Progress" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-pending", children: "Pending" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-paused", children: "Paused" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-cancelled", children: "Cancelled" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-missed-update", children: "Missed Update" }),
+      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className: "legend-item legend-none", children: "No Status" })
     ] });
   }
 
   // src/components/ProjectStatusHistoryModal/ProjectStatusHistoryModal.tsx
-  var import_jsx_runtime6 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime7 = __toESM(require_jsx_runtime());
   function CustomModalHeader() {
     const { onClose, titleId } = useModal();
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "custom-modal-header", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("h2", { id: titleId, className: "custom-modal-title", children: "Atlas-Xray Project History Timeline" }),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "custom-modal-header", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("h2", { id: titleId, className: "custom-modal-title", children: "Atlas-Xray Project History Timeline" }),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
         button_default,
         {
           appearance: "subtle",
@@ -48239,7 +48409,7 @@
     ] });
   }
   function ProjectStatusHistoryModal({ open, onClose, children }) {
-    const [weekLimit, setWeekLimit] = (0, import_react137.useState)(12);
+    const [weekLimit, setWeekLimit] = (0, import_react138.useState)(12);
     const weekOptions = [
       { label: "4 weeks", value: 4 },
       { label: "8 weeks", value: 8 },
@@ -48248,9 +48418,9 @@
       { label: "All", value: Infinity }
     ];
     if (!open) return null;
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(modal_transition_default, { children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(FullScreenModalDialog, { onClose, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("div", { className: "project-status-history-modal", children: [
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(CustomModalHeader, {}),
-      /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(modal_body_default, { hasInlinePadding: true, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+    return /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(modal_transition_default, { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(FullScreenModalDialog, { onClose, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "project-status-history-modal", children: [
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(CustomModalHeader, {}),
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(modal_body_default, { hasInlinePadding: true, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
         box_default2,
         {
           style: {
@@ -48262,9 +48432,9 @@
             overflow: "auto"
             // Enable scrolling
           },
-          children: /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(grid_default, { children: [
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(StatusLegend, {}),
-            /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("div", { style: { marginBottom: 16, maxWidth: 200 }, children: /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+          children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(grid_default, { children: [
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(StatusLegend, {}),
+            /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { style: { marginBottom: 16, maxWidth: 200 }, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
               Select_default,
               {
                 options: weekOptions,
@@ -62570,6 +62740,35 @@ fragment UserAvatar on User {
     });
     return results;
   }
+  async function processAndStoreImages(projectKey, content) {
+    if (!content || !Array.isArray(content)) return;
+    for (const node2 of content) {
+      if (node2.type === "media" && node2.attrs?.id) {
+        const mediaId = node2.attrs.id;
+        const existing = await getItem(`image:${projectKey}:${mediaId}`);
+        if (existing) continue;
+        const imageElement = document.querySelector(`[data-media-id="${mediaId}"], [data-attachment-id="${mediaId}"]`);
+        if (imageElement) {
+          const imgSrc = imageElement.getAttribute("src");
+          if (imgSrc && imgSrc.startsWith("blob:")) {
+            try {
+              const imageData = await fetchImageFromBlobUrl(imgSrc);
+              if (imageData) {
+                await storeProjectImage(projectKey, mediaId, imageData.imageData, imageData.mimeType);
+                await setItem(`image:${projectKey}:${mediaId}`, "stored");
+                console.log(`[AtlasXray] Stored image for ${projectKey}:${mediaId}`);
+              }
+            } catch (error) {
+              console.warn(`[AtlasXray] Failed to store image ${mediaId}:`, error);
+            }
+          }
+        }
+      }
+      if (node2.content) {
+        await processAndStoreImages(projectKey, node2.content);
+      }
+    }
+  }
   async function fetchAndStoreProjectData(projectId, cloudId2) {
     const variables = {
       key: projectId,
@@ -62613,6 +62812,15 @@ fragment UserAvatar on User {
       const nodes = data?.project?.updates?.edges?.map((edge) => edge.node).filter(Boolean) || [];
       if (nodes.length > 0) {
         await upsertProjectUpdates(nodes);
+        for (const node2 of nodes) {
+          if (node2.summary) {
+            try {
+              const summaryContent = JSON.parse(node2.summary);
+              await processAndStoreImages(projectId, summaryContent.content);
+            } catch (error) {
+            }
+          }
+        }
       }
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
@@ -62648,7 +62856,7 @@ fragment UserAvatar on User {
   }
 
   // src/components/FloatingButton/FloatingButton.tsx
-  var import_jsx_runtime7 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime8 = __toESM(require_jsx_runtime());
   function debounce2(func, wait) {
     let timeout;
     return (...args) => {
@@ -62672,17 +62880,17 @@ fragment UserAvatar on User {
       },
       []
     );
-    const [modalOpen, setModalOpen] = (0, import_react138.useState)(false);
-    const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react138.useState)([]);
-    const observerRef = (0, import_react138.useRef)(null);
-    const updateVisibleProjects = (0, import_react138.useRef)(
+    const [modalOpen, setModalOpen] = (0, import_react139.useState)(false);
+    const [visibleProjectKeys, setVisibleProjectKeys] = (0, import_react139.useState)([]);
+    const observerRef = (0, import_react139.useRef)(null);
+    const updateVisibleProjects = (0, import_react139.useRef)(
       debounce2(async () => {
         const matches = await downloadProjectData();
         setVisibleProjectKeys(matches.map((m) => m.projectId));
       }, 1e3)
       // Debounce to 1 second
     );
-    (0, import_react138.useEffect)(() => {
+    (0, import_react139.useEffect)(() => {
       updateVisibleProjects.current();
       const observer2 = new window.MutationObserver((mutations) => {
         const hasNewProjectLinks = mutations.some(
@@ -62714,20 +62922,20 @@ fragment UserAvatar on User {
     }));
     const filteredProjects = visibleProjectKeys.length > 0 ? projectViewModel.filter((p) => visibleProjectKeys.includes(p.projectKey)) : projectViewModel;
     const handleOpenModal = () => setModalOpen(true);
-    return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)(import_jsx_runtime7.Fragment, { children: [
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal, children: [
+    return /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)(import_jsx_runtime8.Fragment, { children: [
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsxs)("button", { className: "atlas-xray-floating-btn", onClick: handleOpenModal, children: [
         "Atlas Xray",
         visibleProjectKeys.length > 0 ? ` (${visibleProjectKeys.length}/${projectCount !== void 0 ? projectCount : 0})` : projectCount !== void 0 ? ` (${projectCount})` : ""
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(ProjectStatusHistoryModal, { open: modalOpen, onClose: () => setModalOpen(false), children: (weekLimit) => /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(StatusTimelineHeatmap, { weekLimit }) })
+      /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(ProjectStatusHistoryModal, { open: modalOpen, onClose: () => setModalOpen(false), children: (weekLimit) => /* @__PURE__ */ (0, import_jsx_runtime8.jsx)(StatusTimelineHeatmap, { weekLimit }) })
     ] });
   }
 
   // src/chromeExtension.js
-  var import_jsx_runtime8 = __toESM(require_jsx_runtime());
+  var import_jsx_runtime9 = __toESM(require_jsx_runtime());
   var container = document.createElement("div");
   document.body.appendChild(container);
-  (0, import_client3.createRoot)(container).render(/* @__PURE__ */ (0, import_jsx_runtime8.jsx)(FloatingButton, {}));
+  (0, import_client3.createRoot)(container).render(/* @__PURE__ */ (0, import_jsx_runtime9.jsx)(FloatingButton, {}));
   downloadProjectData();
   var observer = new MutationObserver(() => {
     downloadProjectData();

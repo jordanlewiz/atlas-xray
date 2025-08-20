@@ -73,7 +73,7 @@ export interface StatusTimelineHeatmapHeaderProps {
 export interface ProjectUpdateModalProps {
   selectedUpdate: ProjectUpdate | null;
   project: ProjectViewModel;
-  onClose: () => React.JSX.Element;
+  onClose: () => void;
 }
 
 export interface ProjectStatusHistoryModalProps {

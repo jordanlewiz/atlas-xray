@@ -12,6 +12,31 @@ import { Grid, Box } from "@atlaskit/primitives";
 import { getDueDateDiff } from "../../utils/timelineUtils";
 import type { ProjectUpdateModalProps } from "../../types";
 import { renderProseMirror } from "../../utils/proseMirrorRenderer";
+import { ImageRenderer } from "../ImageRenderer";
+
+/**
+ * Extract media nodes from ProseMirror content
+ */
+function extractMediaNodes(content: any[]): any[] {
+  const mediaNodes: any[] = [];
+  
+  function traverse(nodes: any[]) {
+    for (const node of nodes) {
+      if (node.type === 'media' && node.attrs?.id) {
+        mediaNodes.push(node);
+      }
+      if (node.content && Array.isArray(node.content)) {
+        traverse(node.content);
+      }
+    }
+  }
+  
+  if (content && Array.isArray(content)) {
+    traverse(content);
+  }
+  
+  return mediaNodes;
+}
 
 /**
  * Modal displaying detailed information about a project update.
@@ -103,6 +128,23 @@ export default function ProjectUpdateModal({
                        <h3>Update Summary:</h3>
                        <div className="summary-content">
                          <div dangerouslySetInnerHTML={{ __html: renderProseMirror(selectedUpdate.summary) }} />
+                         {/* Render stored images for media nodes */}
+                         {(() => {
+                           try {
+                             const summaryContent = JSON.parse(selectedUpdate.summary);
+                             const mediaNodes = extractMediaNodes(summaryContent.content);
+                             return mediaNodes.map((mediaNode: any, idx: number) => (
+                               <ImageRenderer
+                                 key={`summary-${idx}`}
+                                 projectKey={project?.projectKey || ''}
+                                 mediaId={mediaNode.attrs?.id || ''}
+                                 fallbackText={`🖼️ Image (${mediaNode.attrs?.id || ''})`}
+                               />
+                             ));
+                           } catch (e) {
+                             return null;
+                           }
+                         })()}
                        </div>
                      </div>
                    )}

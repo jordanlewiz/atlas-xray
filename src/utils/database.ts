@@ -6,15 +6,17 @@ export interface AtlasXrayDB extends Dexie {
   projectView: Dexie.Table<any, string>;
   projectStatusHistory: Dexie.Table<any, string>;
   projectUpdates: Dexie.Table<any, string>;
+  projectImages: Dexie.Table<any, string>;
   meta: Dexie.Table<any, string>;
 }
 
 const db = new Dexie("AtlasXrayDB") as AtlasXrayDB;
 
-db.version(8).stores({
+db.version(9).stores({
   projectView: "projectKey",
   projectStatusHistory: "id,projectKey",
   projectUpdates: "id,projectKey",
+  projectImages: "id,projectKey,mediaId",
   meta: "key"
 });
 
@@ -120,6 +122,44 @@ function upsertProjectStatusHistory(nodes: StatusHistoryNode[], projectKey: stri
     targetDate: n.targetDate,
   }));
   return db.projectStatusHistory.bulkPut(rows);
+}
+
+/**
+ * Store project images in IndexedDB
+ * @param projectKey - Project key
+ * @param mediaId - Media ID from ProseMirror
+ * @param imageData - Base64 encoded image data
+ * @param mimeType - MIME type of the image
+ * @returns Promise
+ */
+export async function storeProjectImage(
+  projectKey: string, 
+  mediaId: string, 
+  imageData: string, 
+  mimeType: string
+): Promise<void> {
+  await db.projectImages.put({
+    id: `${projectKey}-${mediaId}`,
+    projectKey,
+    mediaId,
+    imageData,
+    mimeType,
+    storedAt: new Date().toISOString()
+  });
+}
+
+/**
+ * Retrieve project image from IndexedDB
+ * @param projectKey - Project key
+ * @param mediaId - Media ID from ProseMirror
+ * @returns Promise<{imageData: string, mimeType: string} | null>
+ */
+export async function getProjectImage(
+  projectKey: string, 
+  mediaId: string
+): Promise<{imageData: string, mimeType: string} | null> {
+  const image = await db.projectImages.get(`${projectKey}-${mediaId}`);
+  return image ? { imageData: image.imageData, mimeType: image.mimeType } : null;
 }
 
 export { db, upsertProjectUpdates, upsertProjectStatusHistory };
