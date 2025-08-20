@@ -1,0 +1,243 @@
+.project-analysis-modal {
+  .project-info {
+    padding: 16px;
+    background-color: #f4f5f7;
+    border-radius: 6px;
+    margin-bottom: 16px;
+    
+    .project-id {
+      font-weight: 600;
+      color: #172b4d;
+    }
+    
+    .update-id {
+      color: #6b778c;
+      font-size: 12px;
+    }
+  }
+
+  .original-text {
+    margin-bottom: 20px;
+    
+    .text-content {
+      margin-top: 8px;
+      padding: 12px;
+      background-color: #fafbfc;
+      border: 1px solid #dfe1e6;
+      border-radius: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+  }
+
+  .sentiment-section {
+    margin-bottom: 20px;
+    
+    .sentiment-badge {
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 500;
+    }
+  }
+
+  .summary-section {
+    margin-bottom: 20px;
+    
+    .summary-text {
+      margin-top: 8px;
+      padding: 12px;
+      background-color: #e3fcef;
+      border: 1px solid #abebc6;
+      border-radius: 4px;
+      font-style: italic;
+      color: #006644;
+    }
+  }
+
+  .analysis-results {
+    margin-bottom: 20px;
+  }
+
+  .analysis-section {
+    margin-bottom: 16px;
+    border: 1px solid #dfe1e6;
+    border-radius: 6px;
+    overflow: hidden;
+    
+    &.clearly-stated {
+      border-color: #abebc6;
+      background-color: #f0f9f4;
+    }
+    
+    &.missing {
+      border-color: #ffebe6;
+      background-color: #fff4f4;
+    }
+    
+    .analysis-section-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 16px;
+      background-color: #fafbfc;
+      border-bottom: 1px solid #dfe1e6;
+      transition: background-color 0.2s ease;
+      
+      &:hover {
+        background-color: #f4f5f7;
+      }
+      
+      svg {
+        color: #6b778c;
+      }
+    }
+    
+    .analysis-section-content {
+      padding: 16px;
+    }
+  }
+
+  .analysis-result {
+    margin-bottom: 16px;
+    padding: 12px;
+    background-color: white;
+    border: 1px solid #dfe1e6;
+    border-radius: 4px;
+    
+    &:last-child {
+      margin-bottom: 0;
+    }
+    
+    .question {
+      display: block;
+      margin-bottom: 6px;
+      color: #172b4d;
+      font-weight: 500;
+    }
+    
+    .answer {
+      display: block;
+      margin-bottom: 8px;
+      color: #42526e;
+      line-height: 1.4;
+    }
+    
+    .confidence {
+      font-size: 11px;
+      color: #6b778c;
+    }
+  }
+
+  .timestamp {
+    text-align: center;
+    padding: 12px;
+    color: #6b778c;
+    font-size: 12px;
+    border-top: 1px solid #dfe1e6;
+    margin-top: 20px;
+  }
+
+  .no-analysis {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6b778c;
+    
+    .analyze-button {
+      margin-top: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+  }
+
+  // Responsive design
+  @media (max-width: 768px) {
+    .project-info {
+      padding: 12px;
+    }
+    
+    .original-text .text-content {
+      font-size: 11px;
+      padding: 8px;
+    }
+    
+    .analysis-section-header {
+      padding: 10px 12px;
+    }
+    
+    .analysis-section-content {
+      padding: 12px;
+    }
+    
+    .analysis-result {
+      padding: 10px;
+    }
+  }
+}
+
+// Dark theme support
+@media (prefers-color-scheme: dark) {
+  .project-analysis-modal {
+    .project-info {
+      background-color: #2c3e50;
+      color: #ecf0f1;
+    }
+    
+    .original-text .text-content {
+      background-color: #34495e;
+      border-color: #7f8c8d;
+      color: #ecf0f1;
+    }
+    
+    .summary-text {
+      background-color: #27ae60;
+      border-color: #2ecc71;
+      color: #ecf0f1;
+    }
+    
+    .analysis-section {
+      border-color: #7f8c8d;
+      
+      &.clearly-stated {
+        border-color: #27ae60;
+        background-color: #1e8449;
+      }
+      
+      &.missing {
+        border-color: #e74c3c;
+        background-color: #c0392b;
+      }
+      
+      .analysis-section-header {
+        background-color: #34495e;
+        border-bottom-color: #7f8c8d;
+        
+        &:hover {
+          background-color: #2c3e50;
+        }
+      }
+      
+      .analysis-section-content {
+        background-color: #2c3e50;
+      }
+    }
+    
+    .analysis-result {
+      background-color: #34495e;
+      border-color: #7f8c8d;
+      
+      .question {
+        color: #ecf0f1;
+      }
+      
+      .answer {
+        color: #bdc3c7;
+      }
+    }
+  }
+}
