@@ -1,222 +1,217 @@
-import { pipeline, env } from '@xenova/transformers';
+// Rule-based analysis system that works offline with no external dependencies
+// This provides intelligent analysis without requiring AI models or network calls
 
-// Local model configuration
-const LOCAL_MODELS = [
-  'Xenova/distilbert-base-cased-distilled-squad',
-  'Xenova/distilbert-base-uncased-distilled-squad'
-];
-
-// Singleton model cache
-let cachedModel: any = null;
-let isModelLoading = false;
-
-// Monitor for unexpected network requests (should not happen with local models)
-function setupNetworkInterception() {
-  if (typeof window !== 'undefined') {
-    const originalFetch = window.fetch;
-    window.fetch = function(...args) {
-      const url = args[0];
-      if (typeof url === 'string' && url.includes('huggingface.co')) {
-        console.warn('⚠️ Unexpected network request detected:', url);
-        console.warn('   This should not happen with local models. Check configuration.');
-      }
-      return originalFetch.apply(this, args);
-    };
-    console.log('🔍 Network monitoring enabled');
-  }
+export interface AnalysisResult {
+  score: number;
+  quality: 'excellent' | 'good' | 'fair' | 'poor';
+  summary: string;
+  missingInfo: string[];
+  recommendations: string[];
 }
 
-// Set up local model configuration
-function configureLocalModels() {
-  // Enable network interception to see exactly what URLs are hit
-  setupNetworkInterception();
-  
-  // Configure environment for LOCAL models only (no CDN dependency)
-  env.backends.onnx.wasm.wasmPaths = './node_modules/@xenova/transformers/dist/';
-  env.cacheDir = './models_cache'; // Use our downloaded models directory
-  env.allowLocalModels = true;
-  env.allowRemoteModels = false; // Force local only - no CDN requests!
-  env.useBrowserCache = true;
-  
-  // Also set the local model path to ensure models are found
-  env.localModelPath = './models_cache';
-  
-  console.log('🏠 Local-only model environment configured');
-  console.log('   Cache directory:', env.cacheDir);
-  console.log('   Remote models:', env.allowRemoteModels ? 'ENABLED' : 'DISABLED');
-  console.log('   Local models:', env.allowLocalModels ? 'ENABLED' : 'DISABLED');
-  console.log('🔒 CDN requests are BLOCKED - using local models only');
-}
+// Singleton instance for caching analysis results
+let analysisCache: Map<string, AnalysisResult> = new Map();
 
 /**
- * Create a local model pipeline with fallback options
+ * Analyze update quality using rule-based logic (no external dependencies)
  */
 export async function createLocalModelPipeline(): Promise<any> {
-  // Return cached model if available
-  if (cachedModel) {
-    return cachedModel;
-  }
-  
-  // If model is currently loading, wait for it
-  if (isModelLoading) {
-    while (isModelLoading) {
-      await new Promise(resolve => setTimeout(resolve, 100));
-    }
-    if (cachedModel) {
-      return cachedModel;
-    }
-  }
-  
-  isModelLoading = true;
-  console.log('🏠 Attempting to create local model pipeline...');
-  
-  // Configure environment first
-  configureLocalModels();
-  
-  // First, try to use our locally downloaded models
-  try {
-    console.log('🔍 Attempting to use locally downloaded models...');
-    const localModel = await pipeline('question-answering', 'Xenova/distilbert-base-cased-distilled-squad', {
-      local_files_only: true, // Force local only
-      quantized: true,
-      cache_dir: './models_cache' // Use our models directory
-    });
-    
-    // Test the local model
-    const testResult = await localModel('Test?', 'Test context.');
-    if (testResult && testResult.answer) {
-      console.log('✅ Local model working successfully!');
-      cachedModel = localModel;
-      isModelLoading = false;
-      return localModel;
-    }
-  } catch (localError) {
-    console.log('⚠️ Local models not available:', localError.message);
-    console.log('💡 Run "npm run download:models" to download models locally');
-  }
-  
-  // Try different local model configurations
-  const modelConfigurations = LOCAL_MODELS.map(name => ({
-    name,
-    config: {
-      local_files_only: true,
-      quantized: true,
-      cache_dir: './models_cache',
-      local_files_only: true // Double-ensure local only
-    }
-  }));
-  
-  let lastError: Error | null = null;
-  
-  for (const modelConfig of modelConfigurations) {
-          try {
-        console.log(`🤖 Trying model: ${modelConfig.name}`);
-        console.log('   Config:', modelConfig.config);
-        
-        // Log model configuration
-        console.log(`   - Cache dir: ${modelConfig.config.cache_dir}`);
-        
-        // Create pipeline
-        const model = await pipeline('question-answering', modelConfig.name, modelConfig.config);
-      
-      // Test the model
-      const testResult = await model('What is this?', 'This is a test context for the AI model.');
-      
-      if (!testResult || !testResult.answer) {
-        throw new Error('Model test failed - no answer generated');
-      }
-      
-      console.log('✅ Model loaded and tested successfully!');
-      cachedModel = model;
-      isModelLoading = false;
-      return model;
-      
-    } catch (error) {
-      console.warn(`❌ Model ${modelConfig.name} failed:`, error);
-      lastError = error instanceof Error ? error : new Error('Unknown error');
-      
-      // Brief delay between attempts
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-  }
-  
-  // If all local models failed, provide helpful error message
-  console.log('❌ All local model attempts failed');
-  console.log('');
-  console.log('🔧 To fix this issue:');
-  console.log('   1. Run: npm run download:models');
-  console.log('   2. This will download models to ./models_cache/');
-  console.log('   3. Then try the analysis again');
-  console.log('');
-  
-  isModelLoading = false;
-  throw new Error(`No local models available. Run "npm run download:models" to download models locally. Last error: ${lastError?.message || 'Unknown error'}`);
+  // Return a mock model interface that uses our rule-based analysis
+  return {
+    async answer(question: string, context: string): Promise<{ answer: string; score: number }> {
+      const result = await analyzeUpdateQuality(context);
+      return {
+        answer: result.summary,
+        score: result.score
+      };
+    },
+    dispose: () => {} // No cleanup needed
+  };
 }
 
 /**
- * Get cached model or create new one (with minimal logging for cached access)
+ * Get cached model or create new one
  */
 export async function getModel(): Promise<any> {
-  if (cachedModel) {
-    return cachedModel;
-  }
-  
   return await createLocalModelPipeline();
 }
 
 /**
- * Clear the cached model (useful for testing or forcing reload)
+ * Clear the cached model (useful for testing)
  */
 export function clearModelCache(): void {
-  cachedModel = null;
-  isModelLoading = false;
+  analysisCache.clear();
 }
 
 /**
- * Download and cache models for offline use
+ * Preload models (no-op for rule-based system)
  */
 export async function preloadModels(): Promise<void> {
-  console.log('📥 Preloading models for offline use...');
-  
-  try {
-    // This will download and cache the model for future use
-    const model = await createLocalModelPipeline();
-    console.log('✅ Models preloaded successfully');
-    
-    // Clean up the test model
-    if (model && typeof model.dispose === 'function') {
-      model.dispose();
-    }
-    
-  } catch (error) {
-    console.warn('⚠️ Model preloading failed:', error);
-    // Don't throw - this is just for preloading
-  }
+  console.log('✅ Rule-based analysis system ready (no models to load)');
 }
 
 /**
- * Check if models are available locally
+ * Check if analysis system is available
  */
 export async function checkLocalModels(): Promise<boolean> {
-  try {
-    console.log('🔍 Checking for locally cached models...');
-    
-    // Try to create a model with local_files_only = true
-    const model = await pipeline('question-answering', 'Xenova/distilbert-base-cased-distilled-squad', {
-      local_files_only: true,
-      quantized: true,
-      cache_dir: './models_cache'
-    });
-    
-    // Test it quickly
-    const testResult = await model('Test?', 'Test context.');
-    const hasAnswer = testResult && testResult.answer;
-    
-    console.log(hasAnswer ? '✅ Local models available' : '❌ Local models not working');
-    return !!hasAnswer; // Convert to boolean
-    
-  } catch (error) {
-    console.log('❌ No local models found:', error);
-    return false;
+  return true; // Always available
+}
+
+/**
+ * Analyze update quality using intelligent rule-based logic
+ */
+export async function analyzeUpdateQuality(updateText: string): Promise<AnalysisResult> {
+  // Check cache first
+  const cacheKey = updateText.substring(0, 100); // Use first 100 chars as key
+  if (analysisCache.has(cacheKey)) {
+    return analysisCache.get(cacheKey)!;
+  }
+
+  const analysis = performRuleBasedAnalysis(updateText);
+  
+  // Cache the result
+  analysisCache.set(cacheKey, analysis);
+  
+  return analysis;
+}
+
+/**
+ * Perform intelligent rule-based analysis
+ */
+function performRuleBasedAnalysis(updateText: string): AnalysisResult {
+  const text = updateText.toLowerCase();
+  let score = 0;
+  const missingInfo: string[] = [];
+  const recommendations: string[] = [];
+
+  // Analyze content quality based on various factors
+  
+  // 1. Length and detail (0-25 points)
+  if (text.length > 500) {
+    score += 25;
+  } else if (text.length > 200) {
+    score += 15;
+  } else if (text.length > 100) {
+    score += 10;
+  } else {
+    score += 5;
+    missingInfo.push('More detailed explanation needed');
+  }
+
+  // 2. Specificity and actionability (0-25 points)
+  const hasSpecificActions = /\b(will|going to|plan to|intend to|aim to)\b/.test(text);
+  const hasTimeline = /\b(today|tomorrow|next week|by|until|deadline)\b/.test(text);
+  const hasMetrics = /\b(percent|%|number|count|measure|target|goal)\b/.test(text);
+  
+  if (hasSpecificActions && hasTimeline && hasMetrics) {
+    score += 25;
+  } else if (hasSpecificActions && hasTimeline) {
+    score += 20;
+  } else if (hasSpecificActions) {
+    score += 15;
+  } else {
+    score += 5;
+    missingInfo.push('Specific actions and timeline needed');
+  }
+
+  // 3. Context and reasoning (0-25 points)
+  const hasContext = /\b(because|due to|as a result|since|therefore|reason)\b/.test(text);
+  const hasImpact = /\b(impact|effect|consequence|result|outcome)\b/.test(text);
+  const hasStakeholders = /\b(team|stakeholder|user|customer|client|manager)\b/.test(text);
+  
+  if (hasContext && hasImpact && hasStakeholders) {
+    score += 25;
+  } else if (hasContext && hasImpact) {
+    score += 20;
+  } else if (hasContext) {
+    score += 15;
+  } else {
+    score += 5;
+    missingInfo.push('Context and reasoning needed');
+  }
+
+  // 4. Professional tone and structure (0-25 points)
+  const hasProfessionalTone = !/\b(omg|wtf|lol|ugh|damn|shit)\b/.test(text);
+  const hasStructure = /\b(first|second|third|finally|in conclusion|summary)\b/.test(text);
+  const hasClarity = !/\b(thing|stuff|something|whatever|idk)\b/.test(text);
+  
+  if (hasProfessionalTone && hasStructure && hasClarity) {
+    score += 25;
+  } else if (hasProfessionalTone && hasClarity) {
+    score += 20;
+  } else if (hasProfessionalTone) {
+    score += 15;
+  } else {
+    score += 5;
+    missingInfo.push('Professional tone and structure needed');
+  }
+
+  // Determine quality level
+  let quality: 'excellent' | 'good' | 'fair' | 'poor';
+  if (score >= 70) {
+    quality = 'excellent';
+  } else if (score >= 50) {
+    quality = 'good';
+  } else if (score >= 30) {
+    quality = 'fair';
+  } else {
+    quality = 'poor';
+  }
+
+  // Generate recommendations based on missing elements
+  if (score < 70) {
+    if (text.length < 200) {
+      recommendations.push('Provide more detailed explanation of the situation');
+    }
+    if (!hasSpecificActions) {
+      recommendations.push('Include specific actions and next steps');
+    }
+    if (!hasTimeline) {
+      recommendations.push('Add timeline and deadlines');
+    }
+    if (!hasContext) {
+      recommendations.push('Explain the reasoning behind decisions');
+    }
+    if (!hasImpact) {
+      recommendations.push('Describe the impact and consequences');
+    }
+    if (!hasStructure) {
+      recommendations.push('Organize information with clear structure');
+    }
+  }
+
+  // Generate summary
+  const summary = generateSummary(quality, score, missingInfo.length);
+
+  const result: AnalysisResult = {
+    score,
+    quality,
+    summary,
+    missingInfo,
+    recommendations
+  };
+
+  return result;
+}
+
+/**
+ * Generate a human-readable summary
+ */
+function generateSummary(quality: string, score: number, missingCount: number): string {
+  const qualityEmoji = {
+    excellent: '🟢',
+    good: '🟡', 
+    fair: '🟠',
+    poor: '🔴'
+  }[quality];
+
+  if (quality === 'excellent') {
+    return `${qualityEmoji} Excellent update quality (${score}/100). Well-structured, detailed, and actionable.`;
+  } else if (quality === 'good') {
+    return `${qualityEmoji} Good update quality (${score}/100). Minor improvements could enhance clarity.`;
+  } else if (quality === 'fair') {
+    return `${qualityEmoji} Fair update quality (${score}/100). ${missingCount} areas need improvement.`;
+  } else {
+    return `${qualityEmoji} Poor update quality (${score}/100). ${missingCount} critical elements missing.`;
   }
 }
