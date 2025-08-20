@@ -34,7 +34,7 @@ const Popup: React.FC = () => {
   const checkForUpdates = async (): Promise<void> => {
     try {
       setIsCheckingVersion(true);
-      const result = await VersionChecker.checkForUpdates();
+      const result = await VersionChecker.getLatestVersionInfo();
       setVersionInfo(result);
     } catch (error) {
       console.warn('[AtlasXray] Version check failed:', error);

@@ -35,7 +35,41 @@ export class VersionChecker {
   }
 
   /**
-   * Check if a new version is available
+   * Get latest version information (no rate limiting)
+   */
+  static async getLatestVersionInfo(): Promise<{ hasUpdate: boolean; latestVersion?: string; releaseUrl?: string }> {
+    try {
+      // Fetch latest release from GitHub
+      const response = await fetch(this.GITHUB_API_URL);
+      if (!response.ok) {
+        throw new Error(`GitHub API error: ${response.status}`);
+      }
+
+      const release: GitHubRelease = await response.json();
+      const latestVersion = release.tag_name.replace(/^v/, '');
+      const currentVersion = chrome.runtime.getManifest().version;
+
+      // Compare versions
+      if (this.isNewerVersion(latestVersion, currentVersion)) {
+        return {
+          hasUpdate: true,
+          latestVersion: release.tag_name,
+          releaseUrl: release.html_url
+        };
+      }
+
+      return { 
+        hasUpdate: false, 
+        latestVersion: release.tag_name 
+      };
+    } catch (error) {
+      console.warn('[AtlasXray] Version info fetch failed:', error);
+      return { hasUpdate: false };
+    }
+  }
+
+  /**
+   * Check if a new version is available (with rate limiting)
    */
   static async checkForUpdates(): Promise<{ hasUpdate: boolean; latestVersion?: string; releaseUrl?: string }> {
     try {
@@ -44,6 +78,7 @@ export class VersionChecker {
       const now = Date.now();
       
       if (now - lastCheck < this.CHECK_INTERVAL) {
+        // Rate limited - don't make API call
         return { hasUpdate: false };
       }
 
@@ -69,7 +104,10 @@ export class VersionChecker {
         };
       }
 
-      return { hasUpdate: false };
+      return { 
+        hasUpdate: false, 
+        latestVersion: release.tag_name 
+      };
     } catch (error) {
       console.warn('[AtlasXray] Version check failed:', error);
       return { hasUpdate: false };
