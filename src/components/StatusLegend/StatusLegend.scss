@@ -41,20 +41,30 @@
     }
   }
 
-  // Legend item specific styles
-  .legend-completed:before {
-    background: #36b37e;
-    border: 2px solid #36b37e;
+  // Legend item specific styles - matching timeline cell colors exactly
+  .legend-on-track:before {
+    background: #4caf50;
+    border: 2px solid #4caf50;
   }
 
-  .legend-in-progress:before {
-    background: #ff8b00;
-    border: 2px solid #ff8b00;
+  .legend-off-track:before {
+    background: #e53935;
+    border: 2px solid #e53935;
+  }
+
+  .legend-at-risk:before {
+    background: orange;
+    border: 2px solid orange;
   }
 
   .legend-pending:before {
     background: #85b8ff;
     border: 2px solid #85b8ff;
+  }
+
+  .legend-completed:before {
+    background: #006400;
+    border: 2px solid #006400;
   }
 
   .legend-paused:before {
@@ -63,18 +73,13 @@
   }
 
   .legend-cancelled:before {
-    background: #ff5630;
-    border: 2px solid #ff5630;
-  }
-
-  .legend-missed-update:before {
-    background: #c1c7d0;
-    border: 2px solid #c1c7d0;
+    background: #424242;
+    border: 2px solid #424242;
   }
 
   .legend-none:before {
     background: #ffffff;
-    border: 2px solid #dfe1e6;
+    border: 2px solid #eee;
   }
 }
 
