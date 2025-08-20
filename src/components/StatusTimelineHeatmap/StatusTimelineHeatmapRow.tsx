@@ -65,7 +65,12 @@ export default function StatusTimelineHeatmapRow({
               {/* Show date difference tooltip if there's a date change */}
               {u.oldDueDate && u.newDueDate && (
                 <Tooltip content={getDueDateTooltip(u)} position="top">
-                  <span className="date-difference">{getDueDateDiff(u)}</span>
+                  <span className="date-difference">
+                    {(() => {
+                      const diff = getDueDateDiff(u);
+                      return diff !== null ? (diff > 0 ? `+${diff}` : `${diff}`) : '';
+                    })()}
+                  </span>
                 </Tooltip>
               )}
               

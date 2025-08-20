@@ -43789,7 +43789,10 @@
           onClick: () => setSelectedUpdate(u),
           style: { cursor: "pointer" },
           children: [
-            u.oldDueDate && u.newDueDate && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(tooltip_default, { content: getDueDateTooltip(u), position: "top", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "date-difference", children: getDueDateDiff(u) }) }),
+            u.oldDueDate && u.newDueDate && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(tooltip_default, { content: getDueDateTooltip(u), position: "top", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "date-difference", children: (() => {
+              const diff = getDueDateDiff(u);
+              return diff !== null ? diff > 0 ? `+${diff}` : `${diff}` : "";
+            })() }) }),
             !u.oldDueDate && /* @__PURE__ */ (0, import_jsx_runtime3.jsx)(tooltip_default, { content: "Click to view update details", position: "top", children: /* @__PURE__ */ (0, import_jsx_runtime3.jsx)("span", { className: "update-indicator", children: "\u2022" }) })
           ]
         },
