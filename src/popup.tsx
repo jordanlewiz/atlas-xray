@@ -34,20 +34,8 @@ const Popup: React.FC = () => {
   const checkForUpdates = async (): Promise<void> => {
     try {
       setIsCheckingVersion(true);
-      const response = await fetch('https://api.github.com/repos/jordanlewiz/atlas-xray/releases/latest');
-      if (response.ok) {
-        const release = await response.json();
-        const latestVersion = release.tag_name.replace(/^v/, '');
-        
-        // Compare versions using VersionChecker
-        const hasUpdate = VersionChecker.isNewerVersion(latestVersion, currentVersion);
-        
-        setVersionInfo({
-          hasUpdate,
-          latestVersion: release.tag_name,
-          releaseUrl: release.html_url
-        });
-      }
+      const result = await VersionChecker.checkForUpdates();
+      setVersionInfo(result);
     } catch (error) {
       console.warn('[AtlasXray] Version check failed:', error);
     } finally {
