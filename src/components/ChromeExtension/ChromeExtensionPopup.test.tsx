@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import Popup from './PopupApp';
+import Popup from './ChromeExtensionPopup';
 
 // Mock chrome global
 const mockTabsQuery = jest.fn();
@@ -15,7 +15,7 @@ const mockTabsQuery = jest.fn();
 };
 
 // Mock VersionChecker
-jest.mock('../utils/versionChecker', () => ({
+jest.mock('../../utils/versionChecker', () => ({
   VersionChecker: {
     getLatestVersionInfo: jest.fn(),
     isLocalDevVersion: () => true,
@@ -23,7 +23,7 @@ jest.mock('../utils/versionChecker', () => ({
   }
 }));
 
-import { VersionChecker } from '../utils/versionChecker';
+import { VersionChecker } from '../../utils/versionChecker';
 
 describe('Popup', () => {
   beforeEach(() => {

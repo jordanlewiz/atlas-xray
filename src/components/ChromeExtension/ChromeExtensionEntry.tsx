@@ -10,7 +10,7 @@
 
 import React from "react";
 import { createRoot } from "react-dom/client";
-import Popup from "./PopupApp";
+import Popup from "./ChromeExtensionPopup";
 
 // Bootstrap the React app
 const root = createRoot(document.getElementById("root")!);

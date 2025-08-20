@@ -30,7 +30,7 @@
   "content_scripts": [
     {
       "matches": ["https://home.atlassian.com/*"],
-      "js": ["dist/chromeExtension.js"],
+      "js": ["dist/contentScript.js"],
       "css": ["dist/popup.css"]
     }
   ]

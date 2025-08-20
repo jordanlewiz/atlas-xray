@@ -1,0 +1,97 @@
+.chrome-extension-popup {
+  width: 300px;
+  padding: 12px;
+
+  &__version-section {
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 12px;
+    margin-bottom: 12px;
+  }
+
+  &__title {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+
+  &__version-info {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+  }
+
+  &__update-status {
+    font-size: 12px;
+  }
+
+  &__update-available {
+    color: #e74c3c;
+    font-weight: bold;
+  }
+
+  &__download-button {
+    margin-left: 8px;
+    padding: 2px 6px;
+    font-size: 10px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+
+    &:hover {
+      background: #2980b9;
+    }
+  }
+
+  &__latest-version {
+    color: #27ae60;
+    font-weight: bold;
+  }
+
+  &__checking-updates {
+    color: #666;
+  }
+
+  &__update-error {
+    color: #e74c3c;
+    font-style: italic;
+  }
+
+  &__separator {
+    border-top: 1px solid #e0e0e0;
+    margin: 12px 0;
+  }
+
+  &__site-access-section {
+    margin-top: 12px;
+  }
+
+  &__page-title {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 4px;
+  }
+
+  &__access-status {
+    font-size: 12px;
+    font-weight: bold;
+  }
+
+  &__access-granted {
+    color: #27ae60;
+  }
+
+  &__access-denied {
+    color: #e74c3c;
+  }
+
+  &__unknown-page {
+    color: #f39c12;
+  }
+
+  &__local-dev-note {
+    color: #f39c12;
+    margin-left: 8px;
+  }
+}

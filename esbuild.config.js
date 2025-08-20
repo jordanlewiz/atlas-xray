@@ -12,14 +12,28 @@ const commonOptions = {
   }
 };
 
+// SCSS loader for esbuild
+const scssLoader = {
+  name: 'scss',
+  setup(build) {
+    build.onLoad({ filter: /\.scss$/ }, () => {
+      return {
+        contents: '/* SCSS files are processed separately by the CSS build step */',
+        loader: 'js'
+      };
+    });
+  }
+};
+
 // Build functions
 async function buildPopup() {
   await esbuild.build({
     ...commonOptions,
-    entryPoints: ['src/ChromeExtensionPopup/popupEntry.tsx'],
+    entryPoints: ['src/components/ChromeExtension/ChromeExtensionEntry.tsx'],
     outfile: 'dist/popup.js',
     loader: { '.ts': 'tsx', '.tsx': 'tsx' },
-    external: ['chrome']
+    external: ['chrome'],
+    plugins: [scssLoader]
   });
 }
 

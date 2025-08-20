@@ -24,7 +24,8 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { VersionChecker } from "../utils/versionChecker";
+import { VersionChecker } from "../../utils/versionChecker";
+import "./ChromeExtensionPopup.scss";
 
 // Chrome extension types
 declare const chrome: any;
@@ -102,19 +103,15 @@ const Popup: React.FC = () => {
   };
 
   return (
-    <div style={{ width: 300, padding: '12px' }}>
+    <div className="chrome-extension-popup">
       {/* Version Information */}
-      <div style={{ 
-        borderBottom: '1px solid #e0e0e0', 
-        paddingBottom: '12px', 
-        marginBottom: '12px' 
-      }}>
-        <div style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '8px' }}>
+      <div className="chrome-extension-popup__version-section">
+        <div className="chrome-extension-popup__title">
           Atlas Xray
         </div>
         
         {/* Current Version */}
-        <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>
+        <div className="chrome-extension-popup__version-info">
           Installed: {currentVersion === '0.0.0' ? 'Local Dev Build' : `v${currentVersion}`}
         </div>
         
@@ -122,30 +119,21 @@ const Popup: React.FC = () => {
         
         {/* Latest Version Check */}
         {isCheckingVersion ? (
-          <div style={{ fontSize: '12px', color: '#666' }}>
+          <div className="chrome-extension-popup__checking-updates">
             Checking for updates...
           </div>
         ) : versionInfo ? (
-          <div style={{ fontSize: '12px' }}>
+          <div className="chrome-extension-popup__update-status">
             {(() => {
               const isLocalDev = currentVersion === '0.0.0';
               
               if (versionInfo.hasUpdate) {
                 return (
-                  <div style={{ color: '#e74c3c', fontWeight: 'bold' }}>
+                  <div className="chrome-extension-popup__update-available">
                     ⚠️ New version available: {versionInfo.latestVersion}
                     <button 
                       onClick={openReleasePage}
-                      style={{ 
-                        marginLeft: '8px', 
-                        padding: '2px 6px', 
-                        fontSize: '10px',
-                        background: '#3498db', 
-                        color: 'white', 
-                        border: 'none', 
-                        borderRadius: '3px',
-                        cursor: 'pointer'
-                      }}
+                      className="chrome-extension-popup__download-button"
                     >
                       Download
                     </button>
@@ -155,10 +143,10 @@ const Popup: React.FC = () => {
               
               if (versionInfo.latestVersion) {
                 return (
-                  <div style={{ color: '#27ae60' }}>
+                  <div className="chrome-extension-popup__latest-version">
                     ✅ Latest: {versionInfo.latestVersion}
                     {isLocalDev && (
-                      <span style={{ color: '#f39c12', marginLeft: '8px' }}>
+                      <span className="chrome-extension-popup__local-dev-note">
                         (Local Dev Build)
                       </span>
                     )}
@@ -167,23 +155,23 @@ const Popup: React.FC = () => {
               }
               
               return (
-                <div style={{ color: '#666' }}>
+                <div className="chrome-extension-popup__checking-updates">
                   Checking for updates...
                 </div>
               );
             })()}
           </div>
         ) : (
-          <div style={{ fontSize: '12px', color: '#666' }}>
+          <div className="chrome-extension-popup__update-error">
             Unable to check for updates
           </div>
         )}
       </div>
 
       {/* Domain Status */}
-      <div style={{ marginBottom: '12px' }}>
+      <div className="chrome-extension-popup__site-access-section">
         {/* Current Domain Info */}
-        <div style={{ fontSize: '14px', color: '#888', wordBreak: 'break-all', marginBottom: '4px' }}>
+        <div className="chrome-extension-popup__page-title">
           {(() => {
             if (!currentTabUrl) {
               return 'Loading...';
@@ -201,11 +189,11 @@ const Popup: React.FC = () => {
         </div>
         
         {/* Extension Access Status */}
-        <div style={{ fontSize: '12px' }}>
+        <div className="chrome-extension-popup__access-status">
           {(() => {
             if (!currentTabUrl) {
               return (
-                <div style={{ color: '#666' }}>
+                <div className="chrome-extension-popup__checking-updates">
                   Checking site access...
                 </div>
               );
@@ -213,7 +201,7 @@ const Popup: React.FC = () => {
             
             if (currentTabUrl === 'about:blank') {
               return (
-                <div style={{ color: '#f39c12' }}>
+                <div className="chrome-extension-popup__unknown-page">
                   ⚠️ Unable to determine site
                 </div>
               );
@@ -224,13 +212,13 @@ const Popup: React.FC = () => {
             
             if (hasAccess) {
               return (
-                <div style={{ color: '#27ae60', fontWeight: 'bold' }}>
+                <div className="chrome-extension-popup__access-granted">
                   ✅ Has access to this site
                 </div>
               );
             } else {
               return (
-                <div style={{ color: '#e74c3c', fontWeight: 'bold' }}>
+                <div className="chrome-extension-popup__access-denied">
                   ❌ No access to this site
                 </div>
               );
