@@ -179,18 +179,15 @@ export class VersionChecker {
         }
       });
 
-      // Auto-clear notification after 10 seconds
-      setTimeout(() => {
-        chrome.notifications.clear(notificationId);
-      }, 10000);
+      // Auto-clear notification after 10 seconds using chrome.alarms
+      chrome.alarms.create(`atlas-xray-clear-${notificationId}`, { when: Date.now() + 10000 });
 
     } catch (error) {
       console.warn('[AtlasXray] Failed to show update notification:', error);
       
-      // Fallback: show alert if notification fails
-      if (confirm(`A new version (${latestVersion}) of Atlas Xray is available!\n\nClick OK to download the update.`)) {
-        chrome.tabs.create({ url: releaseUrl });
-      }
+      // Fallback: open update page directly if notification fails
+      chrome.tabs.create({ url: releaseUrl });
+      console.warn(`[AtlasXray] A new version (${latestVersion}) is available. Opening update page: ${releaseUrl}`);
     }
   }
 }

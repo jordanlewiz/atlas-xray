@@ -32,10 +32,8 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     console.log('[AtlasXray] Extension updated to version:', chrome.runtime.getManifest().version);
   }
   
-  // Check for updates after a short delay
-  setTimeout(async () => {
-    await checkForUpdates();
-  }, 5000);
+  // Check for updates after a short delay using chrome.alarms
+  chrome.alarms.create('delayed-version-check', { when: Date.now() + 5000 });
 });
 
 // Check for updates periodically (every 24 hours)
@@ -43,6 +41,14 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === 'version-check') {
     console.log('[AtlasXray] Periodic version check triggered');
     await checkForUpdates();
+  } else if (alarm.name === 'delayed-version-check') {
+    console.log('[AtlasXray] Delayed version check triggered');
+    await checkForUpdates();
+  } else if (alarm.name.startsWith('atlas-xray-clear-')) {
+    // Clear notification when alarm fires
+    const notificationId = alarm.name.replace('atlas-xray-clear-', '');
+    chrome.notifications.clear(notificationId);
+    console.log('[AtlasXray] Cleared notification:', notificationId);
   }
 });
 
