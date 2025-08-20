@@ -42,7 +42,7 @@ jobs:
         with:
           files: atlas-xray-v${{ steps.version.outputs.version }}.zip
           tag_name: ${{ github.ref_name }}
-          name: Release ${{ github.ref_name }}
+          name: 🚀 Atlas Xray v${{ steps.version.outputs.version }} - Atlassian Project Management Extension
           body: |
             # 🚀 Atlas Xray Chrome Extension v${{ steps.version.outputs.version }}
             
