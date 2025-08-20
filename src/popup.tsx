@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { getItem } from "./utils/database";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "./utils/database";
-
-const STORAGE_KEY = "demoValue";
 
 interface VersionInfo {
   hasUpdate: boolean;
@@ -14,24 +9,22 @@ interface VersionInfo {
 
 const Popup: React.FC = () => {
   console.log("PopupApp");
-  const [stored, setStored] = useState<string>("");
-  const [resetMsg, setResetMsg] = useState<string>("");
-  const [refreshMsg, setRefreshMsg] = useState<string>("");
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
   const [isCheckingVersion, setIsCheckingVersion] = useState(false);
+  const [currentTabUrl, setCurrentTabUrl] = useState<string>("");
   
-  const projectCount = useLiveQuery(() => db.projectView.count(), []);
   const currentVersion = chrome.runtime.getManifest().version;
-
-  console.log("projectCount", projectCount);
   
   useEffect(() => {
-    getItem(STORAGE_KEY).then((val) => {
-      if (val) setStored(val);
-    });
-    
     // Check for updates when popup opens
     checkForUpdates();
+    
+    // Get current tab's URL
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]?.url) {
+        setCurrentTabUrl(tabs[0].url);
+      }
+    });
   }, []);
 
   const checkForUpdates = async (): Promise<void> => {
@@ -73,17 +66,7 @@ const Popup: React.FC = () => {
     return false;
   };
 
-  const handleResetDB = async (): Promise<void> => {
-    /*if (window.confirm("Are you sure you want to clear all AtlasXrayDB data?")) {
-      await Promise.all(db.tables.map(table => table.clear()));
-      setResetMsg("All data cleared from AtlasXrayDB!");
-    }*/
-  };
 
-  const handleRefreshUpdates = async (): Promise<void> => {
-    setRefreshMsg(`Project count refreshed! >> ${projectCount} <<`);
-    setTimeout(() => setRefreshMsg(""), 1500);
-  };
 
   const openReleasePage = (): void => {
     if (versionInfo?.releaseUrl) {
@@ -105,7 +88,7 @@ const Popup: React.FC = () => {
         
         {/* Current Version */}
         <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>
-          Installed: v{currentVersion}
+          Installed: {currentVersion === '0.0.0' ? 'Local Dev Build' : `v${currentVersion}`}
         </div>
         
 
@@ -119,14 +102,6 @@ const Popup: React.FC = () => {
           <div style={{ fontSize: '12px' }}>
             {(() => {
               const isLocalDev = currentVersion === '0.0.0';
-              
-              if (isLocalDev) {
-                return (
-                  <div style={{ color: '#f39c12', fontWeight: 'bold' }}>
-                    🔧 Local Dev Build - Updates not checked
-                  </div>
-                );
-              }
               
               if (versionInfo.hasUpdate) {
                 return (
@@ -151,9 +126,22 @@ const Popup: React.FC = () => {
                 );
               }
               
+              if (versionInfo.latestVersion) {
+                return (
+                  <div style={{ color: '#27ae60' }}>
+                    ✅ Latest: {versionInfo.latestVersion}
+                    {isLocalDev && (
+                      <span style={{ color: '#f39c12', marginLeft: '8px' }}>
+                        (Local Dev Build)
+                      </span>
+                    )}
+                  </div>
+                );
+              }
+              
               return (
-                <div style={{ color: '#27ae60' }}>
-                  ✅ Up to date ({versionInfo.latestVersion})
+                <div style={{ color: '#666' }}>
+                  Checking for updates...
                 </div>
               );
             })()}
@@ -165,49 +153,67 @@ const Popup: React.FC = () => {
         )}
       </div>
 
-      {/* Project Information */}
+      {/* Domain Status */}
       <div style={{ marginBottom: '12px' }}>
         <div style={{ fontSize: '14px', marginBottom: '8px' }}>
-          Projects in DB: <b>{projectCount === undefined ? "Loading..." : projectCount}</b>
+          {(() => {
+            const currentUrl = window.location.href;
+            const isAtlassianDomain = currentUrl.includes('atlassian.com') || currentUrl.includes('jira.com') || currentUrl.includes('confluence.com');
+            
+            if (isAtlassianDomain) {
+              return (
+                <div style={{ color: '#27ae60', fontWeight: 'bold' }}>
+                  🟢 Running on Atlassian domain
+                </div>
+              );
+            } else {
+              return (
+                <div style={{ color: '#e74c3c', fontWeight: 'bold' }}>
+                  🔴 Not on Atlassian domain
+                </div>
+              );
+            }
+          })()}
+        </div>
+        
+        {/* Current Domain Info */}
+        <div style={{ fontSize: '12px', color: '#888', wordBreak: 'break-all' }}>
+          {currentTabUrl ? new URL(currentTabUrl).hostname : 'Loading...'}
+        </div>
+        
+        {/* Extension Permissions Status */}
+        <div style={{ fontSize: '11px', color: '#888', marginTop: '4px' }}>
+          {(() => {
+            if (!currentTabUrl) {
+              return (
+                <div style={{ color: '#666' }}>
+                  Checking site access...
+                </div>
+              );
+            }
+            
+            const hasAccess = currentTabUrl.includes('atlassian.com') || currentTabUrl.includes('jira.com') || currentTabUrl.includes('confluence.com');
+            
+            if (hasAccess) {
+              return (
+                <div style={{ color: '#27ae60', fontWeight: 'bold' }}>
+                  ✅ Has access to this site
+                </div>
+              );
+            } else {
+              return (
+                <div style={{ color: '#e74c3c', fontWeight: 'bold' }}>
+                  ❌ No access to this site
+                </div>
+              );
+            }
+          })()}
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <button 
-        onClick={handleResetDB} 
-        style={{ 
-          marginBottom: '8px', 
-          width: "100%", 
-          background: '#e74c3c', 
-          color: '#fff',
-          border: 'none',
-          padding: '8px',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
-      >
-        Clear All AtlasXrayDB Data
-      </button>
-      
-      <button 
-        onClick={handleRefreshUpdates} 
-        style={{ 
-          marginBottom: '8px', 
-          width: "100%", 
-          background: '#2980b9', 
-          color: '#fff',
-          border: 'none',
-          padding: '8px',
-          borderRadius: '4px',
-          cursor: 'pointer'
-        }}
-      >
-        Refresh Project Count
-      </button>
 
-      {/* Messages */}
-      {resetMsg && <div style={{ color: '#27ae60', marginTop: '8px', fontSize: '12px' }}>{resetMsg}</div>}
-      {refreshMsg && <div style={{ color: '#2980b9', marginTop: '8px', fontSize: '12px' }}>{refreshMsg}</div>}
+
+
     </div>
   );
 };

@@ -24,7 +24,7 @@
   position: relative;
   
   div {
-    width: 100px;
+    width: 120px;
     transform: rotate(-45deg);
     bottom: -20px;
     left: 20px;
@@ -115,17 +115,11 @@
     background: #7f7f7f;
     border-color: #7f7f7f;
     color: #fff;
-    &:after{
-      content: "⏸️";
-    }
   }
   &.state-cancelled {
     background: #424242; // dark grey
     border-color: #424242;
     color: #fff;
-    &:before{
-      content: "❌";
-    }
   }
   &.state-done {
     background: #006400; // dark green

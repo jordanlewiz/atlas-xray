@@ -11,7 +11,7 @@
     "build:content": "node esbuild.config.js content",
     "build:chromeExtension": "node esbuild.config.js chromeExtension",
     "build:background": "node esbuild.config.js background",
-    "build": "npm test && npm run build:icons && npm run build:js && npm run build:css && npm run build:html && npm run build:content && npm run build:chromeExtension && npm run build:background",
+    "build": "npm test && npm run build:js && npm run build:css && npm run build:html && npm run build:content && npm run build:chromeExtension && npm run build:background",
     "release:patch": "node scripts/release.js patch",
     "release:minor": "node scripts/release.js minor",
     "release:major": "node scripts/release.js major",
