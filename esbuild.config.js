@@ -19,7 +19,7 @@ const scssLoader = {
     build.onLoad({ filter: /\.scss$/ }, () => {
       return {
         contents: '/* SCSS files are processed separately by the CSS build step */',
-        loader: 'js'
+        loader: 'css'  // Changed from 'js' to 'css' to properly handle SCSS imports
       };
     });
   }
@@ -37,21 +37,15 @@ async function buildPopup() {
   });
 }
 
-async function buildContent() {
-  await esbuild.build({
-    ...commonOptions,
-    entryPoints: ['src/components/FloatingButton/FloatingButton.tsx'],
-    outfile: 'dist/floatingButton.js',
-    loader: { '.ts': 'tsx' }
-  });
-}
+// Removed buildContent - redundant with buildChromeExtension
 
 async function buildChromeExtension() {
   await esbuild.build({
     ...commonOptions,
     entryPoints: ['src/contentScripts/contentScript.js'],
     outfile: 'dist/contentScript.js',
-    loader: { '.js': 'jsx' }
+    loader: { '.js': 'jsx', '.tsx': 'tsx' },
+    external: ['chrome']
   });
 }
 
@@ -67,7 +61,6 @@ async function buildBackground() {
 // Export build functions
 module.exports = {
   buildPopup,
-  buildContent,
   buildChromeExtension,
   buildBackground
 };
@@ -79,9 +72,7 @@ if (require.main === module) {
     case 'popup':
       buildPopup();
       break;
-    case 'content':
-      buildContent();
-      break;
+    // Removed content case - redundant with chromeExtension
     case 'chromeExtension':
       buildChromeExtension();
       break;

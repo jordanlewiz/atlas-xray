@@ -19,6 +19,7 @@ try {
   const sourceManifest = JSON.parse(fs.readFileSync(sourceManifestPath, 'utf8'));
   
   // Create distribution manifest with corrected paths
+  // When loading from dist/ folder, all paths should be relative to extension root
   const distManifest = {
     ...sourceManifest,
     icons: {
@@ -41,7 +42,7 @@ try {
       {
         matches: ["https://home.atlassian.com/*"],
         js: ["contentScript.js"],
-        css: ["popup.css"]
+        css: ["contentScript.css"]
       }
     ]
   };
