@@ -1,6 +1,6 @@
 {
   "name": "atlas-xray-extension",
-  "version": "0.3.1",
+  "version": "0.1.0",
   "description": "Bare bones Chrome extension using React, IndexedDB, and Sass.",
   "main": "background.js",
   "scripts": {

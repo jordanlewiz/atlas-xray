@@ -73,11 +73,6 @@ jobs:
             6. **Select** the extracted folder containing the extension
             7. **Pin** the extension to your toolbar for easy access
             
-            ### For Other Chromium-based Browsers:
-            - **Edge**: Same process as Chrome
-            - **Brave**: Same process as Chrome
-            - **Opera**: Same process as Chrome
-            
             ## 🔍 What This Extension Does
             
             Atlas Xray enhances your Atlassian Projects experience by adding:
@@ -120,6 +115,6 @@ jobs:
             
             ---
             
-            **Made with ❤️ by the Atlas Xray team**
+            **Made by Jordan Lewis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
