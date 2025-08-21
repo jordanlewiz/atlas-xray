@@ -73,8 +73,6 @@ export function useTimeline(weekLimit: number = 12) {
     // Get week ranges for the timeline
     const allDates = getAllProjectDates(projectViewModels, updatesByProject);
     
-
-    
     if (!allDates.minDate || !allDates.maxDate) {
       console.warn('[AtlasXray] No valid dates found - timeline will be empty');
       return {
@@ -119,6 +117,7 @@ export function useTimeline(weekLimit: number = 12) {
       const startIndex = Math.max(0, lastUpdateWeekIndex - weekLimit + 1);
       limitedWeekRanges = weekRanges.slice(startIndex, lastUpdateWeekIndex + 1);
     }
+
 
 
     return {

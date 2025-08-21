@@ -92,12 +92,8 @@ export default function FloatingButton(): React.JSX.Element {
     );
   };
 
-  // Simplified project view model - just use stored projects
-  const projectViewModel = Array.from({ length: pipelineState.projectsStored }, (_, i) => ({
-    projectKey: `Project-${i + 1}`,
-    name: `Project ${i + 1}`,
-    rawProject: { projectKey: `Project-${i + 1}`, raw: {} }
-  }));
+  // Get actual project keys from the pipeline state
+  const actualProjectKeys = pipelineState.projectIds || [];
 
   return (
     <>
@@ -113,7 +109,7 @@ export default function FloatingButton(): React.JSX.Element {
         {(weekLimit: number) => (
           <StatusTimelineHeatmap
             weekLimit={weekLimit}
-            visibleProjectKeys={projectViewModel.map(p => p.projectKey)}
+            visibleProjectKeys={actualProjectKeys}
           />
         )}
       </ProjectStatusHistoryModal>

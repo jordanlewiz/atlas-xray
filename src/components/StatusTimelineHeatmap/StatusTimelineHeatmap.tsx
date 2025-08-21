@@ -22,7 +22,7 @@ function StatusTimelineHeatmap({ weekLimit: initialWeekLimit = 12, visibleProjec
   const filteredProjects = useMemo(() => {
     // If visibleProjectKeys is not provided, show all projects
     if (!visibleProjectKeys) {
-      return projectViewModels;
+      return projectViewModels || [];
     }
     // If visibleProjectKeys is an empty array, show no projects
     if (visibleProjectKeys.length === 0) {
@@ -30,7 +30,7 @@ function StatusTimelineHeatmap({ weekLimit: initialWeekLimit = 12, visibleProjec
     }
     // Filter projects based on visibleProjectKeys AND preserve the order
     return visibleProjectKeys
-      .map(key => projectViewModels.find(project => project.projectKey === key))
+      .map(key => projectViewModels?.find(project => project.projectKey === key))
       .filter((project): project is ProjectViewModel => project !== undefined);
   }, [projectViewModels, visibleProjectKeys]);
 
