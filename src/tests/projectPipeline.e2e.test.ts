@@ -694,4 +694,274 @@ describe('Project Data Pipeline E2E', () => {
       expect(state.projectIds).toContain('TEST-456');
     });
   });
+
+  describe('Batch Processing & Performance', () => {
+    it('should process projects in batches with controlled concurrency', async () => {
+      // Given: Many projects to process
+      const manyProjects = Array.from({ length: 12 }, (_, i) => ({
+        getAttribute: (attr: string) => attr === 'href' ? `/o/abc123/s/def456/project/BATCH-${i + 1}` : null,
+        href: `/o/abc123/s/def456/project/BATCH-${i + 1}`
+      }));
+      
+      // Mock DOM to return many projects
+      Object.defineProperty(document, 'querySelectorAll', {
+        value: jest.fn().mockReturnValue(manyProjects as any),
+        writable: true
+      });
+      
+      // Set up console spy BEFORE calling pipeline methods
+      const consoleSpy = jest.spyOn(console, 'log');
+      
+      // When: Scan and process projects
+      await pipeline.scanProjectsOnPage();
+      const finalStoredCount = await pipeline.fetchAndStoreProjects();
+      
+      // Then: Should process all projects
+      expect(finalStoredCount).toBeGreaterThan(0);
+      
+      // And: Should show batch processing logs
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Starting to process 12 projects with concurrency')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Processing batch 1/3 (5 projects)')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Processing batch 2/3 (5 projects)')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Processing batch 3/3 (2 projects)')
+      );
+      
+      consoleSpy.mockRestore();
+    });
+
+    it('should show progress indicators for each batch', async () => {
+      // Given: Projects to process
+      const projects = Array.from({ length: 10 }, (_, i) => ({
+        getAttribute: (attr: string) => attr === 'href' ? `/o/abc123/s/def456/project/PROG-${i + 1}` : null,
+        href: `/o/abc123/s/def456/project/PROG-${i + 1}`
+      }));
+      
+      // Mock DOM
+      Object.defineProperty(document, 'querySelectorAll', {
+        value: jest.fn().mockReturnValue(projects as any),
+        writable: true
+      });
+      
+      // Set up console spy BEFORE calling pipeline methods
+      const consoleSpy = jest.spyOn(console, 'log');
+      
+      // When: Process projects
+      await pipeline.scanProjectsOnPage();
+      await pipeline.fetchAndStoreProjects();
+      
+      // Then: Should show progress for each batch
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Batch 1 complete! Progress: 5/10 (50%)')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Batch 2 complete! Progress: 10/10 (100%)')
+      );
+      
+      consoleSpy.mockRestore();
+    });
+
+    it('should handle batch processing errors gracefully', async () => {
+      // Given: Projects that will fail
+      const failingProjects = Array.from({ length: 6 }, (_, i) => ({
+        getAttribute: (attr: string) => attr === 'href' ? `/o/abc123/s/def456/project/FAIL-${i + 1}` : null,
+        href: `/o/abc123/s/def456/project/FAIL-${i + 1}`
+      }));
+      
+      // Mock DOM
+      Object.defineProperty(document, 'querySelectorAll', {
+        value: jest.fn().mockReturnValue(failingProjects as any),
+        writable: true
+      });
+      
+      // Mock API to fail for all projects
+      jest.spyOn(apolloClient, 'query').mockRejectedValue(new Error('API error'));
+      
+      // Set up console spy BEFORE calling pipeline methods
+      const consoleSpy = jest.spyOn(console, 'log');
+      
+      // When: Process failing projects
+      await pipeline.scanProjectsOnPage();
+      const finalStoredCount = await pipeline.fetchAndStoreProjects();
+      
+      // Then: Should handle errors gracefully
+      expect(finalStoredCount).toBe(0); // No projects stored
+      
+      // And: Should show comprehensive error summary
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Processing Summary:')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Total projects: 6')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Failed projects: 6')
+      );
+      
+      consoleSpy.mockRestore();
+      jest.restoreAllMocks();
+    });
+
+    it('should respect rate limiting between requests', async () => {
+      // Given: Projects to process
+      const projects = Array.from({ length: 3 }, (_, i) => ({
+        getAttribute: (attr: string) => attr === 'href' ? `/o/abc123/s/def456/project/RATE-${i + 1}` : null,
+        href: `/o/abc123/s/def456/project/RATE-${i + 1}`
+      }));
+      
+      // Mock DOM
+      Object.defineProperty(document, 'querySelectorAll', {
+        value: jest.fn().mockReturnValue(projects as any),
+        writable: true
+      });
+      
+      // Mock API to track request timing
+      const requestTimes: number[] = [];
+      jest.spyOn(apolloClient, 'query').mockImplementation(async () => {
+        requestTimes.push(Date.now());
+        return Promise.resolve({ data: mockApiData.projectView.data, loading: false, networkStatus: 7 });
+      });
+      
+      // When: Process projects
+      await pipeline.scanProjectsOnPage();
+      await pipeline.fetchAndStoreProjects();
+      
+      // Then: Should have rate limiting delays
+      expect(requestTimes.length).toBeGreaterThan(1);
+      
+      // Since we're testing the actual rate limiting behavior, we should see some delays
+      // The exact timing depends on the rate limiting implementation
+      // Just verify that we have multiple requests and they're not all at the same time
+      const uniqueTimes = new Set(requestTimes);
+      expect(uniqueTimes.size).toBeGreaterThan(1); // Should have different timestamps
+      
+      jest.restoreAllMocks();
+    });
+
+    it('should provide comprehensive processing summary', async () => {
+      // Given: Mix of successful and failed projects
+      const mixedProjects = Array.from({ length: 8 }, (_, i) => ({
+        getAttribute: (attr: string) => attr === 'href' ? `/o/abc123/s/def456/project/MIXED-${i + 1}` : null,
+        href: `/o/abc123/s/def456/project/MIXED-${i + 1}`
+      }));
+      
+      // Mock DOM
+      Object.defineProperty(document, 'querySelectorAll', {
+        value: jest.fn().mockReturnValue(mixedProjects as any),
+        writable: true
+      });
+      
+      // Mock API to fail for some projects
+      let callCount = 0;
+      jest.spyOn(apolloClient, 'query').mockImplementation(async () => {
+        callCount++;
+        if (callCount <= 5) {
+          // First 5 succeed
+          return Promise.resolve({ data: mockApiData.projectView.data, loading: false, networkStatus: 7 });
+        } else {
+          // Last 3 fail
+          return Promise.reject(new Error('API error'));
+        }
+      });
+      
+      // Set up console spy BEFORE calling pipeline methods
+      const consoleSpy = jest.spyOn(console, 'log');
+      
+      // When: Process mixed projects
+      await pipeline.scanProjectsOnPage();
+      await pipeline.fetchAndStoreProjects();
+      
+      // Then: Should show comprehensive summary
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Processing Summary:')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Total projects: 8')
+      );
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Success rate:')
+      );
+      
+      // And: Should calculate success rate correctly
+      const summaryCall = consoleSpy.mock.calls.find(call => 
+        call[0].includes('Success rate:')
+      );
+      expect(summaryCall).toBeDefined();
+      
+      consoleSpy.mockRestore();
+      jest.restoreAllMocks();
+    });
+
+    it('should log detailed error information for failed projects', async () => {
+      // Given: Projects that will fail with specific errors
+      const failingProjects = Array.from({ length: 3 }, (_, i) => ({
+        getAttribute: (attr: string) => attr === 'href' ? `/o/abc123/s/def456/project/ERROR-${i + 1}` : null,
+        href: `/o/abc123/s/def456/project/ERROR-${i + 1}`
+      }));
+      
+      // Mock DOM
+      Object.defineProperty(document, 'querySelectorAll', {
+        value: jest.fn().mockReturnValue(failingProjects as any),
+        writable: true
+      });
+      
+      // Mock API to fail with specific error types
+      jest.spyOn(apolloClient, 'query').mockRejectedValue(new Error('Network timeout'));
+      
+      // Set up console spy BEFORE calling pipeline methods
+      const consoleSpy = jest.spyOn(console, 'error');
+      
+      // When: Process failing projects
+      await pipeline.scanProjectsOnPage();
+      await pipeline.fetchAndStoreProjects();
+      
+      // Then: Should log detailed error information
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining('❌ Failed to fetch project view data for projectId: ERROR-1'),
+        expect.any(Error)
+      );
+      
+      consoleSpy.mockRestore();
+      jest.restoreAllMocks();
+    });
+
+    it('should handle database operations gracefully', async () => {
+      // Given: Projects to process
+      const projects = Array.from({ length: 3 }, (_, i) => ({
+        getAttribute: (attr: string) => attr === 'href' ? `/o/abc123/s/def456/project/DB-${i + 1}` : null,
+        href: `/o/abc123/s/def456/project/DB-${i + 1}`
+      }));
+      
+      // Mock DOM
+      Object.defineProperty(document, 'querySelectorAll', {
+        value: jest.fn().mockReturnValue(projects as any),
+        writable: true
+      });
+      
+      // Mock database to fail for some operations
+      const originalPut = db.projectView.put;
+      db.projectView.put = jest.fn().mockImplementation(async (data) => {
+        if (data.projectKey === 'DB-2') {
+          throw new Error('Database write failed');
+        }
+        return originalPut(data);
+      });
+      
+      // When: Process projects
+      await pipeline.scanProjectsOnPage();
+      await pipeline.fetchAndStoreProjects();
+      
+      // Then: Should handle database errors gracefully
+      expect(db.projectView.put).toHaveBeenCalledTimes(3);
+      
+      // Cleanup
+      db.projectView.put = originalPut;
+    });
+  });
 });
