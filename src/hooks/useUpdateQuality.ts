@@ -6,6 +6,10 @@ import { preloadModels } from '../utils/localModelManager';
 import type { UpdateQualityResult } from '../utils/updateQualityAnalyzer';
 import type { ProjectUpdate } from '../types';
 
+// Global state for forcing UI updates
+let globalUpdateCounter = 0;
+const updateListeners: (() => void)[] = [];
+
 export interface UpdateQualityData {
   [updateId: string]: UpdateQualityResult;
 }
@@ -29,6 +33,17 @@ export function useUpdateQuality() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
   const [modelsPreloaded, setModelsPreloaded] = useState(false);
+  const [updateTrigger, setUpdateTrigger] = useState(0);
+  
+  // Listen for global quality updates
+  useEffect(() => {
+    const listener = () => setUpdateTrigger(prev => prev + 1);
+    updateListeners.push(listener);
+    return () => {
+      const index = updateListeners.indexOf(listener);
+      if (index > -1) updateListeners.splice(index, 1);
+    };
+  }, []);
   
   // Preload models on hook initialization
   useEffect(() => {
@@ -75,7 +90,7 @@ export function useUpdateQuality() {
       
       return qualityMap;
     },
-    [updates]
+    [updates, updateTrigger] // Include updateTrigger to force re-evaluation
   );
 
   /**
@@ -83,18 +98,11 @@ export function useUpdateQuality() {
    */
   const analyzeUpdate = useCallback(async (update: ProjectUpdate): Promise<void> => {
     try {
-      console.log('🔍 DEBUG: analyzeUpdate called with update:', update);
-      
       // Combine update text from summary and details
       const updateText = [
         update.summary || '',
         update.details || ''
       ].filter(Boolean).join(' ');
-      
-      console.log('🔍 DEBUG: Combined update text:', JSON.stringify(updateText));
-      console.log('🔍 DEBUG: Summary:', update.summary);
-      console.log('🔍 DEBUG: Details:', update.details);
-      console.log('🔍 DEBUG: State:', update.state);
       
       if (!updateText.trim()) {
         console.warn(`Update ${update.id} has no text content to analyze`);
@@ -102,24 +110,20 @@ export function useUpdateQuality() {
       }
       
       // Analyze the update quality
-      console.log('🤖 Calling analyzeUpdateQuality with:', {
-        updateText: updateText.substring(0, 100) + '...',
-        state: update.state,
-        updateType: update.state // Using state as updateType for now
-      });
-      
       const qualityResult = await analyzeUpdateQuality(
         updateText,
         update.state, // This could be enhanced to detect update type
         update.state
       );
       
-      console.log('✅ Analysis result:', qualityResult);
-      
       // Store the result in the database
       await db.projectUpdates.update(update.id, {
         updateQuality: JSON.stringify(qualityResult)
       });
+      
+      // Notify all listeners that quality data has been updated
+      globalUpdateCounter++;
+      updateListeners.forEach(listener => listener());
       
     } catch (error) {
       console.error(`Failed to analyze update ${update.id}:`, error);
@@ -230,6 +234,7 @@ export function useUpdateQuality() {
     isAnalyzing,
     analysisProgress,
     modelsPreloaded,
+    updateTrigger,
     
     // Computed values
     getQualityMetrics,

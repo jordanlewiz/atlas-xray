@@ -63,11 +63,11 @@ export default function StatusTimelineHeader({
                 className={`toggle-button ${showEmojis ? 'active' : ''}`}
                 onClick={handleToggleEmojis}
                 type="button"
-                aria-label={`Show ${showEmojis ? 'quality indicators' : 'simple indicators'} for update quality`}
+                aria-label={`${showEmojis ? 'Hide' : 'Show'} update quality indicators`}
               >
                 <span className="toggle-text">{showEmojis ? '🎯' : '•'}</span>
                 <span className="toggle-description">
-                  {showEmojis ? 'Hide Quality' : 'Show Quality'}
+                  {showEmojis ? 'Hide' : 'Show'}
                 </span>
               </button>
             </div>

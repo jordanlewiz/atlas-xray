@@ -85,7 +85,6 @@ export default function ProjectUpdateModal({
             <Box style={{ maxWidth: '1128px', margin: '0 auto', width: '100%' }}>
               <Grid>
                 <div className="date-change-modal-body">
-                  <h3 className="project-name">{project?.name}</h3>
                   <div className="project-key">
                     <small>Project Key:</small> {project?.projectKey}
                   </div>
