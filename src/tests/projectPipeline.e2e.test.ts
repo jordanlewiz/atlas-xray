@@ -4,7 +4,8 @@ jest.mock('../utils/database', () => ({
     projectView: {
       clear: jest.fn().mockResolvedValue(undefined),
       toArray: jest.fn().mockResolvedValue([]),
-      put: jest.fn().mockResolvedValue(undefined)
+      put: jest.fn().mockResolvedValue(undefined),
+      get: jest.fn().mockResolvedValue(undefined)
     },
     projectUpdates: {
       clear: jest.fn().mockResolvedValue(undefined),

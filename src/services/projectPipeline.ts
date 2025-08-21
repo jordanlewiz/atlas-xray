@@ -35,7 +35,7 @@ export class ProjectPipeline {
   private state: PipelineState;
   private rateLimitQueue: Array<() => Promise<void>> = [];
   private isProcessingQueue = false;
-  private maxRequestsPerSecond = 2;
+  private maxRequestsPerSecond = 10; // Increased from 2 to 10 requests per second
   private lastRequestTime = 0;
 
   constructor() {
@@ -172,28 +172,81 @@ export class ProjectPipeline {
         href: `#${projectId}`
       }));
 
-      // Process projects with rate limiting
+      // Process projects with controlled concurrency (faster than sequential)
       let newlyStoredCount = 0;
       let hasErrors = false;
-      for (const project of validProjects) {
-        try {
-          await this.rateLimitedRequest(async () => {
-            const success = await this.fetchAndStoreSingleProject(project);
-            if (success) {
-              newlyStoredCount++;
-              
-              // Update progress with total count (current + newly stored)
-              this.updateState({
-                projectsStored: currentStoredCount + newlyStoredCount,
-                lastUpdated: new Date()
-              });
-            }
-          });
-        } catch (error) {
-          console.error(`Failed to store project ${project.projectId}:`, error);
-          hasErrors = true;
+      let failedProjects = 0;
+      let skippedProjects = 0;
+      
+      console.log(`[AtlasXray] 🚀 Starting to process ${validProjects.length} projects with concurrency...`);
+      
+      // Process projects in batches for better performance
+      const batchSize = 5; // Process 5 projects at a time
+      const batches = [];
+      
+      for (let i = 0; i < validProjects.length; i += batchSize) {
+        batches.push(validProjects.slice(i, i + batchSize));
+      }
+      
+      for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+        const batch = batches[batchIndex];
+        console.log(`[AtlasXray] 📦 Processing batch ${batchIndex + 1}/${batches.length} (${batch.length} projects)`);
+        
+        // Process batch in parallel with rate limiting
+        const batchPromises = batch.map(async (project) => {
+          try {
+            await this.rateLimitedRequest(async () => {
+              const result = await this.fetchAndStoreSingleProject(project);
+              if (result.success) {
+                // Only count new projects, not updates to existing ones
+                if (result.isNewProject) {
+                  newlyStoredCount++;
+                  console.log(`[AtlasXray] 🆕 Counted new project: ${project.projectId} (total new: ${newlyStoredCount})`);
+                } else {
+                  skippedProjects++;
+                  console.log(`[AtlasXray] 🔄 Updated existing project: ${project.projectId} (skipped: ${skippedProjects})`);
+                }
+                
+                // Update progress with total count (current + newly stored)
+                this.updateState({
+                  projectsStored: currentStoredCount + newlyStoredCount,
+                  lastUpdated: new Date()
+                });
+              } else {
+                // Project failed to store - log the failure
+                failedProjects++;
+                console.error(`[AtlasXray] ❌ Failed to store project: ${project.projectId} (failed: ${failedProjects})`);
+              }
+            });
+          } catch (error) {
+            console.error(`[AtlasXray] 💥 Exception storing project ${project.projectId}:`, error);
+            hasErrors = true;
+            failedProjects++;
+          }
+        });
+        
+        // Wait for batch to complete before moving to next batch
+        await Promise.all(batchPromises);
+        
+        // Log batch progress
+        const totalProcessed = (batchIndex + 1) * batchSize;
+        const progress = Math.min(totalProcessed, validProjects.length);
+        const percentage = Math.round((progress / validProjects.length) * 100);
+        console.log(`[AtlasXray] 📊 Batch ${batchIndex + 1} complete! Progress: ${progress}/${validProjects.length} (${percentage}%)`);
+        
+        // Small delay between batches to be respectful to the API
+        if (batchIndex < batches.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
       }
+      
+      // Log comprehensive summary
+      console.log(`[AtlasXray] 📊 Processing Summary:`);
+      console.log(`  - Total projects: ${validProjects.length}`);
+      console.log(`  - New projects stored: ${newlyStoredCount}`);
+      console.log(`  - Existing projects updated: ${skippedProjects}`);
+      console.log(`  - Failed projects: ${failedProjects}`);
+      console.log(`  - Success rate: ${((newlyStoredCount + skippedProjects) / validProjects.length * 100).toFixed(1)}%`);
 
       // If all projects failed to store data, set an error state
       if (newlyStoredCount === 0 && validProjects.length > 0) {
@@ -377,17 +430,27 @@ export class ProjectPipeline {
   }
 
   // Helper methods
-  private async fetchAndStoreSingleProject(project: ProjectMatch): Promise<boolean> {
+  private async fetchAndStoreSingleProject(project: ProjectMatch): Promise<{ success: boolean; isNewProject: boolean }> {
     // Validate project ID before making API call
     if (!project.projectId || typeof project.projectId !== 'string' || project.projectId.trim() === '') {
       console.error(`Invalid project ID: ${project.projectId}`);
-      return false;
+      return { success: false, isNewProject: false };
     }
 
     try {
       console.log(`[AtlasXray] 📥 Fetching data for project: ${project.projectId}`);
       
       let hasStoredData = false;
+      let isNewProject = false;
+      
+      // Check if project already exists in database
+      const existingProject = await db.projectView.get(project.projectId);
+      if (!existingProject) {
+        isNewProject = true;
+        console.log(`[AtlasXray] 🆕 New project discovered: ${project.projectId}`);
+      } else {
+        console.log(`[AtlasXray] 🔄 Updating existing project: ${project.projectId}`);
+      }
       
       // 1. Fetch Project View data
       const projectViewVariables = {
@@ -414,9 +477,17 @@ export class ProjectPipeline {
           });
           console.log(`[AtlasXray] ✅ Stored project view for ${project.projectId}`);
           hasStoredData = true;
+        } else {
+          console.warn(`[AtlasXray] ⚠️ No project data returned for ${project.projectId} - data:`, data);
         }
       } catch (err) {
-        console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${project.projectId}`, err);
+        console.error(`[AtlasXray] ❌ Failed to fetch project view data for projectId: ${project.projectId}`, err);
+        if (err instanceof Error) {
+          console.error(`[AtlasXray] ❌ Error details:`, {
+            message: err.message,
+            name: err.name
+          });
+        }
       }
 
       // 2. Fetch Project Status History
@@ -459,21 +530,20 @@ export class ProjectPipeline {
         console.error(`[AtlasXray] Failed to fetch project updates for projectId: ${project.projectId}`, err);
       }
       
+      // A project is considered successfully stored if we at least stored the project view
+      // Even if status history or updates fail, we have the basic project data
       if (hasStoredData) {
         console.log(`[AtlasXray] ✅ Completed data fetch for project: ${project.projectId}`);
-        return true; // Successfully stored some project data
+        return { success: true, isNewProject }; // Return both success and new project status
       } else {
-        console.log(`[AtlasXray] ❌ No data was stored for project: ${project.projectId}`);
-        return false; // Failed to store any project data
+        console.log(`[AtlasXray] ❌ No data was stored for project: ${project.projectId} - all API calls failed`);
+        return { success: false, isNewProject: false }; // Failed to store any project data
       }
     } catch (error) {
       console.error(`[AtlasXray] Failed to fetch project ${project.projectId}:`, error);
-      return false; // Failed to store project data
+      return { success: false, isNewProject: false }; // Failed to store project data
     }
   }
-
-  // Note: fetchProjectUpdates and storeProjectUpdates are no longer needed
-  // as updates are now fetched and stored directly in fetchAndStoreSingleProject
 
   private async queueUpdateForAnalysis(update: any): Promise<void> {
     try {
