@@ -1411,4 +1411,97 @@ describe('StatusTimelineHeatmap', () => {
       expect(dateDifferences).toHaveLength(3);
     });
   });
+
+  describe('Timeline Cell Element Ordering', () => {
+    it('should render emoji/indicator before date difference in timeline cells', () => {
+      // Mock the useTimeline hook to return test data
+      mockUseTimeline.mockReturnValue({
+        weekRanges: [
+          { start: new Date('2024-07-01'), end: new Date('2024-07-07'), label: '1-7 Jul' }
+        ],
+        projectViewModels: [
+          {
+            projectKey: 'TEST-123',
+            name: 'Test Project',
+            rawProject: { projectKey: 'TEST-123' }
+          }
+        ],
+        updatesByProject: {
+          'TEST-123': [
+            {
+              id: 'update-1',
+              projectKey: 'TEST-123',
+              oldDueDate: '2024-07-05',
+              newDueDate: '2024-07-10',
+              state: 'In Progress',
+              creationDate: '2024-07-03',
+              updateQuality: null
+            }
+          ]
+        },
+        isLoading: false
+      });
+
+      // Mock the timeline utilities to return a cell with an update
+      mockGetTimelineWeekCells.mockReturnValue([
+        {
+          cellClass: 'timeline-cell has-update state-in-progress',
+          weekUpdates: [
+            {
+              id: 'update-1',
+              projectKey: 'TEST-123',
+              oldDueDate: '2024-07-05',
+              newDueDate: '2024-07-10',
+              state: 'In Progress',
+              creationDate: '2024-07-03',
+              updateQuality: null
+            }
+          ]
+        }
+      ]);
+
+      // Mock getDueDateDiff to return a value
+      mockGetDueDateDiff.mockReturnValue(5);
+
+      // Mock useUpdateQuality to return no quality data (so we get white bullet indicator)
+      mockUseUpdateQuality.mockReturnValue({
+        getUpdateQuality: jest.fn().mockReturnValue(null)
+      });
+
+      const { container } = render(
+        <StatusTimelineHeatmap
+          visibleProjectKeys={['TEST-123']}
+        />
+      );
+
+      // Find the timeline cell content
+      const cellContent = container.querySelector('.timeline-cell-content');
+      expect(cellContent).toBeInTheDocument();
+
+      // Get all direct children of the cell content
+      const children = Array.from(cellContent!.children);
+      expect(children.length).toBeGreaterThanOrEqual(2);
+
+      // The first child should be the update indicator (emoji/bullet) tooltip
+      const firstChild = children[0];
+      expect(firstChild).toHaveAttribute('data-testid', 'tooltip');
+
+      // The second child should be the date difference tooltip
+      const secondChild = children[1];
+      expect(secondChild).toHaveAttribute('data-testid', 'tooltip');
+
+      // Verify the visual order: emoji first, then date difference
+      const updateIndicator = firstChild.querySelector('[data-testid="update-indicator"]');
+      const dateDifference = secondChild.querySelector('.date-difference');
+      
+      expect(updateIndicator).toBeInTheDocument();
+      expect(dateDifference).toBeInTheDocument();
+      expect(dateDifference).toHaveTextContent('+5');
+
+      // Verify the order by checking that the first tooltip contains the update indicator
+      // and the second tooltip contains the date difference
+      expect(firstChild).toContainElement(updateIndicator as HTMLElement);
+      expect(secondChild).toContainElement(dateDifference as HTMLElement);
+    });
+  });
 });

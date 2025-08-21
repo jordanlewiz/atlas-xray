@@ -89,19 +89,7 @@ function StatusTimelineHeatmapRow({
                   onClick={() => setSelectedUpdate(u)}
                   style={{ cursor: 'pointer' }}
                 >
-              {/* Show date difference tooltip if there's a date change */}
-              {u.oldDueDate && u.newDueDate && (
-                <Tooltip content={getDueDateTooltip(u)} position="top">
-                  <span className="date-difference">
-                    {(() => {
-                      const diff = getDueDateDiff(u);
-                      return diff !== null ? (diff > 0 ? `+${diff}` : `${diff}`) : '';
-                    })()}
-                  </span>
-                </Tooltip>
-              )}
-              
-              {/* Show update indicator for any cell with updates */}
+              {/* Show update indicator for any cell with updates FIRST */}
               <Tooltip content="Click to view update details" position="top">
                 {showEmojis && u.id ? (
                   // Show quality indicator when toggle is on and quality data is available
@@ -135,6 +123,18 @@ function StatusTimelineHeatmapRow({
                   />
                 )}
               </Tooltip>
+              
+              {/* Show date difference tooltip SECOND (after emoji) */}
+              {u.oldDueDate && u.newDueDate && (
+                <Tooltip content={getDueDateTooltip(u)} position="top">
+                  <span className="date-difference">
+                    {(() => {
+                      const diff = getDueDateDiff(u);
+                      return diff !== null ? (diff > 0 ? `+${diff}` : `${diff}`) : '';
+                    })()}
+                  </span>
+                </Tooltip>
+              )}
             </div>
           );
         })}
