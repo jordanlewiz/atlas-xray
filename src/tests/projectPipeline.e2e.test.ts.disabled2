@@ -1,0 +1,374 @@
+import { ProjectPipeline, PipelineState } from '../services/projectPipeline';
+import { db } from '../utils/database';
+
+// Mock DOM environment for testing
+const mockDOM = {
+  projectLinks: [
+    { href: '/o/abc123/s/def456/project/TEST-123' },
+    { href: '/o/abc123/s/def456/project/TEST-456' },
+    { href: '/o/abc123/s/def456/project/TEST-789' }
+  ]
+};
+
+// Mock API response data
+const mockApiData = {
+  projectView: {
+    data: {
+      project: {
+        key: 'TEST-123',
+        name: 'Test Project 123',
+        status: 'on-track'
+      }
+    }
+  },
+  projectUpdates: {
+    data: {
+      project: {
+        updates: {
+          edges: [
+            { node: { id: 'update1', summary: 'Test update 1', state: 'on-track' } },
+            { node: { id: 'update2', summary: 'Test update 2', state: 'on-track' } },
+            { node: { id: 'update3', summary: 'Test update 3', state: 'on-track' } },
+            { node: { id: 'update4', summary: 'Test update 4', state: 'on-track' } },
+            { node: { id: 'update5', summary: 'Test update 5', state: 'on-track' } }
+          ]
+        }
+      }
+    }
+  }
+};
+
+// Test utilities
+const clearDatabase = async () => {
+  await db.projectView.clear();
+  await db.projectUpdates.clear();
+  await db.projectStatusHistory.clear();
+};
+
+const mockApiResponses = () => {
+  // Mock Apollo client responses
+  jest.spyOn(require('../services/apolloClient'), 'apolloClient').mockReturnValue({
+    query: jest.fn().mockImplementation(({ query }) => {
+      if (query.includes('PROJECT_VIEW_QUERY')) {
+        return Promise.resolve(mockApiData.projectView);
+      }
+      if (query.includes('PROJECT_UPDATES_QUERY')) {
+        return Promise.resolve(mockApiData.projectUpdates);
+      }
+      return Promise.resolve({ data: null });
+    })
+  });
+};
+
+const getProjectCount = (pipeline: ProjectPipeline, countType: keyof PipelineState): number => {
+  const state = pipeline.getState();
+  return state[countType] as number;
+};
+
+const getStoredProjects = async () => {
+  return await db.projectView.toArray();
+};
+
+const getStoredUpdates = async () => {
+  return await db.projectUpdates.toArray();
+};
+
+const getAnalysisQueue = async () => {
+  // Mock analysis queue - in real implementation this would be stored somewhere
+  return [];
+};
+
+const getAnalysisResults = async () => {
+  // Mock analysis results - in real implementation this would be stored somewhere
+  return [];
+};
+
+const getApiErrors = () => {
+  // Mock API errors tracking
+  return [];
+};
+
+const waitForStage = async (pipeline: ProjectPipeline, targetStage: string): Promise<void> => {
+  return new Promise((resolve) => {
+    const unsubscribe = pipeline.subscribe((state) => {
+      if (state.currentStage === targetStage) {
+        unsubscribe();
+        resolve();
+      }
+    });
+    
+    // Timeout after 5 seconds
+    setTimeout(() => {
+      unsubscribe();
+      resolve();
+    }, 5000);
+  });
+};
+
+describe('Project Data Pipeline E2E', () => {
+  let pipeline: ProjectPipeline;
+
+  beforeEach(async () => {
+    // Setup: Clear IndexedDB, mock API responses
+    await clearDatabase();
+    mockApiResponses();
+    
+    // Create fresh pipeline instance
+    pipeline = new ProjectPipeline();
+    
+    // Mock DOM querySelectorAll
+    Object.defineProperty(document, 'querySelectorAll', {
+      value: jest.fn().mockImplementation((selector: string) => {
+        if (selector === 'a[href*="/project/"]') {
+          return mockDOM.projectLinks as any;
+        }
+        return [];
+      }),
+      writable: true
+    });
+  });
+
+  afterEach(async () => {
+    await clearDatabase();
+    jest.restoreAllMocks();
+  });
+
+  describe('Stage 1: Project Discovery & Storage', () => {
+    it('should scan DOM and count projects on page', async () => {
+      // When: Pipeline stage 1a runs
+      await pipeline.scanProjectsOnPage();
+      
+      // Then: Should detect 3 projects on page
+      expect(getProjectCount(pipeline, 'projectsOnPage')).toBe(3);
+      expect(getProjectCount(pipeline, 'projectsStored')).toBe(0); // Not stored yet
+    });
+
+    it('should fetch and store project data for each project', async () => {
+      // Given: 3 projects detected on page
+      await pipeline.scanProjectsOnPage();
+      
+      // When: Pipeline stage 1b runs
+      await pipeline.fetchAndStoreProjects();
+      
+      // Then: Should store 3 projects in IndexedDB
+      expect(getProjectCount(pipeline, 'projectsStored')).toBe(3);
+      
+      // And: Database should contain project data
+      const storedProjects = await getStoredProjects();
+      expect(storedProjects).toHaveLength(3);
+      expect(storedProjects[0]).toHaveProperty('key', 'TEST-123');
+    });
+  });
+
+  describe('Stage 2: Updates Collection', () => {
+    it('should fetch updates for each stored project', async () => {
+      // Given: 3 projects stored in database
+      await pipeline.scanProjectsOnPage();
+      await pipeline.fetchAndStoreProjects();
+      
+      // When: Pipeline stage 2a runs
+      await pipeline.fetchAndStoreUpdates();
+      
+      // Then: Should store updates in IndexedDB
+      expect(getProjectCount(pipeline, 'projectUpdatesStored')).toBeGreaterThan(0);
+      
+      // And: Updates should be linked to projects
+      const updates = await getStoredUpdates();
+      expect(updates).toHaveLength(15); // 3 projects × 5 updates each
+      expect(updates[0]).toHaveProperty('projectKey', 'TEST-123');
+    });
+  });
+
+  describe('Stage 3: AI Analysis Queue', () => {
+    it('should add updates to AI analysis queue', async () => {
+      // Given: Updates stored in database
+      await pipeline.scanProjectsOnPage();
+      await pipeline.fetchAndStoreProjects();
+      await pipeline.fetchAndStoreUpdates();
+      
+      // When: Pipeline stage 3a runs
+      await pipeline.queueAndProcessAnalysis();
+      
+      // Then: Should have updates in analysis queue
+      const queue = await getAnalysisQueue();
+      expect(queue).toHaveLength(15);
+      expect(queue[0]).toHaveProperty('updateId');
+      expect(queue[0]).toHaveProperty('status', 'queued');
+    });
+
+    it('should process AI analysis queue and update count', async () => {
+      // Given: Updates in analysis queue
+      await pipeline.scanProjectsOnPage();
+      await pipeline.fetchAndStoreProjects();
+      await pipeline.fetchAndStoreUpdates();
+      await pipeline.queueAndProcessAnalysis();
+      
+      // When: Pipeline stage 3b runs (this is combined with 3a in current implementation)
+      // The analysis is processed as part of queueAndProcessAnalysis
+      
+      // Then: Should have analyzed updates
+      expect(getProjectCount(pipeline, 'projectUpdatesAnalysed')).toBe(15);
+      
+      // And: Analysis results should be stored
+      const analysisResults = await getAnalysisResults();
+      expect(analysisResults).toHaveLength(15);
+      expect(analysisResults[0]).toHaveProperty('qualityScore');
+    });
+  });
+
+  describe('Pipeline Integration', () => {
+    it('should run complete pipeline from start to finish', async () => {
+      // When: Run complete pipeline
+      await pipeline.runCompletePipeline();
+      
+      // Then: All stages should complete successfully
+      expect(getProjectCount(pipeline, 'projectsOnPage')).toBe(3);
+      expect(getProjectCount(pipeline, 'projectsStored')).toBe(3);
+      expect(getProjectCount(pipeline, 'projectUpdatesStored')).toBe(15);
+      expect(getProjectCount(pipeline, 'projectUpdatesAnalysed')).toBe(15);
+      
+      // And: Final state should be idle
+      const finalState = pipeline.getState();
+      expect(finalState.currentStage).toBe('idle');
+      expect(finalState.isProcessing).toBe(false);
+      expect(finalState.error).toBeUndefined();
+    });
+
+    it('should handle API rate limiting gracefully', async () => {
+      // Given: API returns 429 errors
+      jest.spyOn(require('../services/apolloClient'), 'apolloClient').mockReturnValue({
+        query: jest.fn().mockRejectedValue(new Error('429 Too Many Requests'))
+      });
+      
+      // When: Run pipeline
+      try {
+        await pipeline.runCompletePipeline();
+      } catch (error) {
+        // Expected to fail due to API errors
+      }
+      
+      // Then: Should still show what we have
+      expect(getProjectCount(pipeline, 'projectsOnPage')).toBe(3);
+      expect(getProjectCount(pipeline, 'projectsStored')).toBe(0); // Failed to store
+      expect(getProjectCount(pipeline, 'projectUpdatesStored')).toBe(0);
+      expect(getProjectCount(pipeline, 'projectUpdatesAnalysed')).toBe(0);
+      
+      // And: Should show error state
+      const finalState = pipeline.getState();
+      expect(finalState.error).toContain('Pipeline failed');
+    });
+
+    it('should resume from where it left off after errors', async () => {
+      // Given: Partial pipeline completion with errors
+      await pipeline.scanProjectsOnPage(); // ✅ Success
+      
+      // Mock API to fail for projects
+      jest.spyOn(require('../services/apolloClient'), 'apolloClient').mockReturnValue({
+        query: jest.fn().mockRejectedValue(new Error('API error'))
+      });
+      
+      try {
+        await pipeline.fetchAndStoreProjects(); // ❌ API error
+      } catch (error) {
+        // Expected to fail
+      }
+      
+      // When: Retry pipeline with working API
+      jest.restoreAllMocks();
+      mockApiResponses();
+      
+      await pipeline.fetchAndStoreProjects(); // ✅ Now successful
+      await pipeline.fetchAndStoreUpdates();
+      await pipeline.queueAndProcessAnalysis();
+      
+      // Then: Should resume from failed stage
+      expect(getProjectCount(pipeline, 'projectsStored')).toBe(3); // Now successful
+      expect(getProjectCount(pipeline, 'projectUpdatesStored')).toBe(15);
+      expect(getProjectCount(pipeline, 'projectUpdatesAnalysed')).toBe(15);
+    });
+  });
+
+  describe('Performance & Rate Limiting', () => {
+    it('should respect API rate limits', async () => {
+      // Given: API allows max 2 requests per second
+      const startTime = Date.now();
+      
+      // When: Run pipeline with 3 projects
+      await pipeline.runCompletePipeline();
+      const endTime = Date.now();
+      
+      // Then: Should take at least 1.5 seconds (3 requests ÷ 2 req/sec)
+      expect(endTime - startTime).toBeGreaterThan(1500);
+      
+      // And: No 429 errors should occur
+      expect(getApiErrors()).toHaveLength(0);
+    });
+
+    it('should update state progressively as data loads', async () => {
+      // Given: Pipeline running
+      const pipelinePromise = pipeline.runCompletePipeline();
+      
+      // When: Wait for intermediate stages
+      await waitForStage(pipeline, 'fetching-projects');
+      
+      // Then: State should show intermediate progress
+      const intermediateState = pipeline.getState();
+      expect(intermediateState.currentStage).toBe('fetching-projects');
+      expect(intermediateState.isProcessing).toBe(true);
+      
+      // When: Complete pipeline
+      await pipelinePromise;
+      
+      // Then: State should show final state
+      const finalState = pipeline.getState();
+      expect(finalState.currentStage).toBe('idle');
+      expect(finalState.isProcessing).toBe(false);
+      expect(finalState.projectsOnPage).toBe(3);
+      expect(finalState.projectsStored).toBe(3);
+      expect(finalState.projectUpdatesStored).toBe(15);
+      expect(finalState.projectUpdatesAnalysed).toBe(15);
+    });
+  });
+
+  describe('State Management', () => {
+    it('should provide subscription to state changes', async () => {
+      // Given: Pipeline state subscription
+      const stateChanges: PipelineState[] = [];
+      const unsubscribe = pipeline.subscribe((state) => {
+        stateChanges.push({ ...state });
+      });
+      
+      // When: Run pipeline
+      await pipeline.runCompletePipeline();
+      
+      // Then: Should have received state updates
+      expect(stateChanges.length).toBeGreaterThan(0);
+      
+      // And: Should show progression through stages
+      const stages = stateChanges.map(s => s.currentStage);
+      expect(stages).toContain('scanning');
+      expect(stages).toContain('fetching-projects');
+      expect(stages).toContain('fetching-updates');
+      expect(stages).toContain('queuing-analysis');
+      expect(stages).toContain('idle');
+      
+      // Cleanup
+      unsubscribe();
+    });
+
+    it('should maintain state between operations', async () => {
+      // Given: Pipeline has completed some stages
+      await pipeline.scanProjectsOnPage();
+      await pipeline.fetchAndStoreProjects();
+      
+      // When: Check state
+      const state = pipeline.getState();
+      
+      // Then: Should maintain completed stage data
+      expect(state.projectsOnPage).toBe(3);
+      expect(state.projectsStored).toBe(3);
+      expect(state.projectUpdatesStored).toBe(0); // Not started yet
+      expect(state.projectUpdatesAnalysed).toBe(0); // Not started yet
+    });
+  });
+});

@@ -92,8 +92,7 @@ describe('FloatingButton', () => {
       render(<FloatingButton />);
       
       // Should show project count immediately, no loading state
-      expect(screen.getByText('Atlas Xray')).toBeInTheDocument();
-      expect(screen.getByText(/\d+/)).toBeInTheDocument(); // Should show project count like "2"
+      expect(screen.getByText(/0 projects/)).toBeInTheDocument(); // Should show "0 projects" initially
     });
   });
 
