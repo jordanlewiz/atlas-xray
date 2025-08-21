@@ -44,10 +44,11 @@ async function buildChromeExtension() {
     ...commonOptions,
     entryPoints: ['src/contentScripts/contentScript.js'],
     outfile: 'dist/contentScript.js',
-    loader: { '.js': 'jsx', '.tsx': 'tsx' },
+    loader: { '.js': 'jsx', '.tsx': 'tsx', '.ts': 'tsx' },
     external: ['chrome', '@xenova/transformers'],
     globalName: 'AtlasXrayExtension',
-    inject: ['./src/utils/dexie-global.js']
+    inject: ['./src/utils/dexie-global.js'],
+    plugins: [scssLoader]
   });
 }
 

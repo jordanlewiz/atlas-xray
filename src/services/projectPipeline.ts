@@ -1,8 +1,9 @@
-import { db } from '../utils/database';
+import { db, upsertProjectUpdates, upsertProjectStatusHistory } from '../utils/database';
 import { apolloClient } from './apolloClient';
 import { gql } from '@apollo/client';
 import { PROJECT_VIEW_QUERY } from '../graphql/projectViewQuery';
 import { PROJECT_UPDATES_QUERY } from '../graphql/projectUpdatesQuery';
+import { PROJECT_STATUS_HISTORY_QUERY } from '../graphql/projectStatusHistoryQuery';
 
 export interface PipelineState {
   projectsOnPage: number;
@@ -149,14 +150,16 @@ export class ProjectPipeline {
       for (const project of validProjects) {
         try {
           await this.rateLimitedRequest(async () => {
-            await this.fetchAndStoreSingleProject(project);
-            storedCount++;
-            
-            // Update progress
-            this.updateState({
-              projectsStored: storedCount,
-              lastUpdated: new Date()
-            });
+            const success = await this.fetchAndStoreSingleProject(project);
+            if (success) {
+              storedCount++;
+              
+              // Update progress
+              this.updateState({
+                projectsStored: storedCount,
+                lastUpdated: new Date()
+              });
+            }
           });
         } catch (error) {
           console.error(`Failed to store project ${project.projectId}:`, error);
@@ -164,8 +167,8 @@ export class ProjectPipeline {
         }
       }
 
-      // If all projects failed, set an error state
-      if (storedCount === 0 && hasErrors) {
+      // If all projects failed to store data, set an error state
+      if (storedCount === 0 && validProjects.length > 0) {
         this.updateState({
           currentStage: 'idle',
           isProcessing: false,
@@ -195,7 +198,7 @@ export class ProjectPipeline {
     }
   }
 
-  // Stage 2a & 2b: Fetch and store project updates
+  // Stage 2: Updates are now fetched and stored directly in fetchAndStoreSingleProject
   async fetchAndStoreUpdates(): Promise<number> {
     this.updateState({ 
       currentStage: 'fetching-updates',
@@ -203,39 +206,22 @@ export class ProjectPipeline {
     });
 
     try {
-      const storedProjects = await db.projectView.toArray();
-      let totalUpdates = 0;
-
-      for (const project of storedProjects) {
-        try {
-          await this.rateLimitedRequest(async () => {
-            const updates = await this.fetchProjectUpdates(project.projectKey);
-            await this.storeProjectUpdates(updates);
-            totalUpdates += updates.length;
-            
-            // Update progress
-            this.updateState({
-              projectUpdatesStored: totalUpdates,
-              lastUpdated: new Date()
-            });
-          });
-        } catch (error) {
-          console.error(`Failed to fetch updates for project ${project.projectKey}:`, error);
-        }
-      }
-
+      // Updates are now fetched and stored during project fetching
+      // This stage is kept for compatibility but doesn't need to do anything
+      console.log(`[AtlasXray] 📊 Updates already fetched and stored during project processing`);
+      
       this.updateState({
         currentStage: 'idle',
         isProcessing: false,
         lastUpdated: new Date()
       });
 
-      return totalUpdates;
+      return 0; // No additional updates to fetch
     } catch (error) {
       this.updateState({
         currentStage: 'idle',
         isProcessing: false,
-        error: `Updates fetch failed: ${error}`
+        error: `Updates stage failed: ${error}`
       });
       throw error;
     }
@@ -363,85 +349,103 @@ export class ProjectPipeline {
   }
 
   // Helper methods
-  private async fetchAndStoreSingleProject(project: ProjectMatch): Promise<void> {
+  private async fetchAndStoreSingleProject(project: ProjectMatch): Promise<boolean> {
     // Validate project ID before making API call
     if (!project.projectId || typeof project.projectId !== 'string' || project.projectId.trim() === '') {
       console.error(`Invalid project ID: ${project.projectId}`);
-      return;
+      return false;
     }
 
     try {
-      // Fetch project view data
-      const { data } = await apolloClient.query({
-        query: gql`${PROJECT_VIEW_QUERY}`,
-        variables: { 
-          key: project.projectId.trim(),
-          trackViewEvent: "DIRECT",
-          workspaceId: null,
-          onboardingKeyFilter: "PROJECT_SPOTLIGHT",
-          areMilestonesEnabled: false,
-          cloudId: project.cloudId || "",
-          isNavRefreshEnabled: true
-        }
-      });
+      console.log(`[AtlasXray] 📥 Fetching data for project: ${project.projectId}`);
       
-      if (data?.project) {
-        // Store in IndexedDB
-        await db.projectView.put({
-          projectKey: project.projectId,
-          raw: data.project
+      let hasStoredData = false;
+      
+      // 1. Fetch Project View data
+      const projectViewVariables = {
+        key: project.projectId.trim(),
+        trackViewEvent: "DIRECT",
+        workspaceId: null,
+        onboardingKeyFilter: "PROJECT_SPOTLIGHT",
+        areMilestonesEnabled: false,
+        cloudId: project.cloudId || "",
+        isNavRefreshEnabled: true
+      };
+      
+      try {
+        const { data } = await apolloClient.query({
+          query: gql`${PROJECT_VIEW_QUERY}`,
+          variables: projectViewVariables
         });
-      }
-    } catch (error) {
-      console.error(`Failed to fetch project ${project.projectId}:`, error);
-      throw error;
-    }
-  }
-
-  private async fetchProjectUpdates(projectKey: string): Promise<ProjectUpdate[]> {
-    // Validate project key before making API call
-    if (!projectKey || typeof projectKey !== 'string' || projectKey.trim() === '') {
-      console.error(`Invalid project key: ${projectKey}`);
-      return [];
-    }
-
-    try {
-      const { data } = await apolloClient.query({
-        query: gql`${PROJECT_UPDATES_QUERY}`,
-        variables: { 
-          key: projectKey.trim(), 
-          isUpdatesTab: true 
+        
+        if (data?.project) {
+          // Store project view in IndexedDB
+          await db.projectView.put({
+            projectKey: project.projectId,
+            raw: data.project
+          });
+          console.log(`[AtlasXray] ✅ Stored project view for ${project.projectId}`);
+          hasStoredData = true;
         }
-      });
-      
-      if (data?.project?.updates?.edges) {
-        return data.project.updates.edges.map((edge: any) => edge.node).filter(Boolean);
+      } catch (err) {
+        console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${project.projectId}`, err);
+      }
+
+      // 2. Fetch Project Status History
+      try {
+        const { data } = await apolloClient.query({
+          query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
+          variables: { projectKey: project.projectId }
+        });
+        
+        // Extract nodes from edges and store status history
+        if (data?.project?.updates?.edges) {
+          const nodes = data.project.updates.edges.map((edge: any) => edge.node).filter(Boolean);
+          if (nodes.length > 0) {
+            await upsertProjectStatusHistory(nodes, project.projectId);
+            console.log(`[AtlasXray] ✅ Stored ${nodes.length} status history entries for ${project.projectId}`);
+            hasStoredData = true;
+          }
+        }
+      } catch (err) {
+        console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${project.projectId}`, err);
+      }
+
+      // 3. Fetch Project Updates
+      try {
+        const { data } = await apolloClient.query({
+          query: gql`${PROJECT_UPDATES_QUERY}`,
+          variables: { key: project.projectId, isUpdatesTab: true }
+        });
+        
+        // Extract nodes from edges and store updates
+        if (data?.project?.updates?.edges) {
+          const nodes = data.project.updates.edges.map((edge: any) => edge.node).filter(Boolean);
+          if (nodes.length > 0) {
+            await upsertProjectUpdates(nodes);
+            console.log(`[AtlasXray] ✅ Stored ${nodes.length} project updates for ${project.projectId}`);
+            hasStoredData = true;
+          }
+        }
+      } catch (err) {
+        console.error(`[AtlasXray] Failed to fetch project updates for projectId: ${project.projectId}`, err);
       }
       
-      return [];
+      if (hasStoredData) {
+        console.log(`[AtlasXray] ✅ Completed data fetch for project: ${project.projectId}`);
+        return true; // Successfully stored some project data
+      } else {
+        console.log(`[AtlasXray] ❌ No data was stored for project: ${project.projectId}`);
+        return false; // Failed to store any project data
+      }
     } catch (error) {
-      console.error(`Failed to fetch updates for project ${projectKey}:`, error);
-      return [];
+      console.error(`[AtlasXray] Failed to fetch project ${project.projectId}:`, error);
+      return false; // Failed to store project data
     }
   }
 
-  private async storeProjectUpdates(updates: ProjectUpdate[]): Promise<void> {
-    try {
-      for (const update of updates) {
-        await db.projectUpdates.put({
-          id: update.id,
-          projectKey: update.projectKey,
-          creationDate: update.creationDate,
-          state: update.state,
-          summary: update.summary,
-          raw: update
-        });
-      }
-    } catch (error) {
-      console.error('Failed to store project updates:', error);
-      throw error;
-    }
-  }
+  // Note: fetchProjectUpdates and storeProjectUpdates are no longer needed
+  // as updates are now fetched and stored directly in fetchAndStoreSingleProject
 
   private async queueUpdateForAnalysis(update: any): Promise<void> {
     try {

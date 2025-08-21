@@ -25,11 +25,15 @@
     "alarms"
   ],
   "host_permissions": [
-    "https://home.atlassian.com/*"
+    "https://*.atlassian.com/*",
+    "https://*.jira.com/*"
   ],
   "content_scripts": [
     {
-      "matches": ["https://home.atlassian.com/*"],
+      "matches": [
+        "https://*.atlassian.com/*",
+        "https://*.jira.com/*"
+      ],
       "js": ["dist/contentScript.js"],
       "css": ["dist/contentScript.css"]
     }

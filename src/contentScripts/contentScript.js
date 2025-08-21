@@ -14,6 +14,7 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import FloatingButton from "../components/FloatingButton/FloatingButton";
+import "../components/FloatingButton/FloatingButton.scss";
 
 // Custom styles will be merged with contentScript.css during build
 

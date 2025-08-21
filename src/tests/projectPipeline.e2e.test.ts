@@ -15,14 +15,16 @@ jest.mock('../utils/database', () => ({
     projectStatusHistory: {
       clear: jest.fn().mockResolvedValue(undefined)
     }
-  }
+  },
+  upsertProjectUpdates: jest.fn().mockResolvedValue(undefined),
+  upsertProjectStatusHistory: jest.fn().mockResolvedValue(undefined)
 }));
 
 import { ProjectPipeline, PipelineState } from '../services/projectPipeline';
 import { apolloClient } from '../services/apolloClient';
 
 // Import the mocked db after mocking
-const { db } = require('../utils/database');
+const { db, upsertProjectUpdates, upsertProjectStatusHistory } = require('../utils/database');
 
 console.log('E2E test file loaded');
 
@@ -52,6 +54,18 @@ const mockApiData = {
         key: 'TEST-123',
         name: 'Test Project 123',
         status: 'on-track'
+      }
+    }
+  },
+  projectStatusHistory: {
+    data: {
+      project: {
+        updates: {
+          edges: [
+            { node: { id: 'status1', creationDate: '2024-01-01', startDate: '2024-01-01', targetDate: '2024-01-31' } },
+            { node: { id: 'status2', creationDate: '2024-01-15', startDate: '2024-01-15', targetDate: '2024-02-15' } }
+          ]
+        }
       }
     }
   },
@@ -93,6 +107,15 @@ const mockApiResponses = () => {
     if (queryString.includes('project') && queryString.includes('key') && !queryString.includes('updates')) {
       return Promise.resolve({
         data: mockApiData.projectView.data,
+        loading: false,
+        networkStatus: 7
+      });
+    }
+    
+    // Check for project status history query
+    if (queryString.includes('project') && queryString.includes('projectKey')) {
+      return Promise.resolve({
+        data: mockApiData.projectStatusHistory.data,
         loading: false,
         networkStatus: 7
       });
@@ -185,10 +208,10 @@ describe('Project Data Pipeline E2E', () => {
     // Create fresh pipeline instance
     pipeline = new ProjectPipeline();
     
-    // Mock DOM querySelectorAll
+    // Mock DOM querySelectorAll for the simplified scanning logic
     Object.defineProperty(document, 'querySelectorAll', {
       value: jest.fn().mockImplementation((selector: string) => {
-        if (selector === 'a[href*="/project/"]') {
+        if (selector === 'a[href]') {
           return mockDOM.projectLinks as any;
         }
         return [];
@@ -204,24 +227,35 @@ describe('Project Data Pipeline E2E', () => {
   });
 
   describe('Stage 1: Project Discovery & Storage', () => {
-    it('should scan DOM and count projects on page', async () => {
-      // When: Pipeline stage 1a runs
+    it('should scan DOM and count projects on page using simplified logic', async () => {
+      // When: Pipeline stage 1a runs with simplified scanning
       await pipeline.scanProjectsOnPage();
       
-      // Then: Should detect 3 projects on page
+      // Then: Should detect 3 projects on page using the specific regex pattern
       expect(getProjectCount(pipeline, 'projectsOnPage')).toBe(3);
       expect(getProjectCount(pipeline, 'projectsStored')).toBe(0); // Not stored yet
+      
+      // And: Should have stored the project IDs found
+      const state = pipeline.getState();
+      expect(state.projectIds).toHaveLength(3);
+      expect(state.projectIds).toContain('TEST-123');
+      expect(state.projectIds).toContain('TEST-456');
+      expect(state.projectIds).toContain('TEST-789');
     });
 
-    it('should fetch and store project data for each project', async () => {
+    it('should fetch and store complete project data including status history and updates', async () => {
       // Given: 3 projects detected on page
       await pipeline.scanProjectsOnPage();
       
-      // When: Pipeline stage 1b runs
+      // When: Pipeline stage 1b runs (now fetches everything in one go)
       await pipeline.fetchAndStoreProjects();
       
       // Then: Should store 3 projects in IndexedDB
       expect(getProjectCount(pipeline, 'projectsStored')).toBe(3);
+      
+      // And: Should have called upsertProjectUpdates and upsertProjectStatusHistory
+      expect(upsertProjectUpdates).toHaveBeenCalled();
+      expect(upsertProjectStatusHistory).toHaveBeenCalled();
       
       // And: Pipeline state should reflect stored projects
       const state = pipeline.getState();
@@ -230,33 +264,27 @@ describe('Project Data Pipeline E2E', () => {
     });
   });
 
-  describe('Stage 2: Updates Collection', () => {
-    it('should fetch updates for each stored project', async () => {
-      // Given: 3 projects stored in database
+  describe('Stage 2: Updates Collection (Now Integrated)', () => {
+    it('should have updates already fetched and stored during project processing', async () => {
+      // Given: 3 projects stored with their updates
       await pipeline.scanProjectsOnPage();
       await pipeline.fetchAndStoreProjects();
       
-      // Mock database to return stored projects BEFORE calling fetchAndStoreUpdates
-      db.projectView.toArray.mockResolvedValue([
-        { key: 'TEST-123', raw: mockApiData.projectView.data.project },
-        { key: 'TEST-456', raw: mockApiData.projectView.data.project },
-        { key: 'TEST-789', raw: mockApiData.projectView.data.project }
-      ]);
-      
-      // When: Pipeline stage 2a runs
+      // When: Pipeline stage 2 runs (now just a compatibility placeholder)
       await pipeline.fetchAndStoreUpdates();
       
-      // Then: Should store updates in IndexedDB
-      expect(getProjectCount(pipeline, 'projectUpdatesStored')).toBeGreaterThan(0);
+      // Then: Should log that updates are already processed
+      // (The actual updates were fetched and stored in fetchAndStoreSingleProject)
+      expect(getProjectCount(pipeline, 'projectUpdatesStored')).toBe(0); // No additional updates to fetch
       
-      // And: Database put should have been called for updates
-      expect(db.projectUpdates.put).toHaveBeenCalled();
+      // And: The upsertProjectUpdates should have been called during project processing
+      expect(upsertProjectUpdates).toHaveBeenCalled();
     });
   });
 
   describe('Stage 3: AI Analysis Queue', () => {
     it('should add updates to AI analysis queue', async () => {
-      // Given: Updates stored in database
+      // Given: Updates stored in database during project processing
       await pipeline.scanProjectsOnPage();
       await pipeline.fetchAndStoreProjects();
       
@@ -267,7 +295,7 @@ describe('Project Data Pipeline E2E', () => {
         { id: 'update3', projectKey: 'TEST-789', summary: 'Test update 3', analyzed: false }
       ]);
       
-      // When: Pipeline stage 3a runs
+      // When: Pipeline stage 3 runs
       await pipeline.queueAndProcessAnalysis();
       
       // Then: Should have processed updates for analysis
@@ -288,7 +316,7 @@ describe('Project Data Pipeline E2E', () => {
         { id: 'update2', projectKey: 'TEST-456', summary: 'Test update 2', analyzed: false }
       ]);
       
-      // When: Pipeline stage 3b runs (this is combined with 3a in current implementation)
+      // When: Pipeline stage 3 runs
       await pipeline.queueAndProcessAnalysis();
       
       // Then: Should have analyzed updates
@@ -301,7 +329,7 @@ describe('Project Data Pipeline E2E', () => {
   });
 
   describe('Pipeline Integration', () => {
-    it('should run complete pipeline from start to finish', async () => {
+    it('should run complete pipeline from start to finish with integrated data fetching', async () => {
       // Given: Mock database to return stored projects when fetchAndStoreUpdates is called
       let projectsStored = false;
       db.projectView.toArray.mockImplementation(async () => {
@@ -334,8 +362,8 @@ describe('Project Data Pipeline E2E', () => {
         return [];
       });
       
-      // Mock the put method to set the flag when updates are stored
-      db.projectUpdates.put.mockImplementation(async () => {
+      // Mock the upsertProjectUpdates to set the flag when updates are stored
+      (upsertProjectUpdates as jest.Mock).mockImplementation(async () => {
         updatesStored = true;
         return undefined;
       });
@@ -346,7 +374,7 @@ describe('Project Data Pipeline E2E', () => {
       // Then: All stages should complete successfully
       expect(getProjectCount(pipeline, 'projectsOnPage')).toBe(3);
       expect(getProjectCount(pipeline, 'projectsStored')).toBe(3);
-      expect(getProjectCount(pipeline, 'projectUpdatesStored')).toBeGreaterThan(0);
+      expect(getProjectCount(pipeline, 'projectUpdatesStored')).toBe(0); // No additional updates to fetch
       expect(getProjectCount(pipeline, 'projectUpdatesAnalysed')).toBeGreaterThan(0);
       
       // And: Final state should be idle
@@ -369,7 +397,7 @@ describe('Project Data Pipeline E2E', () => {
       
       // Then: Should still show what we have
       expect(getProjectCount(pipeline, 'projectsOnPage')).toBe(3);
-      expect(getProjectCount(pipeline, 'projectsStored')).toBe(0); // Failed to store
+      expect(getProjectCount(pipeline, 'projectsStored')).toBe(0); // Failed to store due to API errors
       expect(getProjectCount(pipeline, 'projectUpdatesStored')).toBe(0);
       expect(getProjectCount(pipeline, 'projectUpdatesAnalysed')).toBeGreaterThanOrEqual(0); // May vary due to async nature
       
@@ -401,7 +429,7 @@ describe('Project Data Pipeline E2E', () => {
       
       // Then: Should resume from failed stage
       expect(getProjectCount(pipeline, 'projectsStored')).toBe(3); // Now successful
-      expect(getProjectCount(pipeline, 'projectUpdatesStored')).toBeGreaterThan(0);
+      expect(getProjectCount(pipeline, 'projectUpdatesStored')).toBe(0); // No additional updates to fetch
       expect(getProjectCount(pipeline, 'projectUpdatesAnalysed')).toBeGreaterThan(0);
     }, 15000);
   });
@@ -454,7 +482,7 @@ describe('Project Data Pipeline E2E', () => {
         return [];
       });
       
-      db.projectUpdates.put.mockImplementation(async () => {
+      (upsertProjectUpdates as jest.Mock).mockImplementation(async () => {
         updatesStored = true;
         return undefined;
       });
@@ -479,7 +507,7 @@ describe('Project Data Pipeline E2E', () => {
       expect(finalState.isProcessing).toBe(false);
       expect(finalState.projectsOnPage).toBe(3);
       expect(finalState.projectsStored).toBe(3);
-      expect(finalState.projectUpdatesStored).toBeGreaterThan(0);
+      expect(finalState.projectUpdatesStored).toBe(0); // No additional updates to fetch
       expect(finalState.projectUpdatesAnalysed).toBeGreaterThan(0);
     });
   });
@@ -508,7 +536,7 @@ describe('Project Data Pipeline E2E', () => {
       
       // Note: 'scanning' stage might be too fast to catch in polling-based subscription
       expect(stages).toContain('fetching-projects');
-      expect(stages).toContain('fetching-updates');
+      // Note: 'fetching-updates' stage is now just a placeholder since updates are fetched during project processing
       expect(stages).toContain('queuing-analysis');
       // The idle stage should eventually be captured
       expect(uniqueStages).toContain('idle');
@@ -528,8 +556,68 @@ describe('Project Data Pipeline E2E', () => {
       // Then: Should maintain completed stage data
       expect(state.projectsOnPage).toBe(3);
       expect(state.projectsStored).toBe(3);
-      expect(state.projectUpdatesStored).toBe(0); // Not started yet
+      expect(state.projectUpdatesStored).toBe(0); // No additional updates to fetch
       expect(state.projectUpdatesAnalysed).toBe(0); // Not started yet
+    });
+  });
+
+  describe('Simplified Scanning Logic', () => {
+    it('should only match the specific project URL pattern', async () => {
+      // Given: Mixed links including non-project links
+      const mixedLinks = [
+        { getAttribute: (attr: string) => attr === 'href' ? '/o/abc123/s/def456/project/TEST-123' : null },
+        { getAttribute: (attr: string) => attr === 'href' ? '/o/abc123/s/def456/project/TEST-456' : null },
+        { getAttribute: (attr: string) => attr === 'href' ? '/some/other/link' : null },
+        { getAttribute: (attr: string) => attr === 'href' ? '/project/INVALID-123' : null }, // Wrong pattern
+        { getAttribute: (attr: string) => attr === 'href' ? '/o/abc123/s/def456/project/TEST-789' : null }
+      ];
+      
+      // Mock DOM to return mixed links
+      Object.defineProperty(document, 'querySelectorAll', {
+        value: jest.fn().mockReturnValue(mixedLinks as any),
+        writable: true
+      });
+      
+      // When: Scan for projects
+      await pipeline.scanProjectsOnPage();
+      
+      // Then: Should only find projects matching the specific pattern
+      expect(getProjectCount(pipeline, 'projectsOnPage')).toBe(3);
+      
+      // And: Should not include invalid patterns
+      const state = pipeline.getState();
+      expect(state.projectIds).toContain('TEST-123');
+      expect(state.projectIds).toContain('TEST-456');
+      expect(state.projectIds).toContain('TEST-789');
+      expect(state.projectIds).not.toContain('INVALID-123');
+    });
+
+    it('should deduplicate project IDs correctly', async () => {
+      // Given: Duplicate project links
+      const duplicateLinks = [
+        { getAttribute: (attr: string) => attr === 'href' ? '/o/abc123/s/def456/project/TEST-123' : null },
+        { getAttribute: (attr: string) => attr === 'href' ? '/o/abc123/s/def456/project/TEST-123' : null }, // Duplicate
+        { getAttribute: (attr: string) => attr === 'href' ? '/o/abc123/s/def456/project/TEST-456' : null },
+        { getAttribute: (attr: string) => attr === 'href' ? '/o/abc123/s/def456/project/TEST-123' : null }, // Another duplicate
+      ];
+      
+      // Mock DOM to return duplicate links
+      Object.defineProperty(document, 'querySelectorAll', {
+        value: jest.fn().mockReturnValue(duplicateLinks as any),
+        writable: true
+      });
+      
+      // When: Scan for projects
+      await pipeline.scanProjectsOnPage();
+      
+      // Then: Should deduplicate and only count unique projects
+      expect(getProjectCount(pipeline, 'projectsOnPage')).toBe(2);
+      
+      // And: Should have unique project IDs
+      const state = pipeline.getState();
+      expect(state.projectIds).toHaveLength(2);
+      expect(state.projectIds).toContain('TEST-123');
+      expect(state.projectIds).toContain('TEST-456');
     });
   });
 });
