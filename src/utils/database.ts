@@ -96,13 +96,7 @@ interface GraphQLNode {
   notes?: any[];
 }
 
-interface StatusHistoryNode {
-  id?: string;
-  uuid?: string;
-  creationDate?: string;
-  startDate?: string;
-  targetDate?: string;
-}
+
 
 /**
  * Upsert normalized project updates into the DB.
@@ -127,27 +121,7 @@ function upsertProjectUpdates(nodes: GraphQLNode[]): Promise<string> {
   return db.projectUpdates.bulkPut(rows);
 }
 
-/**
- * Upsert normalized project status history into the DB.
- * @param nodes - Array of status history nodes
- * @param projectKey - Project key
- * @returns Promise
- */
-function upsertProjectStatusHistory(nodes: StatusHistoryNode[], projectKey: string): Promise<string> {
-  if (!projectKey) {
-    console.warn('[AtlasXray] upsertProjectStatusHistory called with undefined projectKey. Skipping.');
-    return Promise.resolve('');
-  }
 
-  const rows = nodes.map((n) => ({
-    id: n.id ?? n.uuid,
-    projectKey: projectKey,
-    creationDate: n.creationDate,
-    startDate: n.startDate,
-    targetDate: n.targetDate,
-  }));
-  return db.projectStatusHistory.bulkPut(rows);
-}
 
 /**
  * Store project images in IndexedDB
@@ -190,7 +164,6 @@ export async function getProjectImage(
 export { 
   db, 
   upsertProjectUpdates, 
-  upsertProjectStatusHistory,
   setVisibleProjectIds,
   getVisibleProjectIds,
   getVisibleProjectCount

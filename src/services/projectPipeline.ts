@@ -1,9 +1,9 @@
-import { db, upsertProjectUpdates, upsertProjectStatusHistory } from '../utils/database';
+import { db, upsertProjectUpdates } from '../utils/database';
 import { apolloClient } from './apolloClient';
 import { gql } from '@apollo/client';
 import { PROJECT_VIEW_QUERY } from '../graphql/projectViewQuery';
 import { PROJECT_UPDATES_QUERY } from '../graphql/projectUpdatesQuery';
-import { PROJECT_STATUS_HISTORY_QUERY } from '../graphql/projectStatusHistoryQuery';
+
 
 export interface PipelineState {
   projectsOnPage: number;
@@ -490,27 +490,7 @@ export class ProjectPipeline {
         }
       }
 
-      // 2. Fetch Project Status History
-      try {
-        const { data } = await apolloClient.query({
-          query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
-          variables: { projectKey: project.projectId }
-        });
-        
-        // Extract nodes from edges and store status history
-        if (data?.project?.updates?.edges) {
-          const nodes = data.project.updates.edges.map((edge: any) => edge.node).filter(Boolean);
-          if (nodes.length > 0) {
-            await upsertProjectStatusHistory(nodes, project.projectId);
-            console.log(`[AtlasXray] ✅ Stored ${nodes.length} status history entries for ${project.projectId}`);
-            hasStoredData = true;
-          }
-        }
-      } catch (err) {
-        console.error(`[AtlasXray] Failed to fetch project status history for projectId: ${project.projectId}`, err);
-      }
-
-      // 3. Fetch Project Updates
+      // 2. Fetch Project Updates
       try {
         const { data } = await apolloClient.query({
           query: gql`${PROJECT_UPDATES_QUERY}`,
