@@ -290,12 +290,11 @@ export class ProjectPipeline {
   // Run complete pipeline
   async runCompletePipeline(): Promise<void> {
     try {
+      // Pipeline starting - scan will set the project count
+      console.log(`[AtlasXray] 🚀 Starting complete pipeline`);
+      
       // Stage 1a: Scan DOM
       await this.scanProjectsOnPage();
-      
-      // Store the original projectsOnPage count before processing
-      const originalProjectsOnPage = this.getState().projectsOnPage;
-      console.log(`[AtlasXray] 🔒 Preserving original count: ${originalProjectsOnPage} projects found`);
       
       // Stage 1b: Fetch and store projects
       const projectsStored = await this.fetchAndStoreProjects();
@@ -315,15 +314,14 @@ export class ProjectPipeline {
       // Stage 3: Queue and process analysis
       await this.queueAndProcessAnalysis();
       
-      // Restore the original projectsOnPage count
+      // Keep the scan results - don't restore to a potentially incorrect count
       this.updateState({
-        projectsOnPage: originalProjectsOnPage,
         isProcessing: false,
         lastUpdated: new Date(),
         error: undefined
       });
       
-      console.log(`[AtlasXray] 🔒 Restored original count: ${originalProjectsOnPage} projects`);
+      console.log(`[AtlasXray] ✅ Pipeline complete - keeping scan results`);
     } catch (error) {
       this.updateState({
         isProcessing: false,
