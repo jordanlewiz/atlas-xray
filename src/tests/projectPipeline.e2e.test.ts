@@ -561,6 +561,62 @@ describe('Project Data Pipeline E2E', () => {
     });
   });
 
+  describe('Database Initialization', () => {
+    it('should initialize state from existing database entries', async () => {
+      // Given: Database has existing projects from previous sessions
+      const existingProjects = [
+        { id: 'EXISTING-1', name: 'Existing Project 1' },
+        { id: 'EXISTING-2', name: 'Existing Project 2' },
+        { id: 'EXISTING-3', name: 'Existing Project 3' }
+      ];
+      const existingUpdates = [
+        { id: 'update-1', projectId: 'EXISTING-1' },
+        { id: 'update-2', projectId: 'EXISTING-2' }
+      ];
+      
+      // Mock database to return existing data
+      (db.projectView.toArray as jest.Mock).mockResolvedValue(existingProjects);
+      (db.projectUpdates.toArray as jest.Mock).mockResolvedValue(existingUpdates);
+      
+      // When: Create a new pipeline instance (which calls initializeFromDatabase)
+      const newPipeline = new ProjectPipeline();
+      
+      // Then: Should initialize state with existing database counts
+      const state = newPipeline.getState();
+      expect(state.projectsStored).toBe(3);
+      expect(state.projectUpdatesStored).toBe(2);
+      
+      // Cleanup
+      (db.projectView.toArray as jest.Mock).mockRestore();
+      (db.projectUpdates.toArray as jest.Mock).mockRestore();
+    });
+
+    it('should combine existing and newly stored projects correctly', async () => {
+      // Given: Database has existing projects
+      const existingProjects = [
+        { id: 'EXISTING-1', name: 'Existing Project 1' },
+        { id: 'EXISTING-2', name: 'Existing Project 2' }
+      ];
+      
+      // Mock database to return existing data
+      (db.projectView.toArray as jest.Mock).mockResolvedValue(existingProjects);
+      
+      // When: Run pipeline with new projects
+      await pipeline.scanProjectsOnPage();
+      const finalStoredCount = await pipeline.fetchAndStoreProjects();
+      
+      // Then: Should return total count (existing + newly stored)
+      expect(finalStoredCount).toBe(5); // 2 existing + 3 newly stored
+      
+      // And: State should reflect total count
+      const finalState = pipeline.getState();
+      expect(finalState.projectsStored).toBe(5);
+      
+      // Cleanup
+      (db.projectView.toArray as jest.Mock).mockRestore();
+    });
+  });
+
   describe('Simplified Scanning Logic', () => {
     it('should only match the specific project URL pattern', async () => {
       // Given: Mixed links including non-project links

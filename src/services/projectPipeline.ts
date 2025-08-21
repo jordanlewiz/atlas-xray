@@ -49,6 +49,30 @@ export class ProjectPipeline {
       lastUpdated: new Date(),
       currentStage: 'idle'
     };
+    
+    // Initialize state with existing database entries
+    this.initializeFromDatabase();
+  }
+
+  // Initialize state from existing database entries
+  private async initializeFromDatabase(): Promise<void> {
+    try {
+      // Check for existing projects in database
+      const existingProjects = await db.projectView.toArray();
+      const existingUpdates = await db.projectUpdates.toArray();
+      
+      if (existingProjects.length > 0 || existingUpdates.length > 0) {
+        console.log(`[AtlasXray] 📊 Initializing from database: ${existingProjects.length} projects, ${existingUpdates.length} updates`);
+        
+        this.updateState({
+          projectsStored: existingProjects.length,
+          projectUpdatesStored: existingUpdates.length,
+          lastUpdated: new Date()
+        });
+      }
+    } catch (error) {
+      console.warn(`[AtlasXray] Could not initialize from database:`, error);
+    }
   }
 
   // Get current pipeline state
@@ -137,6 +161,16 @@ export class ProjectPipeline {
       
       console.log(`[AtlasXray] 📋 Processing ${actualProjectIds.length} actual projects from scanner:`, actualProjectIds);
       
+      // Check for existing projects in database from previous sessions
+      let existingProjectsCount = 0;
+      try {
+        const existingProjects = await db.projectView.toArray();
+        existingProjectsCount = existingProjects.length;
+        console.log(`[AtlasXray] 📊 Found ${existingProjectsCount} existing projects in database from previous sessions`);
+      } catch (error) {
+        console.warn(`[AtlasXray] Could not check existing projects:`, error);
+      }
+      
       // Filter out invalid projects
       const validProjects = actualProjectIds.filter(p => p && p.trim()).map(projectId => ({
         projectId: projectId.trim(),
@@ -145,18 +179,18 @@ export class ProjectPipeline {
       }));
 
       // Process projects with rate limiting
-      let storedCount = 0;
+      let newlyStoredCount = 0;
       let hasErrors = false;
       for (const project of validProjects) {
         try {
           await this.rateLimitedRequest(async () => {
             const success = await this.fetchAndStoreSingleProject(project);
             if (success) {
-              storedCount++;
+              newlyStoredCount++;
               
-              // Update progress
+              // Update progress with total count (existing + newly stored)
               this.updateState({
-                projectsStored: storedCount,
+                projectsStored: existingProjectsCount + newlyStoredCount,
                 lastUpdated: new Date()
               });
             }
@@ -168,7 +202,7 @@ export class ProjectPipeline {
       }
 
       // If all projects failed to store data, set an error state
-      if (storedCount === 0 && validProjects.length > 0) {
+      if (newlyStoredCount === 0 && validProjects.length > 0) {
         this.updateState({
           currentStage: 'idle',
           isProcessing: false,
@@ -185,9 +219,9 @@ export class ProjectPipeline {
       
       // Preserve the original projectsOnPage count from the scanner
       // Don't overwrite it with the stored count
-      console.log(`[AtlasXray] 📊 Scanner found ${currentState.projectsOnPage} projects, stored ${storedCount} projects`);
+      console.log(`[AtlasXray] 📊 Scanner found ${currentState.projectsOnPage} projects, newly stored ${newlyStoredCount} projects, total stored ${existingProjectsCount + newlyStoredCount} projects`);
 
-      return storedCount;
+      return existingProjectsCount + newlyStoredCount;
     } catch (error) {
       this.updateState({
         currentStage: 'idle',
