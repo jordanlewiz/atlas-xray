@@ -109,11 +109,14 @@ async function fetchAndStoreProjectData(projectId: string, cloudId: string): Pro
   
   // ProjectView
   try {
+    console.log(`[AtlasXray] 📥 Fetching project view data for: ${projectId}`);
     const { data } = await apolloClient.query({
       query: gql`${PROJECT_VIEW_QUERY}`,
       variables
     });
+    console.log(`[AtlasXray] 📥 Project view data received for: ${projectId}`, data);
     await setProjectView(projectId, data);
+    console.log(`[AtlasXray] ✅ Project view stored for: ${projectId}`);
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
   }
@@ -168,10 +171,10 @@ async function fetchAndStoreProjectData(projectId: string, cloudId: string): Pro
       try {
         if (typeof chrome !== 'undefined' && chrome.storage?.local) {
           const allProjects = await (db as AtlasXrayDB).projectView.toArray();
-          const visibleProjects = await downloadProjectData();
+          console.log(`[AtlasXray] 📊 Current database state: ${allProjects.length} projects stored`);
           await chrome.storage.local.set({
             projectCount: allProjects.length,
-            visibleProjectCount: visibleProjects.length
+            visibleProjectCount: allProjects.length
           });
         }
       } catch (error) {
@@ -278,33 +281,77 @@ export async function downloadProjectData(): Promise<ProjectMatch[]> {
   const hrefs = links.map(link => link.getAttribute('href'));
   const matches = findMatchingProjectLinksFromHrefs(hrefs);
   
-  // Only fetch data for new projects we haven't seen before
-  const newProjects = [];
+  console.log(`[AtlasXray] Found ${matches.length} project links on page`);
+  
+  // Process all projects found on the page to ensure they're stored
+  const projectsToProcess = [];
   for (const { projectId, cloudId } of matches) {
     const key = `projectId:${projectId}`;
     const existing = await getItem(key);
+    
     if (!existing) {
-      newProjects.push({ projectId, cloudId });
+      // New project - store it
+      await setItem(key, projectId);
+      console.log(`[AtlasXray] New project discovered: ${projectId}`);
     }
+    
+    // Always add to processing list (new or existing)
+    projectsToProcess.push({ projectId, cloudId });
   }
   
-  // Batch fetch data for new projects (limit to 5 at a time to avoid overwhelming the API)
+  console.log(`[AtlasXray] Processing ${projectsToProcess.length} projects for analysis`);
+  
+  // Batch fetch data for all projects (limit to 5 at a time to avoid overwhelming the API)
   const batchSize = 5;
-  for (let i = 0; i < newProjects.length; i += batchSize) {
-    const batch = newProjects.slice(i, i + batchSize);
+  for (let i = 0; i < projectsToProcess.length; i += batchSize) {
+    const batch = projectsToProcess.slice(i, i + batchSize);
+    console.log(`[AtlasXray] Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(projectsToProcess.length/batchSize)}`);
+    
     await Promise.all(
       batch.map(async ({ projectId, cloudId }) => {
-        const key = `projectId:${projectId}`;
-        await setItem(key, projectId);
-        await fetchAndStoreProjectData(projectId, cloudId);
+        try {
+          await fetchAndStoreProjectData(projectId, cloudId);
+          console.log(`[AtlasXray] ✅ Successfully processed project: ${projectId}`);
+        } catch (error) {
+          console.error(`[AtlasXray] ❌ Failed to process project ${projectId}:`, error);
+        }
       })
     );
     
     // Add a small delay between batches to be respectful to the API
-    if (i + batchSize < newProjects.length) {
+    if (i + batchSize < projectsToProcess.length) {
       await new Promise(resolve => setTimeout(resolve, 100));
     }
   }
   
+  console.log(`[AtlasXray] Completed processing ${projectsToProcess.length} projects`);
   return matches;
+}
+
+// Add to window for console debugging
+if (typeof window !== 'undefined') {
+  (window as any).debugProjectDatabase = async () => {
+    console.log('[AtlasXray] 🧪 Debugging project database...');
+    try {
+      const allProjects = await (db as AtlasXrayDB).projectView.toArray();
+      console.log(`[AtlasXray] 📊 Database contains ${allProjects.length} projects:`, allProjects);
+      
+      const allStatusHistory = await (db as AtlasXrayDB).projectStatusHistory.toArray();
+      console.log(`[AtlasXray] 📊 Database contains ${allStatusHistory.length} status history entries`);
+      
+      const allUpdates = await (db as AtlasXrayDB).projectUpdates.toArray();
+      console.log(`[AtlasXray] 📊 Database contains ${allUpdates.length} project updates`);
+      
+      // Check chrome storage
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        const storage = await chrome.storage.local.get(['projectCount', 'visibleProjectCount']);
+        console.log('[AtlasXray] 📊 Chrome storage:', storage);
+      }
+      
+    } catch (error) {
+      console.error('[AtlasXray] ❌ Database debug failed:', error);
+    }
+  };
+  
+  console.log('[AtlasXray] 💡 Use debugProjectDatabase() in console to check database state');
 }
