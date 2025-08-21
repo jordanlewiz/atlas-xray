@@ -103,27 +103,40 @@ export function useUpdateQuality() {
                  } else {
            // Check if quality data was stored by automatic analysis (background script)
            try {
-             // First check IndexedDB
-             const storedQuality = await db.table('keyval').get(`quality:${update.id}`);
-             if (storedQuality) {
+             console.log(`🔍 Checking for quality data for update ${update.id}...`);
+             
+             // First check IndexedDB (using meta table)
+             const storedQuality = await db.meta.get(`quality:${update.id}`);
+             if (storedQuality?.value) {
+               console.log(`✅ Found quality data in IndexedDB for update ${update.id}`);
                qualityMap[update.id] = {
-                 ...storedQuality,
-                 timestamp: new Date(storedQuality.timestamp)
+                 ...storedQuality.value,
+                 timestamp: new Date(storedQuality.value.timestamp)
                };
              } else {
+               console.log(`🔍 No quality data in IndexedDB for update ${update.id}, checking chrome.storage.local...`);
+               
                // Then check chrome.storage.local (background script storage)
                if (typeof chrome !== 'undefined' && chrome.storage?.local) {
                  const result = await chrome.storage.local.get(`quality:${update.id}`);
+                 console.log(`🔍 chrome.storage.local result for update ${update.id}:`, result);
+                 
                  const backgroundQuality = result[`quality:${update.id}`];
                  if (backgroundQuality) {
+                   console.log(`✅ Found quality data in chrome.storage.local for update ${update.id}:`, backgroundQuality);
                    qualityMap[update.id] = {
                      ...backgroundQuality,
                      timestamp: new Date(backgroundQuality.timestamp)
                    };
+                 } else {
+                   console.log(`❌ No quality data found anywhere for update ${update.id}`);
                  }
+               } else {
+                 console.log(`⚠️ Chrome storage not available for update ${update.id}`);
                }
              }
            } catch (error) {
+             console.error(`❌ Error checking quality data for update ${update.id}:`, error);
              // Quality data not found, will be analyzed later
            }
          }
@@ -259,8 +272,13 @@ export function useUpdateQuality() {
    * Trigger background analysis for existing updates without quality data
    */
   const triggerBackgroundAnalysisForExistingUpdates = useCallback(async (updates: ProjectUpdate[]) => {
+    console.log('🔍 triggerBackgroundAnalysisForExistingUpdates called with', updates.length, 'updates');
+    console.log('🔍 Current qualityData keys:', Object.keys(qualityData || {}));
+    
     // Check which updates don't have quality data in the qualityData object
     const unanalyzedUpdates = updates.filter(update => !qualityData?.[update.id]);
+    
+    console.log('🔍 Found', unanalyzedUpdates.length, 'unanalyzed updates');
     
     if (unanalyzedUpdates.length === 0) {
       console.log('🎯 All updates already have quality data');
@@ -275,17 +293,24 @@ export function useUpdateQuality() {
     
     for (const update of batchToProcess) {
       try {
+        console.log(`🔍 Processing update ${update.id}:`, { summary: update.summary?.substring(0, 50), state: update.state });
+        
         // Extract update text
         const updateText = [
           update.summary || '',
           update.details || ''
         ].filter(Boolean).join(' ');
         
-        if (!updateText.trim()) continue;
+        if (!updateText.trim()) {
+          console.log(`⚠️ Update ${update.id} has no text content, skipping`);
+          continue;
+        }
         
         // Determine update type and state
         const updateType = determineUpdateType(updateText);
         const state = update.state || 'no-status';
+        
+        console.log(`🔍 Sending analysis request for update ${update.id}:`, { updateType, state, textLength: updateText.length });
         
         // Send message to background script for analysis
         if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
@@ -297,13 +322,15 @@ export function useUpdateQuality() {
             state
           }, (response: any) => {
             if (response?.success) {
-              console.log(`✅ Background analysis triggered for update ${update.id}`);
+              console.log(`✅ Background analysis triggered for update ${update.id}:`, response);
               // Force re-evaluation of quality data
               setUpdateTrigger(prev => prev + 1);
             } else {
               console.warn(`❌ Failed to trigger background analysis for update ${update.id}:`, response?.error);
             }
           });
+        } else {
+          console.warn(`⚠️ Chrome runtime not available for update ${update.id}`);
         }
         
         // Longer delay between messages to prevent overwhelming

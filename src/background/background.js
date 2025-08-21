@@ -6,6 +6,7 @@
  * 2. Performs periodic version checks against GitHub releases
  * 3. Shows update notifications to users when new versions are available
  * 4. Handles extension icon clicks and other background tasks
+ * 5. Performs rule-based analysis of project updates (AI models not available in service worker)
  * 
  * The service worker remains active to handle version checking and
  * extension management even when no tabs are open.
@@ -16,7 +17,7 @@ console.log('[AtlasXray] Background service worker is running');
 // Import version checker (will be bundled by esbuild)
 import { VersionChecker } from '../utils/versionChecker';
 
-// Simple message handler for testing
+// Message handler for communication with content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log('[AtlasXray] 📨 Message received:', message.type, 'from:', sender.tab?.url);
   
@@ -33,14 +34,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'ANALYZE_UPDATE_QUALITY') {
     console.log('[AtlasXray] 🔍 Analysis request received for update:', message.updateId);
     
-    // For now, just return a simple response to test communication
-    sendResponse({ 
-      success: true, 
-      message: 'Analysis request received (placeholder)',
-      updateId: message.updateId,
-      timestamp: new Date().toISOString()
-    });
-    return true;
+    // Handle analysis asynchronously
+    handleUpdateAnalysis(message, sender, sendResponse);
+    return true; // Keep message channel open for async response
   }
   
   if (message.type === 'OPEN_TIMELINE') {
@@ -53,6 +49,183 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   sendResponse({ success: false, error: 'Unknown message type' });
   return true;
 });
+
+/**
+ * Handle update quality analysis using rule-based approach
+ * (AI models not available in service worker context)
+ */
+async function handleUpdateAnalysis(message, sender, sendResponse) {
+  try {
+    const { updateId, updateText, updateType, state } = message;
+    
+    console.log('[AtlasXray] 🧠 Running rule-based analysis for update:', updateId);
+    
+    // Run rule-based analysis
+    const result = await performRuleBasedAnalysis(updateText, updateType, state);
+    
+    // Store the result
+    await storeAnalysisResult(updateId, result);
+    
+    console.log('[AtlasXray] ✅ Analysis completed for update:', updateId, result);
+    
+    sendResponse({ 
+      success: true, 
+      result,
+      message: 'Rule-based analysis completed successfully'
+    });
+    
+  } catch (error) {
+    console.error('[AtlasXray] ❌ Analysis failed:', error);
+    
+    // Try to send error response
+    try {
+      sendResponse({ 
+        success: false, 
+        error: error.message || 'Analysis failed',
+        message: 'Analysis failed'
+      });
+    } catch (sendError) {
+      console.error('[AtlasXray] Failed to send error response:', sendError);
+    }
+  }
+}
+
+/**
+ * Perform rule-based quality analysis
+ */
+async function performRuleBasedAnalysis(updateText, updateType, state) {
+  const text = updateText.toLowerCase();
+  let score = 50; // Base score
+  let qualityLevel = 'fair';
+  let reasoning = [];
+  let missingInfo = [];
+  let recommendations = [];
+  
+  // Analyze based on update type
+  if (updateType === 'paused') {
+    if (text.includes('why') || text.includes('reason')) score += 20;
+    if (text.includes('impact')) score += 15;
+    if (text.includes('when') || text.includes('resume')) score += 15;
+    if (text.includes('decision')) score += 10;
+    if (text.includes('support')) score += 10;
+    
+    if (!text.includes('why') && !text.includes('reason')) {
+      missingInfo.push('Why was this paused?');
+    }
+    if (!text.includes('impact')) {
+      missingInfo.push('What is the impact?');
+    }
+    if (!text.includes('when') && !text.includes('resume')) {
+      missingInfo.push('When will it be resumed?');
+    }
+  } else if (updateType === 'off-track') {
+    if (text.includes('why') || text.includes('reason')) score += 20;
+    if (text.includes('situation') || text.includes('summary')) score += 15;
+    if (text.includes('steps') || text.includes('action')) score += 15;
+    if (text.includes('impact')) score += 15;
+    if (text.includes('support')) score += 15;
+    
+    if (!text.includes('why') && !text.includes('reason')) {
+      missingInfo.push('Why is this off-track?');
+    }
+    if (!text.includes('steps') && !text.includes('action')) {
+      missingInfo.push('What steps are being taken?');
+    }
+  } else if (updateType === 'at-risk') {
+    if (text.includes('why') || text.includes('reason')) score += 20;
+    if (text.includes('situation') || text.includes('summary')) score += 15;
+    if (text.includes('mitigation') || text.includes('plan')) score += 15;
+    if (text.includes('impact')) score += 15;
+    if (text.includes('support')) score += 15;
+    
+    if (!text.includes('mitigation') && !text.includes('plan')) {
+      missingInfo.push('What is the mitigation plan?');
+    }
+  } else if (updateType === 'prioritization') {
+    if (text.includes('why') || text.includes('reason')) score += 25;
+    if (text.includes('impact')) score += 25;
+    if (text.includes('decision') || text.includes('process')) score += 25;
+    if (text.includes('support')) score += 25;
+    
+    if (!text.includes('impact')) {
+      missingInfo.push('What is the impact?');
+    }
+    if (!text.includes('decision') && !text.includes('process')) {
+      missingInfo.push('How was this decision made?');
+    }
+  }
+  
+  // General quality checks
+  if (text.length > 100) score += 10;
+  if (text.length > 200) score += 10;
+  if (text.includes('because') || text.includes('due to')) score += 5;
+  if (text.includes('next') || text.includes('following')) score += 5;
+  
+  // Cap score at 100
+  score = Math.min(100, Math.max(0, score));
+  
+  // Determine quality level
+  if (score >= 80) qualityLevel = 'excellent';
+  else if (score >= 60) qualityLevel = 'good';
+  else if (score >= 40) qualityLevel = 'fair';
+  else qualityLevel = 'poor';
+  
+  // Generate reasoning
+  if (score >= 60) {
+    reasoning.push('Update provides comprehensive information');
+    if (updateType) reasoning.push(`Addresses ${updateType} criteria well`);
+  } else {
+    reasoning.push('Update lacks sufficient detail');
+    if (missingInfo.length > 0) reasoning.push(`Missing key information: ${missingInfo.length} items`);
+  }
+  
+  // Generate recommendations
+  if (missingInfo.length > 0) {
+    recommendations.push('Provide missing information to improve quality');
+  }
+  if (text.length < 100) {
+    recommendations.push('Add more context and details');
+  }
+  if (!text.includes('impact')) {
+    recommendations.push('Include impact assessment');
+  }
+  
+  return {
+    updateId: null, // Will be set by caller
+    overallScore: score,
+    qualityLevel,
+    confidence: 0.8,
+    reasoning: reasoning.join('. '),
+    timestamp: new Date().toISOString(),
+    analysis: [{
+      criteriaId: updateType || 'general',
+      title: updateType ? `${updateType.charAt(0).toUpperCase() + updateType.slice(1)} Analysis` : 'General Analysis',
+      score,
+      maxScore: 100,
+      answers: [],
+      missingInfo,
+      recommendations
+    }],
+    missingInfo,
+    recommendations,
+    summary: `Quality score: ${score}/100 (${qualityLevel}). ${reasoning.join('. ')}`
+  };
+}
+
+/**
+ * Store analysis result in chrome.storage.local
+ */
+async function storeAnalysisResult(updateId, result) {
+  try {
+    const key = `quality:${updateId}`;
+    // Add the updateId to the result
+    result.updateId = updateId;
+    await chrome.storage.local.set({ [key]: result });
+    console.log('[AtlasXray] 💾 Stored analysis result for update:', updateId);
+  } catch (error) {
+    console.error('[AtlasXray] ❌ Failed to store analysis result:', error);
+  }
+}
 
 // Check for updates when extension starts
 chrome.runtime.onStartup.addListener(async () => {
