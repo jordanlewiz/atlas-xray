@@ -93,7 +93,6 @@ export function getAllProjectDates(projects: ProjectViewModel[], updatesByProjec
       }
     });
   });
-  
   return { minDate, maxDate };
 }
 

@@ -32,27 +32,13 @@ export function useTimeline(weekLimit: number = 12) {
 
     // Group updates by project - simple and direct
     const updatesByProject: Record<string, ProjectUpdate[]> = {};
-    allUpdates.forEach((update: ProjectUpdate, index: number) => {
-      // Debug first few updates to see structure
-      if (index < 3) {
-        console.log(`[AtlasXray] Update ${index} structure:`, {
-          id: update.id,
-          projectKey: update.projectKey,
-          creationDate: update.creationDate,
-          allKeys: Object.keys(update)
-        });
-      }
-      
+    allUpdates.forEach((update: ProjectUpdate) => {
       const key = update.projectKey;
       if (key) {
         if (!updatesByProject[key]) {
           updatesByProject[key] = [];
         }
         updatesByProject[key].push(update);
-      } else {
-        if (index < 3) {
-          console.warn(`[AtlasXray] Update ${index} missing projectKey:`, update);
-        }
       }
     });
     
@@ -87,28 +73,7 @@ export function useTimeline(weekLimit: number = 12) {
     // Get week ranges for the timeline
     const allDates = getAllProjectDates(projectViewModels, updatesByProject);
     
-    // Debug: Log the date ranges and update data
-    console.log('[AtlasXray] Timeline Debug - Projects:', projectViewModels.length);
-    console.log('[AtlasXray] Timeline Debug - Raw updates count:', allUpdates.length);
-    console.log('[AtlasXray] Timeline Debug - Updates by project:', Object.keys(updatesByProject).length);
-    console.log('[AtlasXray] Timeline Debug - All dates:', allDates);
-    
-    // Log raw update data structure
-    console.log('[AtlasXray] Raw updates sample:', allUpdates.slice(0, 3).map(u => ({
-      id: u.id,
-      projectKey: u.projectKey,
-      creationDate: u.creationDate
-    })));
-    
-    // Log sample update data
-    Object.keys(updatesByProject).slice(0, 2).forEach(key => {
-      const updates = updatesByProject[key];
-      console.log(`[AtlasXray] Sample updates for ${key}:`, updates.slice(0, 2).map(u => ({
-        id: u.id,
-        projectKey: u.projectKey,
-        creationDate: u.creationDate
-      })));
-    });
+
     
     if (!allDates.minDate || !allDates.maxDate) {
       console.warn('[AtlasXray] No valid dates found - timeline will be empty');
@@ -123,8 +88,38 @@ export function useTimeline(weekLimit: number = 12) {
     
     const weekRanges: WeekRange[] = getWeekRanges(allDates.minDate, allDates.maxDate);
     
-    // Instead of taking the last N weeks, take the most recent N weeks that include actual data
-    const limitedWeekRanges: WeekRange[] = weekRanges.slice(-weekLimit);
+    // Instead of taking the last N weeks, take N weeks that include actual data
+    // Find weeks that contain updates and ensure we show enough context
+    let limitedWeekRanges: WeekRange[];
+    
+    // Find the last week that contains updates
+    let lastUpdateWeekIndex = -1;
+    for (let i = weekRanges.length - 1; i >= 0; i--) {
+      const week = weekRanges[i];
+      const hasUpdates = Object.values(updatesByProject).some(updates => 
+        updates.some(update => {
+          if (update.creationDate) {
+            const updateDate = new Date(update.creationDate);
+            return updateDate >= week.start && updateDate < week.end;
+          }
+          return false;
+        })
+      );
+      if (hasUpdates) {
+        lastUpdateWeekIndex = i;
+        break;
+      }
+    }
+    
+    if (lastUpdateWeekIndex === -1) {
+      // No updates found, show last N weeks
+      limitedWeekRanges = weekRanges.slice(-weekLimit);
+    } else {
+      // Show weeks from the last update week backwards, ensuring we show enough context
+      const startIndex = Math.max(0, lastUpdateWeekIndex - weekLimit + 1);
+      limitedWeekRanges = weekRanges.slice(startIndex, lastUpdateWeekIndex + 1);
+    }
+
 
     return {
       weekRanges: limitedWeekRanges,
