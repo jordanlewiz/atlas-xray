@@ -1,6 +1,11 @@
 // @ts-ignore
 import { pipeline } from '@xenova/transformers';
 
+// Performance optimizations
+const MAX_TEXT_LENGTH = 1500; // Limit text length for analysis
+const MODEL_TIMEOUT = 15000; // 15 second timeout for model operations
+const MAX_CONCURRENT_MODELS = 2; // Limit concurrent model operations
+
 // Fixed criteria IDs and questions
 export const QUESTIONS = [
   { id: "initiative",        q: "Which initiative or milestone is discussed?" },
@@ -40,40 +45,102 @@ export interface ProjectUpdateAnalysis {
   timestamp: Date;
 }
 
-// Initialize models (lazy loading)
+// Initialize models (lazy loading) with memory management
 let sentimentModel: any = null;
 let qaModel: any = null;
 let summarizer: any = null;
+let modelLoadTime: number = 0;
+let lastModelUsage: number = 0;
 
 /**
- * Initialize Transformers.js models
+ * Clean up models to free memory
  */
-async function initializeModels() {
+export function cleanupModels(): void {
   try {
+    if (sentimentModel) {
+      sentimentModel = null;
+    }
+    if (qaModel) {
+      qaModel = null;
+    }
+    if (summarizer) {
+      summarizer = null;
+    }
+    console.log('[ProjectAnalyzer] Models cleaned up');
+  } catch (error) {
+    console.warn('[ProjectAnalyzer] Error cleaning up models:', error);
+  }
+}
+
+/**
+ * Check if models should be cleaned up due to inactivity
+ */
+function shouldCleanupModels(): boolean {
+  const now = Date.now();
+  const inactiveThreshold = 5 * 60 * 1000; // 5 minutes
+  
+  if (lastModelUsage > 0 && (now - lastModelUsage) > inactiveThreshold) {
+    return true;
+  }
+  
+  return false;
+}
+
+/**
+ * Initialize Transformers.js models with timeout protection
+ */
+async function initializeModels(): Promise<void> {
+  try {
+    // Clean up old models if they've been inactive
+    if (shouldCleanupModels()) {
+      cleanupModels();
+    }
+    
+    const startTime = Date.now();
+    
     if (!sentimentModel) {
       console.log('[ProjectAnalyzer] Loading sentiment model...');
-      sentimentModel = await pipeline('sentiment-analysis', 'Xenova/distilbert-base-uncased-finetuned-sst-2-english');
+      const modelPromise = pipeline('sentiment-analysis', 'Xenova/distilbert-base-uncased-finetuned-sst-2-english');
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Model loading timeout')), MODEL_TIMEOUT);
+      });
+      
+      sentimentModel = await Promise.race([modelPromise, timeoutPromise]);
     }
     
     if (!qaModel) {
       console.log('[ProjectAnalyzer] Loading QA model...');
-      qaModel = await pipeline('question-answering', 'Xenova/distilbert-base-cased-distilled-squad');
+      const modelPromise = pipeline('question-answering', 'Xenova/distilbert-base-cased-distilled-squad');
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Model loading timeout')), MODEL_TIMEOUT);
+      });
+      
+      qaModel = await Promise.race([modelPromise, timeoutPromise]);
     }
     
     if (!summarizer) {
       console.log('[ProjectAnalyzer] Loading summarizer...');
-      summarizer = await pipeline('summarization', 'Xenova/sshleifer-tiny-cnn');
+      const modelPromise = pipeline('summarization', 'Xenova/sshleifer-tiny-cnn');
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Model loading timeout')), MODEL_TIMEOUT);
+      });
+      
+      summarizer = await Promise.race([modelPromise, timeoutPromise]);
     }
     
-    console.log('[ProjectAnalyzer] All models loaded successfully');
+    modelLoadTime = Date.now() - startTime;
+    lastModelUsage = Date.now();
+    
+    console.log(`[ProjectAnalyzer] All models loaded successfully in ${modelLoadTime}ms`);
   } catch (error) {
     console.error('[ProjectAnalyzer] Failed to load models:', error);
+    cleanupModels(); // Clean up failed models
     throw error;
   }
 }
 
 /**
- * Analyze sentiment of project update text
+ * Analyze sentiment of project update text with timeout protection
  */
 async function analyzeSentiment(text: string): Promise<{ score: number; label: string }> {
   try {
@@ -81,7 +148,14 @@ async function analyzeSentiment(text: string): Promise<{ score: number; label: s
       await initializeModels();
     }
     
-    const result = await sentimentModel(text);
+    lastModelUsage = Date.now();
+    
+    // Limit text length for performance
+    const truncatedText = text.length > MAX_TEXT_LENGTH 
+      ? text.substring(0, MAX_TEXT_LENGTH) 
+      : text;
+    
+    const result = await sentimentModel(truncatedText);
     const score = result[0].score;
     const label = result[0].label;
     
@@ -99,7 +173,7 @@ async function analyzeSentiment(text: string): Promise<{ score: number; label: s
 }
 
 /**
- * Extract answer for a specific question using QA model
+ * Extract answer for a specific question using QA model with timeout protection
  */
 async function extractAnswer(text: string, question: string): Promise<{ answer: string; confidence: number }> {
   try {
@@ -107,7 +181,14 @@ async function extractAnswer(text: string, question: string): Promise<{ answer: 
       await initializeModels();
     }
     
-    const result = await qaModel(question, text);
+    lastModelUsage = Date.now();
+    
+    // Limit text length for performance
+    const truncatedText = text.length > MAX_TEXT_LENGTH 
+      ? text.substring(0, MAX_TEXT_LENGTH) 
+      : text;
+    
+    const result = await qaModel(question, truncatedText);
     
     return {
       answer: result.answer || 'No specific answer found',
@@ -123,7 +204,7 @@ async function extractAnswer(text: string, question: string): Promise<{ answer: 
 }
 
 /**
- * Generate a concise summary of the project update
+ * Generate a concise summary of the project update with timeout protection
  */
 async function generateSummary(text: string): Promise<string> {
   try {
@@ -131,7 +212,14 @@ async function generateSummary(text: string): Promise<string> {
       await initializeModels();
     }
     
-    const result = await summarizer(text, {
+    lastModelUsage = Date.now();
+    
+    // Limit text length for performance
+    const truncatedText = text.length > MAX_TEXT_LENGTH 
+      ? text.substring(0, MAX_TEXT_LENGTH) 
+      : text;
+    
+    const result = await summarizer(truncatedText, {
       max_length: 50,
       min_length: 10,
       do_sample: false
@@ -145,11 +233,17 @@ async function generateSummary(text: string): Promise<string> {
 }
 
 /**
- * Analyze a project update using Transformers.js
+ * Analyze a project update using Transformers.js with performance optimizations
  */
 export async function analyzeProjectUpdate(text: string): Promise<ProjectUpdateAnalysis> {
   try {
     console.log('[ProjectAnalyzer] Starting analysis of project update...');
+    
+    // Limit text length early
+    if (text.length > MAX_TEXT_LENGTH) {
+      text = text.substring(0, MAX_TEXT_LENGTH) + '...';
+      console.log(`[ProjectAnalyzer] Text truncated to ${MAX_TEXT_LENGTH} characters`);
+    }
     
     // Initialize models if needed
     await initializeModels();
@@ -158,20 +252,28 @@ export async function analyzeProjectUpdate(text: string): Promise<ProjectUpdateA
     const sentiment = await analyzeSentiment(text);
     console.log('[ProjectAnalyzer] Sentiment analysis complete:', sentiment);
     
-    // Analyze each question
-    const analysisPromises = QUESTIONS.map(async (questionData) => {
+    // Analyze each question with rate limiting
+    const analysis: AnalysisResult[] = [];
+    
+    for (let i = 0; i < QUESTIONS.length; i++) {
+      const questionData = QUESTIONS[i];
+      
+      // Add small delay between questions to prevent overwhelming the model
+      if (i > 0) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
       const { answer, confidence } = await extractAnswer(text, questionData.q);
       
-      return {
+      analysis.push({
         id: questionData.id,
         question: questionData.q,
         answer,
         confidence,
         missing: confidence < 0.25 // Treat low confidence as missing
-      };
-    });
+      });
+    }
     
-    const analysis = await Promise.all(analysisPromises);
     console.log('[ProjectAnalyzer] QA analysis complete');
     
     // Generate summary
@@ -187,7 +289,20 @@ export async function analyzeProjectUpdate(text: string): Promise<ProjectUpdateA
     
   } catch (error) {
     console.error('[ProjectAnalyzer] Analysis failed:', error);
-    throw error;
+    
+    // Return fallback result instead of throwing
+    return {
+      sentiment: { score: 0.5, label: 'neutral' },
+      analysis: QUESTIONS.map(q => ({
+        id: q.id,
+        question: q.q,
+        answer: 'Analysis failed',
+        confidence: 0,
+        missing: true
+      })),
+      summary: 'Analysis failed - fallback result',
+      timestamp: new Date()
+    };
   }
 }
 

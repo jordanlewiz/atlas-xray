@@ -8,15 +8,21 @@
 import { analysisDB, initializeAnalysisDatabase } from '../utils/analysisDatabase';
 import { analyzeProjectUpdate } from '../utils/projectAnalyzer';
 
-// Configuration
-const WATCH_INTERVAL = 30000; // Check every 30 seconds
-const MAX_TEXT_LENGTH = 2000; // Maximum text length for analysis
-const CACHE_DURATION_HOURS = 24; // Cache analysis results for 24 hours
+// Performance optimizations
+const WATCH_INTERVAL = 60000; // Check every 60 seconds (increased from 30)
+const MAX_TEXT_LENGTH = 1500; // Reduced from 2000
+const CACHE_DURATION_HOURS = 12; // Reduced from 24
+const MAX_CONCURRENT_ANALYSES = 3; // Limit concurrent processing
+const ANALYSIS_TIMEOUT = 10000; // 10 second timeout per analysis
+const MAX_UPDATES_PER_BATCH = 5; // Process max 5 updates at once
 
-// State tracking
+// State tracking with memory management
 let isWatching = false;
 let watchInterval = null;
 let lastUpdateCheck = null;
+let activeAnalyses = 0; // Track concurrent analyses
+let analysisQueue = []; // Queue for pending analyses
+let memoryUsage = 0; // Track memory usage
 
 /**
  * Initialize the project update watcher
@@ -31,9 +37,49 @@ async function initializeWatcher() {
     // Start watching for updates
     startWatching();
     
+    // Set up memory monitoring
+    setInterval(monitorMemoryUsage, 300000); // Check every 5 minutes
+    
     console.log('[ProjectUpdateWatcher] Initialized successfully');
   } catch (error) {
     console.error('[ProjectUpdateWatcher] Initialization failed:', error);
+  }
+}
+
+/**
+ * Monitor memory usage and cleanup if needed
+ */
+function monitorMemoryUsage() {
+  if (performance.memory) {
+    const used = performance.memory.usedJSHeapSize / 1024 / 1024; // MB
+    const limit = performance.memory.jsHeapSizeLimit / 1024 / 1024; // MB
+    
+    console.log(`[ProjectUpdateWatcher] Memory usage: ${used.toFixed(2)}MB / ${limit.toFixed(2)}MB`);
+    
+    // If using more than 80% of available memory, cleanup
+    if (used > limit * 0.8) {
+      console.warn('[ProjectUpdateWatcher] High memory usage detected, cleaning up...');
+      cleanupMemory();
+    }
+  }
+}
+
+/**
+ * Clean up memory when usage is high
+ */
+function cleanupMemory() {
+  // Clear analysis queue
+  analysisQueue = [];
+  
+  // Force garbage collection if available
+  if (global.gc) {
+    global.gc();
+    console.log('[ProjectUpdateWatcher] Forced garbage collection');
+  }
+  
+  // Clear any cached data
+  if (analysisDB && analysisDB.clearCache) {
+    analysisDB.clearCache();
   }
 }
 
@@ -76,6 +122,12 @@ function stopWatching() {
  */
 async function checkForNewUpdates() {
   try {
+    // Don't start new check if previous one is still running
+    if (activeAnalyses > 0) {
+      console.log(`[ProjectUpdateWatcher] Skipping check - ${activeAnalyses} analyses still running`);
+      return;
+    }
+    
     console.log('[ProjectUpdateWatcher] Checking for new updates...');
     
     // Get recent updates from Dexie (you'll need to adapt this to your existing database structure)
@@ -88,9 +140,12 @@ async function checkForNewUpdates() {
 
     console.log(`[ProjectUpdateWatcher] Found ${newUpdates.length} new updates to analyze`);
     
-    // Analyze each update
-    for (const update of newUpdates) {
-      await analyzeAndStoreUpdate(update);
+    // Limit batch size to prevent memory issues
+    const updatesToProcess = newUpdates.slice(0, MAX_UPDATES_PER_BATCH);
+    
+    // Process updates with rate limiting
+    for (const update of updatesToProcess) {
+      await processUpdateWithRateLimit(update);
     }
 
     lastUpdateCheck = new Date();
@@ -98,6 +153,25 @@ async function checkForNewUpdates() {
     
   } catch (error) {
     console.error('[ProjectUpdateWatcher] Failed to check for updates:', error);
+  }
+}
+
+/**
+ * Process update with rate limiting and memory management
+ */
+async function processUpdateWithRateLimit(update) {
+  // Wait if we're at the concurrent limit
+  while (activeAnalyses >= MAX_CONCURRENT_ANALYSES) {
+    console.log('[ProjectUpdateWatcher] Waiting for analysis slot...');
+    await new Promise(resolve => setTimeout(resolve, 1000));
+  }
+  
+  activeAnalyses++;
+  
+  try {
+    await analyzeAndStoreUpdate(update);
+  } finally {
+    activeAnalyses--;
   }
 }
 
@@ -144,7 +218,7 @@ async function analyzeAndStoreUpdate(update) {
       console.log(`[ProjectUpdateWatcher] Using cached analysis for update ${updateId}`);
       analysis = cachedAnalysis;
     } else {
-      // Perform new analysis
+      // Perform new analysis with timeout protection
       console.log(`[ProjectUpdateWatcher] Performing new analysis for update ${updateId}`);
       
       // Truncate text if too long
@@ -152,10 +226,27 @@ async function analyzeAndStoreUpdate(update) {
         ? text.substring(0, MAX_TEXT_LENGTH) + '...'
         : text;
       
-      analysis = await analyzeProjectUpdate(truncatedText);
+      // Add timeout protection
+      const analysisPromise = analyzeProjectUpdate(truncatedText);
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Analysis timeout')), ANALYSIS_TIMEOUT);
+      });
       
-      // Cache the result
-      await analysisDB.cacheAnalysis(textHash, analysis);
+      try {
+        analysis = await Promise.race([analysisPromise, timeoutPromise]);
+        
+        // Cache the result
+        await analysisDB.cacheAnalysis(textHash, analysis);
+      } catch (error) {
+        console.error(`[ProjectUpdateWatcher] Analysis failed for update ${updateId}:`, error);
+        // Return fallback analysis
+        analysis = {
+          sentiment: { score: 0.5, label: 'neutral' },
+          analysis: [],
+          summary: 'Analysis failed - fallback result',
+          timestamp: new Date()
+        };
+      }
     }
 
     // Store analysis results

@@ -160,23 +160,23 @@ async function fetchAndStoreProjectData(projectId: string, cloudId: string): Pro
         }
       }
       
-                          // Trigger background analysis for new updates
-                    console.log(`[AtlasXray] 🔍 Found ${nodes.length} updates for project ${projectId}, triggering background analysis...`);
-                    await triggerBackgroundAnalysis(nodes, projectId);
-                    
-                    // Update project counts in storage for the floating button
-                    try {
-                        if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-                            const allProjects = await (db as AtlasXrayDB).projectView.toArray();
-                            const visibleProjects = await downloadProjectData();
-                            await chrome.storage.local.set({
-                                projectCount: allProjects.length,
-                                visibleProjectCount: visibleProjects.length
-                            });
-                        }
-                    } catch (error) {
-                        console.log('[AtlasXray] Could not update project counts:', error);
-                    }
+      // Trigger background analysis for all updates
+      console.log(`[AtlasXray] 🔍 Found ${nodes.length} updates for project ${projectId}, triggering background analysis...`);
+      await triggerBackgroundAnalysis(nodes, projectId);
+      
+      // Update project counts in storage for the floating button
+      try {
+        if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+          const allProjects = await (db as AtlasXrayDB).projectView.toArray();
+          const visibleProjects = await downloadProjectData();
+          await chrome.storage.local.set({
+            projectCount: allProjects.length,
+            visibleProjectCount: visibleProjects.length
+          });
+        }
+      } catch (error) {
+        console.log('[AtlasXray] Could not update project counts:', error);
+      }
     }
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch [ProjectUpdatesQuery] for projectId: ${projectId}`, err);
@@ -278,33 +278,49 @@ export async function downloadProjectData(): Promise<ProjectMatch[]> {
   const hrefs = links.map(link => link.getAttribute('href'));
   const matches = findMatchingProjectLinksFromHrefs(hrefs);
   
-  // Only fetch data for new projects we haven't seen before
-  const newProjects = [];
+  console.log(`[AtlasXray] Found ${matches.length} project links on page`);
+  
+  // Process all projects found on the page, not just new ones
+  const projectsToProcess = [];
   for (const { projectId, cloudId } of matches) {
     const key = `projectId:${projectId}`;
     const existing = await getItem(key);
+    
     if (!existing) {
-      newProjects.push({ projectId, cloudId });
+      // New project - store it
+      await setItem(key, projectId);
+      console.log(`[AtlasXray] New project discovered: ${projectId}`);
     }
+    
+    // Always add to processing list (new or existing)
+    projectsToProcess.push({ projectId, cloudId });
   }
   
-  // Batch fetch data for new projects (limit to 5 at a time to avoid overwhelming the API)
-  const batchSize = 5;
-  for (let i = 0; i < newProjects.length; i += batchSize) {
-    const batch = newProjects.slice(i, i + batchSize);
+  console.log(`[AtlasXray] Processing ${projectsToProcess.length} projects for analysis`);
+  
+  // Batch fetch data for all projects (limit to 3 at a time to avoid overwhelming the API)
+  const batchSize = 3;
+  for (let i = 0; i < projectsToProcess.length; i += batchSize) {
+    const batch = projectsToProcess.slice(i, i + batchSize);
+    console.log(`[AtlasXray] Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(projectsToProcess.length/batchSize)}`);
+    
     await Promise.all(
       batch.map(async ({ projectId, cloudId }) => {
-        const key = `projectId:${projectId}`;
-        await setItem(key, projectId);
-        await fetchAndStoreProjectData(projectId, cloudId);
+        try {
+          await fetchAndStoreProjectData(projectId, cloudId);
+          console.log(`[AtlasXray] ✅ Successfully processed project: ${projectId}`);
+        } catch (error) {
+          console.error(`[AtlasXray] ❌ Failed to process project ${projectId}:`, error);
+        }
       })
     );
     
     // Add a small delay between batches to be respectful to the API
-    if (i + batchSize < newProjects.length) {
-      await new Promise(resolve => setTimeout(resolve, 100));
+    if (i + batchSize < projectsToProcess.length) {
+      await new Promise(resolve => setTimeout(resolve, 200));
     }
   }
   
+  console.log(`[AtlasXray] Completed processing ${projectsToProcess.length} projects`);
   return matches;
 }

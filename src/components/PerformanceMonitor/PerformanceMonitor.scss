@@ -1,0 +1,306 @@
+.performance-monitor {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 16px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+  .monitor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e1e5e9;
+
+    h3 {
+      margin: 0;
+      color: #172b4d;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .monitor-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+
+      .btn-start {
+        background: #0052cc;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background: #0747a6;
+        }
+      }
+
+      .btn-stop {
+        background: #de350b;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 8px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background: #bf2600;
+        }
+      }
+
+      .auto-refresh {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+        color: #5e6c84;
+        cursor: pointer;
+
+        input[type="checkbox"] {
+          margin: 0;
+          cursor: pointer;
+        }
+      }
+    }
+  }
+
+  .monitor-content {
+    .metric-section {
+      margin-bottom: 20px;
+
+      h4 {
+        margin: 0 0 12px 0;
+        color: #172b4d;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .memory-display {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+
+        .memory-bar {
+          flex: 1;
+          height: 24px;
+          background: #f4f5f7;
+          border-radius: 12px;
+          overflow: hidden;
+          position: relative;
+
+          .memory-fill {
+            height: 100%;
+            transition: width 0.3s ease, background-color 0.3s ease;
+            border-radius: 12px;
+          }
+        }
+
+        .memory-stats {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          min-width: 120px;
+
+          .percentage {
+            font-size: 18px;
+            font-weight: 700;
+            color: #172b4d;
+          }
+
+          .details {
+            font-size: 12px;
+            color: #5e6c84;
+          }
+        }
+
+        .status {
+          padding: 4px 8px;
+          border-radius: 4px;
+          font-size: 10px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+
+          &.healthy {
+            background: #e3fcef;
+            color: #006644;
+          }
+
+          &.warning {
+            background: #fffae6;
+            color: #974f0c;
+          }
+
+          &.critical {
+            background: #ffebe6;
+            color: #c9372c;
+          }
+        }
+      }
+
+      .status-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+
+        .status-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 12px;
+          background: #f4f5f7;
+          border-radius: 4px;
+
+          .label {
+            font-size: 12px;
+            color: #5e6c84;
+          }
+
+          .value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #172b4d;
+          }
+        }
+      }
+    }
+
+    .actions-section {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+
+      .btn-cleanup {
+        background: #ff5630;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover:not(:disabled) {
+          background: #de350b;
+        }
+
+        &:disabled {
+          background: #c1c7d0;
+          cursor: not-allowed;
+        }
+      }
+
+      .btn-refresh {
+        background: #36b37e;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background: #00875a;
+        }
+      }
+    }
+
+    .recommendations {
+      background: #fffae6;
+      border: 1px solid #ffd666;
+      border-radius: 6px;
+      padding: 16px;
+
+      h4 {
+        margin: 0 0 12px 0;
+        color: #974f0c;
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 20px;
+        color: #974f0c;
+        font-size: 13px;
+
+        li {
+          margin-bottom: 6px;
+
+          &:last-child {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+  }
+
+  .monitor-placeholder {
+    text-align: center;
+    padding: 32px 16px;
+    color: #5e6c84;
+
+    p {
+      margin: 0 0 8px 0;
+      font-size: 14px;
+
+      &.note {
+        font-size: 12px;
+        color: #97a0af;
+        font-style: italic;
+      }
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .performance-monitor {
+    .monitor-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+
+      .monitor-controls {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+
+    .monitor-content {
+      .metric-section {
+        .memory-display {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 8px;
+
+          .memory-stats {
+            align-items: center;
+            min-width: auto;
+          }
+        }
+
+        .status-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .actions-section {
+        flex-direction: column;
+      }
+    }
+  }
+}

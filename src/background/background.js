@@ -6,7 +6,7 @@
  * 2. Performs periodic version checks against GitHub releases
  * 3. Shows update notifications to users when new versions are available
  * 4. Handles extension icon clicks and other background tasks
- * 5. Performs rule-based analysis of project updates (AI models not available in service worker)
+ * 5. Performs AI-powered analysis of project updates using Transformers.js
  * 
  * The service worker remains active to handle version checking and
  * extension management even when no tabs are open.
@@ -16,6 +16,41 @@ console.log('[AtlasXray] Background service worker is running');
 
 // Import version checker (will be bundled by esbuild)
 import { VersionChecker } from '../utils/versionChecker';
+import { memoryManager } from '../utils/memoryManager';
+
+// Import AI analysis capabilities
+let projectAnalyzer = null;
+let isAIAvailable = false;
+
+// Performance optimizations
+const MAX_ANALYSIS_QUEUE = 10; // Limit pending analyses
+const ANALYSIS_TIMEOUT = 15000; // 15 second timeout for analysis
+let analysisQueue = [];
+let isProcessingQueue = false;
+
+// Initialize AI capabilities
+async function initializeAI() {
+  try {
+    console.log('[AtlasXray] Initializing AI capabilities...');
+    
+    // Import project analyzer (this will be bundled)
+    const analyzerModule = await import('../utils/projectAnalyzer');
+    projectAnalyzer = analyzerModule.analyzeProjectUpdate;
+    
+    if (projectAnalyzer) {
+      isAIAvailable = true;
+      console.log('[AtlasXray] ✅ AI analysis capabilities initialized');
+    } else {
+      console.warn('[AtlasXray] ⚠️ AI analysis not available, using fallback');
+    }
+  } catch (error) {
+    console.error('[AtlasXray] Failed to initialize AI:', error);
+    isAIAvailable = false;
+  }
+}
+
+// Initialize AI when service worker starts
+initializeAI();
 
 // Message handler for communication with content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -32,16 +67,36 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   
   if (message.type === 'ANALYZE_UPDATE_QUALITY') {
-    console.log('[AtlasXray] 🔍 Analysis request received for update:', message.updateId);
+    console.log('[AtlasXray] 🔍 AI analysis request received for update:', message.updateId);
     
-    // Handle analysis asynchronously
-    handleUpdateAnalysis(message, sender, sendResponse);
+    // Handle analysis asynchronously with queue management
+    handleUpdateAnalysisWithQueue(message, sender, sendResponse);
     return true; // Keep message channel open for async response
   }
   
   if (message.type === 'OPEN_TIMELINE') {
     console.log('[AtlasXray] 📊 Timeline open request received');
     sendResponse({ success: true });
+    return true;
+  }
+
+  if (message.type === 'GET_MEMORY_STATS') {
+    const stats = memoryManager.getCurrentMemoryStats();
+    sendResponse({ 
+      success: true, 
+      stats,
+      summary: memoryManager.getMemorySummary()
+    });
+    return true;
+  }
+
+  if (message.type === 'FORCE_CLEANUP') {
+    memoryManager.performCleanup({
+      forceGC: true,
+      clearCaches: true,
+      clearModels: true
+    });
+    sendResponse({ success: true, message: 'Cleanup initiated' });
     return true;
   }
   
@@ -51,38 +106,136 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 /**
- * Handle update quality analysis using rule-based approach
- * (AI models not available in service worker context)
+ * Handle update analysis with queue management to prevent memory issues
  */
-async function handleUpdateAnalysis(message, sender, sendResponse) {
+async function handleUpdateAnalysisWithQueue(message, sender, sendResponse) {
   try {
     const { updateId, updateText, updateType, state } = message;
     
-    // Run rule-based analysis
-    const result = await performRuleBasedAnalysis(updateText, updateType, state);
-    
-    // Store the result
-    await storeAnalysisResult(updateId, result);
-    
-    sendResponse({ 
-      success: true, 
-      result,
-      message: 'Rule-based analysis completed successfully'
-    });
-    
-  } catch (error) {
-    console.error('[AtlasXray] Analysis failed:', error);
-    
-    // Try to send error response
-    try {
+    // Check if queue is full
+    if (analysisQueue.length >= MAX_ANALYSIS_QUEUE) {
+      console.warn('[AtlasXray] Analysis queue full, rejecting request');
       sendResponse({ 
         success: false, 
-        error: error.message || 'Analysis failed',
-        message: 'Analysis failed'
+        error: 'Analysis queue full, please try again later',
+        message: 'System busy'
       });
-    } catch (sendError) {
-      console.error('[AtlasXray] Failed to send error response:', sendError);
+      return;
     }
+
+    // Add to queue
+    const queueItem = {
+      id: Date.now(),
+      message,
+      sender,
+      sendResponse,
+      timestamp: new Date()
+    };
+    
+    analysisQueue.push(queueItem);
+    console.log(`[AtlasXray] Added to analysis queue. Queue size: ${analysisQueue.length}`);
+    
+    // Process queue if not already processing
+    if (!isProcessingQueue) {
+      processAnalysisQueue();
+    }
+    
+  } catch (error) {
+    console.error('[AtlasXray] Failed to queue analysis:', error);
+    sendResponse({ 
+      success: false, 
+      error: error.message || 'Failed to queue analysis',
+      message: 'Queue error'
+    });
+  }
+}
+
+/**
+ * Process the analysis queue with rate limiting
+ */
+async function processAnalysisQueue() {
+  if (isProcessingQueue || analysisQueue.length === 0) {
+    return;
+  }
+
+  isProcessingQueue = true;
+  console.log(`[AtlasXray] Processing analysis queue. Items: ${analysisQueue.length}`);
+
+  try {
+    while (analysisQueue.length > 0) {
+      const item = analysisQueue.shift();
+      if (!item) continue;
+
+      try {
+        console.log(`[AtlasXray] Processing analysis ${item.id} from queue`);
+        
+        // Run AI analysis with timeout
+        const result = await performAIAnalysisWithTimeout(
+          item.message.updateText, 
+          item.message.updateType, 
+          item.message.state
+        );
+        
+        // Store the result
+        await storeAnalysisResult(item.message.updateId, result);
+        
+        // Send success response
+        item.sendResponse({ 
+          success: true, 
+          result,
+          message: 'AI analysis completed successfully'
+        });
+        
+        console.log(`[AtlasXray] Analysis ${item.id} completed successfully`);
+        
+      } catch (error) {
+        console.error(`[AtlasXray] Analysis ${item.id} failed:`, error);
+        
+        // Send error response
+        try {
+          item.sendResponse({ 
+            success: false, 
+            error: error.message || 'Analysis failed',
+            message: 'Analysis failed'
+          });
+        } catch (sendError) {
+          console.error(`[AtlasXray] Failed to send error response for ${item.id}:`, sendError);
+        }
+      }
+
+      // Add delay between analyses to prevent overwhelming the system
+      if (analysisQueue.length > 0) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
+    
+  } finally {
+    isProcessingQueue = false;
+    console.log('[AtlasXray] Analysis queue processing completed');
+  }
+}
+
+/**
+ * Perform AI analysis with timeout protection
+ */
+async function performAIAnalysisWithTimeout(updateText, updateType, state) {
+  if (!isAIAvailable || !projectAnalyzer) {
+    console.log('[AtlasXray] AI not available, using rule-based analysis');
+    return await performRuleBasedAnalysis(updateText, updateType, state);
+  }
+
+  const analysisPromise = projectAnalyzer(updateText);
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => reject(new Error('AI analysis timeout')), ANALYSIS_TIMEOUT);
+  });
+
+  try {
+    const result = await Promise.race([analysisPromise, timeoutPromise]);
+    console.log('[AtlasXray] AI analysis completed successfully');
+    return result;
+  } catch (error) {
+    console.warn('[AtlasXray] AI analysis failed, falling back to rule-based:', error);
+    return await performRuleBasedAnalysis(updateText, updateType, state);
   }
 }
 

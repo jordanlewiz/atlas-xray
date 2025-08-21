@@ -2,6 +2,9 @@
 let pipeline: any = null;
 let analyzeProjectUpdate: any = null;
 
+// Chrome API types
+declare const chrome: any;
+
 // Check if we're in a content script context
 const isContentScript = typeof window !== 'undefined' && 
   (window.location.href.includes('chrome-extension://') || 
@@ -177,26 +180,18 @@ async function initializeModels() {
 }
 
 /**
- * Analyze the quality of a project update using AI models
+ * Analyze update quality using AI models or fallback to rule-based analysis
  */
 export async function analyzeUpdateQuality(
   updateText: string,
   updateType?: string,
   state?: string
 ): Promise<UpdateQualityResult> {
-  // Validate input
-  if (!updateText || typeof updateText !== 'string' || updateText.trim() === '') {
-    return {
-      overallScore: 0,
-      qualityLevel: 'poor',
-      analysis: [],
-      missingInfo: ['No update text provided for analysis'],
-      recommendations: ['Provide update content for quality analysis'],
-      summary: 'Cannot analyze empty or invalid update text',
-      timestamp: new Date()
-    };
+  // If we're in a content script, delegate to background script
+  if (isContentScript) {
+    return await analyzeUpdateQualityViaBackground(updateText, updateType, state);
   }
-  
+
   // Check if AI functionality is available
   if (!pipeline || isContentScript) {
     console.log('🔍 AI analysis not available, using fallback analysis...');
@@ -253,6 +248,44 @@ export async function analyzeUpdateQuality(
     console.error('❌ Error analyzing update quality:', error);
     
     // Provide fallback result
+    return provideFallbackAnalysis(updateText, updateType, state);
+  }
+}
+
+/**
+ * Analyze update quality via background script when in content script context
+ */
+async function analyzeUpdateQualityViaBackground(
+  updateText: string,
+  updateType?: string,
+  state?: string
+): Promise<UpdateQualityResult> {
+  try {
+    console.log('🔍 Delegating analysis to background script...');
+    
+    // Check if chrome API is available
+    if (typeof chrome === 'undefined' || !chrome.runtime) {
+      console.warn('⚠️ Chrome API not available, using fallback analysis');
+      return provideFallbackAnalysis(updateText, updateType, state);
+    }
+    
+    const response = await chrome.runtime.sendMessage({
+      type: 'ANALYZE_UPDATE_QUALITY',
+      updateText,
+      updateType,
+      state,
+      updateId: `update_${Date.now()}`
+    });
+
+    if (response && response.success) {
+      console.log('✅ Background script analysis completed');
+      return response.result;
+    } else {
+      console.warn('⚠️ Background script analysis failed, using fallback');
+      return provideFallbackAnalysis(updateText, updateType, state);
+    }
+  } catch (error) {
+    console.error('❌ Failed to communicate with background script:', error);
     return provideFallbackAnalysis(updateText, updateType, state);
   }
 }

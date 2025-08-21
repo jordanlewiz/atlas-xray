@@ -9,8 +9,30 @@ export interface AnalysisResult {
   recommendations: string[];
 }
 
-// Singleton instance for caching analysis results
+// Performance optimizations
+const MAX_CACHE_SIZE = 1000; // Limit cache to prevent memory bloat
+const MAX_TEXT_LENGTH = 2000; // Limit text length for analysis
+const ANALYSIS_TIMEOUT = 5000; // 5 second timeout for analysis
+
+// Singleton instance for caching analysis results with size limits
 let analysisCache: Map<string, AnalysisResult> = new Map();
+let cacheHits = 0;
+let cacheMisses = 0;
+
+/**
+ * Clean up cache if it gets too large
+ */
+function cleanupCache(): void {
+  if (analysisCache.size > MAX_CACHE_SIZE) {
+    const entries = Array.from(analysisCache.entries());
+    // Remove oldest entries (first 20% of cache)
+    const removeCount = Math.floor(MAX_CACHE_SIZE * 0.2);
+    for (let i = 0; i < removeCount; i++) {
+      analysisCache.delete(entries[i][0]);
+    }
+    console.log(`[LocalModelManager] Cleaned up cache, removed ${removeCount} entries`);
+  }
+}
 
 /**
  * Analyze update quality using rule-based logic (no external dependencies)
@@ -25,7 +47,11 @@ export async function createLocalModelPipeline(): Promise<any> {
         score: result.score
       };
     },
-    dispose: () => {} // No cleanup needed
+    dispose: () => {
+      // Clean up cache when disposing
+      analysisCache.clear();
+      console.log('[LocalModelManager] Cache cleared');
+    }
   };
 }
 
@@ -61,22 +87,49 @@ export async function checkLocalModels(): Promise<boolean> {
  * Analyze update quality using intelligent rule-based logic
  */
 export async function analyzeUpdateQuality(updateText: string): Promise<AnalysisResult> {
+  // Performance optimization: limit text length
+  if (updateText.length > MAX_TEXT_LENGTH) {
+    updateText = updateText.substring(0, MAX_TEXT_LENGTH) + '...';
+  }
+
   // Check cache first
   const cacheKey = updateText.substring(0, 100); // Use first 100 chars as key
   if (analysisCache.has(cacheKey)) {
+    cacheHits++;
     return analysisCache.get(cacheKey)!;
   }
 
-  const analysis = performRuleBasedAnalysis(updateText);
+  cacheMisses++;
   
-  // Cache the result
-  analysisCache.set(cacheKey, analysis);
-  
-  return analysis;
+  // Add timeout protection
+  const analysisPromise = performRuleBasedAnalysis(updateText);
+  const timeoutPromise = new Promise<AnalysisResult>((_, reject) => {
+    setTimeout(() => reject(new Error('Analysis timeout')), ANALYSIS_TIMEOUT);
+  });
+
+  try {
+    const analysis = await Promise.race([analysisPromise, timeoutPromise]);
+    
+    // Cache the result and cleanup if needed
+    analysisCache.set(cacheKey, analysis);
+    cleanupCache();
+    
+    return analysis;
+  } catch (error) {
+    console.error('[LocalModelManager] Analysis failed or timed out:', error);
+    // Return fallback result
+    return {
+      score: 50,
+      quality: 'fair',
+      summary: 'Analysis failed - fallback result',
+      missingInfo: ['Analysis could not complete'],
+      recommendations: ['Please try again or provide shorter text']
+    };
+  }
 }
 
 /**
- * Perform intelligent rule-based analysis
+ * Perform intelligent rule-based analysis with performance optimizations
  */
 function performRuleBasedAnalysis(updateText: string): AnalysisResult {
   const text = updateText.toLowerCase();
@@ -84,8 +137,19 @@ function performRuleBasedAnalysis(updateText: string): AnalysisResult {
   const missingInfo: string[] = [];
   const recommendations: string[] = [];
 
-  // Analyze content quality based on various factors
-  
+  // Performance optimization: batch regex operations
+  const regexResults = {
+    hasSpecificActions: /\b(will|going to|plan to|intend to|aim to)\b/.test(text),
+    hasTimeline: /\b(today|tomorrow|next week|by|until|deadline)\b/.test(text),
+    hasMetrics: /\b(percent|%|number|count|measure|target|goal)\b/.test(text),
+    hasContext: /\b(because|due to|as a result|since|therefore|reason)\b/.test(text),
+    hasImpact: /\b(impact|effect|consequence|result|outcome)\b/.test(text),
+    hasStakeholders: /\b(team|stakeholder|user|customer|client|manager)\b/.test(text),
+    hasProfessionalTone: !/\b(omg|wtf|lol|ugh|damn|shit)\b/.test(text),
+    hasStructure: /\b(first|second|third|finally|in conclusion|summary)\b/.test(text),
+    hasClarity: !/\b(thing|stuff|something|whatever|idk)\b/.test(text)
+  };
+
   // 1. Length and detail (0-25 points)
   if (text.length > 500) {
     score += 25;
@@ -99,15 +163,11 @@ function performRuleBasedAnalysis(updateText: string): AnalysisResult {
   }
 
   // 2. Specificity and actionability (0-25 points)
-  const hasSpecificActions = /\b(will|going to|plan to|intend to|aim to)\b/.test(text);
-  const hasTimeline = /\b(today|tomorrow|next week|by|until|deadline)\b/.test(text);
-  const hasMetrics = /\b(percent|%|number|count|measure|target|goal)\b/.test(text);
-  
-  if (hasSpecificActions && hasTimeline && hasMetrics) {
+  if (regexResults.hasSpecificActions && regexResults.hasTimeline && regexResults.hasMetrics) {
     score += 25;
-  } else if (hasSpecificActions && hasTimeline) {
+  } else if (regexResults.hasSpecificActions && regexResults.hasTimeline) {
     score += 20;
-  } else if (hasSpecificActions) {
+  } else if (regexResults.hasSpecificActions) {
     score += 15;
   } else {
     score += 5;
@@ -115,15 +175,11 @@ function performRuleBasedAnalysis(updateText: string): AnalysisResult {
   }
 
   // 3. Context and reasoning (0-25 points)
-  const hasContext = /\b(because|due to|as a result|since|therefore|reason)\b/.test(text);
-  const hasImpact = /\b(impact|effect|consequence|result|outcome)\b/.test(text);
-  const hasStakeholders = /\b(team|stakeholder|user|customer|client|manager)\b/.test(text);
-  
-  if (hasContext && hasImpact && hasStakeholders) {
+  if (regexResults.hasContext && regexResults.hasImpact && regexResults.hasStakeholders) {
     score += 25;
-  } else if (hasContext && hasImpact) {
+  } else if (regexResults.hasContext && regexResults.hasImpact) {
     score += 20;
-  } else if (hasContext) {
+  } else if (regexResults.hasContext) {
     score += 15;
   } else {
     score += 5;
@@ -131,15 +187,11 @@ function performRuleBasedAnalysis(updateText: string): AnalysisResult {
   }
 
   // 4. Professional tone and structure (0-25 points)
-  const hasProfessionalTone = !/\b(omg|wtf|lol|ugh|damn|shit)\b/.test(text);
-  const hasStructure = /\b(first|second|third|finally|in conclusion|summary)\b/.test(text);
-  const hasClarity = !/\b(thing|stuff|something|whatever|idk)\b/.test(text);
-  
-  if (hasProfessionalTone && hasStructure && hasClarity) {
+  if (regexResults.hasProfessionalTone && regexResults.hasStructure && regexResults.hasClarity) {
     score += 25;
-  } else if (hasProfessionalTone && hasClarity) {
+  } else if (regexResults.hasProfessionalTone && regexResults.hasClarity) {
     score += 20;
-  } else if (hasProfessionalTone) {
+  } else if (regexResults.hasProfessionalTone) {
     score += 15;
   } else {
     score += 5;
@@ -163,19 +215,19 @@ function performRuleBasedAnalysis(updateText: string): AnalysisResult {
     if (text.length < 200) {
       recommendations.push('Provide more detailed explanation of the situation');
     }
-    if (!hasSpecificActions) {
+    if (!regexResults.hasSpecificActions) {
       recommendations.push('Include specific actions and next steps');
     }
-    if (!hasTimeline) {
+    if (!regexResults.hasTimeline) {
       recommendations.push('Add timeline and deadlines');
     }
-    if (!hasContext) {
+    if (!regexResults.hasContext) {
       recommendations.push('Explain the reasoning behind decisions');
     }
-    if (!hasImpact) {
+    if (!regexResults.hasImpact) {
       recommendations.push('Describe the impact and consequences');
     }
-    if (!hasStructure) {
+    if (!regexResults.hasStructure) {
       recommendations.push('Organize information with clear structure');
     }
   }
