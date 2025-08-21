@@ -11,15 +11,7 @@ import {
   getDueDateTooltip,
   getDueDateDiff
 } from "../../utils/timelineUtils";
-// Conditionally import AI functionality
-let useUpdateQuality: any = null;
-try {
-  const hook = require("../../hooks/useUpdateQuality");
-  useUpdateQuality = hook.useUpdateQuality;
-} catch (error) {
-  // AI functionality not available in this context
-  console.log("AI functionality not available in content script context");
-}
+// Quality analysis data is now stored directly in update objects by ProjectPipeline
 import type { StatusTimelineHeatmapRowProps } from "../../types";
 
 /**
@@ -33,14 +25,8 @@ function StatusTimelineHeatmapRow({
 }: StatusTimelineHeatmapRowProps): React.JSX.Element | null {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedUpdate, setSelectedUpdate] = useState(null);
-  const updateQualityHook = useUpdateQuality ? useUpdateQuality() : null;
-  const getUpdateQuality = updateQualityHook?.getUpdateQuality;
-  const updateTrigger = updateQualityHook?.updateTrigger || 0;
-  
-  // Force re-render when quality data changes
-  useEffect(() => {
-    // This effect will run whenever updateTrigger changes, forcing a re-render
-  }, [updateTrigger]);
+  // Quality data is now stored directly in the update objects by ProjectPipeline
+  // No need for external hooks or triggers
   
   if (!project) {
     console.warn('ProjectTimelineRow received undefined project');
@@ -94,12 +80,12 @@ function StatusTimelineHeatmapRow({
                 {showEmojis && u.id ? (
                   // Show quality indicator when toggle is on and quality data is available
                   (() => {
-                    const quality = getUpdateQuality?.(u.id);
-                    if (quality) {
+                    // Get quality data directly from the update object (populated by ProjectPipeline)
+                    if (u.updateQuality && u.qualityLevel) {
                       return (
                         <QualityIndicator
-                          score={quality.overallScore}
-                          level={quality.qualityLevel}
+                          score={u.updateQuality}
+                          level={u.qualityLevel}
                           size="small"
                           className="quality-indicator-timeline"
                         />

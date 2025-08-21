@@ -13,8 +13,8 @@ import { getDueDateDiff } from "../../utils/timelineUtils";
 import type { ProjectUpdateModalProps } from "../../types";
 import { renderProseMirror } from "../../utils/proseMirrorRenderer";
 import { ImageRenderer } from "../ImageRenderer";
-// QualityIndicator removed - quality analysis now handled by ProjectPipeline
-// useUpdateQuality removed - quality analysis now handled by ProjectPipeline
+import QualityIndicator from "../QualityIndicator/QualityIndicator";
+// Quality analysis data is now stored directly in update objects by ProjectPipeline
 
 /**
  * Extract media nodes from ProseMirror content
@@ -88,9 +88,15 @@ export default function ProjectUpdateModal({
 
                   {/* Quality Analysis Section */}
                   {selectedUpdate.id && (() => {
-                    // Use analysisTrigger to force re-evaluation of quality data
-                    const quality = getUpdateQuality(selectedUpdate.id);
-                    if (quality) {
+                    // Get quality data directly from the update object (populated by ProjectPipeline)
+                    if (selectedUpdate.updateQuality && selectedUpdate.qualityLevel) {
+                      const quality = {
+                        overallScore: selectedUpdate.updateQuality,
+                        qualityLevel: selectedUpdate.qualityLevel,
+                        summary: selectedUpdate.qualitySummary || 'Quality analysis completed',
+                        analysis: selectedUpdate.qualityAnalysis ? JSON.parse(selectedUpdate.qualityAnalysis) : [],
+                        missingInfo: selectedUpdate.qualityMissingInfo ? JSON.parse(selectedUpdate.qualityMissingInfo) : []
+                      };
                       return (
                         <SectionMessage
                           title="AI Quality Analysis"
@@ -110,7 +116,7 @@ export default function ProjectUpdateModal({
                             {quality.analysis.length > 0 && (
                               <div className="quality-details">
                                 <h4>Quality Criteria Analysis:</h4>
-                                {quality.analysis.map((criteria, idx) => (
+                                {quality.analysis.map((criteria: any, idx: number) => (
                                   <div key={idx} className="criteria-item">
                                     <div className="criteria-header">
                                       <span className="criteria-title">{criteria.title}</span>
@@ -122,7 +128,7 @@ export default function ProjectUpdateModal({
                                       <div className="missing-info">
                                         <strong>Missing Information:</strong>
                                         <ul>
-                                          {criteria.missingInfo.map((info, infoIdx) => (
+                                          {criteria.missingInfo.map((info: string, infoIdx: number) => (
                                             <li key={infoIdx}>{info}</li>
                                           ))}
                                         </ul>
@@ -132,7 +138,7 @@ export default function ProjectUpdateModal({
                                       <div className="recommendations">
                                         <strong>Recommendations:</strong>
                                         <ul>
-                                          {criteria.recommendations.map((rec, recIdx) => (
+                                          {criteria.recommendations.map((rec: string, recIdx: number) => (
                                             <li key={recIdx}>{rec}</li>
                                           ))}
                                         </ul>
@@ -147,7 +153,7 @@ export default function ProjectUpdateModal({
                               <div className="overall-missing">
                                 <strong>Overall Missing Information:</strong>
                                 <ul>
-                                  {quality.missingInfo.map((info, idx) => (
+                                  {quality.missingInfo.map((info: string, idx: number) => (
                                     <li key={idx}>{info}</li>
                                   ))}
                                 </ul>

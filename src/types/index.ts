@@ -17,6 +17,15 @@ export interface ProjectUpdate {
   summary?: string;
   details?: string; // JSON stringified notes array
   raw?: any; // Full GraphQL response (optional)
+  // Quality analysis fields (populated by local language model)
+  analyzed?: boolean;
+  analysisDate?: string;
+  updateQuality?: number;
+  qualityLevel?: 'excellent' | 'good' | 'fair' | 'poor';
+  qualityAnalysis?: string; // JSON string of detailed analysis
+  qualitySummary?: string;
+  qualityRecommendations?: string; // JSON string of recommendations
+  qualityMissingInfo?: string; // JSON string of missing information
 }
 
 export interface ProjectStatusHistory {
