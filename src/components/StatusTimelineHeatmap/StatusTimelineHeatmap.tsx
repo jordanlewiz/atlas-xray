@@ -15,7 +15,7 @@ interface StatusTimelineHeatmapProps {
  */
 function StatusTimelineHeatmap({ weekLimit: initialWeekLimit = 12, visibleProjectKeys }: StatusTimelineHeatmapProps): React.JSX.Element {
   const [weekLimit, setWeekLimit] = useState(initialWeekLimit);
-  const [showEmojis, setShowEmojis] = useState(true); // Default to quality indicators
+  const [showEmojis, setShowEmojis] = useState(false); // Default to off (no quality indicators)
   const { projectViewModels, weekRanges, updatesByProject, isLoading } = useTimeline(weekLimit);
 
   // Memoize filtered projects to prevent unnecessary recalculations

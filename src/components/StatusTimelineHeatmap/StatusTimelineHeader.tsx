@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import Select from "@atlaskit/select";
+import Button from "@atlaskit/button";
+import AtlassianIntelligenceIcon from '@atlaskit/icon/core/atlassian-intelligence';
 import StatusLegend from "../StatusLegend";
 
 interface StatusTimelineHeaderProps {
@@ -58,17 +60,16 @@ export default function StatusTimelineHeader({
             </div>
             <div className="ai-display-toggle">
               <label htmlFor="emoji-toggle" className="toggle-label">Update Quality:</label>
-              <button
+              <Button
                 id="emoji-toggle"
-                className={`toggle-button ${showEmojis ? 'active' : ''}`}
+                appearance={showEmojis ? "primary" : "subtle"}
                 onClick={handleToggleEmojis}
-                type="button"
                 aria-label={`${showEmojis ? 'Hide' : 'Show'} update quality indicators`}
+                iconBefore={<AtlassianIntelligenceIcon label="AI Intelligence" />}
+
               >
-                <span className="toggle-description">
-                  {showEmojis ? 'Hide' : 'Show'}
-                </span>
-              </button>
+                {showEmojis ? 'Hide' : 'Show'}
+              </Button>
             </div>
           </div>
         </div>

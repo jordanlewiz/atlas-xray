@@ -59,49 +59,8 @@
             white-space: nowrap;
           }
 
-          .toggle-button {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            background: white;
-            color: #5e6c84;
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            min-width: 100px;
-            justify-content: center;
-
-            &:hover {
-              border-color: #85b8ff;
-              background: #f8f9fa;
-              transform: translateY(-1px);
-            }
-
-            &:active {
-              transform: translateY(0);
-            }
-
-            &.active {
-              border-color: #0052cc;
-              background: #0052cc;
-              color: white;
-              box-shadow: 0 2px 4px rgba(0, 82, 204, 0.2);
-            }
-
-            .toggle-text {
-              font-size: 16px;
-              line-height: 1;
-            }
-
-            .toggle-description {
-              font-size: 12px;
-              font-weight: 400;
-            }
-          }
+          // Atlaskit Button will handle its own styling
+          // The button will show as subtle when off and primary when on
         }
       }
     }

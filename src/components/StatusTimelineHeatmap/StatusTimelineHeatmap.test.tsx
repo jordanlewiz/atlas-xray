@@ -235,13 +235,13 @@ describe('StatusTimelineHeatmap', () => {
     it('should show update indicators for cells with updates', () => {
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // By default, quality indicators should be shown (toggle starts ON now)
-      const qualityIndicators = screen.getAllByTestId('quality-indicator');
-      expect(qualityIndicators.length).toBeGreaterThan(0);
+      // By default, white bullets should be shown (toggle starts OFF now)
+      const updateIndicators = screen.getAllByTestId('update-indicator');
+      expect(updateIndicators.length).toBeGreaterThan(0);
       
-      // White indicators should be hidden by default
-      const updateIndicators = screen.queryAllByTestId('update-indicator');
-      expect(updateIndicators.length).toBe(0);
+      // Quality indicators should be hidden by default
+      const qualityIndicators = screen.queryAllByTestId('quality-indicator');
+      expect(qualityIndicators.length).toBe(0);
     });
 
     it('should show date differences when dates change', () => {
@@ -329,16 +329,16 @@ describe('StatusTimelineHeatmap', () => {
   });
 
   describe('Quality Indicators', () => {
-    it('should display quality indicators by default and not white bullets', () => {
+    it('should display white bullets by default and not quality indicators', () => {
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Should show quality indicators by default (toggle starts ON now)
-      const qualityIndicators = screen.getAllByTestId('quality-indicator');
-      expect(qualityIndicators.length).toBeGreaterThan(0);
+      // Should show white bullets by default (toggle starts OFF now)
+      const updateIndicators = screen.getAllByTestId('update-indicator');
+      expect(updateIndicators.length).toBeGreaterThan(0);
       
-      // Should NOT show white indicators by default (toggle is ON)
-      const updateIndicators = screen.queryAllByTestId('update-indicator');
-      expect(updateIndicators.length).toBe(0);
+      // Should NOT show quality indicators by default (toggle is OFF)
+      const qualityIndicators = screen.queryAllByTestId('quality-indicator');
+      expect(qualityIndicators.length).toBe(0);
     });
 
     it('should handle missing quality data gracefully', () => {
@@ -542,6 +542,10 @@ describe('StatusTimelineHeatmap', () => {
 
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
+      // Turn on the emoji toggle since it defaults to off
+      const toggleButton = screen.getByText('Show');
+      fireEvent.click(toggleButton);
+      
       // Should show quality emoji
       const qualityIndicator = screen.getByTestId('quality-indicator');
       expect(qualityIndicator).toBeInTheDocument();
@@ -634,6 +638,10 @@ describe('StatusTimelineHeatmap', () => {
 
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
+      // Turn on the emoji toggle since it defaults to off
+      const toggleButton = screen.getByText('Show');
+      fireEvent.click(toggleButton);
+      
       // Should show one quality emoji and one white bullet
       const qualityIndicators = screen.getAllByTestId('quality-indicator');
       expect(qualityIndicators).toHaveLength(1);
@@ -680,10 +688,15 @@ describe('StatusTimelineHeatmap', () => {
 
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Should show both the date difference and the quality emoji
+      // Should show the date difference (always visible regardless of toggle)
       const dateDifference = screen.getByText('+5'); // 5 day difference
       expect(dateDifference).toBeInTheDocument();
       
+      // Turn on the emoji toggle since it defaults to off
+      const toggleButton = screen.getByText('Show');
+      fireEvent.click(toggleButton);
+      
+      // Should show both the date difference and the quality emoji
       const qualityIndicator = screen.getByTestId('quality-indicator');
       expect(qualityIndicator).toBeInTheDocument();
       
@@ -728,6 +741,10 @@ describe('StatusTimelineHeatmap', () => {
 
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
+      // Turn on the emoji toggle since it defaults to off
+      const toggleButton = screen.getByText('Show');
+      fireEvent.click(toggleButton);
+      
       // Should show only the quality emoji, no date difference
       const qualityIndicator = screen.getByTestId('quality-indicator');
       expect(qualityIndicator).toBeInTheDocument();
@@ -738,7 +755,7 @@ describe('StatusTimelineHeatmap', () => {
   });
 
   describe('AI Display Toggle', () => {
-    it('should show quality indicators by default (toggle starts ON)', () => {
+    it('should show white bullets by default (toggle starts OFF)', () => {
       mockUseTimeline.mockReturnValue({
         projectViewModels: [
           {
@@ -765,9 +782,13 @@ describe('StatusTimelineHeatmap', () => {
 
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Quality indicators should be shown by default (toggle starts ON now)
-      const qualityIndicators = screen.getAllByTestId('quality-indicator');
-      expect(qualityIndicators.length).toBeGreaterThan(0);
+      // White bullets should be shown by default (toggle starts OFF now)
+      const updateIndicators = screen.getAllByTestId('update-indicator');
+      expect(updateIndicators.length).toBeGreaterThan(0);
+      
+      // Should NOT show quality indicators by default
+      const qualityIndicators = screen.queryAllByTestId('quality-indicator');
+      expect(qualityIndicators.length).toBe(0);
     });
 
     it('should hide quality indicators when toggle is turned off', async () => {
@@ -805,21 +826,21 @@ describe('StatusTimelineHeatmap', () => {
 
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Find and click the toggle button to turn off quality indicators (starts ON)
-      const toggleButton = screen.getByLabelText('Hide update quality indicators');
+      // Find and click the toggle button to turn ON quality indicators (starts OFF)
+      const toggleButton = screen.getByLabelText('Show update quality indicators');
       fireEvent.click(toggleButton);
       
       // Wait for the toggle to update
       await waitFor(() => {
-        expect(screen.getByLabelText('Show update quality indicators')).toBeInTheDocument();
+        expect(screen.getByLabelText('Hide update quality indicators')).toBeInTheDocument();
       });
       
-      // Quality indicators should now be hidden, white bullets should be shown
-      const qualityIndicators = screen.queryAllByTestId('quality-indicator');
-      expect(qualityIndicators.length).toBe(0);
+      // Quality indicators should now be visible, white bullets should be hidden
+      const qualityIndicators = screen.getAllByTestId('quality-indicator');
+      expect(qualityIndicators.length).toBeGreaterThan(0);
       
-      const updateIndicators = screen.getAllByTestId('update-indicator');
-      expect(updateIndicators.length).toBeGreaterThan(0);
+      const updateIndicators = screen.queryAllByTestId('update-indicator');
+      expect(updateIndicators.length).toBe(0);
     });
 
 
@@ -850,74 +871,96 @@ describe('StatusTimelineHeatmap', () => {
 
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Default state should show "Hide" (toggle starts ON now)
-      expect(screen.getByText('Hide')).toBeInTheDocument();
+      // Default state should show "Show" (toggle starts OFF now)
+      expect(screen.getByText('Show')).toBeInTheDocument();
       
-      // Should have quality indicators in timeline cells (toggle button no longer has emojis)
-      const qualityIndicators = screen.getAllByTestId('quality-indicator');
-      expect(qualityIndicators.length).toBeGreaterThan(0); // Timeline cells should have quality indicators
+      // Should have white bullets in timeline cells (toggle is OFF by default)
+      const updateIndicators = screen.getAllByTestId('update-indicator');
+      expect(updateIndicators.length).toBeGreaterThan(0); // Timeline cells should have white bullets
       
       // Click toggle to change state
-      const toggleButton = screen.getByLabelText('Hide update quality indicators');
+      const toggleButton = screen.getByLabelText('Show update quality indicators');
       fireEvent.click(toggleButton);
       
-      // Should now show "Show"
-      expect(screen.getByText('Show')).toBeInTheDocument();
+      // Should now show "Hide"
+      expect(screen.getByText('Hide')).toBeInTheDocument();
     });
   });
 
-  describe('Updated Toggle Behavior (Default ON)', () => {
-    it('should show quality indicators by default (toggle starts ON)', () => {
+  describe('Updated Toggle Behavior (Default OFF)', () => {
+    it('should show white bullets by default (toggle starts OFF)', () => {
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Quality indicators should be shown by default (toggle starts ON)
-      const qualityIndicators = screen.getAllByTestId('quality-indicator');
-      expect(qualityIndicators.length).toBeGreaterThan(0);
+      // White bullets should be shown by default (toggle starts OFF)
+      const updateIndicators = screen.getAllByTestId('update-indicator');
+      expect(updateIndicators.length).toBeGreaterThan(0);
       
-      // Should show "Hide" since toggle is ON by default
-      expect(screen.getByText('Hide')).toBeInTheDocument();
+      // Should show "Show" since toggle is OFF by default
+      expect(screen.getByText('Show')).toBeInTheDocument();
     });
 
     it('should hide quality indicators when toggle is turned off', () => {
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Find and click the toggle button (should be "Hide" initially)
-      const toggleButton = screen.getByText('Hide');
+      // Find and click the toggle button (should be "Show" initially since it defaults to off)
+      const toggleButton = screen.getByText('Show');
       fireEvent.click(toggleButton);
       
+      // Quality indicators should now be visible
+      const qualityIndicators = screen.getAllByTestId('quality-indicator');
+      expect(qualityIndicators.length).toBeGreaterThan(0);
+      
+      // Button should now show "Hide"
+      expect(screen.getByText('Hide')).toBeInTheDocument();
+      
+      // Turn toggle off
+      const hideToggleButton = screen.getByText('Hide');
+      fireEvent.click(hideToggleButton);
+      
       // Quality indicators should now be hidden
-      const qualityIndicators = screen.queryAllByTestId('quality-indicator');
-      expect(qualityIndicators.length).toBe(0);
+      const qualityIndicatorsHidden = screen.queryAllByTestId('quality-indicator');
+      expect(qualityIndicatorsHidden.length).toBe(0);
       
       // White bullets should be shown instead
       const updateIndicators = screen.getAllByTestId('update-indicator');
       expect(updateIndicators.length).toBeGreaterThan(0);
       
-      // Button should now show "Show"
+      // Button should now show "Show" again
       expect(screen.getByText('Show')).toBeInTheDocument();
-      
-
     });
 
     it('should show quality indicators when toggle is turned back on', () => {
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Turn toggle off first
-      const hideToggleButton = screen.getByText('Hide');
-      fireEvent.click(hideToggleButton);
-      
-      // Then turn it back on
+      // Turn toggle on first (since it defaults to off)
       const showToggleButton = screen.getByText('Show');
       fireEvent.click(showToggleButton);
       
-      // Quality indicators should be visible again
+      // Quality indicators should be visible
       const qualityIndicators = screen.getAllByTestId('quality-indicator');
       expect(qualityIndicators.length).toBeGreaterThan(0);
       
-      // Button should show "Hide" again
+      // Button should show "Hide"
       expect(screen.getByText('Hide')).toBeInTheDocument();
       
-
+      // Turn toggle off
+      const hideToggleButton = screen.getByText('Hide');
+      fireEvent.click(hideToggleButton);
+      
+      // Quality indicators should be hidden
+      const qualityIndicatorsHidden = screen.queryAllByTestId('quality-indicator');
+      expect(qualityIndicatorsHidden.length).toBe(0);
+      
+      // Turn toggle back on
+      const showToggleButtonAgain = screen.getByText('Show');
+      fireEvent.click(showToggleButtonAgain);
+      
+      // Quality indicators should be visible again
+      const qualityIndicatorsVisible = screen.getAllByTestId('quality-indicator');
+      expect(qualityIndicatorsVisible.length).toBeGreaterThan(0);
+      
+      // Button should show "Hide" again
+      expect(screen.getByText('Hide')).toBeInTheDocument();
     });
   });
 
@@ -942,11 +985,11 @@ describe('StatusTimelineHeatmap', () => {
 
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Date difference should be visible (toggle is ON by default)
+      // Date difference should be visible (toggle is OFF by default, but date differences always show)
       expect(screen.getByText('+14')).toBeInTheDocument();
       
-      // Turn toggle off
-      const toggleButton = screen.getByText('Hide');
+      // Turn toggle on (since it defaults to off)
+      const toggleButton = screen.getByText('Show');
       fireEvent.click(toggleButton);
       
       // Date difference should still be visible
@@ -1002,8 +1045,14 @@ describe('StatusTimelineHeatmap', () => {
 
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Both date difference and quality indicator should be visible (different updates)
+      // Date difference should be visible (toggle is off by default, but date differences always show)
       expect(screen.getByText('+14')).toBeInTheDocument();
+      
+      // Turn on the emoji toggle since it defaults to off
+      const toggleButton = screen.getByText('Show');
+      fireEvent.click(toggleButton);
+      
+      // Both date difference and quality indicator should be visible (different updates)
       const qualityIndicators = screen.getAllByTestId('quality-indicator');
       expect(qualityIndicators.length).toBeGreaterThan(0);
     });
@@ -1031,9 +1080,9 @@ describe('StatusTimelineHeatmap', () => {
       // Date difference should be visible
       expect(screen.getByText('+14')).toBeInTheDocument();
       
-      // Should not show regular update indicators for date-only changes
+      // Should show white bullets for date-only changes since toggle defaults to off
       const updateIndicators = screen.queryAllByTestId('update-indicator');
-      expect(updateIndicators.length).toBe(0);
+      expect(updateIndicators.length).toBeGreaterThan(0);
     });
   });
 
@@ -1106,6 +1155,10 @@ describe('StatusTimelineHeatmap', () => {
 
       // Should show the date difference (+5) in the cell with the update
       expect(getByText('+5')).toBeInTheDocument();
+
+      // Turn on the emoji toggle since it defaults to off
+      const toggleButton = screen.getByText('Show');
+      fireEvent.click(toggleButton);
 
       // Should show the quality indicator when showEmojis is true and quality data is available
       const qualityIndicator = getByTestId('quality-indicator');
