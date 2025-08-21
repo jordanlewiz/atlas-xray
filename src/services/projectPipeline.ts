@@ -29,6 +29,15 @@ export interface ProjectUpdate {
   summary: string;
   state: string;
   creationDate: string;
+  // Quality analysis fields (populated by AI analyzer)
+  analyzed?: boolean;
+  analysisDate?: string;
+  updateQuality?: number;
+  qualityLevel?: 'excellent' | 'good' | 'fair' | 'poor';
+  qualityAnalysis?: string; // JSON string of detailed analysis
+  qualitySummary?: string;
+  qualityRecommendations?: string; // JSON string of recommendations
+  qualityMissingInfo?: string; // JSON string of missing information
 }
 
 export class ProjectPipeline {
@@ -527,16 +536,49 @@ export class ProjectPipeline {
 
   private async queueUpdateForAnalysis(update: any): Promise<void> {
     try {
-      // For now, just mark as analyzed (placeholder for AI analysis)
-      // In the real implementation, this would add to an analysis queue
+      console.log(`[AtlasXray] 🤖 Starting local language model analysis for update ${update.id}`);
+      
+      // Import the local language model analyzer
+      const { analyzeUpdateQuality } = await import('../utils/localModelManager');
+      
+      // Get the update text for analysis
+      const updateText = update.summary || update.details || 'No update text available';
+      
+      // Run local language model analysis
+      const qualityResult = await analyzeUpdateQuality(updateText);
+      
+      // Store the analysis results in the database
       await db.projectUpdates.update(update.id, {
         analyzed: true,
-        analysisDate: new Date().toISOString()
+        analysisDate: new Date().toISOString(),
+        updateQuality: qualityResult.score,
+        qualityLevel: qualityResult.quality,
+        qualitySummary: qualityResult.summary,
+        qualityRecommendations: JSON.stringify(qualityResult.recommendations),
+        qualityMissingInfo: JSON.stringify(qualityResult.missingInfo)
       });
+      
+      console.log(`[AtlasXray] ✅ Local language model analysis complete for update ${update.id}: ${qualityResult.quality} quality (${qualityResult.score}/100)`);
+      
     } catch (error) {
-      console.error(`Failed to queue update ${update.id} for analysis:`, error);
+      console.error(`[AtlasXray] ❌ Failed to analyze update ${update.id}:`, error);
+      
+      // Fallback: mark as analyzed but with error
+      try {
+        await db.projectUpdates.update(update.id, {
+          analyzed: true,
+          analysisDate: new Date().toISOString(),
+          updateQuality: 0,
+          qualityLevel: 'poor',
+          qualitySummary: 'Local language model analysis failed - fallback to basic analysis'
+        });
+      } catch (dbError) {
+        console.error(`[AtlasXray] ❌ Failed to update database for update ${update.id}:`, dbError);
+      }
     }
   }
+
+
 
   private updateState(updates: Partial<PipelineState>): void {
     this.state = { ...this.state, ...updates };
