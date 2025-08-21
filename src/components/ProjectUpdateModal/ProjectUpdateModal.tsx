@@ -96,7 +96,6 @@ export default function ProjectUpdateModal({
                     if (quality) {
                       return (
                         <SectionMessage
-                          appearance="info"
                           title="AI Quality Analysis"
                         >
                           <div className="quality-analysis-section">
@@ -161,33 +160,14 @@ export default function ProjectUpdateModal({
                         </SectionMessage>
                       );
                     } else {
-                      // Show analysis trigger button for updates without quality data
+                      // Show message for updates without quality data
                       return (
                         <SectionMessage
-                          appearance="warning"
-                          title="Quality Analysis Not Available"
+                          title="Quality Analysis in Progress"
                         >
-                          <div className="quality-analysis-trigger">
-                            <p>This update hasn't been analyzed for quality yet.</p>
-                            <button 
-                              className="analyze-quality-btn"
-                              disabled={isAnalyzing}
-                              onClick={async () => {
-                                try {
-                                  setIsAnalyzing(true);
-                                  await analyzeUpdate(selectedUpdate);
-                                  // Trigger a re-render by updating state
-                                  setAnalysisTrigger(prev => prev + 1);
-                                } catch (error) {
-                                  console.error('Failed to analyze update:', error);
-                                  alert('Failed to analyze update quality. Please try again.');
-                                } finally {
-                                  setIsAnalyzing(false);
-                                }
-                              }}
-                            >
-                              {isAnalyzing ? '🔍 Analyzing...' : '🔍 Analyze Update Quality'}
-                            </button>
+                          <div className="quality-analysis-info">
+                            <p>This update is being automatically analyzed for quality in the background.</p>
+                            <p><em>Quality indicators will appear in the timeline once analysis is complete.</em></p>
                           </div>
                         </SectionMessage>
                       );

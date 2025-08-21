@@ -124,7 +124,7 @@ describe('ProjectUpdateModal', () => {
       expect(screen.getByText('Quality Criteria Analysis:')).toBeInTheDocument();
     });
 
-    it('should show analysis trigger button when quality data is not available', () => {
+    it('should show automatic analysis message when quality data is not available', () => {
       mockUseUpdateQuality.mockReturnValue({
         getUpdateQuality: jest.fn().mockReturnValue(null),
         analyzeUpdate: jest.fn().mockResolvedValue(undefined)
@@ -138,15 +138,14 @@ describe('ProjectUpdateModal', () => {
         />
       );
       
-      expect(screen.getByText('Quality Analysis Not Available')).toBeInTheDocument();
-      expect(screen.getByText('🔍 Analyze Update Quality')).toBeInTheDocument();
+      expect(screen.getByText('Quality Analysis in Progress')).toBeInTheDocument();
+      expect(screen.getByText('This update is being automatically analyzed for quality in the background.')).toBeInTheDocument();
     });
 
-    it('should trigger analysis when analyze button is clicked', async () => {
-      const mockAnalyzeUpdate = jest.fn().mockResolvedValue(undefined);
+    it('should show automatic analysis message when no quality data available', () => {
       mockUseUpdateQuality.mockReturnValue({
         getUpdateQuality: jest.fn().mockReturnValue(null),
-        analyzeUpdate: mockAnalyzeUpdate
+        analyzeUpdate: jest.fn().mockResolvedValue(undefined)
       });
 
       render(
@@ -157,22 +156,14 @@ describe('ProjectUpdateModal', () => {
         />
       );
       
-      const analyzeButton = screen.getByText('🔍 Analyze Update Quality');
-      fireEvent.click(analyzeButton);
-      
-      await waitFor(() => {
-        expect(mockAnalyzeUpdate).toHaveBeenCalledWith(mockUpdate);
-      });
+      expect(screen.getByText('Quality Analysis in Progress')).toBeInTheDocument();
+      expect(screen.getByText('Quality indicators will appear in the timeline once analysis is complete.')).toBeInTheDocument();
     });
 
-    it('should show loading state during analysis', async () => {
-      const mockAnalyzeUpdate = jest.fn().mockImplementation(() => 
-        new Promise(resolve => setTimeout(resolve, 100))
-      );
-      
+    it('should show automatic analysis message for updates without quality data', () => {
       mockUseUpdateQuality.mockReturnValue({
         getUpdateQuality: jest.fn().mockReturnValue(null),
-        analyzeUpdate: mockAnalyzeUpdate
+        analyzeUpdate: jest.fn().mockResolvedValue(undefined)
       });
 
       render(
@@ -183,28 +174,15 @@ describe('ProjectUpdateModal', () => {
         />
       );
       
-      const analyzeButton = screen.getByText('🔍 Analyze Update Quality');
-      fireEvent.click(analyzeButton);
-      
-      // Should show loading state
-      expect(screen.getByText('🔍 Analyzing...')).toBeInTheDocument();
-      expect(analyzeButton).toBeDisabled();
-      
-      // Wait for analysis to complete
-      await waitFor(() => {
-        expect(screen.getByText('🔍 Analyze Update Quality')).toBeInTheDocument();
-      });
+      expect(screen.getByText('Quality Analysis in Progress')).toBeInTheDocument();
+      expect(screen.getByText('This update is being automatically analyzed for quality in the background.')).toBeInTheDocument();
     });
 
-    it('should handle analysis errors gracefully', async () => {
-      const mockAnalyzeUpdate = jest.fn().mockRejectedValue(new Error('Analysis failed'));
+    it('should show automatic analysis message for updates without quality data', () => {
       mockUseUpdateQuality.mockReturnValue({
         getUpdateQuality: jest.fn().mockReturnValue(null),
-        analyzeUpdate: mockAnalyzeUpdate
+        analyzeUpdate: jest.fn().mockResolvedValue(undefined)
       });
-
-      // Mock alert
-      const mockAlert = jest.spyOn(window, 'alert').mockImplementation(() => {});
 
       render(
         <ProjectUpdateModal
@@ -214,14 +192,8 @@ describe('ProjectUpdateModal', () => {
         />
       );
       
-      const analyzeButton = screen.getByText('🔍 Analyze Update Quality');
-      fireEvent.click(analyzeButton);
-      
-      await waitFor(() => {
-        expect(mockAlert).toHaveBeenCalledWith('Failed to analyze update quality. Please try again.');
-      });
-      
-      mockAlert.mockRestore();
+      expect(screen.getByText('Quality Analysis in Progress')).toBeInTheDocument();
+      expect(screen.getByText('Quality indicators will appear in the timeline once analysis is complete.')).toBeInTheDocument();
     });
   });
 

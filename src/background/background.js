@@ -16,6 +16,44 @@ console.log('[AtlasXray] Background service worker is running');
 // Import version checker (will be bundled by esbuild)
 import { VersionChecker } from '../utils/versionChecker';
 
+// Simple message handler for testing
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log('[AtlasXray] 📨 Message received:', message.type, 'from:', sender.tab?.url);
+  
+  if (message.type === 'PING') {
+    console.log('[AtlasXray] 🏓 Ping received from:', sender.tab?.url);
+    sendResponse({ 
+      success: true, 
+      message: 'Pong from background script',
+      timestamp: new Date().toISOString()
+    });
+    return true;
+  }
+  
+  if (message.type === 'ANALYZE_UPDATE_QUALITY') {
+    console.log('[AtlasXray] 🔍 Analysis request received for update:', message.updateId);
+    
+    // For now, just return a simple response to test communication
+    sendResponse({ 
+      success: true, 
+      message: 'Analysis request received (placeholder)',
+      updateId: message.updateId,
+      timestamp: new Date().toISOString()
+    });
+    return true;
+  }
+  
+  if (message.type === 'OPEN_TIMELINE') {
+    console.log('[AtlasXray] 📊 Timeline open request received');
+    sendResponse({ success: true });
+    return true;
+  }
+  
+  console.log('[AtlasXray] ⚠️ Unknown message type:', message.type);
+  sendResponse({ success: false, error: 'Unknown message type' });
+  return true;
+});
+
 // Check for updates when extension starts
 chrome.runtime.onStartup.addListener(async () => {
   console.log('[AtlasXray] Extension started, checking for updates...');
@@ -107,3 +145,4 @@ chrome.action.onClicked.addListener((tab) => {
 });
 
 console.log('[AtlasXray] Background service worker setup complete');
+console.log('[AtlasXray] 🔍 Message listener status:', typeof chrome.runtime.onMessage !== 'undefined' ? 'ACTIVE' : 'MISSING');

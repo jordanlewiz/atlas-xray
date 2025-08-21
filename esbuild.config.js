@@ -54,7 +54,8 @@ async function buildBackground() {
     ...commonOptions,
     entryPoints: ['src/background/background.js'],
     outfile: 'dist/background.js',
-    loader: { '.ts': 'tsx' }
+    loader: { '.ts': 'tsx' },
+    external: ['chrome', '@xenova/transformers']
   });
 }
 

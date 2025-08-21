@@ -6,6 +6,9 @@ import { preloadModels } from '../utils/localModelManager';
 import type { UpdateQualityResult } from '../utils/updateQualityAnalyzer';
 import type { ProjectUpdate } from '../types';
 
+// Chrome extension types
+declare const chrome: any;
+
 // Global state for forcing UI updates
 let globalUpdateCounter = 0;
 const updateListeners: (() => void)[] = [];
@@ -66,7 +69,19 @@ export function useUpdateQuality() {
   // Fetch all project updates
   const updates = useLiveQuery(() => db.projectUpdates.toArray(), []);
   
-  // Fetch quality data for updates
+  // Trigger background analysis for updates without quality data
+  useEffect(() => {
+    if (updates && updates.length > 0) {
+      // Prevent multiple simultaneous analysis triggers
+      const timeoutId = setTimeout(() => {
+        triggerBackgroundAnalysisForExistingUpdates(updates);
+      }, 2000); // Wait 2 seconds before starting analysis
+      
+      return () => clearTimeout(timeoutId);
+    }
+  }, [updates]);
+  
+  // Fetch quality data for updates (from both database and automatic analysis)
   const qualityData = useLiveQuery(
     async () => {
       if (!updates) return {};
@@ -74,9 +89,9 @@ export function useUpdateQuality() {
       const qualityMap: UpdateQualityData = {};
       
       for (const update of updates) {
+        // First check if quality data is stored in the update record
         if (update.updateQuality) {
           try {
-            // Parse the stored quality data
             const parsed = JSON.parse(update.updateQuality);
             qualityMap[update.id] = {
               ...parsed,
@@ -85,7 +100,33 @@ export function useUpdateQuality() {
           } catch (error) {
             console.error(`Failed to parse quality data for update ${update.id}:`, error);
           }
-        }
+                 } else {
+           // Check if quality data was stored by automatic analysis (background script)
+           try {
+             // First check IndexedDB
+             const storedQuality = await db.table('keyval').get(`quality:${update.id}`);
+             if (storedQuality) {
+               qualityMap[update.id] = {
+                 ...storedQuality,
+                 timestamp: new Date(storedQuality.timestamp)
+               };
+             } else {
+               // Then check chrome.storage.local (background script storage)
+               if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+                 const result = await chrome.storage.local.get(`quality:${update.id}`);
+                 const backgroundQuality = result[`quality:${update.id}`];
+                 if (backgroundQuality) {
+                   qualityMap[update.id] = {
+                     ...backgroundQuality,
+                     timestamp: new Date(backgroundQuality.timestamp)
+                   };
+                 }
+               }
+             }
+           } catch (error) {
+             // Quality data not found, will be analyzed later
+           }
+         }
       }
       
       return qualityMap;
@@ -213,6 +254,91 @@ export function useUpdateQuality() {
       qualityDistribution: distribution
     };
   }, [qualityData, updates]);
+
+  /**
+   * Trigger background analysis for existing updates without quality data
+   */
+  const triggerBackgroundAnalysisForExistingUpdates = useCallback(async (updates: ProjectUpdate[]) => {
+    // Check which updates don't have quality data in the qualityData object
+    const unanalyzedUpdates = updates.filter(update => !qualityData?.[update.id]);
+    
+    if (unanalyzedUpdates.length === 0) {
+      console.log('🎯 All updates already have quality data');
+      return;
+    }
+    
+    // Limit batch size to prevent overwhelming the message system
+    const maxBatchSize = 5;
+    const batchToProcess = unanalyzedUpdates.slice(0, maxBatchSize);
+    
+    console.log(`🚀 Triggering background analysis for ${batchToProcess.length} unanalyzed updates (${unanalyzedUpdates.length} total remaining)...`);
+    
+    for (const update of batchToProcess) {
+      try {
+        // Extract update text
+        const updateText = [
+          update.summary || '',
+          update.details || ''
+        ].filter(Boolean).join(' ');
+        
+        if (!updateText.trim()) continue;
+        
+        // Determine update type and state
+        const updateType = determineUpdateType(updateText);
+        const state = update.state || 'no-status';
+        
+        // Send message to background script for analysis
+        if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+          chrome.runtime.sendMessage({
+            type: 'ANALYZE_UPDATE_QUALITY',
+            updateId: update.id,
+            updateText,
+            updateType,
+            state
+          }, (response: any) => {
+            if (response?.success) {
+              console.log(`✅ Background analysis triggered for update ${update.id}`);
+              // Force re-evaluation of quality data
+              setUpdateTrigger(prev => prev + 1);
+            } else {
+              console.warn(`❌ Failed to trigger background analysis for update ${update.id}:`, response?.error);
+            }
+          });
+        }
+        
+        // Longer delay between messages to prevent overwhelming
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+      } catch (error) {
+        console.warn(`⚠️ Failed to prepare update ${update.id} for background analysis:`, error);
+      }
+    }
+
+    // If there are more updates to process, schedule the next batch
+    if (unanalyzedUpdates.length > maxBatchSize) {
+      const remainingUpdates = unanalyzedUpdates.slice(maxBatchSize);
+      console.log(`⏰ Scheduling analysis for remaining ${remainingUpdates.length} updates in 10 seconds...`);
+      setTimeout(() => {
+        triggerBackgroundAnalysisForExistingUpdates(remainingUpdates);
+      }, 10000);
+    }
+  }, [qualityData]);
+
+  /**
+   * Helper function to determine update type
+   */
+  const determineUpdateType = useCallback((updateText: string): string => {
+    const text = updateText.toLowerCase();
+    
+    if (text.includes('paused') || text.includes('pause')) return 'paused';
+    if (text.includes('off-track') || text.includes('off track')) return 'off-track';
+    if (text.includes('at-risk') || text.includes('at risk')) return 'at-risk';
+    if (text.includes('completed') || text.includes('complete')) return 'completed';
+    if (text.includes('cancelled') || text.includes('cancel')) return 'cancelled';
+    if (text.includes('new initiative') || text.includes('prioritised')) return 'prioritization';
+    
+    return 'general';
+  }, []);
 
   /**
    * Get quality data for a specific update

@@ -6,6 +6,7 @@ import StatusTimelineHeatmap from "../StatusTimelineHeatmap/StatusTimelineHeatma
 import ProjectStatusHistoryModal from "../ProjectStatusHistoryModal";
 import { downloadProjectData } from "../../utils/projectIdScanner";
 import Tooltip from "@atlaskit/tooltip";
+import { useUpdateQuality } from "../../hooks/useUpdateQuality";
 
 // Utility function to debounce function calls
 function debounce<T extends (...args: any[]) => any>(
@@ -38,6 +39,9 @@ export default function FloatingButton(): React.JSX.Element {
     },
     []
   );
+  
+  // Use the update quality hook to get analyzed vs total updates count
+  const { updates, qualityData } = useUpdateQuality();
   
   const [modalOpen, setModalOpen] = useState(false);
   const [visibleProjectKeys, setVisibleProjectKeys] = useState<string[]>([]);
@@ -102,6 +106,8 @@ export default function FloatingButton(): React.JSX.Element {
         <div>
           <div>{visibleProjectKeys.length} projects found on this page</div>
           <div>{projectCount} total projects in memory</div>
+          <div>{getAnalyzedUpdatesCount()} updates analyzed</div>
+          <div>{getTotalUpdatesCount()} total updates</div>
         </div>
       );
     } else if (projectCount !== undefined) {
@@ -110,16 +116,33 @@ export default function FloatingButton(): React.JSX.Element {
     return "Loading project data...";
   };
 
+  // Helper function to count analyzed updates
+  const getAnalyzedUpdatesCount = (): number => {
+    if (!qualityData) return 0;
+    return Object.keys(qualityData).length;
+  };
+
+  // Helper function to count total updates
+  const getTotalUpdatesCount = (): number => {
+    if (!updates) return 0;
+    return updates.length;
+  };
+
   return (
     <>
       <Tooltip content={getTooltipContent()} position="top">
         <button className="atlas-xray-floating-btn" onClick={handleOpenModal}>
           Atlas Xray
-          {visibleProjectKeys.length > 0
-            ? ` (${visibleProjectKeys.length}/${projectCount !== undefined ? projectCount : 0})`
+          {visibleProjectKeys.length > 0 && projectCount !== undefined
+            ? ` (${visibleProjectKeys.length}/${projectCount})`
             : projectCount !== undefined
               ? ` (${projectCount})`
               : ""}
+          {getTotalUpdatesCount() > 0 && (
+            <span className="updates-count">
+              {" "}{getAnalyzedUpdatesCount()}/{getTotalUpdatesCount()}
+            </span>
+          )}
         </button>
       </Tooltip>
       
