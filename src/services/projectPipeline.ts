@@ -95,7 +95,7 @@ export class ProjectPipeline {
         }
       });
 
-      const uniqueProjectIds = [...new Set(projectIds)].filter(id => id && id.trim());
+      const uniqueProjectIds = Array.from(new Set(projectIds)).filter(id => id && id.trim());
       
       console.log(`[AtlasXray] 🔍 Found project IDs:`, uniqueProjectIds);
       
