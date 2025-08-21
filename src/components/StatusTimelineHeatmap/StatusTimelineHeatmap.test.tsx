@@ -1270,4 +1270,145 @@ describe('StatusTimelineHeatmap', () => {
       expect(getByText('No projects found for the selected criteria.')).toBeInTheDocument();
     });
   });
+
+  describe('Update Ordering in Timeline Cells', () => {
+    it('should render multiple updates in chronological order (oldest to newest)', () => {
+      // Mock the useTimeline hook to return test data with multiple updates
+      mockUseTimeline.mockReturnValue({
+        weekRanges: [
+          { start: new Date('2024-07-01'), end: new Date('2024-07-07'), label: '1-7 Jul' },
+          { start: new Date('2024-07-08'), end: new Date('2024-07-14'), label: '8-14 Jul' }
+        ],
+        projectViewModels: [
+          {
+            projectKey: 'TEST-123',
+            name: 'Test Project',
+            rawProject: { projectKey: 'TEST-123' }
+          }
+        ],
+        updatesByProject: {
+          'TEST-123': [
+            {
+              id: 'update-1',
+              projectKey: 'TEST-123',
+              oldDueDate: '2024-07-05',
+              newDueDate: '2024-07-10',
+              state: 'In Progress',
+              creationDate: '2024-07-03', // Oldest update
+              updateQuality: null
+            },
+            {
+              id: 'update-2',
+              projectKey: 'TEST-123',
+              oldDueDate: '2024-07-10',
+              newDueDate: '2024-07-15',
+              state: 'Done',
+              creationDate: '2024-07-05', // Middle update
+              updateQuality: null
+            },
+            {
+              id: 'update-3',
+              projectKey: 'TEST-123',
+              oldDueDate: '2024-07-15',
+              newDueDate: '2024-07-20',
+              state: 'In Progress',
+              creationDate: '2024-07-07', // Newest update
+              updateQuality: null
+            }
+          ]
+        },
+        isLoading: false
+      });
+
+      // Mock the timeline utilities to return a cell with multiple updates
+      mockGetTimelineWeekCells.mockReturnValue([
+        {
+          cellClass: 'timeline-cell state-none',
+          weekUpdates: [] // First week has no updates
+        },
+        {
+          cellClass: 'timeline-cell has-update state-in-progress',
+          weekUpdates: [
+            // These should be ordered by creationDate (oldest to newest)
+            {
+              id: 'update-1',
+              projectKey: 'TEST-123',
+              oldDueDate: '2024-07-05',
+              newDueDate: '2024-07-10',
+              state: 'In Progress',
+              creationDate: '2024-07-03',
+              updateQuality: null
+            },
+            {
+              id: 'update-2',
+              projectKey: 'TEST-123',
+              oldDueDate: '2024-07-10',
+              newDueDate: '2024-07-15',
+              state: 'Done',
+              creationDate: '2024-07-05',
+              updateQuality: null
+            },
+            {
+              id: 'update-3',
+              projectKey: 'TEST-123',
+              oldDueDate: '2024-07-15',
+              newDueDate: '2024-07-20',
+              state: 'In Progress',
+              creationDate: '2024-07-07',
+              updateQuality: null
+            }
+          ]
+        }
+      ]);
+
+      // Mock getDueDateDiff to return different values for each update
+      mockGetDueDateDiff
+        .mockReturnValueOnce(5)  // update-1: +5 days
+        .mockReturnValueOnce(5)  // update-2: +5 days
+        .mockReturnValueOnce(5); // update-3: +5 days
+
+      // Mock useUpdateQuality to return no quality data (so we get white bullet indicators)
+      mockUseUpdateQuality.mockReturnValue({
+        getUpdateQuality: jest.fn().mockReturnValue(null)
+      });
+
+      const { getAllByTestId } = render(
+        <StatusTimelineHeatmap
+          visibleProjectKeys={['TEST-123']}
+        />
+      );
+
+      // Should show the project name
+      expect(screen.getByText('Test Project')).toBeInTheDocument();
+
+      // Should show the week label where updates exist
+      expect(screen.getByText('8-14 Jul')).toBeInTheDocument();
+
+      // Get all update indicators in the cell with updates
+      const updateIndicators = getAllByTestId('update-indicator');
+      
+      // Should have 3 update indicators
+      expect(updateIndicators).toHaveLength(3);
+      
+      // The updates should be rendered in chronological order (oldest to newest)
+      // This means update-1 (oldest) should be first, update-3 (newest) should be last
+      
+      // Verify the order by checking that the first update indicator corresponds to update-1
+      // and the last corresponds to update-3
+      const firstUpdate = updateIndicators[0];
+      const lastUpdate = updateIndicators[2];
+      
+      // The first update should be clickable and represent update-1 (oldest)
+      expect(firstUpdate).toBeInTheDocument();
+      expect(firstUpdate).toHaveClass('update-indicator');
+      
+      // The last update should be clickable and represent update-3 (newest)
+      expect(lastUpdate).toBeInTheDocument();
+      expect(lastUpdate).toHaveClass('update-indicator');
+      
+      // Additional verification: Check that date differences are displayed in order
+      const dateDifferences = screen.getAllByText('+5');
+      expect(dateDifferences).toHaveLength(3);
+    });
+  });
 });

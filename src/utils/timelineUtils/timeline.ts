@@ -255,7 +255,15 @@ export function getTimelineWeekCells(weekRanges: WeekRange[], updates: ProjectUp
   // Generate cells efficiently
   const cells = weekRanges.map((week, weekIndex) => {
     const weekUpdates = weekUpdatesMap.get(weekIndex) || [];
-    const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : undefined;
+    
+    // Sort updates by creationDate (oldest to newest) to ensure consistent ordering
+    const sortedWeekUpdates = weekUpdates.sort((a, b) => {
+      const dateA = a.creationDate && typeof a.creationDate === 'string' ? new Date(a.creationDate).getTime() : 0;
+      const dateB = b.creationDate && typeof b.creationDate === 'string' ? new Date(b.creationDate).getTime() : 0;
+      return dateA - dateB; // Oldest first
+    });
+    
+    const lastUpdate = sortedWeekUpdates.length > 0 ? sortedWeekUpdates[sortedWeekUpdates.length - 1] : undefined;
     
     // Generate cell class inline
     let stateClass = 'state-none';
@@ -273,14 +281,14 @@ export function getTimelineWeekCells(weekRanges: WeekRange[], updates: ProjectUp
     
     const cellClass = [
       'timeline-cell',
-      weekUpdates.length > 0 ? 'has-update' : '',
+      sortedWeekUpdates.length > 0 ? 'has-update' : '',
       stateClass,
       oldStateClass
     ].filter(Boolean).join(' ');
     
     return {
       cellClass,
-      weekUpdates,
+      weekUpdates: sortedWeekUpdates,
     };
   });
 
