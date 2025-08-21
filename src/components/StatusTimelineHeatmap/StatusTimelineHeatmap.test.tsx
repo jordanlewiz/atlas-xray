@@ -1181,4 +1181,93 @@ describe('StatusTimelineHeatmap', () => {
       expect(queryByTestId('date-difference')).not.toBeInTheDocument();
     });
   });
+
+  describe('Project Order Preservation', () => {
+    it('should display projects in the same order as visibleProjectKeys', () => {
+      // Mock the useTimeline hook to return test data
+      mockUseTimeline.mockReturnValue({
+        weekRanges: [
+          { start: new Date('2024-07-01'), end: new Date('2024-07-07'), label: '1-7 Jul' },
+          { start: new Date('2024-07-08'), end: new Date('2024-07-14'), label: '8-14 Jul' }
+        ],
+        projectViewModels: [
+          {
+            projectKey: 'PROJ-A',
+            name: 'Project Alpha',
+            rawProject: { projectKey: 'PROJ-A' }
+          },
+          {
+            projectKey: 'PROJ-B', 
+            name: 'Project Beta',
+            rawProject: { projectKey: 'PROJ-B' }
+          },
+          {
+            projectKey: 'PROJ-C',
+            name: 'Project Charlie', 
+            rawProject: { projectKey: 'PROJ-C' }
+          }
+        ],
+        updatesByProject: {
+          'PROJ-A': [],
+          'PROJ-B': [],
+          'PROJ-C': []
+        },
+        isLoading: false
+      });
+
+      // Mock timeline utilities
+      mockGetTimelineWeekCells.mockReturnValue([
+        {
+          cellClass: 'timeline-cell state-none',
+          weekUpdates: []
+        },
+        {
+          cellClass: 'timeline-cell state-none', 
+          weekUpdates: []
+        }
+      ]);
+
+      // Test with visibleProjectKeys in specific order (matching page order)
+      const visibleProjectKeys = ['PROJ-C', 'PROJ-A', 'PROJ-B']; // Page order: Charlie, Alpha, Beta
+      
+      const { getAllByTestId } = render(
+        <StatusTimelineHeatmap
+          visibleProjectKeys={visibleProjectKeys}
+        />
+      );
+
+      // Get all project rows
+      const projectRows = getAllByTestId('project-row');
+      
+      // Should have 3 project rows
+      expect(projectRows).toHaveLength(3);
+      
+      // Check that projects appear in the same order as visibleProjectKeys
+      // First row should be PROJ-C (Charlie)
+      expect(projectRows[0]).toHaveTextContent('Project Charlie');
+      
+      // Second row should be PROJ-A (Alpha) 
+      expect(projectRows[1]).toHaveTextContent('Project Alpha');
+      
+      // Third row should be PROJ-B (Beta)
+      expect(projectRows[2]).toHaveTextContent('Project Beta');
+    });
+
+    it('should handle empty visibleProjectKeys gracefully', () => {
+      mockUseTimeline.mockReturnValue({
+        weekRanges: [],
+        projectViewModels: [],
+        updatesByProject: {},
+        isLoading: false
+      });
+
+      const { getByText } = render(
+        <StatusTimelineHeatmap
+          visibleProjectKeys={[]}
+        />
+      );
+
+      expect(getByText('No projects found for the selected criteria.')).toBeInTheDocument();
+    });
+  });
 });

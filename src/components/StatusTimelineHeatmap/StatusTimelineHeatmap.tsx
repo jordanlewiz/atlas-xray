@@ -3,6 +3,7 @@ import StatusTimelineHeatmapRow from "./StatusTimelineHeatmapRow";
 import StatusTimelineHeatmapHeader from "./StatusTimelineHeatmapHeader";
 import StatusTimelineHeader from "./StatusTimelineHeader";
 import { useTimeline } from "../../hooks/useTimelineData";
+import type { ProjectViewModel } from "../../types";
 
 interface StatusTimelineHeatmapProps {
   weekLimit?: number;
@@ -27,8 +28,10 @@ function StatusTimelineHeatmap({ weekLimit: initialWeekLimit = 12, visibleProjec
     if (visibleProjectKeys.length === 0) {
       return [];
     }
-    // Filter projects based on visibleProjectKeys
-    return projectViewModels.filter(project => visibleProjectKeys.includes(project.projectKey));
+    // Filter projects based on visibleProjectKeys AND preserve the order
+    return visibleProjectKeys
+      .map(key => projectViewModels.find(project => project.projectKey === key))
+      .filter((project): project is ProjectViewModel => project !== undefined);
   }, [projectViewModels, visibleProjectKeys]);
 
   const handleWeekLimitChange = (newWeekLimit: number) => {

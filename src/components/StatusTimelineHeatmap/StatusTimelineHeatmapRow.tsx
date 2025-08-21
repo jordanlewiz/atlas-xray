@@ -59,7 +59,7 @@ function StatusTimelineHeatmapRow({
   const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
 
   return (
-    <div className="timeline-row">
+    <div className="timeline-row" data-testid="project-row">
       <div className="timeline-y-label">
         <Tooltip content={project.name} position="top-start">
           <h3 className="project-title-ellipsis">
