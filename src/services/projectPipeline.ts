@@ -70,205 +70,48 @@ export class ProjectPipeline {
     });
 
     try {
-      // Wait for DOM to be ready if needed
-      if (document.readyState !== 'complete') {
-        console.log(`[AtlasXray] 🔍 DOM not ready (${document.readyState}), waiting...`);
-        await new Promise(resolve => {
-          if (document.readyState === 'complete') {
-            resolve(undefined);
-          } else {
-            window.addEventListener('load', resolve, { once: true });
-          }
-        });
-        console.log(`[AtlasXray] 🔍 DOM now ready, proceeding with scan...`);
-      }
-      
-      // Debug: Log current page info
       console.log(`[AtlasXray] 🔍 Scanning page: ${window.location.href}`);
-      console.log(`[AtlasXray] 🔍 Page title: ${document.title}`);
-      console.log(`[AtlasXray] 🔍 Document ready state: ${document.readyState}`);
-      console.log(`[AtlasXray] 🔍 Body children count: ${document.body?.children?.length || 'N/A'}`);
       
-      // Initialize projectIds array
+      // Regex for /o/{cloudId}/s/{sectionId}/project/{ORG-123}
+      const projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
+      
+      // Get all links on the page
+      const links = Array.from(document.querySelectorAll('a[href]'));
+      const hrefs = links.map(link => link.getAttribute('href'));
+      
+      console.log(`[AtlasXray] 🔍 Found ${links.length} total links on page`);
+      
+      // Find matching project links using the specific pattern
+      const seen = new Set<string>();
       const projectIds: string[] = [];
       
-      // Try to find the project directory table container first
-      const directoryTable = document.querySelector('[data-sentry-component="DirectoryTableWrapper"]');
-      
-      if (directoryTable) {
-        console.log(`[AtlasXray] 🎯 Found DirectoryTableWrapper, scoping scan to project table`);
-      } else {
-        console.log(`[AtlasXray] ⚠️ DirectoryTableWrapper not found, using full page scan`);
-      }
-      
-      // Use scoped scanning if available, otherwise fall back to full page
-      const scanContainer = directoryTable || document.body;
-      const projectLinks = scanContainer.querySelectorAll('a[href*="/project/"]');
-      console.log(`[AtlasXray] 🔍 Found ${projectLinks.length} project links in ${directoryTable ? 'DirectoryTableWrapper' : 'full page'}`);
-      
-      // Show first few project links for debugging
-      projectLinks.forEach((link, index) => {
-        if (index < 5) {
-          const href = link.getAttribute('href');
-          console.log(`[AtlasXray] 🔗 Project Link ${index + 1}: ${href}`);
+      hrefs.forEach(href => {
+        if (!href) return;
+        const match = href.match(projectLinkPattern);
+        if (match && match[3]) {
+          const projectId = match[3];
+          if (!seen.has(projectId)) {
+            seen.add(projectId);
+            projectIds.push(projectId);
+            if (projectIds.length <= 5) { // Log first 5 for debugging
+              console.log(`[AtlasXray] ✅ Found project: ${projectId} from ${href}`);
+            }
+          }
         }
       });
       
-      // Also check for project-related elements
-      const projectElements = scanContainer.querySelectorAll('[data-testid*="project"], [class*="project"], [id*="project"]');
-      console.log(`[AtlasXray] 🔍 Found ${projectElements.length} project-related elements in ${directoryTable ? 'DirectoryTableWrapper' : 'full page'}`);
-      
-      // Check for text content that might contain project IDs
-      const pageText = document.body?.innerText || '';
-      const projectIdMatches = pageText.match(/[A-Z]+-\d+/g);
-      if (projectIdMatches) {
-        console.log(`[AtlasXray] 🔍 Found project IDs in page text:`, projectIdMatches.slice(0, 10));
-        // Add these to the projectIds array
-        projectIdMatches.forEach(id => {
-          if (id && id.trim() && !projectIds.includes(id.trim())) {
-            projectIds.push(id.trim());
-          }
-        });
-      }
-      
-      // Process project links based on whether we found DirectoryTableWrapper
-      if (directoryTable) {
-        // Use scoped project links
-        const scopedProjectLinks = directoryTable.querySelectorAll('a[href*="/project/"]');
-        scopedProjectLinks.forEach((link: Element, index: number) => {
-          const href = link.getAttribute('href');
-          if (href) {
-            console.log(`[AtlasXray] 🔗 Link ${index + 1}: ${href}`);
-            // Use the same regex pattern as before
-            let match = href.match(/\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/);
-            if (match && match[3] && match[3].trim()) {
-              console.log(`[AtlasXray] ✅ Matched project (full pattern): ${match[3]}`);
-              projectIds.push(match[3].trim());
-            } else {
-              // Fallback: try simpler pattern
-              match = href.match(/\/project\/([A-Z]+-\d+)/);
-              if (match && match[1] && match[1].trim()) {
-                console.log(`[AtlasXray] ✅ Matched project (simple pattern): ${match[1]}`);
-                projectIds.push(match[1].trim());
-              } else {
-                console.log(`[AtlasXray] ❌ No match for href: ${href}`);
-              }
-            }
-          }
-        });
-      }
-
-      const uniqueProjectIds = Array.from(new Set(projectIds)).filter(id => id && id.trim());
-      
-      // Fallback: If no project links found, try to extract from page content
-      if (uniqueProjectIds.length === 0) {
-        console.log(`[AtlasXray] 🔍 No project IDs found in primary scan, trying fallbacks...`);
-        
-        // Wait a bit more for dynamic content to load
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        console.log(`[AtlasXray] 🔍 Retrying scan after delay...`);
-        
-        // Try to find the project directory table container first
-        const directoryTable = document.querySelector('[data-sentry-component="DirectoryTableWrapper"]');
-        const scanContainer = directoryTable || document.body;
-        const projectLinks = scanContainer.querySelectorAll('a[href*="/project/"]');
-        console.log(`[AtlasXray] 🔍 Retry: Found ${projectLinks.length} project links in ${directoryTable ? 'DirectoryTableWrapper' : 'full page'}`);
-        
-        if (projectLinks.length > 0) {
-          projectLinks.forEach((link, index) => {
-            if (index < 5) {
-              const href = link.getAttribute('href');
-              console.log(`[AtlasXray] 🔗 Retry Link ${index + 1}: ${href}`);
-              if (href) {
-                let match = href.match(/\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/);
-                if (match && match[3] && match[3].trim()) {
-                  console.log(`[AtlasXray] ✅ Retry: Matched project (full pattern): ${match[3]}`);
-                  uniqueProjectIds.push(match[3].trim());
-                } else {
-                  match = href.match(/\/project\/([A-Z]+-\d+)/);
-                  if (match && match[1] && match[1].trim()) {
-                    console.log(`[AtlasXray] ✅ Retry: Matched project (simple pattern): ${match[1]}`);
-                    uniqueProjectIds.push(match[1].trim());
-                  }
-                }
-              }
-            }
-          });
-        }
-        console.log(`[AtlasXray] 🔍 No project links found, trying fallback scanning...`);
-        
-        // Look for project IDs in various page elements
-        const fallbackSelectors = [
-          '[data-testid*="project"]',
-          '[class*="project"]',
-          '[id*="project"]',
-          '.project-item',
-          '.project-card',
-          '.project-name'
-        ];
-        
-        for (const selector of fallbackSelectors) {
-          const elements = document.querySelectorAll(selector);
-          if (elements.length > 0) {
-            console.log(`[AtlasXray] 🔍 Found ${elements.length} elements with selector: ${selector}`);
-            
-            // Extract text content and look for project IDs
-            elements.forEach((element, index) => {
-              // Process more elements to get better coverage
-              if (index < 50) { // Increased from 5 to 50
-                const text = element.textContent || '';
-                const matches = text.match(/[A-Z]+-\d+/g);
-                if (matches) {
-                  if (index < 10) { // Only log first 10 to avoid spam
-                    console.log(`[AtlasXray] 🔍 Element ${index + 1} contains project IDs:`, matches);
-                  }
-                  matches.forEach(id => {
-                    if (!uniqueProjectIds.includes(id)) {
-                      uniqueProjectIds.push(id);
-                    }
-                  });
-                }
-              }
-            });
-          }
-        }
-        
-        // Additional fallback: Look for any links that might contain project IDs
-        if (uniqueProjectIds.length === 0) {
-          console.log(`[AtlasXray] 🔍 Trying to find any links with project IDs...`);
-          const allLinks = document.querySelectorAll('a[href]');
-          
-          allLinks.forEach((link, index) => {
-            if (index < 20) { // Check first 20 links
-              const href = link.getAttribute('href');
-              if (href) {
-                // Look for project ID pattern in href
-                const projectMatch = href.match(/\/project\/([A-Z]+-\d+)/);
-                if (projectMatch && projectMatch[1]) {
-                  const projectId = projectMatch[1].trim();
-                  console.log(`[AtlasXray] 🔍 Found project ID in href: ${projectId} from ${href}`);
-                  if (!uniqueProjectIds.includes(projectId)) {
-                    uniqueProjectIds.push(projectId);
-                  }
-                }
-              }
-            }
-          });
-        }
-      }
-      
-      console.log(`[AtlasXray] 🔍 Final project IDs found:`, uniqueProjectIds);
+      console.log(`[AtlasXray] 🔍 Final project IDs found:`, projectIds);
       
       // Store the actual project IDs for later use
       this.updateState({
-        projectsOnPage: uniqueProjectIds.length,
-        projectIds: uniqueProjectIds, // Store the actual IDs
+        projectsOnPage: projectIds.length,
+        projectIds: projectIds,
         currentStage: 'idle',
         isProcessing: false,
         lastUpdated: new Date()
       });
 
-      return uniqueProjectIds.length;
+      return projectIds.length;
     } catch (error) {
       this.updateState({
         currentStage: 'idle',
