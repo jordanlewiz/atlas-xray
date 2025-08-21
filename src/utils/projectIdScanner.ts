@@ -14,7 +14,7 @@ declare const chrome: any;
 // Note: AI analysis will be handled by the popup/background context
 // Content script will store updates for later analysis
 
-// Regex for /o/{cloudId}/s/{sectionId}/project/{ORG-123}
+// Multiple regex patterns for different project URL formats
 const projectLinkPattern = /\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/;
 
 interface ProjectMatch {
@@ -278,49 +278,33 @@ export async function downloadProjectData(): Promise<ProjectMatch[]> {
   const hrefs = links.map(link => link.getAttribute('href'));
   const matches = findMatchingProjectLinksFromHrefs(hrefs);
   
-  console.log(`[AtlasXray] Found ${matches.length} project links on page`);
-  
-  // Process all projects found on the page, not just new ones
-  const projectsToProcess = [];
+  // Only fetch data for new projects we haven't seen before
+  const newProjects = [];
   for (const { projectId, cloudId } of matches) {
     const key = `projectId:${projectId}`;
     const existing = await getItem(key);
-    
     if (!existing) {
-      // New project - store it
-      await setItem(key, projectId);
-      console.log(`[AtlasXray] New project discovered: ${projectId}`);
+      newProjects.push({ projectId, cloudId });
     }
-    
-    // Always add to processing list (new or existing)
-    projectsToProcess.push({ projectId, cloudId });
   }
   
-  console.log(`[AtlasXray] Processing ${projectsToProcess.length} projects for analysis`);
-  
-  // Batch fetch data for all projects (limit to 3 at a time to avoid overwhelming the API)
-  const batchSize = 3;
-  for (let i = 0; i < projectsToProcess.length; i += batchSize) {
-    const batch = projectsToProcess.slice(i, i + batchSize);
-    console.log(`[AtlasXray] Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(projectsToProcess.length/batchSize)}`);
-    
+  // Batch fetch data for new projects (limit to 5 at a time to avoid overwhelming the API)
+  const batchSize = 5;
+  for (let i = 0; i < newProjects.length; i += batchSize) {
+    const batch = newProjects.slice(i, i + batchSize);
     await Promise.all(
       batch.map(async ({ projectId, cloudId }) => {
-        try {
-          await fetchAndStoreProjectData(projectId, cloudId);
-          console.log(`[AtlasXray] ✅ Successfully processed project: ${projectId}`);
-        } catch (error) {
-          console.error(`[AtlasXray] ❌ Failed to process project ${projectId}:`, error);
-        }
+        const key = `projectId:${projectId}`;
+        await setItem(key, projectId);
+        await fetchAndStoreProjectData(projectId, cloudId);
       })
     );
     
     // Add a small delay between batches to be respectful to the API
-    if (i + batchSize < projectsToProcess.length) {
-      await new Promise(resolve => setTimeout(resolve, 200));
+    if (i + batchSize < newProjects.length) {
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
   }
   
-  console.log(`[AtlasXray] Completed processing ${projectsToProcess.length} projects`);
   return matches;
 }
