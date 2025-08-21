@@ -110,7 +110,6 @@ interface StatusHistoryNode {
  * @returns Promise
  */
 function upsertProjectUpdates(nodes: GraphQLNode[]): Promise<string> {
-  console.log("nodes", nodes);
   const rows = nodes.map((n) => ({
     id: n.id ?? n.uuid,
     projectKey: n.project?.key,

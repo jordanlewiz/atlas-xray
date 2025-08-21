@@ -112,7 +112,7 @@ export default function FloatingButton(): React.JSX.Element {
         );
         const projectIds = domMatches.map((m: { projectId: string }) => m.projectId);
         
-        console.log(`[AtlasXray] 🔍 DOM Found ${projectIds.length} project links on page:`, projectIds);
+        console.log(`[AtlasXray] 🔍 DOM Found ${projectIds.length} project links on page`);
         
         // Update UI immediately with DOM results
         setVisibleProjectKeys(projectIds);
@@ -128,7 +128,7 @@ export default function FloatingButton(): React.JSX.Element {
             try {
               console.log('[AtlasXray] ⏰ Timeout fired, calling downloadProjectData...');
               const matches = await downloadProjectData();
-              console.log('[AtlasXray] ✅ downloadProjectData returned:', matches);
+              console.log(`[AtlasXray] ✅ downloadProjectData returned: ${matches.length} projects`);
               const fetchedProjectIds = matches.map(m => m.projectId);
               console.log(`[AtlasXray] 🔄 Background fetch complete: ${fetchedProjectIds.length} projects processed`);
               
@@ -168,7 +168,7 @@ export default function FloatingButton(): React.JSX.Element {
         );
         const projectIds = domMatches.map((m: { projectId: string }) => m.projectId);
         
-        console.log(`[AtlasXray] 🔍 DOM Found ${projectIds.length} project links on page during update:`, projectIds);
+        console.log(`[AtlasXray] 🔍 DOM Found ${projectIds.length} project links on page during update`);
         
         // Update local state immediately
         setVisibleProjectKeys(projectIds);
@@ -180,7 +180,7 @@ export default function FloatingButton(): React.JSX.Element {
             try {
               console.log('[AtlasXray] ⏰ Background data fetch for DOM updates...');
               const matches = await downloadProjectData();
-              console.log('[AtlasXray] ✅ Background data fetch for updates complete:', matches);
+              console.log(`[AtlasXray] ✅ Background data fetch for updates complete: ${matches.length} projects`);
             } catch (error) {
               console.error('[AtlasXray] Background data fetch for updates failed:', error);
             }
@@ -287,6 +287,14 @@ export default function FloatingButton(): React.JSX.Element {
   };
 
   // Component ready to render
+  // Test: Add a simple render counter to verify no infinite re-renders
+  const renderCount = useRef(0);
+  renderCount.current += 1;
+  
+  // Only log first few renders to verify it's not infinite
+  if (renderCount.current <= 3) {
+    console.log(`[AtlasXray] 🔄 Render #${renderCount.current} (should only see 1-3 total)`);
+  }
 
   return (
     <>
