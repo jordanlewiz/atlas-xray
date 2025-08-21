@@ -52,10 +52,8 @@ export function useUpdateQuality() {
   useEffect(() => {
     const initializeModels = async () => {
       try {
-        console.log('🚀 Preloading AI models...');
         await preloadModels();
         setModelsPreloaded(true);
-        console.log('✅ AI models preloaded successfully');
       } catch (error) {
         console.warn('⚠️ Model preloading failed:', error);
         // Don't block the UI if preloading fails
@@ -69,6 +67,13 @@ export function useUpdateQuality() {
   // Fetch all project updates
   const updates = useLiveQuery(() => db.projectUpdates.toArray(), []);
   
+  // Sync existing quality data from chrome.storage.local to IndexedDB
+  useEffect(() => {
+    if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+      syncAllQualityDataFromStorage();
+    }
+  }, []);
+
   // Trigger background analysis for updates without quality data
   useEffect(() => {
     if (updates && updates.length > 0) {
@@ -81,7 +86,7 @@ export function useUpdateQuality() {
     }
   }, [updates]);
   
-  // Fetch quality data for updates (from both database and automatic analysis)
+  // Fetch quality data for updates (from projectUpdates table first, then fallbacks)
   const qualityData = useLiveQuery(
     async () => {
       if (!updates) return {};
@@ -89,7 +94,7 @@ export function useUpdateQuality() {
       const qualityMap: UpdateQualityData = {};
       
       for (const update of updates) {
-        // First check if quality data is stored in the update record
+        // First check if quality data is stored directly in the update record (IndexedDB)
         if (update.updateQuality) {
           try {
             const parsed = JSON.parse(update.updateQuality);
@@ -100,39 +105,78 @@ export function useUpdateQuality() {
           } catch (error) {
             console.error(`Failed to parse quality data for update ${update.id}:`, error);
           }
-                 } else {
-           // Check if quality data was stored by automatic analysis (background script)
-           try {
-             // First check IndexedDB (using meta table)
-             const storedQuality = await db.meta.get(`quality:${update.id}`);
-             if (storedQuality?.value) {
-               qualityMap[update.id] = {
-                 ...storedQuality.value,
-                 timestamp: new Date(storedQuality.value.timestamp)
-               };
-             } else {
-               // Then check chrome.storage.local (background script storage)
-               if (typeof chrome !== 'undefined' && chrome.storage?.local) {
-                 const result = await chrome.storage.local.get(`quality:${update.id}`);
-                 const backgroundQuality = result[`quality:${update.id}`];
-                 if (backgroundQuality) {
-                   qualityMap[update.id] = {
-                     ...backgroundQuality,
-                     timestamp: new Date(backgroundQuality.timestamp)
-                   };
-                 }
-               }
-             }
-           } catch (error) {
-             // Quality data not found, will be analyzed later
-           }
-         }
+        } else {
+          // Fallback: Check chrome.storage.local (background script storage)
+          try {
+            if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+              const result = await chrome.storage.local.get(`quality:${update.id}`);
+              const backgroundQuality = result[`quality:${update.id}`];
+              if (backgroundQuality) {
+                qualityMap[update.id] = {
+                  ...backgroundQuality,
+                  timestamp: new Date(backgroundQuality.timestamp)
+                };
+                
+                // Sync this quality data to IndexedDB for future use
+                syncQualityDataToIndexedDB(update.id, backgroundQuality);
+              }
+            }
+          } catch (error) {
+            // Quality data not found, will be analyzed later
+          }
+        }
       }
       
       return qualityMap;
     },
     [updates, updateTrigger] // Include updateTrigger to force re-evaluation
   );
+
+  /**
+   * Sync all quality data from chrome.storage.local to IndexedDB
+   */
+  const syncAllQualityDataFromStorage = useCallback(async (): Promise<void> => {
+    try {
+      if (typeof chrome === 'undefined' || !chrome.storage?.local) return;
+      
+      const allData = await chrome.storage.local.get(null);
+      const qualityKeys = Object.keys(allData).filter(key => key.startsWith('quality:'));
+      
+      if (qualityKeys.length === 0) return;
+      
+      for (const key of qualityKeys) {
+        const updateId = key.replace('quality:', '');
+        const qualityData = allData[key];
+        
+        if (qualityData && updateId) {
+          await syncQualityDataToIndexedDB(updateId, qualityData);
+        }
+      }
+      
+    } catch (error) {
+      console.error('[AtlasXray] Failed to sync quality data from storage:', error);
+    }
+  }, []);
+
+  /**
+   * Sync quality data from chrome.storage.local to IndexedDB
+   */
+  const syncQualityDataToIndexedDB = useCallback(async (updateId: string, qualityData: any): Promise<void> => {
+    try {
+      // Store the quality data in the projectUpdates table
+      await db.projectUpdates.update(updateId, {
+        updateQuality: JSON.stringify(qualityData)
+      });
+      
+      // Remove from chrome.storage.local since it's now in IndexedDB
+      if (typeof chrome !== 'undefined' && chrome.storage?.local) {
+        await chrome.storage.local.remove(`quality:${updateId}`);
+      }
+      
+    } catch (error) {
+      console.error(`Failed to sync quality data to IndexedDB for update ${updateId}:`, error);
+    }
+  }, []);
 
   /**
    * Analyze a single update and store the result
@@ -184,11 +228,8 @@ export function useUpdateQuality() {
       const unanalyzedUpdates = updates.filter(update => !update.updateQuality);
       
       if (unanalyzedUpdates.length === 0) {
-        console.log('All updates already analyzed');
         return;
       }
-      
-      console.log(`Analyzing ${unanalyzedUpdates.length} updates...`);
       
       for (let i = 0; i < unanalyzedUpdates.length; i++) {
         const update = unanalyzedUpdates[i];
@@ -201,8 +242,6 @@ export function useUpdateQuality() {
         // Small delay to prevent overwhelming the AI model
         await new Promise(resolve => setTimeout(resolve, 100));
       }
-      
-      console.log('Analysis complete!');
       
     } catch (error) {
       console.error('Failed to analyze updates:', error);

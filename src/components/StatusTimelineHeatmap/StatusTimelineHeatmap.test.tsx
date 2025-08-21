@@ -100,6 +100,7 @@ describe('StatusTimelineHeatmap', () => {
   const mockGetTimelineWeekCells = require('../../utils/timelineUtils').getTimelineWeekCells;
   const mockBuildProjectUrlFromKey = require('../../utils/timelineUtils').buildProjectUrlFromKey;
   const mockGetTargetDateDisplay = require('../../utils/timelineUtils').getTargetDateDisplay;
+  const mockGetDueDateDiff = require('../../utils/timelineUtils').getDueDateDiff;
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -138,26 +139,45 @@ describe('StatusTimelineHeatmap', () => {
       })
     });
 
-    mockGetTimelineWeekCells.mockReturnValue([
-      {
-        cellClass: 'timeline-cell has-update state-on-track',
-        weekUpdates: [
-          {
-            id: 'update1',
-            creationDate: '2024-01-02',
-            summary: 'Test update',
-            state: 'on-track'
-          }
-        ]
-      },
-      {
-        cellClass: 'timeline-cell',
-        weekUpdates: []
+    // Mock getTimelineWeekCells to actually process the updates data
+    mockGetTimelineWeekCells.mockImplementation((weekRanges: any, updates: any) => {
+      if (!updates || updates.length === 0) {
+        return weekRanges.map(() => ({
+          cellClass: 'timeline-cell',
+          weekUpdates: []
+        }));
       }
-    ]);
+      
+      // Return cells based on the actual updates data
+      return weekRanges.map((week: any, index: number) => {
+        if (index === 0 && updates.length > 0) {
+          // First week gets the updates
+          return {
+            cellClass: 'timeline-cell has-update state-on-track',
+            weekUpdates: updates
+          };
+        }
+        return {
+          cellClass: 'timeline-cell',
+          weekUpdates: []
+        };
+      });
+    });
 
     mockBuildProjectUrlFromKey.mockReturnValue('https://example.com/project/TEST');
     mockGetTargetDateDisplay.mockReturnValue('Jan 15, 2024');
+    
+    // Mock getDueDateDiff to calculate actual date differences
+    mockGetDueDateDiff.mockImplementation((update: any) => {
+      if (update.oldDueDate && update.newDueDate) {
+        const oldDate = new Date(update.oldDueDate);
+        const newDate = new Date(update.newDueDate);
+        const diffTime = newDate.getTime() - oldDate.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+      }
+      return null;
+    });
   });
 
   describe('Basic Rendering', () => {
@@ -482,6 +502,238 @@ describe('StatusTimelineHeatmap', () => {
       
       // Should show no projects when empty visible keys
       expect(screen.queryByText('Project 1')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('Quality Indicator Display', () => {
+    it('should show quality emoji when quality data is available', () => {
+      mockUseTimeline.mockReturnValue({
+        projectViewModels: [
+          {
+            projectKey: 'TEST',
+            name: 'Test Project',
+            rawProject: { projectKey: 'TEST' }
+          }
+        ],
+        weekRanges: [
+          { label: 'This week', start: new Date('2024-01-01'), end: new Date('2024-01-08') }
+        ],
+        updatesByProject: { 'TEST': [
+          {
+            id: 'update1',
+            creationDate: '2024-01-02',
+            summary: 'Test update',
+            state: 'on-track'
+          }
+        ] },
+        statusByProject: {},
+        isLoading: false
+      });
+
+      // Quality data available
+      mockUseUpdateQuality.mockReturnValue({
+        getUpdateQuality: jest.fn().mockReturnValue({
+          overallScore: 85,
+          qualityLevel: 'good'
+        }),
+        analyzeUpdate: jest.fn(),
+        updateTrigger: 1
+      });
+
+      render(<StatusTimelineHeatmap weekLimit={12} />);
+      
+      // Should show quality emoji
+      const qualityIndicator = screen.getByTestId('quality-indicator');
+      expect(qualityIndicator).toBeInTheDocument();
+      
+      // Should not show white bullet
+      expect(screen.queryByTestId('update-indicator')).not.toBeInTheDocument();
+    });
+
+    it('should show white bullet when no quality data is available', () => {
+      mockUseTimeline.mockReturnValue({
+        projectViewModels: [
+          {
+            projectKey: 'TEST',
+            name: 'Test Project',
+            rawProject: { projectKey: 'TEST' }
+          }
+        ],
+        weekRanges: [
+          { label: 'This week', start: new Date('2024-01-01'), end: new Date('2024-01-08') }
+        ],
+        updatesByProject: { 'TEST': [
+          {
+            id: 'update1',
+            creationDate: '2024-01-02',
+            summary: 'Test update',
+            state: 'on-track'
+          }
+        ] },
+        statusByProject: {},
+        isLoading: false
+      });
+
+      // No quality data available
+      mockUseUpdateQuality.mockReturnValue({
+        getUpdateQuality: jest.fn().mockReturnValue(null),
+        analyzeUpdate: jest.fn(),
+        updateTrigger: 0
+      });
+
+      render(<StatusTimelineHeatmap weekLimit={12} />);
+      
+      // Should show white bullet
+      const updateIndicator = screen.getByTestId('update-indicator');
+      expect(updateIndicator).toBeInTheDocument();
+      
+      // Should not show quality emoji
+      expect(screen.queryByTestId('quality-indicator')).not.toBeInTheDocument();
+    });
+
+    it('should handle mixed quality data correctly', () => {
+      mockUseTimeline.mockReturnValue({
+        projectViewModels: [
+          {
+            projectKey: 'TEST',
+            name: 'Test Project',
+            rawProject: { projectKey: 'TEST' }
+          }
+        ],
+        weekRanges: [
+          { label: 'This week', start: new Date('2024-01-01'), end: new Date('2024-01-08') }
+        ],
+        updatesByProject: { 'TEST': [
+          {
+            id: 'update1',
+            creationDate: '2024-01-02',
+            summary: 'Test update 1',
+            state: 'on-track'
+          },
+          {
+            id: 'update2',
+            creationDate: '2024-01-03',
+            summary: 'Test update 2',
+            state: 'off-track'
+          }
+        ] },
+        statusByProject: {},
+        isLoading: false
+      });
+
+      // Mixed quality data - first update has quality data, second doesn't
+      mockUseUpdateQuality.mockReturnValue({
+        getUpdateQuality: jest.fn().mockImplementation((id) => {
+          if (id === 'update1') return { overallScore: 85, qualityLevel: 'good' };
+          if (id === 'update2') return null;
+          return null;
+        }),
+        analyzeUpdate: jest.fn(),
+        updateTrigger: 1
+      });
+
+      render(<StatusTimelineHeatmap weekLimit={12} />);
+      
+      // Should show one quality emoji and one white bullet
+      const qualityIndicators = screen.getAllByTestId('quality-indicator');
+      expect(qualityIndicators).toHaveLength(1);
+      
+      const updateIndicators = screen.getAllByTestId('update-indicator');
+      expect(updateIndicators).toHaveLength(1);
+    });
+  });
+
+  describe('Emoji and Date Difference Display', () => {
+    it('should show both emoji and date difference when both are available', () => {
+      mockUseTimeline.mockReturnValue({
+        projectViewModels: [
+          {
+            projectKey: 'TEST',
+            name: 'Test Project',
+            rawProject: { projectKey: 'TEST' }
+          }
+        ],
+        weekRanges: [
+          { label: 'This week', start: new Date('2024-01-01'), end: new Date('2024-01-08') }
+        ],
+        updatesByProject: { 'TEST': [
+          {
+            id: 'update1',
+            creationDate: '2024-01-02',
+            summary: 'Test update',
+            state: 'on-track',
+            oldDueDate: '2024-01-15',
+            newDueDate: '2024-01-20' // Date change
+          }
+        ] },
+        statusByProject: {},
+        isLoading: false
+      });
+
+      mockUseUpdateQuality.mockReturnValue({
+        getUpdateQuality: jest.fn().mockReturnValue({
+          overallScore: 85,
+          qualityLevel: 'good'
+        }),
+        analyzeUpdate: jest.fn()
+      });
+
+      render(<StatusTimelineHeatmap weekLimit={12} />);
+      
+      // Should show both the date difference and the quality emoji
+      const dateDifference = screen.getByText('+5'); // 5 day difference
+      expect(dateDifference).toBeInTheDocument();
+      
+      const qualityIndicator = screen.getByTestId('quality-indicator');
+      expect(qualityIndicator).toBeInTheDocument();
+      
+      // Both should be in the same cell
+      const cellContent = dateDifference.closest('.timeline-cell-content');
+      expect(cellContent).toContainElement(dateDifference);
+      expect(cellContent).toContainElement(qualityIndicator);
+    });
+
+    it('should show only emoji when no date change', () => {
+      mockUseTimeline.mockReturnValue({
+        projectViewModels: [
+          {
+            projectKey: 'TEST',
+            name: 'Test Project',
+            rawProject: { projectKey: 'TEST' }
+          }
+        ],
+        weekRanges: [
+          { label: 'This week', start: new Date('2024-01-01'), end: new Date('2024-01-08') }
+        ],
+        updatesByProject: { 'TEST': [
+          {
+            id: 'update1',
+            creationDate: '2024-01-02',
+            summary: 'Test update',
+            state: 'on-track'
+            // No date change
+          }
+        ] },
+        statusByProject: {},
+        isLoading: false
+      });
+
+      mockUseUpdateQuality.mockReturnValue({
+        getUpdateQuality: jest.fn().mockReturnValue({
+          overallScore: 85,
+          qualityLevel: 'good'
+        }),
+        analyzeUpdate: jest.fn()
+      });
+
+      render(<StatusTimelineHeatmap weekLimit={12} />);
+      
+      // Should show only the quality emoji, no date difference
+      const qualityIndicator = screen.getByTestId('quality-indicator');
+      expect(qualityIndicator).toBeInTheDocument();
+      
+      const dateDifference = screen.queryByText(/[+-]\d+/);
+      expect(dateDifference).not.toBeInTheDocument();
     });
   });
 

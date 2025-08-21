@@ -42,24 +42,7 @@ export function useTimeline(weekLimit: number = 12) {
       }
     });
     
-    // Debug: Log update data structure
-    console.log('=== UPDATE DATA DEBUG ===');
-    console.log('Total updates found:', allUpdates.length);
-    console.log('All updates array:', allUpdates);
-    if (allUpdates.length > 0) {
-      console.log('First update object:', allUpdates[0]);
-      console.log('First update raw:', allUpdates[0]?.raw);
-      console.log('First update keys:', Object.keys(allUpdates[0] || {}));
-      if (allUpdates[0]?.raw) {
-        console.log('First update raw keys:', Object.keys(allUpdates[0].raw || {}));
-      }
-      // Check if it's a GraphQL structure
-      if (allUpdates[0]?.projectUpdates?.edges) {
-        console.log('Found GraphQL edges structure');
-        console.log('First edge:', allUpdates[0].projectUpdates.edges[0]);
-      }
-    }
-    console.log('=== END UPDATE DEBUG ===');
+
 
     // Group status history by project
     const statusByProject: Record<string, ProjectStatusHistory[]> = {};

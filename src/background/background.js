@@ -210,13 +210,17 @@ async function performRuleBasedAnalysis(updateText, updateType, state) {
 
 /**
  * Store analysis result in chrome.storage.local
+ * Note: Service workers cannot access IndexedDB directly
  */
 async function storeAnalysisResult(updateId, result) {
   try {
     const key = `quality:${updateId}`;
-    // Add the updateId to the result
     result.updateId = updateId;
+    result.timestamp = new Date().toISOString();
+    
     await chrome.storage.local.set({ [key]: result });
+    console.log(`[AtlasXray] ✅ Quality data stored in chrome.storage.local for update: ${updateId}`);
+    
   } catch (error) {
     console.error('[AtlasXray] Failed to store analysis result:', error);
   }

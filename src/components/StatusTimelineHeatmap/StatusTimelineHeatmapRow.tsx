@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
@@ -35,6 +35,12 @@ function StatusTimelineHeatmapRow({
   const [selectedUpdate, setSelectedUpdate] = useState(null);
   const updateQualityHook = useUpdateQuality ? useUpdateQuality() : null;
   const getUpdateQuality = updateQualityHook?.getUpdateQuality;
+  const updateTrigger = updateQualityHook?.updateTrigger || 0;
+  
+  // Force re-render when quality data changes
+  useEffect(() => {
+    // This effect will run whenever updateTrigger changes, forcing a re-render
+  }, [updateTrigger]);
   
   if (!project) {
     console.warn('ProjectTimelineRow received undefined project');
@@ -88,34 +94,39 @@ function StatusTimelineHeatmapRow({
               )}
               
               {/* Show update indicator for any cell with updates */}
-              {!u.oldDueDate && (
-                <Tooltip content="Click to view update details" position="top">
-                  {showEmojis && u.id ? (
-                    // Show quality indicator when toggle is on and quality data is available
-                    (() => {
-                      const quality = getUpdateQuality?.(u.id);
-                      if (quality) {
-                        return (
-                          <QualityIndicator
-                            score={quality.overallScore}
-                            level={quality.qualityLevel}
-                            size="small"
-                            className="quality-indicator-timeline"
-                          />
-                        );
-                      }
-                      return null;
-                    })()
-                  ) : (
-                    // Show white bullet when toggle is off or no quality data
-                    <span 
-                      className="update-indicator" 
-                      data-testid="update-indicator"
-                      title="Project update"
-                    />
-                  )}
-                </Tooltip>
-              )}
+              <Tooltip content="Click to view update details" position="top">
+                {showEmojis && u.id ? (
+                  // Show quality indicator when toggle is on and quality data is available
+                  (() => {
+                    const quality = getUpdateQuality?.(u.id);
+                    if (quality) {
+                      return (
+                        <QualityIndicator
+                          score={quality.overallScore}
+                          level={quality.qualityLevel}
+                          size="small"
+                          className="quality-indicator-timeline"
+                        />
+                      );
+                    }
+                    // Show white bullet when toggle is on but no quality data available
+                    return (
+                      <span 
+                        className="update-indicator" 
+                        data-testid="update-indicator"
+                        title="Project update"
+                      />
+                    );
+                  })()
+                ) : (
+                  // Show white bullet when toggle is off
+                  <span 
+                    className="update-indicator" 
+                    data-testid="update-indicator"
+                    title="Project update"
+                  />
+                )}
+              </Tooltip>
             </div>
           ))}
         </div>
