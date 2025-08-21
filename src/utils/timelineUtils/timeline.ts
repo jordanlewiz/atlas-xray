@@ -10,9 +10,25 @@ const MONTHS = [
 
 export function safeParseDate(dateStr: string | null | undefined): Date {
   if (!dateStr) return new Date('Invalid Date');
+  
+  // Try parseISO first (for ISO format dates)
   let d = parseISO(dateStr);
-  if (!isValid(d)) d = new Date(dateStr);
-  return d;
+  if (isValid(d)) return d;
+  
+  // Try direct Date constructor (for various formats)
+  d = new Date(dateStr);
+  if (isValid(d)) return d;
+  
+  // Try parsing as timestamp
+  const timestamp = parseInt(dateStr, 10);
+  if (!isNaN(timestamp)) {
+    d = new Date(timestamp);
+    if (isValid(d)) return d;
+  }
+  
+  // If all else fails, return invalid date
+  console.warn('[AtlasXray] Failed to parse date:', dateStr);
+  return new Date('Invalid Date');
 }
 
 export function getWeekRanges(startDate: Date, endDate: Date): WeekRange[] {
@@ -196,6 +212,8 @@ export function getTimelineWeekCells(weekRanges: WeekRange[], updates: ProjectUp
     return creationDate && typeof creationDate === 'string';
   });
 
+  
+
   // Pre-parse all dates once to avoid repeated parsing
   const updatesWithDates = validUpdates.map(u => {
     const creationDate = u.creationDate || (u as any).raw?.creationDate;
@@ -212,6 +230,8 @@ export function getTimelineWeekCells(weekRanges: WeekRange[], updates: ProjectUp
     };
   }).filter((item): item is { update: ProjectUpdate; parsedDate: Date } => item !== null);
 
+
+
   // Group updates by week range more efficiently
   const weekUpdatesMap = new Map<number, ProjectUpdate[]>();
   
@@ -220,12 +240,14 @@ export function getTimelineWeekCells(weekRanges: WeekRange[], updates: ProjectUp
   });
 
   updatesWithDates.forEach(({ update, parsedDate }) => {
+    let foundWeek = false;
     for (let i = 0; i < weekRanges.length; i++) {
       const week = weekRanges[i];
       if (parsedDate >= week.start && parsedDate < week.end) {
         const existing = weekUpdatesMap.get(i) || [];
         existing.push(update);
         weekUpdatesMap.set(i, existing);
+        foundWeek = true;
         break; // Update can only be in one week
       }
     }
@@ -283,7 +305,7 @@ export function getDueDateTooltip(u: ProjectUpdate): string | null {
 }
 
 export function getDueDateDiff(u: ProjectUpdate): number | null {
-  if (u && u.oldDueDate && u.newDueDate && typeof u.oldDueDate === 'string' && typeof u.newDueDate === 'string') {
+  if (u?.oldDueDate && u?.newDueDate && typeof u.oldDueDate === 'string' && typeof u.newDueDate === 'string') {
     return daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate, new Date().getFullYear());
   }
   return null;

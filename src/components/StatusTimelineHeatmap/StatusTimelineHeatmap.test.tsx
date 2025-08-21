@@ -1036,4 +1036,149 @@ describe('StatusTimelineHeatmap', () => {
       expect(updateIndicators.length).toBe(0);
     });
   });
+
+  describe('Timeline Cell Update Display', () => {
+    it('should display updates in timeline cells when they fall within week ranges', () => {
+      // Mock data: Project with update that should appear in timeline
+      const mockProjectView = {
+        id: 'test-project',
+        projectKey: 'TEST-123',
+        name: 'Test Project',
+        status: 'In Progress',
+        targetDate: '2024-07-15'
+      };
+
+      const mockUpdate = {
+        id: 'update-1',
+        projectKey: 'TEST-123',
+        oldDueDate: '2024-07-10',
+        newDueDate: '2024-07-20',
+        state: 'In Progress',
+        creationDate: '2024-07-12', // This date should fall within week ranges
+        updateQuality: null
+      };
+
+      // Mock the useTimeline hook to return our test data
+      mockUseTimeline.mockReturnValue({
+        weekRanges: [
+          { start: new Date('2024-07-01'), end: new Date('2024-07-07'), label: '1-7 Jul' },
+          { start: new Date('2024-07-08'), end: new Date('2024-07-14'), label: '8-14 Jul' },
+          { start: new Date('2024-07-15'), end: new Date('2024-07-21'), label: '15-21 Jul' }
+        ],
+        projectViewModels: [mockProjectView],
+        updatesByProject: {
+          'TEST-123': [mockUpdate]
+        },
+        isLoading: false
+      });
+
+      // Mock the timeline utilities
+      mockGetTimelineWeekCells.mockReturnValue([
+        {
+          cellClass: 'timeline-cell state-none',
+          weekUpdates: [],
+          week: { start: new Date('2024-07-01'), end: new Date('2024-07-07'), label: '1-7 Jul' }
+        },
+        {
+          cellClass: 'timeline-cell state-none',
+          weekUpdates: [],
+          week: { start: new Date('2024-07-08'), end: new Date('2024-07-14'), label: '8-14 Jul' }
+        },
+        {
+          cellClass: 'timeline-cell state-in-progress', // Should show update
+          weekUpdates: [mockUpdate], // Update should appear here
+          week: { start: new Date('2024-07-15'), end: new Date('2024-07-21'), label: '15-21 Jul' }
+        }
+      ]);
+      mockGetDueDateDiff.mockReturnValue(5); // 5 days difference
+
+      const { getByText, getByTestId } = render(
+        <StatusTimelineHeatmap
+          visibleProjectKeys={['TEST-123']}
+        />
+      );
+
+      // Should show the project name
+      expect(getByText('Test Project')).toBeInTheDocument();
+
+      // Should show the week label where update exists
+      expect(getByText('15-21 Jul')).toBeInTheDocument();
+
+      // Should show the date difference (+5) in the cell with the update
+      expect(getByText('+5')).toBeInTheDocument();
+
+      // Should show the quality indicator when showEmojis is true and quality data is available
+      const qualityIndicator = getByTestId('quality-indicator');
+      expect(qualityIndicator).toBeInTheDocument();
+      expect(qualityIndicator).toHaveClass('quality-indicator-timeline');
+    });
+
+    it('should handle updates that fall outside displayed week ranges gracefully', () => {
+      // Mock data: Project with update that falls outside the displayed weeks
+      const mockProjectView = {
+        id: 'test-project',
+        projectKey: 'TEST-456',
+        name: 'Old Project',
+        status: 'Done',
+        targetDate: '2024-01-15'
+      };
+
+      const mockUpdate = {
+        id: 'update-2',
+        projectKey: 'TEST-456',
+        oldDueDate: '2024-01-10',
+        newDueDate: '2024-01-20',
+        state: 'Done',
+        creationDate: '2024-01-12', // This date is much older than displayed weeks
+        updateQuality: null
+      };
+
+      // Mock the useTimeline hook to return our test data
+      mockUseTimeline.mockReturnValue({
+        weekRanges: [
+          { start: new Date('2024-07-01'), end: new Date('2024-07-07'), label: '1-7 Jul' },
+          { start: new Date('2024-07-08'), end: new Date('2024-07-14'), label: '8-14 Jul' }
+        ],
+        projectViewModels: [mockProjectView],
+        updatesByProject: {
+          'TEST-456': [mockUpdate]
+        },
+        isLoading: false
+      });
+
+      // Mock the timeline utilities - no weeks include this update
+      mockGetTimelineWeekCells.mockReturnValue([
+        {
+          cellClass: 'timeline-cell state-none',
+          weekUpdates: [], // Empty because update date is outside range
+          week: { start: new Date('2024-07-01'), end: new Date('2024-07-07'), label: '1-7 Jul' }
+        },
+        {
+          cellClass: 'timeline-cell state-none',
+          weekUpdates: [],
+          week: { start: new Date('2024-07-08'), end: new Date('2024-07-14'), label: '8-14 Jul' }
+        }
+      ]);
+      mockGetDueDateDiff.mockReturnValue(0);
+
+      const { getByText, queryByTestId } = render(
+        <StatusTimelineHeatmap
+          visibleProjectKeys={['TEST-456']}
+        />
+      );
+
+      // Should show the project name
+      expect(getByText('Old Project')).toBeInTheDocument();
+
+      // Should show the week labels
+      expect(getByText('1-7 Jul')).toBeInTheDocument();
+      expect(getByText('8-14 Jul')).toBeInTheDocument();
+
+      // Should NOT show any update indicators since no updates fall in these weeks
+      expect(queryByTestId('update-indicator')).not.toBeInTheDocument();
+
+      // Should NOT show any date differences since no updates exist
+      expect(queryByTestId('date-difference')).not.toBeInTheDocument();
+    });
+  });
 });

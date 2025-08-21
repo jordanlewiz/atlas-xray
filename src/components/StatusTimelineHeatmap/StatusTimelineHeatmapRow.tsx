@@ -49,6 +49,9 @@ function StatusTimelineHeatmapRow({
 
   const weekCells = getTimelineWeekCells(weekRanges, updates);
   
+  // Debug logging
+
+  
   // Get target date from the most recent update that has one
   const targetDateRaw = updates.find(u => u.targetDate)?.targetDate ||
                        updates.find(u => u.newDueDate)?.newDueDate ||
@@ -72,15 +75,20 @@ function StatusTimelineHeatmapRow({
         </a>
       </div>
       
-      {weekCells.map((cell: any, i: number) => (
-        <div key={i} className={cell.cellClass}>
-          {cell.weekUpdates.map((u: any, idx: number) => (
-            <div 
-              key={idx} 
-              className={`timeline-cell-content ${u.oldDueDate ? 'has-old-due-date' : ''}`}
-              onClick={() => setSelectedUpdate(u)}
-              style={{ cursor: 'pointer' }}
-            >
+      {weekCells.map((cell: any, i: number) => {
+
+        
+        return (
+          <div key={i} className={cell.cellClass}>
+            {cell.weekUpdates.map((u: any, idx: number) => {
+              
+              return (
+                <div 
+                  key={idx} 
+                  className={`timeline-cell-content ${u.oldDueDate ? 'has-old-due-date' : ''}`}
+                  onClick={() => setSelectedUpdate(u)}
+                  style={{ cursor: 'pointer' }}
+                >
               {/* Show date difference tooltip if there's a date change */}
               {u.oldDueDate && u.newDueDate && (
                 <Tooltip content={getDueDateTooltip(u)} position="top">
@@ -128,9 +136,11 @@ function StatusTimelineHeatmapRow({
                 )}
               </Tooltip>
             </div>
-          ))}
+          );
+        })}
         </div>
-      ))}
+      );
+      })}
       
       <div className="timeline-target-date">     
         {targetDateRaw ? (
