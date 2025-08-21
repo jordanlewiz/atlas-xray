@@ -104,10 +104,13 @@ export default function StatusTimelineHeatmapRow({
                           />
                         );
                       }
-                      // Show nothing if no quality data
-                      return null;
+                      // Show white indicator if no quality data but toggle is on
+                      return <span className="update-indicator" data-testid="update-indicator"></span>;
                     })()
-                  ) : null}
+                  ) : (
+                    // Show white indicator when toggle is off
+                    <span className="update-indicator" data-testid="update-indicator"></span>
+                  )}
                 </Tooltip>
               )}
             </div>

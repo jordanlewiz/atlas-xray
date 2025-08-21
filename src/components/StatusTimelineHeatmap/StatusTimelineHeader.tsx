@@ -57,17 +57,17 @@ export default function StatusTimelineHeader({
               />
             </div>
             <div className="ai-display-toggle">
-              <label htmlFor="emoji-toggle" className="toggle-label">AI Display:</label>
+              <label htmlFor="emoji-toggle" className="toggle-label">Update Quality:</label>
               <button
                 id="emoji-toggle"
                 className={`toggle-button ${showEmojis ? 'active' : ''}`}
                 onClick={handleToggleEmojis}
                 type="button"
-                aria-label={`Show ${showEmojis ? 'quality indicators' : 'bullets'} for AI analysis`}
+                aria-label={`Show ${showEmojis ? 'quality indicators' : 'simple indicators'} for update quality`}
               >
                 <span className="toggle-text">{showEmojis ? '🎯' : '•'}</span>
                 <span className="toggle-description">
-                  {showEmojis ? 'Quality' : 'Bullets'}
+                  {showEmojis ? 'Hide Quality' : 'Show Quality'}
                 </span>
               </button>
             </div>

@@ -215,10 +215,9 @@ describe('StatusTimelineHeatmap', () => {
     it('should show update indicators for cells with updates', () => {
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // By default, no timeline cell indicators should be shown (toggle is off)
-      // Note: The bullet (•) appears in the toggle button, which is correct
-      const toggleButton = screen.getByText('Bullets');
-      expect(toggleButton).toBeInTheDocument();
+      // By default, white indicators should be shown for updates (toggle is off)
+      const updateIndicators = screen.getAllByTestId('update-indicator');
+      expect(updateIndicators.length).toBeGreaterThan(0);
       
       // Quality indicators should be hidden by default
       const qualityIndicators = screen.queryAllByTestId('quality-indicator');
@@ -310,8 +309,12 @@ describe('StatusTimelineHeatmap', () => {
   });
 
   describe('Quality Indicators', () => {
-    it('should display quality indicators for updates with quality data', () => {
+    it('should display white bullets by default and not quality indicators', () => {
       render(<StatusTimelineHeatmap weekLimit={12} />);
+      
+      // Should show white indicators by default (toggle is off)
+      const updateIndicators = screen.getAllByTestId('update-indicator');
+      expect(updateIndicators.length).toBeGreaterThan(0);
       
       // Should NOT show quality indicators by default (toggle is off)
       const qualityIndicators = screen.queryAllByTestId('quality-indicator');
@@ -553,12 +556,12 @@ describe('StatusTimelineHeatmap', () => {
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
       // Find and click the toggle button to turn on quality indicators
-      const toggleButton = screen.getByLabelText('Show bullets for AI analysis');
+      const toggleButton = screen.getByLabelText('Show simple indicators for update quality');
       fireEvent.click(toggleButton);
       
       // Wait for the toggle to update
       await waitFor(() => {
-        expect(screen.getByLabelText('Show quality indicators for AI analysis')).toBeInTheDocument();
+        expect(screen.getByLabelText('Show quality indicators for update quality')).toBeInTheDocument();
       });
       
       // Quality indicators should now be visible
@@ -601,7 +604,7 @@ describe('StatusTimelineHeatmap', () => {
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
       // Turn on quality indicators first
-      const toggleButton = screen.getByLabelText('Show bullets for AI analysis');
+      const toggleButton = screen.getByLabelText('Show simple indicators for update quality');
       fireEvent.click(toggleButton);
       
       // Wait for toggle to update
@@ -645,16 +648,21 @@ describe('StatusTimelineHeatmap', () => {
 
       render(<StatusTimelineHeatmap weekLimit={12} />);
       
-      // Default state should show bullets
-      expect(screen.getByText('Bullets')).toBeInTheDocument();
-      expect(screen.getByText('•')).toBeInTheDocument();
+      // Default state should show "Show Quality"
+      expect(screen.getByText('Show Quality')).toBeInTheDocument();
+      
+      // Should have bullets in toggle button and indicators in timeline cells
+      const toggleBullets = screen.getAllByText('•');
+      const timelineIndicators = screen.getAllByTestId('update-indicator');
+      expect(toggleBullets.length).toBeGreaterThan(0); // Toggle button should have bullet
+      expect(timelineIndicators.length).toBeGreaterThan(0); // Timeline cells should have indicators
       
       // Click toggle to change state
-      const toggleButton = screen.getByLabelText('Show bullets for AI analysis');
+      const toggleButton = screen.getByLabelText('Show simple indicators for update quality');
       fireEvent.click(toggleButton);
       
-      // Should now show quality
-      expect(screen.getByText('Quality')).toBeInTheDocument();
+      // Should now show "Hide Quality"
+      expect(screen.getByText('Hide Quality')).toBeInTheDocument();
       expect(screen.getByText('🎯')).toBeInTheDocument();
     });
   });
