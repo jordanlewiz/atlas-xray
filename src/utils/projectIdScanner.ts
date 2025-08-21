@@ -109,14 +109,15 @@ async function fetchAndStoreProjectData(projectId: string, cloudId: string): Pro
   
   // ProjectView
   try {
-    console.log(`[AtlasXray] 📥 Fetching project view data for: ${projectId}`);
     const { data } = await apolloClient.query({
       query: gql`${PROJECT_VIEW_QUERY}`,
       variables
     });
-    console.log(`[AtlasXray] 📥 Project view data received for: ${projectId}`, data);
-    await setProjectView(projectId, data);
-    console.log(`[AtlasXray] ✅ Project view stored for: ${projectId}`);
+    
+    if (data?.project) {
+      await setProjectView(projectId, data);
+      console.log(`[AtlasXray] ✅ Project view stored for: ${projectId}`);
+    }
   } catch (err) {
     console.error(`[AtlasXray] Failed to fetch project view data for projectId: ${projectId}`, err);
   }
@@ -127,6 +128,7 @@ async function fetchAndStoreProjectData(projectId: string, cloudId: string): Pro
       query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
       variables: { projectKey: projectId }
     });
+    
     // Normalize: extract all .node from edges
     if (!projectId) {
       console.error('[AtlasXray] projectId is undefined when saving status history!');
@@ -146,6 +148,7 @@ async function fetchAndStoreProjectData(projectId: string, cloudId: string): Pro
       query: gql`${PROJECT_UPDATES_QUERY}`,
       variables: { key: projectId, isUpdatesTab: true }
     });
+    
     // Normalize: extract all .node from edges
     const nodes = data?.project?.updates?.edges?.map((edge: any) => edge.node).filter(Boolean) || [];
     if (nodes.length > 0) {
@@ -163,15 +166,10 @@ async function fetchAndStoreProjectData(projectId: string, cloudId: string): Pro
         }
       }
       
-      // Trigger background analysis for all updates
-      console.log(`[AtlasXray] 🔍 Found ${nodes.length} updates for project ${projectId}, triggering background analysis...`);
-      await triggerBackgroundAnalysis(nodes, projectId);
-      
       // Update project counts in storage for the floating button
       try {
         if (typeof chrome !== 'undefined' && chrome.storage?.local) {
           const allProjects = await (db as AtlasXrayDB).projectView.toArray();
-          console.log(`[AtlasXray] 📊 Current database state: ${allProjects.length} projects stored`);
           await chrome.storage.local.set({
             projectCount: allProjects.length,
             visibleProjectCount: allProjects.length
@@ -192,56 +190,57 @@ async function fetchAndStoreProjectData(projectId: string, cloudId: string): Pro
 
 /**
  * Trigger background analysis for new project updates
+ * TEMPORARILY DISABLED - AI functionality commented out
  */
-async function triggerBackgroundAnalysis(updates: any[], projectId: string): Promise<void> {
-  console.log(`[AtlasXray] 🚀 Starting background analysis for ${updates.length} updates in project ${projectId}`);
-  
-  for (const update of updates) {
-    try {
-      // Skip if no summary content
-      if (!update.summary) continue;
-      
-      // Parse the summary content
-      let updateText = '';
-      try {
-        const summaryContent = JSON.parse(update.summary);
-        updateText = extractTextFromProseMirror(summaryContent.content);
-      } catch (error) {
-        // If summary isn't valid JSON, try to use it as plain text
-        updateText = update.summary;
-      }
-      
-      if (!updateText.trim()) continue;
-      
-      // Determine update type and state for analysis
-      const updateType = determineUpdateType(updateText);
-      const state = update.state || 'no-status';
-      
-      // Send message to background script for analysis
-      if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
-        console.log(`[AtlasXray] 📤 Sending analysis request to background script for update ${update.id}`);
-        chrome.runtime.sendMessage({
-          type: 'ANALYZE_UPDATE_QUALITY',
-          updateId: update.id,
-          updateText,
-          updateType,
-          state
-        }, (response: any) => {
-          if (response?.success) {
-            console.log(`[AtlasXray] ✅ Background analysis triggered for update ${update.id}`);
-          } else {
-            console.warn(`[AtlasXray] ❌ Failed to trigger background analysis for update ${update.id}:`, response?.error);
-          }
-        });
-      } else {
-        console.warn(`[AtlasXray] ⚠️ Chrome runtime not available for update ${update.id}`);
-      }
-      
-    } catch (error) {
-      console.warn(`[AtlasXray] Failed to prepare update ${update.id} for background analysis:`, error);
-    }
-  }
-}
+// async function triggerBackgroundAnalysis(updates: any[], projectId: string): Promise<void> {
+//   console.log(`[AtlasXray] 🚀 Starting background analysis for ${updates.length} updates in project ${projectId}`);
+//   
+//   for (const update of updates) {
+//     try {
+//       // Skip if no summary content
+//       if (!update.summary) continue;
+//       
+//       // Parse the summary content
+//       let updateText = '';
+//       try {
+//         const summaryContent = JSON.parse(update.summary);
+//         updateText = extractTextFromProseMirror(summaryContent.content);
+//       } catch (error) {
+//         // If summary isn't valid JSON, try to use it as plain text
+//         updateText = update.summary;
+//       }
+//       
+//       if (!updateText.trim()) continue;
+//       
+//       // Determine update type and state for analysis
+//       const updateType = determineUpdateType(updateText);
+//       const state = update.state || 'no-status';
+//       
+//       // Send message to background script for analysis
+//       if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+//         console.log(`[AtlasXray] 📤 Sending analysis request to background script for update ${update.id}`);
+//         chrome.runtime.sendMessage({
+//           type: 'ANALYZE_UPDATE_QUALITY',
+//           updateId: update.id,
+//           updateText,
+//           updateType,
+//           state
+//         }, (response: any) => {
+//           if (response?.success) {
+//             console.log(`[AtlasXray] ✅ Background analysis triggered for update ${update.id}`);
+//           } else {
+//             console.warn(`[AtlasXray] ❌ Failed to trigger background analysis for update ${update.id}:`, response?.error);
+//           }
+//         });
+//       } else {
+//         console.warn(`[AtlasXray] ⚠️ Chrome runtime not available for update ${update.id}`);
+//       }
+//       
+//     } catch (error) {
+//       console.warn(`[AtlasXray] Failed to prepare update ${update.id} for background analysis:`, error);
+//     }
+//   }
+// }
 
 /**
  * Extract plain text from ProseMirror content
@@ -281,8 +280,6 @@ export async function downloadProjectData(): Promise<ProjectMatch[]> {
   const hrefs = links.map(link => link.getAttribute('href'));
   const matches = findMatchingProjectLinksFromHrefs(hrefs);
   
-  console.log(`[AtlasXray] Found ${matches.length} project links on page`);
-  
   // Process all projects found on the page to ensure they're stored
   const projectsToProcess = [];
   for (const { projectId, cloudId } of matches) {
@@ -292,26 +289,21 @@ export async function downloadProjectData(): Promise<ProjectMatch[]> {
     if (!existing) {
       // New project - store it
       await setItem(key, projectId);
-      console.log(`[AtlasXray] New project discovered: ${projectId}`);
     }
     
     // Always add to processing list (new or existing)
     projectsToProcess.push({ projectId, cloudId });
   }
   
-  console.log(`[AtlasXray] Processing ${projectsToProcess.length} projects for analysis`);
-  
   // Batch fetch data for all projects (limit to 5 at a time to avoid overwhelming the API)
   const batchSize = 5;
   for (let i = 0; i < projectsToProcess.length; i += batchSize) {
     const batch = projectsToProcess.slice(i, i + batchSize);
-    console.log(`[AtlasXray] Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(projectsToProcess.length/batchSize)}`);
     
     await Promise.all(
       batch.map(async ({ projectId, cloudId }) => {
         try {
           await fetchAndStoreProjectData(projectId, cloudId);
-          console.log(`[AtlasXray] ✅ Successfully processed project: ${projectId}`);
         } catch (error) {
           console.error(`[AtlasXray] ❌ Failed to process project ${projectId}:`, error);
         }
@@ -324,23 +316,18 @@ export async function downloadProjectData(): Promise<ProjectMatch[]> {
     }
   }
   
-  console.log(`[AtlasXray] Completed processing ${projectsToProcess.length} projects`);
   return matches;
 }
 
 // Add to window for console debugging
 if (typeof window !== 'undefined') {
   (window as any).debugProjectDatabase = async () => {
-    console.log('[AtlasXray] 🧪 Debugging project database...');
     try {
       const allProjects = await (db as AtlasXrayDB).projectView.toArray();
-      console.log(`[AtlasXray] 📊 Database contains ${allProjects.length} projects:`, allProjects);
-      
       const allStatusHistory = await (db as AtlasXrayDB).projectStatusHistory.toArray();
-      console.log(`[AtlasXray] 📊 Database contains ${allStatusHistory.length} status history entries`);
-      
       const allUpdates = await (db as AtlasXrayDB).projectUpdates.toArray();
-      console.log(`[AtlasXray] 📊 Database contains ${allUpdates.length} project updates`);
+      
+      console.log(`[AtlasXray] 📊 Database: ${allProjects.length} projects, ${allStatusHistory.length} status entries, ${allUpdates.length} updates`);
       
       // Check chrome storage
       if (typeof chrome !== 'undefined' && chrome.storage?.local) {
@@ -352,6 +339,4 @@ if (typeof window !== 'undefined') {
       console.error('[AtlasXray] ❌ Database debug failed:', error);
     }
   };
-  
-  console.log('[AtlasXray] 💡 Use debugProjectDatabase() in console to check database state');
 }

@@ -32,20 +32,20 @@ setTimeout(async () => {
         console.log('[AtlasXray] ✅ Background script communication working:', response);
         
         // Test AI analysis capability
-        console.log('[AtlasXray] 🧪 Testing AI analysis capability...');
-        const testResponse = await chrome.runtime.sendMessage({
-          type: 'ANALYZE_UPDATE_QUALITY',
-          updateId: 'test_initial',
-          updateText: 'Initial test of AI analysis system',
-          updateType: 'general',
-          state: 'on-track'
-        });
-        
-        if (testResponse && testResponse.success) {
-          console.log('[AtlasXray] ✅ AI analysis system ready:', testResponse.result);
-        } else {
-          console.warn('[AtlasXray] ⚠️ AI analysis test failed:', testResponse?.error);
-        }
+        // console.log('[AtlasXray] 🧪 Testing AI analysis capability...');
+        // const testResponse = await chrome.runtime.sendMessage({
+        //   type: 'ANALYZE_UPDATE_QUALITY',
+        //   updateId: 'test_initial',
+        //   updateText: 'Initial test of AI analysis system',
+        //   updateType: 'general',
+        //   state: 'on-track'
+        // });
+        // 
+        // if (testResponse && testResponse.success) {
+        //   console.log('[AtlasXray] ✅ AI analysis system ready:', testResponse.result);
+        // } else {
+        //   console.warn('[AtlasXray] ⚠️ AI analysis test failed:', testResponse?.error);
+        // }
         
       } else {
         console.error('[AtlasXray] ❌ Background script communication failed:', response);
@@ -59,12 +59,13 @@ setTimeout(async () => {
 }, 1000);
 
 // Initial project data download
-console.log('[AtlasXray] 🚀 Starting initial project data download...');
-downloadProjectData().then((matches) => {
-  console.log(`[AtlasXray] ✅ Initial scan complete. Found ${matches.length} projects.`);
-}).catch((error) => {
-  console.error('[AtlasXray] ❌ Initial project scan failed:', error);
-});
+// TEMPORARILY DISABLED - Heavy data fetching commented out
+// console.log('[AtlasXray] 🚀 Starting initial project data download...');
+// downloadProjectData().then((matches) => {
+//   console.log(`[AtlasXray] ✅ Initial scan complete. Found ${matches.length} projects.`);
+// }).catch((error) => {
+//   console.error('[AtlasXray] ❌ Initial project scan failed:', error);
+// });
 
 // Monitor DOM changes for new projects
 const observer = new MutationObserver((mutations) => {
@@ -86,11 +87,12 @@ const observer = new MutationObserver((mutations) => {
   
   if (shouldRescan) {
     console.log('[AtlasXray] 🔍 DOM changes detected, rescanning for new projects...');
-    downloadProjectData().then((matches) => {
-      console.log(`[AtlasXray] ✅ Rescan complete. Total projects found: ${matches.length}`);
-    }).catch((error) => {
-      console.error('[AtlasXray] ❌ Rescan failed:', error);
-    });
+    // TEMPORARILY DISABLED - Heavy data fetching commented out
+    // downloadProjectData().then((matches) => {
+    //   console.log(`[AtlasXray] ✅ Rescan complete. Total projects found: ${matches.length}`);
+    // }).catch((error) => {
+    //   console.error('[AtlasXray] ❌ Rescan failed:', error);
+    // });
   }
 });
 
@@ -104,14 +106,14 @@ window.testAtlasXray = async () => {
     console.log('[AtlasXray] Test response:', response);
     
     // Test analysis
-    const analysisResponse = await chrome.runtime.sendMessage({
-      type: 'ANALYZE_UPDATE_QUALITY',
-      updateId: 'manual_test',
-      updateText: 'Manual test of the analysis system',
-      updateType: 'general',
-      state: 'on-track'
-    });
-    console.log('[AtlasXray] Analysis test response:', analysisResponse);
+    // const analysisResponse = await chrome.runtime.sendMessage({
+    //   type: 'ANALYZE_UPDATE_QUALITY',
+    //   updateId: 'manual_test',
+    //   updateText: 'Manual test of the analysis system',
+    //   updateType: 'general',
+    //   state: 'on-track'
+    // });
+    // console.log('[AtlasXray] Analysis test response:', analysisResponse);
     
   } catch (error) {
     console.error('[AtlasXray] Test failed:', error);

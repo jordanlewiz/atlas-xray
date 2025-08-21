@@ -75,16 +75,17 @@ export function useUpdateQuality() {
   }, []);
 
   // Trigger background analysis for updates without quality data
-  useEffect(() => {
-    if (updates && updates.length > 0) {
-      // Prevent multiple simultaneous analysis triggers
-      const timeoutId = setTimeout(() => {
-        triggerBackgroundAnalysisForExistingUpdates(updates);
-      }, 2000); // Wait 2 seconds before starting analysis
-      
-      return () => clearTimeout(timeoutId);
-    }
-  }, [updates]);
+  // TEMPORARILY DISABLED - AI functionality commented out
+  // useEffect(() => {
+  //   if (updates && updates.length > 0) {
+  //     // Prevent multiple simultaneous analysis triggers
+  //     const timeoutId = setTimeout(() => {
+  //       triggerBackgroundAnalysisForExistingUpdates(updates);
+  //     }, 2000); // Wait 2 seconds before starting analysis
+  //     
+  //     return () => clearTimeout(timeoutId);
+  //   }
+  // }, [updates]);
   
   // Fetch quality data for updates (from projectUpdates table first, then fallbacks)
   const qualityData = useLiveQuery(
@@ -296,67 +297,68 @@ export function useUpdateQuality() {
 
   /**
    * Trigger background analysis for existing updates without quality data
+   * TEMPORARILY DISABLED - AI functionality commented out
    */
-  const triggerBackgroundAnalysisForExistingUpdates = useCallback(async (updates: ProjectUpdate[]) => {
-    // Check which updates don't have quality data in the qualityData object
-    const unanalyzedUpdates = updates.filter(update => !qualityData?.[update.id]);
-    
-    if (unanalyzedUpdates.length === 0) {
-      return;
-    }
-    
-    // Limit batch size to prevent overwhelming the message system
-    const maxBatchSize = 5;
-    const batchToProcess = unanalyzedUpdates.slice(0, maxBatchSize);
-    
-    for (const update of batchToProcess) {
-      try {
-        // Extract update text
-        const updateText = [
-          update.summary || '',
-          update.details || ''
-        ].filter(Boolean).join(' ');
-        
-        if (!updateText.trim()) {
-          continue;
-        }
-        
-        // Determine update type and state
-        const updateType = determineUpdateType(updateText);
-        const state = update.state || 'no-status';
-        
-        // Send message to background script for analysis
-        if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
-          chrome.runtime.sendMessage({
-            type: 'ANALYZE_UPDATE_QUALITY',
-            updateId: update.id,
-            updateText,
-            updateType,
-            state
-          }, (response: any) => {
-            if (response?.success) {
-              // Force re-evaluation of quality data
-              setUpdateTrigger(prev => prev + 1);
-            }
-          });
-        }
-        
-        // Longer delay between messages to prevent overwhelming
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-      } catch (error) {
-        console.warn(`Failed to prepare update ${update.id} for background analysis:`, error);
-      }
-    }
+  // const triggerBackgroundAnalysisForExistingUpdates = useCallback(async (updates: ProjectUpdate[]) => {
+  //   // Check which updates don't have quality data in the qualityData object
+  //   const unanalyzedUpdates = updates.filter(update => !qualityData?.[update.id]);
+  //   
+  //   if (unanalyzedUpdates.length === 0) {
+  //     return;
+  //   }
+  //   
+  //   // Limit batch size to prevent overwhelming the message system
+  //   const maxBatchSize = 5;
+  //   const batchToProcess = unanalyzedUpdates.slice(0, maxBatchSize);
+  //   
+  //   for (const update of batchToProcess) {
+  //     try {
+  //       // Extract update text
+  //       const updateText = [
+  //         update.summary || '',
+  //       update.details || ''
+  //     ].filter(Boolean).join(' ');
+  //       
+  //       if (!updateText.trim()) {
+  //         continue;
+  //       }
+  //       
+  //       // Determine update type and state
+  //       const updateType = determineUpdateType(updateText);
+  //       const state = update.state || 'no-status';
+  //       
+  //       // Send message to background script for analysis
+  //       if (typeof chrome !== 'undefined' && chrome.runtime?.sendMessage) {
+  //         chrome.runtime.sendMessage({
+  //           type: 'ANALYZE_UPDATE_QUALITY',
+  //           updateId: update.id,
+  //           updateText,
+  //           updateType,
+  //           state
+  //         }, (response: any) => {
+  //           if (response?.success) {
+  //             // Force re-evaluation of quality data
+  //             setUpdateTrigger(prev => prev + 1);
+  //           }
+  //         });
+  //       }
+  //       
+  //       // Longer delay between messages to prevent overwhelming
+  //       await new Promise(resolve => setTimeout(resolve, 1000));
+  //       
+  //     } catch (error) {
+  //       console.warn(`Failed to prepare update ${update.id} for background analysis:`, error);
+  //       }
+  //   }
 
-    // If there are more updates to process, schedule the next batch
-    if (unanalyzedUpdates.length > maxBatchSize) {
-      const remainingUpdates = unanalyzedUpdates.slice(maxBatchSize);
-      setTimeout(() => {
-        triggerBackgroundAnalysisForExistingUpdates(remainingUpdates);
-      }, 10000);
-    }
-  }, [qualityData]);
+  //   // If there are more updates to process, schedule the next batch
+  //   if (unanalyzedUpdates.length > maxBatchSize) {
+  //     const remainingUpdates = unanalyzedUpdates.slice(maxBatchSize);
+  //     setTimeout(() => {
+  //       triggerBackgroundAnalysisForExistingUpdates(remainingUpdates);
+  //       }, 10000);
+  //   }
+  // }, [qualityData]);
 
   /**
    * Helper function to determine update type

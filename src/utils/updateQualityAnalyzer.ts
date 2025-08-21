@@ -269,21 +269,25 @@ async function analyzeUpdateQualityViaBackground(
       return provideFallbackAnalysis(updateText, updateType, state);
     }
     
-    const response = await chrome.runtime.sendMessage({
-      type: 'ANALYZE_UPDATE_QUALITY',
-      updateText,
-      updateType,
-      state,
-      updateId: `update_${Date.now()}`
-    });
+    // const response = await chrome.runtime.sendMessage({
+    //   type: 'ANALYZE_UPDATE_QUALITY',
+    //   updateText,
+    //   updateType,
+    //   state,
+    //   updateId: `update_${Date.now()}`
+    // });
 
-    if (response && response.success) {
-      console.log('✅ Background script analysis completed');
-      return response.result;
-    } else {
-      console.warn('⚠️ Background script analysis failed, using fallback');
-      return provideFallbackAnalysis(updateText, updateType, state);
-    }
+    // if (response && response.success) {
+    //   console.log('✅ Background script analysis completed');
+    //   return response.result;
+    // } else {
+    //   console.warn('⚠️ Background script analysis failed, using fallback');
+    //   return provideFallbackAnalysis(updateText, updateType, state);
+    // }
+    
+    // TEMPORARILY DISABLED - AI functionality commented out
+    console.log('⚠️ Background script analysis disabled, using fallback');
+    return provideFallbackAnalysis(updateText, updateType, state);
   } catch (error) {
     console.error('❌ Failed to communicate with background script:', error);
     return provideFallbackAnalysis(updateText, updateType, state);

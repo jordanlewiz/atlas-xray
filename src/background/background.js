@@ -29,28 +29,34 @@ let analysisQueue = [];
 let isProcessingQueue = false;
 
 // Initialize AI capabilities
-async function initializeAI() {
-  try {
-    console.log('[AtlasXray] Initializing AI capabilities...');
-    
-    // Import project analyzer (this will be bundled)
-    const analyzerModule = await import('../utils/projectAnalyzer');
-    projectAnalyzer = analyzerModule.analyzeProjectUpdate;
-    
-    if (projectAnalyzer) {
-      isAIAvailable = true;
-      console.log('[AtlasXray] ✅ AI analysis capabilities initialized');
-    } else {
-      console.warn('[AtlasXray] ⚠️ AI analysis not available, using fallback');
-    }
-  } catch (error) {
-    console.error('[AtlasXray] Failed to initialize AI:', error);
-    isAIAvailable = false;
-  }
-}
+// async function initializeAI() {
+//   const startTime = performance.now();
+//   try {
+//     console.log('[AtlasXray] Initializing AI capabilities...');
+//     
+//     // Import project analyzer (this will be bundled)
+//     const analyzerModule = await import('../utils/projectAnalyzer');
+//     projectAnalyzer = analyzerModule.analyzeProjectUpdate;
+//     
+//     if (projectAnalyzer) {
+//       isAIAvailable = true;
+//       const endTime = performance.now();
+//       console.log(`[AtlasXray] ✅ AI analysis capabilities initialized in ${(endTime - startTime).toFixed(2)}ms`);
+//     } else {
+//       console.warn('[AtlasXray] ⚠️ AI analysis not available, using fallback');
+//     }
+//   } catch (error) {
+//     const endTime = performance.now();
+//     console.error(`[AtlasXray] Failed to initialize AI after ${(endTime - startTime).toFixed(2)}ms:`, error);
+//     isAIAvailable = false;
+//   }
+// }
 
-// Initialize AI when service worker starts
-initializeAI();
+// Initialize AI when service worker starts - but don't block
+// initializeAI().catch(error => {
+//   console.error('[AtlasXray] AI initialization failed, continuing without AI:', error);
+//   isAIAvailable = false;
+// });
 
 // Message handler for communication with content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -67,11 +73,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   
   if (message.type === 'ANALYZE_UPDATE_QUALITY') {
-    console.log('[AtlasXray] 🔍 AI analysis request received for update:', message.updateId);
+    // console.log('[AtlasXray] 🔍 AI analysis request received for update:', message.updateId);
     
-    // Handle analysis asynchronously with queue management
-    handleUpdateAnalysisWithQueue(message, sender, sendResponse);
-    return true; // Keep message channel open for async response
+    // // Handle analysis asynchronously with queue management
+    // handleUpdateAnalysisWithQueue(message, sender, sendResponse);
+    // return true; // Keep message channel open for async response
+    
+    // Temporary: just return success without AI
+    sendResponse({ 
+      success: true, 
+      message: 'AI analysis temporarily disabled',
+      result: { score: 50, quality: 'fair' }
+    });
+    return true;
   }
   
   if (message.type === 'OPEN_TIMELINE') {
@@ -86,6 +100,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       success: true, 
       stats,
       summary: memoryManager.getMemorySummary()
+    });
+    return true;
+  }
+
+  if (message.type === 'GET_AI_STATUS') {
+    // sendResponse({ 
+    //   success: true, 
+    //   isAIAvailable,
+    //   hasProjectAnalyzer: !!projectAnalyzer,
+    //   queueSize: analysisQueue.length,
+    //   isProcessing: isProcessingQueue
+    // });
+    // return true;
+    
+    // Temporary: return disabled status
+    sendResponse({ 
+      success: true, 
+      isAIAvailable: false,
+      hasProjectAnalyzer: false,
+      queueSize: 0,
+      isProcessing: false,
+      message: 'AI temporarily disabled'
     });
     return true;
   }
@@ -111,6 +147,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function handleUpdateAnalysisWithQueue(message, sender, sendResponse) {
   try {
     const { updateId, updateText, updateType, state } = message;
+    
+    // If AI is not available, provide immediate fallback response
+    if (!isAIAvailable || !projectAnalyzer) {
+      console.log('[AtlasXray] AI not available, providing immediate fallback response');
+      try {
+        const fallbackResult = await performRuleBasedAnalysis(updateText, updateType, state);
+        await storeAnalysisResult(updateId, fallbackResult);
+        sendResponse({ 
+          success: true, 
+          result: fallbackResult,
+          message: 'Rule-based analysis completed (AI not available)'
+        });
+      } catch (error) {
+        console.error('[AtlasXray] Fallback analysis failed:', error);
+        sendResponse({ 
+          success: false, 
+          error: 'Both AI and fallback analysis failed',
+          message: 'Analysis unavailable'
+        });
+      }
+      return;
+    }
     
     // Check if queue is full
     if (analysisQueue.length >= MAX_ANALYSIS_QUEUE) {

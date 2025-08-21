@@ -45,6 +45,31 @@ export async function getItem(key: string): Promise<any> {
   return getMeta(key);
 }
 
+// Visible project management
+async function setVisibleProjectIds(projectIds: string[]): Promise<void> {
+  await setMeta('visibleProjectIds', projectIds);
+}
+
+async function getVisibleProjectIds(): Promise<string[]> {
+  const ids = await getMeta('visibleProjectIds');
+  return Array.isArray(ids) ? ids : [];
+}
+
+async function addVisibleProject(projectId: string): Promise<string[]> {
+  const currentIds = await getVisibleProjectIds();
+  if (!currentIds.includes(projectId)) {
+    const newIds = [...currentIds, projectId];
+    await setVisibleProjectIds(newIds);
+    return newIds;
+  }
+  return currentIds;
+}
+
+async function getVisibleProjectCount(): Promise<number> {
+  const ids = await getVisibleProjectIds();
+  return ids.length;
+}
+
 // GraphQL node types
 interface GraphQLNode {
   id?: string;
@@ -163,4 +188,11 @@ export async function getProjectImage(
   return image ? { imageData: image.imageData, mimeType: image.mimeType } : null;
 }
 
-export { db, upsertProjectUpdates, upsertProjectStatusHistory };
+export { 
+  db, 
+  upsertProjectUpdates, 
+  upsertProjectStatusHistory,
+  setVisibleProjectIds,
+  getVisibleProjectIds,
+  getVisibleProjectCount
+};
