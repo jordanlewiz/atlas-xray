@@ -574,12 +574,18 @@ describe('Project Data Pipeline E2E', () => {
         { id: 'update-2', projectId: 'EXISTING-2' }
       ];
       
-      // Mock database to return existing data
-      (db.projectView.toArray as jest.Mock).mockResolvedValue(existingProjects);
-      (db.projectUpdates.toArray as jest.Mock).mockResolvedValue(existingUpdates);
+      // Mock database to return existing data BEFORE creating pipeline
+      const originalToArray = db.projectView.toArray;
+      const originalUpdatesToArray = db.projectUpdates.toArray;
+      
+      db.projectView.toArray = jest.fn().mockResolvedValue(existingProjects);
+      db.projectUpdates.toArray = jest.fn().mockResolvedValue(existingUpdates);
       
       // When: Create a new pipeline instance (which calls initializeFromDatabase)
       const newPipeline = new ProjectPipeline();
+      
+      // Wait for async initialization to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
       
       // Then: Should initialize state with existing database counts
       const state = newPipeline.getState();
@@ -587,8 +593,8 @@ describe('Project Data Pipeline E2E', () => {
       expect(state.projectUpdatesStored).toBe(2);
       
       // Cleanup
-      (db.projectView.toArray as jest.Mock).mockRestore();
-      (db.projectUpdates.toArray as jest.Mock).mockRestore();
+      db.projectView.toArray = originalToArray;
+      db.projectUpdates.toArray = originalUpdatesToArray;
     });
 
     it('should combine existing and newly stored projects correctly', async () => {
@@ -598,22 +604,33 @@ describe('Project Data Pipeline E2E', () => {
         { id: 'EXISTING-2', name: 'Existing Project 2' }
       ];
       
-      // Mock database to return existing data
-      (db.projectView.toArray as jest.Mock).mockResolvedValue(existingProjects);
+      // Mock database to return existing data BEFORE creating pipeline
+      const originalToArray = db.projectView.toArray;
+      db.projectView.toArray = jest.fn().mockResolvedValue(existingProjects);
+      
+      // Create a fresh pipeline instance that will initialize with the mocked data
+      const freshPipeline = new ProjectPipeline();
+      
+      // Wait for async initialization to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Verify initial state
+      const initialState = freshPipeline.getState();
+      expect(initialState.projectsStored).toBe(2);
       
       // When: Run pipeline with new projects
-      await pipeline.scanProjectsOnPage();
-      const finalStoredCount = await pipeline.fetchAndStoreProjects();
+      await freshPipeline.scanProjectsOnPage();
+      const finalStoredCount = await freshPipeline.fetchAndStoreProjects();
       
       // Then: Should return total count (existing + newly stored)
       expect(finalStoredCount).toBe(5); // 2 existing + 3 newly stored
       
       // And: State should reflect total count
-      const finalState = pipeline.getState();
+      const finalState = freshPipeline.getState();
       expect(finalState.projectsStored).toBe(5);
       
       // Cleanup
-      (db.projectView.toArray as jest.Mock).mockRestore();
+      db.projectView.toArray = originalToArray;
     });
   });
 

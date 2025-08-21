@@ -161,15 +161,9 @@ export class ProjectPipeline {
       
       console.log(`[AtlasXray] 📋 Processing ${actualProjectIds.length} actual projects from scanner:`, actualProjectIds);
       
-      // Check for existing projects in database from previous sessions
-      let existingProjectsCount = 0;
-      try {
-        const existingProjects = await db.projectView.toArray();
-        existingProjectsCount = existingProjects.length;
-        console.log(`[AtlasXray] 📊 Found ${existingProjectsCount} existing projects in database from previous sessions`);
-      } catch (error) {
-        console.warn(`[AtlasXray] Could not check existing projects:`, error);
-      }
+      // Get current stored count from state (don't re-query database)
+      const currentStoredCount = currentState.projectsStored || 0;
+      console.log(`[AtlasXray] 📊 Current stored count from state: ${currentStoredCount}`);
       
       // Filter out invalid projects
       const validProjects = actualProjectIds.filter(p => p && p.trim()).map(projectId => ({
@@ -188,9 +182,9 @@ export class ProjectPipeline {
             if (success) {
               newlyStoredCount++;
               
-              // Update progress with total count (existing + newly stored)
+              // Update progress with total count (current + newly stored)
               this.updateState({
-                projectsStored: existingProjectsCount + newlyStoredCount,
+                projectsStored: currentStoredCount + newlyStoredCount,
                 lastUpdated: new Date()
               });
             }
@@ -219,9 +213,9 @@ export class ProjectPipeline {
       
       // Preserve the original projectsOnPage count from the scanner
       // Don't overwrite it with the stored count
-      console.log(`[AtlasXray] 📊 Scanner found ${currentState.projectsOnPage} projects, newly stored ${newlyStoredCount} projects, total stored ${existingProjectsCount + newlyStoredCount} projects`);
+      console.log(`[AtlasXray] 📊 Scanner found ${currentState.projectsOnPage} projects, newly stored ${newlyStoredCount} projects, total stored ${currentStoredCount + newlyStoredCount} projects`);
 
-      return existingProjectsCount + newlyStoredCount;
+      return currentStoredCount + newlyStoredCount;
     } catch (error) {
       this.updateState({
         currentStage: 'idle',
