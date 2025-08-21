@@ -65,7 +65,6 @@ export default function StatusTimelineHeader({
                 type="button"
                 aria-label={`${showEmojis ? 'Hide' : 'Show'} update quality indicators`}
               >
-                <span className="toggle-text">{showEmojis ? '🎯' : '•'}</span>
                 <span className="toggle-description">
                   {showEmojis ? 'Hide' : 'Show'}
                 </span>

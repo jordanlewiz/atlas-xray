@@ -601,10 +601,8 @@ describe('StatusTimelineHeatmap', () => {
       // Default state should show "Hide" (toggle starts ON now)
       expect(screen.getByText('Hide')).toBeInTheDocument();
       
-      // Should have target emoji in toggle button and quality indicators in timeline cells
-      const toggleEmojis = screen.getAllByText('🎯');
+      // Should have quality indicators in timeline cells (toggle button no longer has emojis)
       const qualityIndicators = screen.getAllByTestId('quality-indicator');
-      expect(toggleEmojis.length).toBeGreaterThan(0); // Toggle button should have target emoji
       expect(qualityIndicators.length).toBeGreaterThan(0); // Timeline cells should have quality indicators
       
       // Click toggle to change state
@@ -613,7 +611,6 @@ describe('StatusTimelineHeatmap', () => {
       
       // Should now show "Show"
       expect(screen.getByText('Show')).toBeInTheDocument();
-      expect(screen.getByText('•')).toBeInTheDocument();
     });
   });
 
@@ -627,9 +624,6 @@ describe('StatusTimelineHeatmap', () => {
       
       // Should show "Hide" since toggle is ON by default
       expect(screen.getByText('Hide')).toBeInTheDocument();
-      
-      // Should show target emoji in toggle button
-      expect(screen.getByText('🎯')).toBeInTheDocument();
     });
 
     it('should hide quality indicators when toggle is turned off', () => {
@@ -650,8 +644,7 @@ describe('StatusTimelineHeatmap', () => {
       // Button should now show "Show"
       expect(screen.getByText('Show')).toBeInTheDocument();
       
-      // Should show bullet in toggle button
-      expect(screen.getByText('•')).toBeInTheDocument();
+
     });
 
     it('should show quality indicators when toggle is turned back on', () => {
@@ -672,8 +665,7 @@ describe('StatusTimelineHeatmap', () => {
       // Button should show "Hide" again
       expect(screen.getByText('Hide')).toBeInTheDocument();
       
-      // Should show target emoji in toggle button
-      expect(screen.getByText('🎯')).toBeInTheDocument();
+
     });
   });
 
