@@ -12,7 +12,7 @@
     "build:chromeExtension": "node esbuild.config.js chromeExtension",
     "build:background": "node esbuild.config.js background",
     "build:merge-css": "touch dist/contentScript.css && cat dist/main.css >> dist/contentScript.css && rm dist/main.css dist/main.css.map",
-    "build": "npm test && npm run --silent build:js && npm run --silent build:css && npm run --silent build:html && npm run --silent build:chromeExtension && npm run --silent build:background && npm run --silent build:manifest && npm run --silent build:merge-css",
+    "build": "npm run test:silent && npm run --silent build:js && npm run --silent build:css && npm run --silent build:html && npm run --silent build:chromeExtension && npm run --silent build:background && npm run --silent build:manifest && npm run --silent build:merge-css",
     "check:versions": "node scripts/checkVersionConsistency.js",
     "test:versions": "node scripts/testVersionConsistency.js",
     "build:check": "npm run check:versions && npm run build",
@@ -22,6 +22,7 @@
     "release:custom": "node scripts/release.js",
     "release": "npm run release:patch",
     "test": "jest",
+    "test:silent": "jest --silent",
     "test:watch": "jest --watch",
     "type-check": "tsc --noEmit",
     "type-check:watch": "tsc --noEmit --watch"
