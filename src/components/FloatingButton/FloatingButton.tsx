@@ -5,6 +5,7 @@ import type { AtlasXrayDB } from "../../types/database";
 import StatusTimelineHeatmap from "../StatusTimelineHeatmap/StatusTimelineHeatmap";
 import ProjectStatusHistoryModal from "../ProjectStatusHistoryModal";
 import { downloadProjectData } from "../../utils/projectIdScanner";
+import Tooltip from "@atlaskit/tooltip";
 
 // Utility function to debounce function calls
 function debounce<T extends (...args: any[]) => any>(
@@ -95,16 +96,32 @@ export default function FloatingButton(): React.JSX.Element {
 
   const handleOpenModal = (): void => setModalOpen(true);
 
+  const getTooltipContent = (): React.ReactNode => {
+    if (visibleProjectKeys.length > 0 && projectCount !== undefined) {
+      return (
+        <div>
+          <div>{visibleProjectKeys.length} projects found on this page</div>
+          <div>{projectCount} total projects in memory</div>
+        </div>
+      );
+    } else if (projectCount !== undefined) {
+      return `${projectCount} total projects in your workspace`;
+    }
+    return "Loading project data...";
+  };
+
   return (
     <>
-      <button className="atlas-xray-floating-btn" onClick={handleOpenModal}>
-        Atlas Xray
-        {visibleProjectKeys.length > 0
-          ? ` (${visibleProjectKeys.length}/${projectCount !== undefined ? projectCount : 0})`
-          : projectCount !== undefined
-            ? ` (${projectCount})`
-            : ""}
-      </button>
+      <Tooltip content={getTooltipContent()} position="top">
+        <button className="atlas-xray-floating-btn" onClick={handleOpenModal}>
+          Atlas Xray
+          {visibleProjectKeys.length > 0
+            ? ` (${visibleProjectKeys.length}/${projectCount !== undefined ? projectCount : 0})`
+            : projectCount !== undefined
+              ? ` (${projectCount})`
+              : ""}
+        </button>
+      </Tooltip>
       
       <ProjectStatusHistoryModal open={modalOpen} onClose={() => setModalOpen(false)}>
         {(weekLimit: number) => (
