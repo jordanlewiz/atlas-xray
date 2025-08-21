@@ -13,8 +13,8 @@ import { getDueDateDiff } from "../../utils/timelineUtils";
 import type { ProjectUpdateModalProps } from "../../types";
 import { renderProseMirror } from "../../utils/proseMirrorRenderer";
 import { ImageRenderer } from "../ImageRenderer";
-import QualityIndicator from "../QualityIndicator/QualityIndicator";
-import { useUpdateQuality } from "../../hooks/useUpdateQuality";
+// QualityIndicator removed - quality analysis now handled by ProjectPipeline
+// useUpdateQuality removed - quality analysis now handled by ProjectPipeline
 
 /**
  * Extract media nodes from ProseMirror content
@@ -48,9 +48,6 @@ export default function ProjectUpdateModal({
   project, 
   onClose 
 }: ProjectUpdateModalProps): React.JSX.Element | null {
-  const { getUpdateQuality, analyzeUpdate } = useUpdateQuality();
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [analysisTrigger, setAnalysisTrigger] = useState(0);
   
   const getLozengeAppearance = (status: string | undefined): any => {
     if (!status) return 'new';

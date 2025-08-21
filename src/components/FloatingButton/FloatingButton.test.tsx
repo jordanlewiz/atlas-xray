@@ -8,13 +8,9 @@ jest.mock('dexie-react-hooks', () => ({
   useLiveQuery: jest.fn()
 }));
 
-jest.mock('../../utils/projectIdScanner', () => ({
-  downloadProjectData: jest.fn()
-}));
+// projectIdScanner removed - now handled by ProjectPipeline
 
-jest.mock('../../hooks/useUpdateQuality', () => ({
-  useUpdateQuality: jest.fn()
-}));
+// useUpdateQuality hook removed - now handled by ProjectPipeline
 
 jest.mock('react', () => ({
   ...jest.requireActual('react'),
@@ -44,13 +40,6 @@ describe('FloatingButton', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
-    // Reset the downloadProjectData mock
-    const { downloadProjectData } = require('../../utils/projectIdScanner');
-    (downloadProjectData as jest.Mock).mockResolvedValue([
-      { projectId: 'PROJ-1' },
-      { projectId: 'PROJ-2' }
-    ]);
-    
     // Mock React useState
     const { useState } = require('react');
     useState.mockImplementation((initialValue: any) => {
@@ -75,15 +64,6 @@ describe('FloatingButton', () => {
         return mockProjects; // All projects
       }
       return mockProjects;
-    });
-    
-    // Mock useUpdateQuality
-    const mockUseUpdateQuality = require('../../hooks/useUpdateQuality').useUpdateQuality;
-    mockUseUpdateQuality.mockReturnValue({
-      updates: [],
-      qualityData: {},
-      triggerBackgroundAnalysisForExistingUpdates: jest.fn(),
-      updateTrigger: 0
     });
   });
 

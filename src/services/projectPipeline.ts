@@ -6,6 +6,7 @@ import { PROJECT_UPDATES_QUERY } from '../graphql/projectUpdatesQuery';
 
 export interface PipelineState {
   projectsOnPage: number;
+  projectIds: string[]; // Store the actual project IDs found
   projectsStored: number;
   projectUpdatesStored: number;
   projectUpdatesAnalysed: number;
@@ -39,6 +40,7 @@ export class ProjectPipeline {
   constructor() {
     this.state = {
       projectsOnPage: 0,
+      projectIds: [], // Initialize empty array
       projectsStored: 0,
       projectUpdatesStored: 0,
       projectUpdatesAnalysed: 0,
@@ -68,8 +70,53 @@ export class ProjectPipeline {
     });
 
     try {
+      // Wait for DOM to be ready if needed
+      if (document.readyState !== 'complete') {
+        console.log(`[AtlasXray] 🔍 DOM not ready (${document.readyState}), waiting...`);
+        await new Promise(resolve => {
+          if (document.readyState === 'complete') {
+            resolve(undefined);
+          } else {
+            window.addEventListener('load', resolve, { once: true });
+          }
+        });
+        console.log(`[AtlasXray] 🔍 DOM now ready, proceeding with scan...`);
+      }
+      // Debug: Log current page info
+      console.log(`[AtlasXray] 🔍 Scanning page: ${window.location.href}`);
+      console.log(`[AtlasXray] 🔍 Page title: ${document.title}`);
+      console.log(`[AtlasXray] 🔍 Document ready state: ${document.readyState}`);
+      console.log(`[AtlasXray] 🔍 Body children count: ${document.body?.children?.length || 'N/A'}`);
+      
       const projectLinks = document.querySelectorAll('a[href*="/project/"]');
       console.log(`[AtlasXray] 🔍 Found ${projectLinks.length} links with "/project/" in href`);
+      
+      // Debug: Log all links on the page to see what's available
+      const allLinks = document.querySelectorAll('a[href]');
+      console.log(`[AtlasXray] 🔍 Total links on page: ${allLinks.length}`);
+      
+      // Show first few links for debugging
+      allLinks.forEach((link, index) => {
+        if (index < 5) { // Only show first 5 to avoid spam
+          const href = link.getAttribute('href');
+          console.log(`[AtlasXray] 🔗 Link ${index + 1}: ${href}`);
+        }
+      });
+      
+      // Debug: Check if we're in a shadow DOM or iframe
+      console.log(`[AtlasXray] 🔍 Current frame: ${window.location !== window.parent.location ? 'iframe' : 'main'}`);
+      console.log(`[AtlasXray] 🔍 Shadow roots: ${document.querySelectorAll('*').length} total elements`);
+      
+      // Also check for project-related elements that might not be links
+      const projectElements = document.querySelectorAll('[data-testid*="project"], [class*="project"], [id*="project"]');
+      console.log(`[AtlasXray] 🔍 Found ${projectElements.length} project-related elements`);
+      
+      // Check for text content that might contain project IDs
+      const pageText = document.body?.innerText || '';
+      const projectIdMatches = pageText.match(/[A-Z]+-\d+/g);
+      if (projectIdMatches) {
+        console.log(`[AtlasXray] 🔍 Found project IDs in page text:`, projectIdMatches.slice(0, 10));
+      }
       
       const projectIds: string[] = [];
       
@@ -97,10 +144,104 @@ export class ProjectPipeline {
 
       const uniqueProjectIds = Array.from(new Set(projectIds)).filter(id => id && id.trim());
       
-      console.log(`[AtlasXray] 🔍 Found project IDs:`, uniqueProjectIds);
+      // Fallback: If no project links found, try to extract from page content
+      if (uniqueProjectIds.length === 0) {
+        console.log(`[AtlasXray] 🔍 No project IDs found in primary scan, trying fallbacks...`);
+        
+        // Wait a bit more for dynamic content to load
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log(`[AtlasXray] 🔍 Retrying scan after delay...`);
+        
+        // Retry the primary scan
+        const retryProjectLinks = document.querySelectorAll('a[href*="/project/"]');
+        console.log(`[AtlasXray] 🔍 Retry: Found ${retryProjectLinks.length} links with "/project/" in href`);
+        
+        if (retryProjectLinks.length > 0) {
+          retryProjectLinks.forEach((link, index) => {
+            if (index < 5) {
+              const href = link.getAttribute('href');
+              console.log(`[AtlasXray] 🔗 Retry Link ${index + 1}: ${href}`);
+              if (href) {
+                let match = href.match(/\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/);
+                if (match && match[3] && match[3].trim()) {
+                  console.log(`[AtlasXray] ✅ Retry: Matched project (full pattern): ${match[3]}`);
+                  uniqueProjectIds.push(match[3].trim());
+                } else {
+                  match = href.match(/\/project\/([A-Z]+-\d+)/);
+                  if (match && match[1] && match[1].trim()) {
+                    console.log(`[AtlasXray] ✅ Retry: Matched project (simple pattern): ${match[1]}`);
+                    uniqueProjectIds.push(match[1].trim());
+                  }
+                }
+              }
+            }
+          });
+        }
+        console.log(`[AtlasXray] 🔍 No project links found, trying fallback scanning...`);
+        
+        // Look for project IDs in various page elements
+        const fallbackSelectors = [
+          '[data-testid*="project"]',
+          '[class*="project"]',
+          '[id*="project"]',
+          '.project-item',
+          '.project-card',
+          '.project-name'
+        ];
+        
+        for (const selector of fallbackSelectors) {
+          const elements = document.querySelectorAll(selector);
+          if (elements.length > 0) {
+            console.log(`[AtlasXray] 🔍 Found ${elements.length} elements with selector: ${selector}`);
+            
+            // Extract text content and look for project IDs
+            elements.forEach((element, index) => {
+              if (index < 5) { // Limit to first 5 to avoid spam
+                const text = element.textContent || '';
+                const matches = text.match(/[A-Z]+-\d+/g);
+                if (matches) {
+                  console.log(`[AtlasXray] 🔍 Element ${index + 1} contains project IDs:`, matches);
+                  matches.forEach(id => {
+                    if (!uniqueProjectIds.includes(id)) {
+                      uniqueProjectIds.push(id);
+                    }
+                  });
+                }
+              }
+            });
+          }
+        }
+        
+        // Additional fallback: Look for any links that might contain project IDs
+        if (uniqueProjectIds.length === 0) {
+          console.log(`[AtlasXray] 🔍 Trying to find any links with project IDs...`);
+          const allLinks = document.querySelectorAll('a[href]');
+          
+          allLinks.forEach((link, index) => {
+            if (index < 20) { // Check first 20 links
+              const href = link.getAttribute('href');
+              if (href) {
+                // Look for project ID pattern in href
+                const projectMatch = href.match(/\/project\/([A-Z]+-\d+)/);
+                if (projectMatch && projectMatch[1]) {
+                  const projectId = projectMatch[1].trim();
+                  console.log(`[AtlasXray] 🔍 Found project ID in href: ${projectId} from ${href}`);
+                  if (!uniqueProjectIds.includes(projectId)) {
+                    uniqueProjectIds.push(projectId);
+                  }
+                }
+              }
+            }
+          });
+        }
+      }
       
+      console.log(`[AtlasXray] 🔍 Final project IDs found:`, uniqueProjectIds);
+      
+      // Store the actual project IDs for later use
       this.updateState({
         projectsOnPage: uniqueProjectIds.length,
+        projectIds: uniqueProjectIds, // Store the actual IDs
         currentStage: 'idle',
         isProcessing: false,
         lastUpdated: new Date()
@@ -125,35 +266,18 @@ export class ProjectPipeline {
     });
 
     try {
-      const projectLinks = document.querySelectorAll('a[href*="/project/"]');
-      const projects: ProjectMatch[] = [];
+      // Get the actual project IDs that were found by the scanner
+      const currentState = this.getState();
+      const actualProjectIds = currentState.projectIds || [];
       
-      projectLinks.forEach((link) => {
-        const href = link.getAttribute('href');
-        if (href) {
-          let match = href.match(/\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)\/project\/([A-Z]+-\d+)/);
-          if (match && match[3] && match[3].trim()) {
-            projects.push({
-              projectId: match[3].trim(),
-              cloudId: match[1] || 'unknown',
-              href: href
-            });
-          } else {
-            match = href.match(/\/project\/([A-Z]+-\d+)/);
-            if (match && match[1] && match[1].trim()) {
-              projects.push({
-                projectId: match[1].trim(),
-                cloudId: 'unknown',
-                href: href
-              });
-            }
-          }
-        }
-      });
-
+      console.log(`[AtlasXray] 📋 Processing ${actualProjectIds.length} actual projects from scanner:`, actualProjectIds);
+      
       // Filter out invalid projects
-      const validProjects = projects.filter(p => p.projectId && p.projectId.trim());
-      console.log(`[AtlasXray] 📋 Processing ${validProjects.length} valid projects:`, validProjects.map(p => p.projectId));
+      const validProjects = actualProjectIds.filter(p => p && p.trim()).map(projectId => ({
+        projectId: projectId.trim(),
+        cloudId: 'unknown',
+        href: `#${projectId}`
+      }));
 
       // Process projects with rate limiting
       let storedCount = 0;
@@ -465,3 +589,33 @@ export class ProjectPipeline {
 
 // Export singleton instance
 export const projectPipeline = new ProjectPipeline();
+
+// Debug function - call this from console to test manually
+(window as any).testAtlasXrayPipeline = async () => {
+  console.log('[AtlasXray] 🧪 Manual pipeline test started');
+  
+  try {
+    // Test DOM scanning
+    console.log('[AtlasXray] 🧪 Testing DOM scanning...');
+    const scanResult = await projectPipeline.scanProjectsOnPage();
+    console.log('[AtlasXray] 🧪 DOM scan result:', scanResult);
+    
+    // Test pipeline state
+    const state = projectPipeline.getState();
+    console.log('[AtlasXray] 🧪 Pipeline state:', state);
+    
+    // Test Apollo client
+    console.log('[AtlasXray] 🧪 Testing Apollo client...');
+    try {
+      const { apolloClient } = await import('./apolloClient');
+      console.log('[AtlasXray] 🧪 Apollo client loaded:', !!apolloClient);
+    } catch (error) {
+      console.error('[AtlasXray] 🧪 Apollo client error:', error);
+    }
+    
+    return { scanResult, state };
+  } catch (error) {
+    console.error('[AtlasXray] 🧪 Pipeline test failed:', error);
+    return { error: String(error) };
+  }
+};

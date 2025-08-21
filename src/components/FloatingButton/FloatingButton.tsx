@@ -27,12 +27,9 @@ export default function FloatingButton(): React.JSX.Element {
     if (hasStartedPipeline.current) return;
     hasStartedPipeline.current = true;
 
-    // Start the pipeline in the background
+    // Start the pipeline in the background (content script handles initial scan)
     const startPipeline = async () => {
       try {
-        // Stage 1a: Scan DOM immediately for fast UI response
-        await projectPipeline.scanProjectsOnPage();
-        
         // Stage 1b-3: Continue with background processing
         setTimeout(async () => {
           try {
@@ -40,7 +37,7 @@ export default function FloatingButton(): React.JSX.Element {
           } catch (error) {
             console.error('[AtlasXray] Pipeline failed:', error);
           }
-        }, 100); // Small delay to let UI render first
+        }, 2500); // Wait for content script initial scan to complete
       } catch (error) {
         console.error('[AtlasXray] Failed to start pipeline:', error);
       }

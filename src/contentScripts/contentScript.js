@@ -14,7 +14,6 @@
 import React from "react";
 import { createRoot } from "react-dom/client";
 import FloatingButton from "../components/FloatingButton/FloatingButton";
-import { downloadProjectData } from "../utils/projectIdScanner";
 
 // Custom styles will be merged with contentScript.css during build
 
@@ -58,14 +57,17 @@ setTimeout(async () => {
   }
 }, 1000);
 
-// Initial project data download
-// TEMPORARILY DISABLED - Heavy data fetching commented out
-// console.log('[AtlasXray] 🚀 Starting initial project data download...');
-// downloadProjectData().then((matches) => {
-//   console.log(`[AtlasXray] ✅ Initial scan complete. Found ${matches.length} projects.`);
-// }).catch((error) => {
-//   console.error('[AtlasXray] ❌ Initial project scan failed:', error);
-// });
+// Initial project data download using new pipeline
+setTimeout(async () => {
+  try {
+    const { projectPipeline } = await import('../services/projectPipeline');
+    console.log('[AtlasXray] 🚀 Starting initial project scan with new pipeline...');
+    const count = await projectPipeline.scanProjectsOnPage();
+    console.log(`[AtlasXray] ✅ Initial scan complete. Found ${count} projects on page.`);
+  } catch (error) {
+    console.error('[AtlasXray] ❌ Initial project scan failed:', error);
+  }
+}, 2000); // Wait 2 seconds for DOM to be fully loaded
 
 // Monitor DOM changes for new projects
 const observer = new MutationObserver((mutations) => {
@@ -86,13 +88,17 @@ const observer = new MutationObserver((mutations) => {
   });
   
   if (shouldRescan) {
-    console.log('[AtlasXray] 🔍 DOM changes detected, rescanning for new projects...');
-    // TEMPORARILY DISABLED - Heavy data fetching commented out
-    // downloadProjectData().then((matches) => {
-    //   console.log(`[AtlasXray] ✅ Rescan complete. Total projects found: ${matches.length}`);
-    // }).catch((error) => {
-    //   console.error('[AtlasXray] ❌ Rescan failed:', error);
-    // });
+    console.log('[AtlasXray] 🔄 DOM changes detected, rescanning for new projects...');
+    // Use the new pipeline system for scanning
+    import('../services/projectPipeline').then(({ projectPipeline }) => {
+      projectPipeline.scanProjectsOnPage().then((count) => {
+        console.log(`[AtlasXray] ✅ Rescan complete. Found ${count} projects on page.`);
+      }).catch((error) => {
+        console.error('[AtlasXray] ❌ Rescan failed:', error);
+      });
+    }).catch((error) => {
+      console.error('[AtlasXray] ❌ Failed to import pipeline:', error);
+    });
   }
 });
 
