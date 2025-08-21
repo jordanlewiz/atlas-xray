@@ -153,6 +153,16 @@ interface TimelineCell {
   weekUpdates: ProjectUpdate[];
 }
 
+// Memoization cache for timeline cells to improve performance with many projects
+const timelineCellCache = new Map<string, TimelineCell[]>();
+
+  // Cache key generator for timeline cells
+  function getTimelineCellCacheKey(weekRanges: WeekRange[], updates: ProjectUpdate[]): string {
+    const weekRangeKey = weekRanges.map(w => `${w.start.getTime()}-${w.end.getTime()}`).join('|');
+    const updatesKey = updates.map(u => `${u.id || 'unknown'}-${u.creationDate || 'no-date'}`).join('|');
+    return `${weekRangeKey}|${updatesKey}`;
+  }
+
 // Timeline rendering utilities
 export function getTargetDateDisplay(dateStr: string | null | undefined): string {
   if (!dateStr || typeof dateStr !== 'string') {
@@ -172,22 +182,58 @@ export function getTimelineWeekCells(weekRanges: WeekRange[], updates: ProjectUp
       weekUpdates: [],
     }));
   }
+
+  // Check cache first for performance
+  const cacheKey = getTimelineCellCacheKey(weekRanges, updates);
+  if (timelineCellCache.has(cacheKey)) {
+    return timelineCellCache.get(cacheKey)!;
+  }
   
+  // Pre-process updates once to avoid repeated filtering and date parsing
   const validUpdates = updates.filter(u => {
     if (!u) return false;
-    // Based on console logs, data is directly accessible
     const creationDate = u.creationDate || (u as any).raw?.creationDate;
     return creationDate && typeof creationDate === 'string';
   });
+
+  // Pre-parse all dates once to avoid repeated parsing
+  const updatesWithDates = validUpdates.map(u => {
+    const creationDate = u.creationDate || (u as any).raw?.creationDate;
+    if (!creationDate || typeof creationDate !== 'string') {
+      return null;
+    }
+    const parsedDate = safeParseDate(creationDate);
+    if (isNaN(parsedDate.getTime())) {
+      return null;
+    }
+    return {
+      update: u,
+      parsedDate
+    };
+  }).filter((item): item is { update: ProjectUpdate; parsedDate: Date } => item !== null);
+
+  // Group updates by week range more efficiently
+  const weekUpdatesMap = new Map<number, ProjectUpdate[]>();
   
-  return weekRanges.map((w) => {
-    const weekStart = w.start;
-    const weekEnd = w.end;
-    const weekUpdates = validUpdates.filter(u => {
-      const creationDate = u.creationDate || (u as any).raw?.creationDate;
-      const d = safeParseDate(creationDate);
-      return d && d >= weekStart && d < weekEnd;
-    });
+  weekRanges.forEach((week, weekIndex) => {
+    weekUpdatesMap.set(weekIndex, []);
+  });
+
+  updatesWithDates.forEach(({ update, parsedDate }) => {
+    for (let i = 0; i < weekRanges.length; i++) {
+      const week = weekRanges[i];
+      if (parsedDate >= week.start && parsedDate < week.end) {
+        const existing = weekUpdatesMap.get(i) || [];
+        existing.push(update);
+        weekUpdatesMap.set(i, existing);
+        break; // Update can only be in one week
+      }
+    }
+  });
+
+  // Generate cells efficiently
+  const cells = weekRanges.map((week, weekIndex) => {
+    const weekUpdates = weekUpdatesMap.get(weekIndex) || [];
     const lastUpdate = weekUpdates.length > 0 ? weekUpdates[weekUpdates.length - 1] : undefined;
     
     // Generate cell class inline
@@ -216,17 +262,28 @@ export function getTimelineWeekCells(weekRanges: WeekRange[], updates: ProjectUp
       weekUpdates,
     };
   });
+
+  // Cache the result for future use
+  timelineCellCache.set(cacheKey, cells);
+  
+  // Limit cache size to prevent memory issues
+  if (timelineCellCache.size > 100) {
+    const firstKey = timelineCellCache.keys().next().value;
+    timelineCellCache.delete(firstKey);
+  }
+
+  return cells;
 }
 
 export function getDueDateTooltip(u: ProjectUpdate): string | null {
-  if (u && u.oldDueDate && u.newDueDate) {
+  if (u && u.oldDueDate && u.newDueDate && typeof u.oldDueDate === 'string' && typeof u.newDueDate === 'string') {
     return `${u.oldDueDate} → ${u.newDueDate}`;
-    }
+  }
   return null;
 }
 
 export function getDueDateDiff(u: ProjectUpdate): number | null {
-  if (u && u.oldDueDate && u.newDueDate) {
+  if (u && u.oldDueDate && u.newDueDate && typeof u.oldDueDate === 'string' && typeof u.newDueDate === 'string') {
     return daysBetweenFlexibleDates(u.oldDueDate, u.newDueDate, new Date().getFullYear());
   }
   return null;

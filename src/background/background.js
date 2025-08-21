@@ -58,15 +58,11 @@ async function handleUpdateAnalysis(message, sender, sendResponse) {
   try {
     const { updateId, updateText, updateType, state } = message;
     
-    console.log('[AtlasXray] 🧠 Running rule-based analysis for update:', updateId);
-    
     // Run rule-based analysis
     const result = await performRuleBasedAnalysis(updateText, updateType, state);
     
     // Store the result
     await storeAnalysisResult(updateId, result);
-    
-    console.log('[AtlasXray] ✅ Analysis completed for update:', updateId, result);
     
     sendResponse({ 
       success: true, 
@@ -75,7 +71,7 @@ async function handleUpdateAnalysis(message, sender, sendResponse) {
     });
     
   } catch (error) {
-    console.error('[AtlasXray] ❌ Analysis failed:', error);
+    console.error('[AtlasXray] Analysis failed:', error);
     
     // Try to send error response
     try {
@@ -221,9 +217,8 @@ async function storeAnalysisResult(updateId, result) {
     // Add the updateId to the result
     result.updateId = updateId;
     await chrome.storage.local.set({ [key]: result });
-    console.log('[AtlasXray] 💾 Stored analysis result for update:', updateId);
   } catch (error) {
-    console.error('[AtlasXray] ❌ Failed to store analysis result:', error);
+    console.error('[AtlasXray] Failed to store analysis result:', error);
   }
 }
 

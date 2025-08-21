@@ -25,7 +25,7 @@ import type { StatusTimelineHeatmapRowProps } from "../../types";
 /**
  * Renders a single project row in the status timeline heatmap.
  */
-export default function StatusTimelineHeatmapRow({ 
+function StatusTimelineHeatmapRow({ 
   project, 
   weekRanges, 
   updates,
@@ -104,12 +104,15 @@ export default function StatusTimelineHeatmapRow({
                           />
                         );
                       }
-                      // Show white indicator if no quality data but toggle is on
-                      return <span className="update-indicator" data-testid="update-indicator"></span>;
+                      return null;
                     })()
                   ) : (
-                    // Show white indicator when toggle is off
-                    <span className="update-indicator" data-testid="update-indicator"></span>
+                    // Show white bullet when toggle is off or no quality data
+                    <span 
+                      className="update-indicator" 
+                      data-testid="update-indicator"
+                      title="Project update"
+                    />
                   )}
                 </Tooltip>
               )}
@@ -155,3 +158,6 @@ export default function StatusTimelineHeatmapRow({
     </div>
   );
 }
+
+// Export as memoized component to prevent unnecessary re-renders
+export default React.memo(StatusTimelineHeatmapRow);
