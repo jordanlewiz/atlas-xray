@@ -49,8 +49,14 @@ export default function FloatingButton(): React.JSX.Element {
 
   const updateVisibleProjects = useRef(
     debounce(async (): Promise<void> => {
-      const matches = await downloadProjectData();
-      setVisibleProjectKeys(matches.map(m => m.projectId));
+      try {
+        const matches = await downloadProjectData();
+        const projectIds = matches.map(m => m.projectId);
+        setVisibleProjectKeys(projectIds);
+      } catch (error) {
+        console.error('[AtlasXray] Failed to update visible projects:', error);
+        setVisibleProjectKeys([]);
+      }
     }, 1000) // Debounce to 1 second
   );
 
