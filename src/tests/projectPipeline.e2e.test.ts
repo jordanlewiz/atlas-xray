@@ -375,7 +375,7 @@ describe('Project Data Pipeline E2E', () => {
       
       // And: Should show error state
       const finalState = pipeline.getState();
-      expect(finalState.error).toContain('Pipeline failed');
+      expect(finalState.error).toContain('All projects failed to store due to API errors');
     }, 30000);
 
     it('should resume from where it left off after errors', async () => {

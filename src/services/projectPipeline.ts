@@ -157,6 +157,7 @@ export class ProjectPipeline {
 
       // Process projects with rate limiting
       let storedCount = 0;
+      let hasErrors = false;
       for (const project of validProjects) {
         try {
           await this.rateLimitedRequest(async () => {
@@ -171,14 +172,25 @@ export class ProjectPipeline {
           });
         } catch (error) {
           console.error(`Failed to store project ${project.projectId}:`, error);
+          hasErrors = true;
         }
       }
 
-      this.updateState({
-        currentStage: 'idle',
-        isProcessing: false,
-        lastUpdated: new Date()
-      });
+      // If all projects failed, set an error state
+      if (storedCount === 0 && hasErrors) {
+        this.updateState({
+          currentStage: 'idle',
+          isProcessing: false,
+          error: 'All projects failed to store due to API errors',
+          lastUpdated: new Date()
+        });
+      } else {
+        this.updateState({
+          currentStage: 'idle',
+          isProcessing: false,
+          lastUpdated: new Date()
+        });
+      }
 
       return storedCount;
     } catch (error) {
@@ -290,7 +302,16 @@ export class ProjectPipeline {
       await this.scanProjectsOnPage();
       
       // Stage 1b: Fetch and store projects
-      await this.fetchAndStoreProjects();
+      const projectsStored = await this.fetchAndStoreProjects();
+      
+      // If no projects were stored, check if there was an error and set it
+      if (projectsStored === 0) {
+        const currentState = this.getState();
+        if (currentState.error) {
+          // Error already set by fetchAndStoreProjects
+          return;
+        }
+      }
       
       // Stage 2: Fetch and store updates
       await this.fetchAndStoreUpdates();
