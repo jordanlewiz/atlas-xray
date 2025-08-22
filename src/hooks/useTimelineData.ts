@@ -42,24 +42,7 @@ export function useTimeline(weekLimit: number = 12) {
       }
     });
     
-    // Debug: Log update data structure
-    console.log('=== UPDATE DATA DEBUG ===');
-    console.log('Total updates found:', allUpdates.length);
-    console.log('All updates array:', allUpdates);
-    if (allUpdates.length > 0) {
-      console.log('First update object:', allUpdates[0]);
-      console.log('First update raw:', allUpdates[0]?.raw);
-      console.log('First update keys:', Object.keys(allUpdates[0] || {}));
-      if (allUpdates[0]?.raw) {
-        console.log('First update raw keys:', Object.keys(allUpdates[0].raw || {}));
-      }
-      // Check if it's a GraphQL structure
-      if (allUpdates[0]?.projectUpdates?.edges) {
-        console.log('Found GraphQL edges structure');
-        console.log('First edge:', allUpdates[0].projectUpdates.edges[0]);
-      }
-    }
-    console.log('=== END UPDATE DEBUG ===');
+
 
     // Group status history by project
     const statusByProject: Record<string, ProjectStatusHistory[]> = {};
@@ -75,8 +58,6 @@ export function useTimeline(weekLimit: number = 12) {
 
     // Simple project view models - just basic info + references to data
     const projectViewModels: ProjectViewModel[] = projects.map((project: ProjectView) => {
-      console.log('Project data:', project);
-      console.log('Project raw:', project.raw);
       // Try both raw and direct access patterns
       const projectName = project.raw?.project?.name || 
                          project.raw?.name || 
@@ -93,6 +74,7 @@ export function useTimeline(weekLimit: number = 12) {
     const allDates = getAllProjectDates(projectViewModels, updatesByProject);
     
     if (!allDates.minDate || !allDates.maxDate) {
+      console.warn('[AtlasXray] No valid dates found - timeline will be empty');
       return {
         weekRanges: [],
         projectViewModels,
@@ -103,7 +85,40 @@ export function useTimeline(weekLimit: number = 12) {
     }
     
     const weekRanges: WeekRange[] = getWeekRanges(allDates.minDate, allDates.maxDate);
-    const limitedWeekRanges: WeekRange[] = weekRanges.slice(-weekLimit);
+    
+    // Instead of taking the last N weeks, take N weeks that include actual data
+    // Find weeks that contain updates and ensure we show enough context
+    let limitedWeekRanges: WeekRange[];
+    
+    // Find the last week that contains updates
+    let lastUpdateWeekIndex = -1;
+    for (let i = weekRanges.length - 1; i >= 0; i--) {
+      const week = weekRanges[i];
+      const hasUpdates = Object.values(updatesByProject).some(updates => 
+        updates.some(update => {
+          if (update.creationDate) {
+            const updateDate = new Date(update.creationDate);
+            return updateDate >= week.start && updateDate < week.end;
+          }
+          return false;
+        })
+      );
+      if (hasUpdates) {
+        lastUpdateWeekIndex = i;
+        break;
+      }
+    }
+    
+    if (lastUpdateWeekIndex === -1) {
+      // No updates found, show last N weeks
+      limitedWeekRanges = weekRanges.slice(-weekLimit);
+    } else {
+      // Show weeks from the last update week backwards, ensuring we show enough context
+      const startIndex = Math.max(0, lastUpdateWeekIndex - weekLimit + 1);
+      limitedWeekRanges = weekRanges.slice(startIndex, lastUpdateWeekIndex + 1);
+    }
+
+
 
     return {
       weekRanges: limitedWeekRanges,

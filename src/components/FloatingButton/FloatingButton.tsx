@@ -1,114 +1,229 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../../utils/database";
-import type { AtlasXrayDB } from "../../types/database";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { projectPipeline, PipelineState } from "../../services/projectPipeline";
 import StatusTimelineHeatmap from "../StatusTimelineHeatmap/StatusTimelineHeatmap";
 import ProjectStatusHistoryModal from "../ProjectStatusHistoryModal";
-import { downloadProjectData } from "../../utils/projectIdScanner";
+import Tooltip from "@atlaskit/tooltip";
 
-// Utility function to debounce function calls
-function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  wait: number
-): (...args: Parameters<T>) => void {
-  let timeout: NodeJS.Timeout;
-  return (...args: Parameters<T>) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-}
+import { db } from "../../utils/database";
 
 /**
  * Floating button that opens the timeline modal.
+ * Now uses the ProjectPipeline for progressive data loading.
  */
 export default function FloatingButton(): React.JSX.Element {
-  const projectCount = useLiveQuery(() => (db as AtlasXrayDB).projectView.count(), []);
-  const projects = useLiveQuery(() => (db as AtlasXrayDB).projectView.toArray(), []);
-  const updatesByProject = useLiveQuery(
-    async () => {
-      const updates: Record<string, string[]> = {};
-      const allUpdates = await (db as AtlasXrayDB).projectUpdates.toArray();
-      for (const update of allUpdates) {
-        const key = update.projectKey;
-        const edges = update?.projectUpdates?.edges || [];
-        updates[key] = edges.map((e: any) => e.node?.creationDate).filter(Boolean);
-      }
-      return updates;
-    },
-    []
-  );
-  
   const [modalOpen, setModalOpen] = useState(false);
-  const [visibleProjectKeys, setVisibleProjectKeys] = useState<string[]>([]);
-  const observerRef = useRef<MutationObserver | null>(null);
+  const [pipelineState, setPipelineState] = useState<PipelineState>(projectPipeline.getState());
+  const hasStartedPipeline = useRef(false);
 
-  const updateVisibleProjects = useRef(
-    debounce(async (): Promise<void> => {
-      const matches = await downloadProjectData();
-      setVisibleProjectKeys(matches.map(m => m.projectId));
-    }, 1000) // Debounce to 1 second
-  );
-
-  useEffect(() => {
-    // Initial load
-    updateVisibleProjects.current();
-    
-    // Only observe for project link additions, not all DOM changes
-    const observer = new window.MutationObserver((mutations) => {
-      // Only trigger if we see new project links
-      const hasNewProjectLinks = mutations.some(mutation => 
-        Array.from(mutation.addedNodes).some(node => 
-          node.nodeType === Node.ELEMENT_NODE && 
-          (node as Element).querySelector?.('a[href*="/project/"]')
-        )
-      );
+  // Real-time counts from Dexie (always accurate)
+  const [counts, setCounts] = useState({ projectsStored: 0, updatesStored: 0, updatesAnalyzed: 0 });
+  
+  // Function to update counts from database
+  const updateCounts = useCallback(async () => {
+    try {
+      const projectsCount = await db.projectView.count();
+      const updatesCount = await db.projectUpdates.count();
+              const analyzedCount = await db.projectUpdates.where('analyzed').equals(1).count(); // Query for analyzed=1
       
-      if (hasNewProjectLinks) {
-        updateVisibleProjects.current();
-      }
-    });
+      setCounts({
+        projectsStored: projectsCount,
+        updatesStored: updatesCount,
+        updatesAnalyzed: analyzedCount
+      });
+    } catch (error) {
+      console.error('[AtlasXray] Failed to update counts:', error);
+    }
+  }, []);
+  
+  // Poll database for counts every 2 seconds (fallback)
+  useEffect(() => {
+    // Update immediately
+    updateCounts();
     
-    // More targeted observation - only watch for new nodes
-    observer.observe(document.body, { 
-      childList: true, 
-      subtree: true,
-      attributes: false, // Don't watch attribute changes
-      characterData: false // Don't watch text changes
-    });
+    // Then update every 2 seconds
+    const interval = setInterval(updateCounts, 2000);
     
-    observerRef.current = observer;
+    return () => clearInterval(interval);
+  }, [updateCounts]);
+  
+  // 🚀 REAL-TIME UPDATES: Listen for analysis completion events
+  useEffect(() => {
+    const handleAnalysisComplete = () => {
+      console.log('[AtlasXray] 🔄 Analysis completed, updating counts immediately...');
+      updateCounts(); // Update counts immediately when analysis finishes
+    };
+    
+    // Listen for custom events when analysis completes
+    window.addEventListener('atlas-xray:analysis-complete', handleAnalysisComplete);
     
     return () => {
-      if (observerRef.current) observerRef.current.disconnect();
+      window.removeEventListener('atlas-xray:analysis-complete', handleAnalysisComplete);
+    };
+  }, [updateCounts]);
+  
+  const { projectsStored, updatesStored, updatesAnalyzed } = counts;
+
+  // Subscribe to pipeline state changes
+  useEffect(() => {
+    const unsubscribe = projectPipeline.subscribe((state) => {
+      setPipelineState(state);
+    });
+
+    // 🚀 PARALLEL PROCESSING: Trigger initial updates fetch for existing projects
+    const triggerInitialFetch = async () => {
+      try {
+        await projectPipeline.triggerInitialUpdatesFetch();
+      } catch (error) {
+        console.error('[AtlasXray] Failed to trigger initial updates fetch:', error);
+      }
+    };
+    
+    // Trigger after a short delay to ensure pipeline is ready
+    const timer = setTimeout(triggerInitialFetch, 1000);
+    
+    return () => {
+      unsubscribe();
+      clearTimeout(timer);
     };
   }, []);
 
-  const projectViewModel = (projects || []).map((proj: any) => ({
-    projectKey: proj.projectKey,
-    name: proj.project?.name || "",
-    updateDates: (updatesByProject && updatesByProject[proj.projectKey]) ? updatesByProject[proj.projectKey] : []
-  }));
+  // Start pipeline on mount (only once)
+  useEffect(() => {
+    if (hasStartedPipeline.current) return;
+    hasStartedPipeline.current = true;
 
-  const filteredProjects = visibleProjectKeys.length > 0
-    ? projectViewModel.filter(p => visibleProjectKeys.includes(p.projectKey))
-    : projectViewModel;
+    // Start the pipeline in the background (content script handles initial scan)
+    const startPipeline = async () => {
+      try {
+        // Stage 1b-3: Continue with background processing
+        setTimeout(async () => {
+          try {
+            await projectPipeline.runCompletePipeline();
+          } catch (error) {
+            console.error('[AtlasXray] Pipeline failed:', error);
+          }
+        }, 2500); // Wait for content script initial scan to complete
+      } catch (error) {
+        console.error('[AtlasXray] Failed to start pipeline:', error);
+      }
+    };
 
-  const handleOpenModal = (): void => setModalOpen(true);
+    startPipeline();
+
+    // Clean up pipeline when component unmounts
+    return () => {
+      try {
+        projectPipeline.destroy();
+      } catch (error) {
+        console.warn('[AtlasXray] Error cleaning up pipeline:', error);
+      }
+    };
+  }, []);
+
+  const handleOpenModal = (): void => {
+    setModalOpen(true);
+    
+    // Fetch updates for visible projects when timeline is opened
+    // This prevents rate limiting during initial pipeline execution
+    const fetchUpdatesForVisibleProjects = async () => {
+      try {
+        console.log('[AtlasXray] 📥 Fetching updates for visible projects...');
+        
+        const visibleProjectKeys = pipelineState.projectIds || [];
+        let totalUpdatesFetched = 0;
+        
+        // Fetch updates for each visible project with rate limiting
+        for (const projectKey of visibleProjectKeys) {
+          try {
+            const updatesCount = await projectPipeline.fetchAndStoreProjectUpdates(projectKey);
+            totalUpdatesFetched += updatesCount;
+            
+            // Small delay between projects to be respectful to the API
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+          } catch (error) {
+            console.error(`[AtlasXray] Failed to fetch updates for ${projectKey}:`, error);
+          }
+        }
+        
+        if (totalUpdatesFetched > 0) {
+          console.log(`[AtlasXray] ✅ Fetched ${totalUpdatesFetched} updates for ${visibleProjectKeys.length} projects`);
+          
+          // No need to refresh counts - Dexie queries are real-time!
+        }
+        
+      } catch (error) {
+        console.error('[AtlasXray] Error fetching updates for visible projects:', error);
+      }
+    };
+    
+    // Fetch updates in the background
+    fetchUpdatesForVisibleProjects();
+  };
+
+  // Get display text based on real-time Dexie counts
+  const getDisplayText = (): string => {
+    const { projectsOnPage, isProcessing, error } = pipelineState;
+
+    if (error) {
+      return `${projectsOnPage} projects • Error: ${error}`;
+    }
+
+    if (isProcessing) {
+      return `${projectsOnPage} projects • Loading...`;
+    }
+
+    if (projectsStored === 0) {
+      return `${projectsOnPage} projects`;
+    }
+
+    if (updatesStored === 0) {
+      return `${projectsOnPage} projects • ${projectsStored} stored`;
+    }
+
+    if (updatesAnalyzed === 0) {
+      return `${projectsOnPage} projects • ${projectsStored} stored • ${updatesStored} updates`;
+    }
+
+    return `${projectsOnPage} projects • ${projectsStored} stored • ${updatesStored} updates • ${updatesAnalyzed} analyzed`;
+  };
+
+  // Get tooltip content
+  const getTooltipContent = (): React.ReactNode => {
+    const { projectsOnPage, currentStage, error } = pipelineState;
+
+    return (
+      <div>
+        <div><strong>Pipeline Status</strong></div>
+        <div>Projects on page: {projectsOnPage}</div>
+        <div>Projects stored: {projectsStored} (from database)</div>
+        <div>Updates stored: {updatesStored} (from database)</div>
+        <div>Updates analyzed: {updatesAnalyzed} (from database)</div>
+        <div>Current stage: {currentStage}</div>
+        {error && <div style={{ color: 'red' }}>Error: {error}</div>}
+      </div>
+    );
+  };
+
+  // Get actual project keys from the pipeline state
+  const actualProjectKeys = pipelineState.projectIds || [];
 
   return (
     <>
-      <button className="atlas-xray-floating-btn" onClick={handleOpenModal}>
-        Atlas Xray
-        {visibleProjectKeys.length > 0
-          ? ` (${visibleProjectKeys.length}/${projectCount !== undefined ? projectCount : 0})`
-          : projectCount !== undefined
-            ? ` (${projectCount})`
-            : ""}
-      </button>
-      
+      <Tooltip content={getTooltipContent()} position="top">
+        <button className="atlas-xray-floating-btn" onClick={handleOpenModal}>
+          <span className="atlas-xray-floating-btn-text">
+            {getDisplayText()}
+          </span>
+        </button>
+      </Tooltip>
+
       <ProjectStatusHistoryModal open={modalOpen} onClose={() => setModalOpen(false)}>
         {(weekLimit: number) => (
-          <StatusTimelineHeatmap weekLimit={weekLimit} />
+          <StatusTimelineHeatmap
+            weekLimit={weekLimit}
+            visibleProjectKeys={actualProjectKeys}
+          />
         )}
       </ProjectStatusHistoryModal>
     </>

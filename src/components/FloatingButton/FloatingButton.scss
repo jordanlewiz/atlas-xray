@@ -3,7 +3,7 @@
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 10000;
+  z-index: 1000;
   background: #0052cc;
   color: white;
   border: none;
@@ -30,5 +30,30 @@
   &:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.3);
+  }
+
+  .updates-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .ai-status {
+    background: rgba(255, 255, 255, 0.15);
+    padding: 2px 4px;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-left: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    opacity: 0.9;
+    
+    &:hover {
+      opacity: 1;
+      background: rgba(255, 255, 255, 0.25);
+    }
   }
 }

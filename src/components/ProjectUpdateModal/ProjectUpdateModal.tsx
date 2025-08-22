@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import ModalDialog from "@atlaskit/modal-dialog";
 import {
   ModalTransition,
@@ -13,6 +13,8 @@ import { getDueDateDiff } from "../../utils/timelineUtils";
 import type { ProjectUpdateModalProps } from "../../types";
 import { renderProseMirror } from "../../utils/proseMirrorRenderer";
 import { ImageRenderer } from "../ImageRenderer";
+import QualityIndicator from "../QualityIndicator/QualityIndicator";
+// Quality analysis data is now stored directly in update objects by ProjectPipeline
 
 /**
  * Extract media nodes from ProseMirror content
@@ -46,6 +48,7 @@ export default function ProjectUpdateModal({
   project, 
   onClose 
 }: ProjectUpdateModalProps): React.JSX.Element | null {
+  
   const getLozengeAppearance = (status: string | undefined): any => {
     if (!status) return 'new';
     const normalizedStatus = status.toLowerCase().replace(/_/g, '-');
@@ -73,16 +76,106 @@ export default function ProjectUpdateModal({
           shouldScrollInViewport
         >
           <ModalHeader>
-            <ModalTitle>Date Change Details</ModalTitle>
+            <ModalTitle>{project?.name || 'Project Update Details'}</ModalTitle>
           </ModalHeader>
           <ModalBody>
             <Box style={{ maxWidth: '1128px', margin: '0 auto', width: '100%' }}>
               <Grid>
                 <div className="date-change-modal-body">
-                  <h3 className="project-name">{project?.name}</h3>
                   <div className="project-key">
                     <small>Project Key:</small> {project?.projectKey}
                   </div>
+
+                  {/* Quality Analysis Section */}
+                  {selectedUpdate.id && (() => {
+                    // Get quality data directly from the update object (populated by ProjectPipeline)
+                    if (selectedUpdate.updateQuality && selectedUpdate.qualityLevel) {
+                      const quality = {
+                        overallScore: selectedUpdate.updateQuality,
+                        qualityLevel: selectedUpdate.qualityLevel,
+                        summary: selectedUpdate.qualitySummary || 'Quality analysis completed',
+                        analysis: selectedUpdate.qualityAnalysis ? JSON.parse(selectedUpdate.qualityAnalysis) : [],
+                        missingInfo: selectedUpdate.qualityMissingInfo ? JSON.parse(selectedUpdate.qualityMissingInfo) : []
+                      };
+                      return (
+                        <SectionMessage
+                          title="AI Quality Analysis"
+                        >
+                          <div className="quality-analysis-section">
+                            <div className="quality-header">
+                              <QualityIndicator
+                                score={quality.overallScore}
+                                level={quality.qualityLevel}
+                                size="large"
+                                showScore={true}
+                                className="quality-indicator-modal"
+                              />
+                              <span className="quality-summary">{quality.summary}</span>
+                            </div>
+                            
+                            {quality.analysis.length > 0 && (
+                              <div className="quality-details">
+                                <h4>Quality Criteria Analysis:</h4>
+                                {quality.analysis.map((criteria: any, idx: number) => (
+                                  <div key={idx} className="criteria-item">
+                                    <div className="criteria-header">
+                                      <span className="criteria-title">{criteria.title}</span>
+                                      <span className="criteria-score">
+                                        {criteria.score}/{criteria.maxScore}
+                                      </span>
+                                    </div>
+                                    {criteria.missingInfo.length > 0 && (
+                                      <div className="missing-info">
+                                        <strong>Missing Information:</strong>
+                                        <ul>
+                                          {criteria.missingInfo.map((info: string, infoIdx: number) => (
+                                            <li key={infoIdx}>{info}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                    {criteria.recommendations.length > 0 && (
+                                      <div className="recommendations">
+                                        <strong>Recommendations:</strong>
+                                        <ul>
+                                          {criteria.recommendations.map((rec: string, recIdx: number) => (
+                                            <li key={recIdx}>{rec}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                            
+                            {quality.missingInfo.length > 0 && (
+                              <div className="overall-missing">
+                                <strong>Overall Missing Information:</strong>
+                                <ul>
+                                  {quality.missingInfo.map((info: string, idx: number) => (
+                                    <li key={idx}>{info}</li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </SectionMessage>
+                      );
+                    } else {
+                      // Show message for updates without quality data
+                      return (
+                        <SectionMessage
+                          title="Quality Analysis in Progress"
+                        >
+                          <div className="quality-analysis-info">
+                            <p>This update is being automatically analyzed for quality in the background.</p>
+                            <p><em>Quality indicators will appear in the timeline once analysis is complete.</em></p>
+                          </div>
+                        </SectionMessage>
+                      );
+                    }
+                  })()}
 
                                     {selectedUpdate.oldDueDate && (
                     <SectionMessage

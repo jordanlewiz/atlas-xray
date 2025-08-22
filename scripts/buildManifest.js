@@ -40,7 +40,10 @@ try {
     },
     content_scripts: [
       {
-        matches: ["https://home.atlassian.com/*"],
+        matches: [
+          "https://*.atlassian.com/*",
+          "https://*.jira.com/*"
+        ],
         js: ["contentScript.js"],
         css: ["contentScript.css"]
       }

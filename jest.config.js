@@ -12,5 +12,8 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.js'],
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    '^@xenova/transformers$': '<rootDir>/src/utils/__mocks__/transformersMock.js',
   },
+  // Reduce verbose test output
+  verbose: false,
 };

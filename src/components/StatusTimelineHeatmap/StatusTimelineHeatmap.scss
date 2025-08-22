@@ -1,7 +1,22 @@
-// Timeline-specific styles
-.project-timeline {
-  overflow-x: auto;
-}
+@use "./StatusTimelineHeader.scss";
+
+  // Timeline-specific styles
+  .project-timeline {
+    overflow-x: auto;
+  }
+
+  .update-indicator {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background-color: white;
+    border-radius: 50%;
+    margin: 2px;
+    opacity: 0.5;
+    &:hover {
+      opacity: 1;
+    }
+  }
 
 .timeline-row {
   display: flex;
@@ -158,12 +173,7 @@
       color: #fff;
     }
     
-    .update-indicator {
-      font-size: 12px;
-      color: #fff;
-      font-weight: bold;
-      opacity: 0.5;
-    }
+    // Update indicator styles are now defined at the top level
   }
 }
 

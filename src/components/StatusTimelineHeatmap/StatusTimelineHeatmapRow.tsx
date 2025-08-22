@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
 import ProjectUpdateModal from "../ProjectUpdateModal";
+import QualityIndicator from "../QualityIndicator/QualityIndicator";
 import { buildProjectUrlFromKey } from "../../utils/timelineUtils";
 import {
   getTimelineWeekCells,
@@ -10,18 +11,22 @@ import {
   getDueDateTooltip,
   getDueDateDiff
 } from "../../utils/timelineUtils";
+// Quality analysis data is now stored directly in update objects by ProjectPipeline
 import type { StatusTimelineHeatmapRowProps } from "../../types";
 
 /**
  * Renders a single project row in the status timeline heatmap.
  */
-export default function StatusTimelineHeatmapRow({ 
+function StatusTimelineHeatmapRow({ 
   project, 
   weekRanges, 
-  updates 
+  updates,
+  showEmojis
 }: StatusTimelineHeatmapRowProps): React.JSX.Element | null {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedUpdate, setSelectedUpdate] = useState(null);
+  // Quality data is now stored directly in the update objects by ProjectPipeline
+  // No need for external hooks or triggers
   
   if (!project) {
     console.warn('ProjectTimelineRow received undefined project');
@@ -30,6 +35,9 @@ export default function StatusTimelineHeatmapRow({
 
   const weekCells = getTimelineWeekCells(weekRanges, updates);
   
+  // Debug logging
+
+  
   // Get target date from the most recent update that has one
   const targetDateRaw = updates.find(u => u.targetDate)?.targetDate ||
                        updates.find(u => u.newDueDate)?.newDueDate ||
@@ -37,7 +45,7 @@ export default function StatusTimelineHeatmapRow({
   const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
 
   return (
-    <div className="timeline-row">
+    <div className="timeline-row" data-testid="project-row">
       <div className="timeline-y-label">
         <Tooltip content={project.name} position="top-start">
           <h3 className="project-title-ellipsis">
@@ -53,16 +61,56 @@ export default function StatusTimelineHeatmapRow({
         </a>
       </div>
       
-      {weekCells.map((cell: any, i: number) => (
-        <div key={i} className={cell.cellClass}>
-          {cell.weekUpdates.map((u: any, idx: number) => (
-            <div 
-              key={idx} 
-              className={`timeline-cell-content ${u.oldDueDate ? 'has-old-due-date' : ''}`}
-              onClick={() => setSelectedUpdate(u)}
-              style={{ cursor: 'pointer' }}
-            >
-              {/* Show date difference tooltip if there's a date change */}
+      {weekCells.map((cell: any, i: number) => {
+
+        
+        return (
+          <div key={i} className={cell.cellClass}>
+            {cell.weekUpdates.map((u: any, idx: number) => {
+              
+              return (
+                <div 
+                  key={idx} 
+                  className={`timeline-cell-content ${u.oldDueDate ? 'has-old-due-date' : ''}`}
+                  onClick={() => setSelectedUpdate(u)}
+                  style={{ cursor: 'pointer' }}
+                >
+              {/* Show update indicator for any cell with updates FIRST */}
+              <Tooltip content="Click to view update details" position="top">
+                {showEmojis && u.id ? (
+                  // Show quality indicator when toggle is on and quality data is available
+                  (() => {
+                    // Get quality data directly from the update object (populated by ProjectPipeline)
+                    if (u.updateQuality && u.qualityLevel) {
+                      return (
+                        <QualityIndicator
+                          score={u.updateQuality}
+                          level={u.qualityLevel}
+                          size="small"
+                          className="quality-indicator-timeline"
+                        />
+                      );
+                    }
+                    // Show white bullet when toggle is on but no quality data available
+                    return (
+                      <span 
+                        className="update-indicator" 
+                        data-testid="update-indicator"
+                        title="Project update"
+                      />
+                    );
+                  })()
+                ) : (
+                  // Show white bullet when toggle is off
+                  <span 
+                    className="update-indicator" 
+                    data-testid="update-indicator"
+                    title="Project update"
+                  />
+                )}
+              </Tooltip>
+              
+              {/* Show date difference tooltip SECOND (after emoji) */}
               {u.oldDueDate && u.newDueDate && (
                 <Tooltip content={getDueDateTooltip(u)} position="top">
                   <span className="date-difference">
@@ -73,17 +121,12 @@ export default function StatusTimelineHeatmapRow({
                   </span>
                 </Tooltip>
               )}
-              
-              {/* Show update indicator for any cell with updates */}
-              {!u.oldDueDate && (
-                <Tooltip content="Click to view update details" position="top">
-                  <span className="update-indicator">•</span>
-                </Tooltip>
-              )}
             </div>
-          ))}
+          );
+        })}
         </div>
-      ))}
+      );
+      })}
       
       <div className="timeline-target-date">     
         {targetDateRaw ? (
@@ -122,3 +165,6 @@ export default function StatusTimelineHeatmapRow({
     </div>
   );
 }
+
+// Export as memoized component to prevent unnecessary re-renders
+export default React.memo(StatusTimelineHeatmapRow);

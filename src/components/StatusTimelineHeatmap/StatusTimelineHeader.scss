@@ -1,0 +1,111 @@
+@use "../StatusLegend/StatusLegend.scss";
+
+.status-timeline-header {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 24px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e9ecef;
+
+  .header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+
+    .header-left {
+      .timeline-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 600;
+        color: #172b4d;
+        letter-spacing: -0.5px;
+      }
+    }
+
+    .header-right {
+      .controls-group {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+
+        .week-selector {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .week-select-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #5e6c84;
+            white-space: nowrap;
+          }
+
+          .week-select {
+            min-width: 120px;
+          }
+        }
+
+        .ai-display-toggle {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .toggle-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #5e6c84;
+            white-space: nowrap;
+          }
+
+          // Atlaskit Button will handle its own styling
+          // The button will show as subtle when off and primary when on
+        }
+      }
+    }
+  }
+
+  .legend-section {
+    padding-top: 16px;
+    border-top: 1px solid #e9ecef;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .status-timeline-header {
+    padding: 16px;
+    margin: 16px 0;
+
+    .header-content {
+      flex-direction: column;
+      gap: 16px;
+      align-items: flex-start;
+
+      .header-left .timeline-title {
+        font-size: 20px;
+      }
+
+      .header-right .week-selector {
+        width: 100%;
+        
+        .week-select {
+          min-width: 120px;
+          flex: 1;
+        }
+      }
+    }
+
+    .legend-section .legend {
+      justify-content: flex-start;
+      gap: 8px;
+      
+      .legend-item {
+        padding: 6px 12px 6px 32px;
+        font-size: 12px;
+        min-width: 70px;
+      }
+    }
+  }
+}
