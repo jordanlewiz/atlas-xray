@@ -53,7 +53,22 @@ export default function FloatingButton(): React.JSX.Element {
       setPipelineState(state);
     });
 
-    return unsubscribe;
+    // 🚀 PARALLEL PROCESSING: Trigger initial updates fetch for existing projects
+    const triggerInitialFetch = async () => {
+      try {
+        await projectPipeline.triggerInitialUpdatesFetch();
+      } catch (error) {
+        console.error('[AtlasXray] Failed to trigger initial updates fetch:', error);
+      }
+    };
+    
+    // Trigger after a short delay to ensure pipeline is ready
+    const timer = setTimeout(triggerInitialFetch, 1000);
+    
+    return () => {
+      unsubscribe();
+      clearTimeout(timer);
+    };
   }, []);
 
   // Start pipeline on mount (only once)

@@ -232,6 +232,35 @@ export class ProjectPipeline {
     }
   }
 
+  // Trigger initial ProjectUpdates fetch for existing projects (last 4 weeks)
+  public async triggerInitialUpdatesFetch(): Promise<void> {
+    try {
+      console.log('[AtlasXray] 🚀 Triggering initial updates fetch for all existing projects...');
+      
+      const existingProjects = await db.projectView.toArray();
+      console.log(`[AtlasXray] 📊 Found ${existingProjects.length} existing projects to fetch updates for`);
+      
+      // Process projects in parallel with rate limiting
+      const fetchPromises = existingProjects.map(async (project) => {
+        try {
+          // Small delay between requests to avoid overwhelming the API
+          await new Promise(resolve => setTimeout(resolve, Math.random() * 200));
+          
+          await this.triggerProjectUpdatesFetch(project.projectKey, true);
+        } catch (error) {
+          console.error(`[AtlasXray] ❌ Failed to fetch initial updates for ${project.projectKey}:`, error);
+        }
+      });
+      
+      // Wait for all initial fetches to complete
+      await Promise.all(fetchPromises);
+      console.log('[AtlasXray] ✅ Initial updates fetch complete for all existing projects');
+      
+    } catch (error) {
+      console.error('[AtlasXray] ❌ Failed to trigger initial updates fetch:', error);
+    }
+  }
+
   // Force refresh counts from database (useful for debugging count mismatches)
   public async forceRefreshCounts(): Promise<void> {
     try {
@@ -745,6 +774,11 @@ export class ProjectPipeline {
             });
             console.log(`[AtlasXray] ✅ Stored project view for ${project.projectId}`);
             hasStoredData = true;
+            
+            // 🚀 PARALLEL PROCESSING: Immediately trigger ProjectUpdates fetch (last 4 weeks)
+            this.triggerProjectUpdatesFetch(project.projectId, true).catch(error => {
+              console.error(`[AtlasXray] ❌ Failed to trigger updates fetch for ${project.projectId}:`, error);
+            });
           } else {
             console.warn(`[AtlasXray] ⚠️ No project data returned for ${project.projectId} - data:`, data);
           }
@@ -779,6 +813,7 @@ export class ProjectPipeline {
   }
 
   // Fetch and store project updates for a specific project (lazy loading)
+  // This method is called when the modal opens to get ALL remaining updates
   public async fetchAndStoreProjectUpdates(projectKey: string): Promise<number> {
     try {
       console.log(`[AtlasXray] 📥 Fetching updates for project: ${projectKey}`);
@@ -806,6 +841,11 @@ export class ProjectPipeline {
           if (newUpdates.length > 0) {
             await upsertProjectUpdates(newUpdates);
             console.log(`[AtlasXray] ✅ Stored ${newUpdates.length} new updates for ${projectKey} (${alreadyAnalyzed.length} already analyzed)`);
+            
+            // 🚀 PARALLEL PROCESSING: Immediately trigger analysis for new updates
+            this.triggerAnalysisForUpdates(newUpdates).catch(error => {
+              console.error(`[AtlasXray] ❌ Failed to trigger analysis for updates in ${projectKey}:`, error);
+            });
           } else {
             console.log(`[AtlasXray] ℹ️ All ${nodes.length} updates for ${projectKey} are already analyzed`);
           }
@@ -821,6 +861,102 @@ export class ProjectPipeline {
     } catch (err) {
       console.error(`[AtlasXray] Failed to fetch project updates for projectKey: ${projectKey}`, err);
       return 0;
+    }
+  }
+
+  // 🚀 PARALLEL PROCESSING: Trigger ProjectUpdates fetch immediately after ProjectView is saved
+  private async triggerProjectUpdatesFetch(projectKey: string, isInitialFetch: boolean = false): Promise<void> {
+    try {
+      if (isInitialFetch) {
+        // Initial fetch: Get last 4 weeks of updates
+        console.log(`[AtlasXray] 🚀 Triggering initial ProjectUpdates fetch for ${projectKey} (last 4 weeks)`);
+        
+        // Calculate date 4 weeks ago
+        const fourWeeksAgo = new Date();
+        fourWeeksAgo.setDate(fourWeeksAgo.getDate() - 28);
+        
+        // Fetch updates with date filter (if the API supports it)
+        const { data } = await this.rateLimitedUpdateRequest(async () => {
+          return await apolloClient.query({
+            query: gql`${PROJECT_UPDATES_QUERY}`,
+            variables: { 
+              key: projectKey, 
+              isUpdatesTab: true,
+              // Note: Add date filtering here if the API supports it
+              // For now, we'll fetch all and filter client-side
+            }
+          });
+        });
+        
+        if (data?.project?.updates?.edges) {
+          const nodes = data.project.updates.edges.map((edge: any) => edge.node).filter(Boolean);
+          
+          // Filter to last 4 weeks
+          const recentUpdates = nodes.filter((node: any) => {
+            if (node.creationDate) {
+              const updateDate = new Date(node.creationDate);
+              return updateDate >= fourWeeksAgo;
+            }
+            return true; // Include updates without dates
+          });
+          
+          if (recentUpdates.length > 0) {
+            // Check which updates are already analyzed
+            const existingUpdates = await db.projectUpdates.where('projectKey').equals(projectKey).toArray();
+            const existingUpdateIds = new Set(existingUpdates.map(u => u.id));
+            
+            // Filter out updates that are already analyzed
+            const newUpdates = recentUpdates.filter((node: any) => !existingUpdateIds.has(node.id));
+            
+            if (newUpdates.length > 0) {
+              await upsertProjectUpdates(newUpdates);
+              console.log(`[AtlasXray] ✅ Initial fetch: Stored ${newUpdates.length} recent updates for ${projectKey} (last 4 weeks)`);
+              
+              // 🚀 PARALLEL PROCESSING: Immediately trigger analysis for new updates
+              this.triggerAnalysisForUpdates(newUpdates).catch(error => {
+                console.error(`[AtlasXray] ❌ Failed to trigger analysis for initial updates in ${projectKey}:`, error);
+              });
+            } else {
+              console.log(`[AtlasXray] ℹ️ Initial fetch: All ${recentUpdates.length} recent updates for ${projectKey} are already analyzed`);
+            }
+          } else {
+            console.log(`[AtlasXray] ℹ️ Initial fetch: No recent updates found for ${projectKey} in last 4 weeks`);
+          }
+        }
+      } else {
+        // Modal fetch: Get all remaining updates
+        console.log(`[AtlasXray] 🔄 Modal requested: Fetching all remaining updates for ${projectKey}`);
+        const count = await this.fetchAndStoreProjectUpdates(projectKey);
+        console.log(`[AtlasXray] ✅ Modal fetch complete: ${count} new updates for ${projectKey}`);
+      }
+    } catch (error) {
+      console.error(`[AtlasXray] ❌ Failed to trigger ProjectUpdates fetch for ${projectKey}:`, error);
+    }
+  }
+
+  // 🚀 PARALLEL PROCESSING: Trigger analysis immediately after ProjectUpdate is stored
+  private async triggerAnalysisForUpdates(updates: any[]): Promise<void> {
+    try {
+      console.log(`[AtlasXray] 🚀 Triggering analysis for ${updates.length} new updates`);
+      
+      // Process updates in parallel with rate limiting
+      const analysisPromises = updates.map(async (update) => {
+        try {
+          // Small delay between analysis requests to avoid overwhelming the system
+          await new Promise(resolve => setTimeout(resolve, Math.random() * 100));
+          
+          await this.queueUpdateForAnalysis(update);
+        } catch (error) {
+          console.error(`[AtlasXray] ❌ Failed to analyze update ${update.id}:`, error);
+        }
+      });
+      
+      // Wait for all analysis to complete
+      await Promise.all(analysisPromises);
+      console.log(`[AtlasXray] ✅ Analysis complete for ${updates.length} updates`);
+      
+    } catch (error) {
+      console.error(`[AtlasXray] ❌ Failed to trigger analysis for updates:`, error);
     }
   }
 
