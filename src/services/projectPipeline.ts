@@ -891,36 +891,41 @@ export class ProjectPipeline {
         if (data?.project?.updates?.edges) {
           const nodes = data.project.updates.edges.map((edge: any) => edge.node).filter(Boolean);
           
-          // Filter to last 4 weeks
-          const recentUpdates = nodes.filter((node: any) => {
+          // Check which updates are already analyzed to avoid re-analysis
+          const existingUpdates = await db.projectUpdates.where('projectKey').equals(projectKey).toArray();
+          const existingUpdateIds = new Set(existingUpdates.map(u => u.id));
+          
+          // Filter out updates that are already analyzed
+          const newUpdates = nodes.filter((node: any) => !existingUpdateIds.has(node.id));
+          const alreadyAnalyzed = nodes.filter((node: any) => existingUpdateIds.has(node.id));
+          
+          // Separate recent vs old updates for logging purposes
+          const recentUpdates = newUpdates.filter((node: any) => {
             if (node.creationDate) {
               const updateDate = new Date(node.creationDate);
               return updateDate >= fourWeeksAgo;
             }
-            return true; // Include updates without dates
+            return true; // Include updates without dates as recent
+          });
+          const olderUpdates = newUpdates.filter((node: any) => {
+            if (node.creationDate) {
+              const updateDate = new Date(node.creationDate);
+              return updateDate < fourWeeksAgo;
+            }
+            return false;
           });
           
-          if (recentUpdates.length > 0) {
-            // Check which updates are already analyzed
-            const existingUpdates = await db.projectUpdates.where('projectKey').equals(projectKey).toArray();
-            const existingUpdateIds = new Set(existingUpdates.map(u => u.id));
+          if (newUpdates.length > 0) {
+            // Store ALL new updates (both recent and older)
+            await upsertProjectUpdates(newUpdates);
+            console.log(`[AtlasXray] ✅ Initial fetch: Stored ${newUpdates.length} new updates for ${projectKey} (${recentUpdates.length} recent, ${olderUpdates.length} older, ${alreadyAnalyzed.length} already analyzed)`);
             
-            // Filter out updates that are already analyzed
-            const newUpdates = recentUpdates.filter((node: any) => !existingUpdateIds.has(node.id));
-            
-            if (newUpdates.length > 0) {
-              await upsertProjectUpdates(newUpdates);
-              console.log(`[AtlasXray] ✅ Initial fetch: Stored ${newUpdates.length} recent updates for ${projectKey} (last 4 weeks)`);
-              
-              // 🚀 PARALLEL PROCESSING: Immediately trigger analysis for new updates
-              this.triggerAnalysisForUpdates(newUpdates).catch(error => {
-                console.error(`[AtlasXray] ❌ Failed to trigger analysis for initial updates in ${projectKey}:`, error);
-              });
-            } else {
-              console.log(`[AtlasXray] ℹ️ Initial fetch: All ${recentUpdates.length} recent updates for ${projectKey} are already analyzed`);
-            }
+            // 🚀 PARALLEL PROCESSING: Immediately trigger analysis for ALL new updates (not just recent ones)
+            this.triggerAnalysisForUpdates(newUpdates).catch(error => {
+              console.error(`[AtlasXray] ❌ Failed to trigger analysis for initial updates in ${projectKey}:`, error);
+            });
           } else {
-            console.log(`[AtlasXray] ℹ️ Initial fetch: No recent updates found for ${projectKey} in last 4 weeks`);
+            console.log(`[AtlasXray] ℹ️ Initial fetch: All ${nodes.length} updates for ${projectKey} are already analyzed`);
           }
         }
       } else {
