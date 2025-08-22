@@ -18,6 +18,73 @@ import "../components/FloatingButton/FloatingButton.scss";
 
 // Custom styles will be merged with contentScript.css during build
 
+// Extract and store cloud ID and section ID from URL
+const extractAndStoreCloudId = () => {
+  try {
+    const url = window.location.href;
+    console.log('[AtlasXray] 🔍 Extracting cloud ID from URL:', url);
+    
+    let cloudId = null;
+    let sectionId = null;
+
+    // PRIORITY 1: Extract from URL path /o/{cloudId}/s/{sectionId} (most reliable)
+    const pathMatch = url.match(/\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)/);
+    if (pathMatch && pathMatch[1] && pathMatch[2]) {
+      cloudId = pathMatch[1];
+      sectionId = pathMatch[2];
+      console.log('[AtlasXray] ✅ Extracted from path:', { cloudId, sectionId });
+    }
+
+    // PRIORITY 2: Extract from URL path /o/{cloudId}/projects (fallback)
+    if (!cloudId) {
+      const projectsMatch = url.match(/\/o\/([a-f0-9\-]+)\/projects/);
+      if (projectsMatch && projectsMatch[1]) {
+        cloudId = projectsMatch[1];
+        // For projects pages, try to get section ID from URL parameter
+        const sectionIdParam = url.match(/[?&]cloudId=([a-f0-9\-]+)/);
+        if (sectionIdParam && sectionIdParam[1]) {
+          sectionId = sectionIdParam[1];
+        } else {
+          sectionId = 'default';
+        }
+        console.log('[AtlasXray] ✅ Extracted from projects path:', { cloudId, sectionId });
+      }
+    }
+
+    // PRIORITY 3: Extract from URL parameter cloudId=... (least reliable, only if path fails)
+    if (!cloudId) {
+      const cloudIdParam = url.match(/[?&]cloudId=([a-f0-9\-]+)/);
+      if (cloudIdParam && cloudIdParam[1]) {
+        cloudId = cloudIdParam[1];
+        sectionId = 'default';
+        console.log('[AtlasXray] ✅ Extracted from URL parameter:', { cloudId, sectionId });
+      }
+    }
+
+    if (cloudId) {
+      // Store in global state
+      if (typeof window !== 'undefined') {
+        window.atlasXrayCloudId = cloudId;
+        window.atlasXraySectionId = sectionId;
+        console.log('[AtlasXray] 🌐 Cloud ID stored in window:', { cloudId, sectionId });
+      }
+    } else {
+      console.warn('[AtlasXray] ⚠️ Could not extract cloud ID from URL');
+    }
+  } catch (error) {
+    console.error('[AtlasXray] ❌ Error extracting cloud ID:', error);
+  }
+};
+
+// Extract cloud ID immediately
+extractAndStoreCloudId();
+
+// Debug: Check what was extracted
+setTimeout(() => {
+  console.log('[AtlasXray] 🔍 Debug - Window cloud ID:', window.atlasXrayCloudId);
+  console.log('[AtlasXray] 🔍 Debug - Window section ID:', window.atlasXraySectionId);
+}, 100);
+
 const container = document.createElement("div");
 document.body.appendChild(container);
 createRoot(container).render(<FloatingButton />);
@@ -58,74 +125,61 @@ setTimeout(async () => {
   }
 }, 1000);
 
-// Initial project data download using new pipeline
+// Initialize direct project fetching
+console.log('[AtlasXray] 🚀 Initializing direct project fetcher...');
+
+// Start direct project fetching after a short delay to ensure page is loaded
 setTimeout(async () => {
   try {
-    const { projectPipeline } = await import('../services/projectPipeline');
-    console.log('[AtlasXray] 🚀 Starting initial project scan with new pipeline...');
-    const count = await projectPipeline.scanProjectsOnPage();
-    console.log(`[AtlasXray] ✅ Initial scan complete. Found ${count} projects on page.`);
+    console.log('[AtlasXray] 📥 Starting direct project fetch...');
+    
+    // Import and start the direct project fetcher
+    const { directProjectFetcher } = await import('../services/directProjectFetcher.js');
+    console.log('[AtlasXray] ✅ Direct project fetcher imported');
+    
+    // Start periodic fetching
+    directProjectFetcher.startPeriodicFetch();
+    
   } catch (error) {
-    console.error('[AtlasXray] ❌ Initial project scan failed:', error);
+    console.error('[AtlasXray] ❌ Failed to start direct project fetcher:', error);
   }
-}, 2000); // Wait 2 seconds for DOM to be fully loaded
-
-// Monitor DOM changes for new projects
-const observer = new MutationObserver((mutations) => {
-  let shouldRescan = false;
-  
-  mutations.forEach((mutation) => {
-    if (mutation.type === 'childList') {
-      mutation.addedNodes.forEach((node) => {
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          // Check if new project links were added
-          const projectLinks = node.querySelectorAll && node.querySelectorAll('a[href*="/project/"]');
-          if (projectLinks && projectLinks.length > 0) {
-            shouldRescan = true;
-          }
-        }
-      });
-    }
-  });
-  
-  if (shouldRescan) {
-    console.log('[AtlasXray] 🔄 DOM changes detected, rescanning for new projects...');
-    // Use the new pipeline system for scanning
-    import('../services/projectPipeline').then(({ projectPipeline }) => {
-      projectPipeline.scanProjectsOnPage().then((count) => {
-        console.log(`[AtlasXray] ✅ Rescan complete. Found ${count} projects on page.`);
-      }).catch((error) => {
-        console.error('[AtlasXray] ❌ Rescan failed:', error);
-      });
-    }).catch((error) => {
-      console.error('[AtlasXray] ❌ Failed to import pipeline:', error);
-    });
-  }
-});
-
-observer.observe(document.body, { childList: true, subtree: true });
+}, 2000); // Wait 2 seconds for page to fully load
 
 // Add test functions to window for debugging
-window.testAtlasXray = async () => {
-  console.log('[AtlasXray] 🧪 Manual test triggered...');
-  try {
-    const response = await chrome.runtime.sendMessage({ type: 'PING' });
-    console.log('[AtlasXray] Test response:', response);
-    
-    // Test analysis
-    // const analysisResponse = await chrome.runtime.sendMessage({
-    //   type: 'ANALYZE_UPDATE_QUALITY',
-    //   updateId: 'manual_test',
-    //   updateText: 'Manual test of the analysis system',
-    //   updateType: 'general',
-    //   state: 'on-track'
-    // });
-    // console.log('[AtlasXray] Analysis test response:', analysisResponse);
-    
-  } catch (error) {
-    console.error('[AtlasXray] Test failed:', error);
-  }
-};
+if (typeof window !== 'undefined') {
+  window.testAtlasXray = async () => {
+    console.log('[AtlasXray] 🧪 Manual test triggered...');
+    try {
+      const response = await chrome.runtime.sendMessage({ type: 'PING' });
+      console.log('[AtlasXray] Test response:', response);
+      
+      // Test bootstrap service
+      try {
+        const { bootstrapService } = await import('../services/bootstrapService.js');
+        console.log('[AtlasXray] 🧪 Testing bootstrap service...');
+        const bootstrapData = await bootstrapService.loadBootstrapData();
+        console.log('[AtlasXray] ✅ Bootstrap test result:', bootstrapData);
+      } catch (error) {
+        console.error('[AtlasXray] ❌ Bootstrap test failed:', error);
+      }
+      
+      // Test direct project fetching
+      try {
+        const { directProjectFetcher } = await import('../services/directProjectFetcher.js');
+        console.log('[AtlasXray] 🧪 Testing direct project fetch...');
+        const projects = await directProjectFetcher.fetchProjects();
+        console.log('[AtlasXray] ✅ Direct fetch test result:', projects);
+      } catch (error) {
+        console.error('[AtlasXray] ❌ Direct fetch test failed:', error);
+      }
+      
+    } catch (error) {
+      console.error('[AtlasXray] Test failed:', error);
+    }
+  };
+  
+  console.log('[AtlasXray] 🧪 Test function added to window.testAtlasXray()');
+}
 
 console.log('[AtlasXray] 🚀 Content script loaded and ready');
 console.log('[AtlasXray] 💡 Use window.testAtlasXray() in console to test the system');
