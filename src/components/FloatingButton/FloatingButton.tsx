@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { projectPipeline, PipelineState } from "../../services/projectPipeline";
 import StatusTimelineHeatmap from "../StatusTimelineHeatmap/StatusTimelineHeatmap";
 import ProjectStatusHistoryModal from "../ProjectStatusHistoryModal";
@@ -18,24 +18,25 @@ export default function FloatingButton(): React.JSX.Element {
   // Real-time counts from Dexie (always accurate)
   const [counts, setCounts] = useState({ projectsStored: 0, updatesStored: 0, updatesAnalyzed: 0 });
   
-  // Poll database for counts every 2 seconds
+  // Function to update counts from database
+  const updateCounts = useCallback(async () => {
+    try {
+      const projectsCount = await db.projectView.count();
+      const updatesCount = await db.projectUpdates.count();
+              const analyzedCount = await db.projectUpdates.where('analyzed').equals(1).count(); // Query for analyzed=1
+      
+      setCounts({
+        projectsStored: projectsCount,
+        updatesStored: updatesCount,
+        updatesAnalyzed: analyzedCount
+      });
+    } catch (error) {
+      console.error('[AtlasXray] Failed to update counts:', error);
+    }
+  }, []);
+  
+  // Poll database for counts every 2 seconds (fallback)
   useEffect(() => {
-    const updateCounts = async () => {
-      try {
-        const projectsCount = await db.projectView.count();
-        const updatesCount = await db.projectUpdates.count();
-        const analyzedCount = await db.projectUpdates.where('analyzed').equals(1).count();
-        
-        setCounts({
-          projectsStored: projectsCount,
-          updatesStored: updatesCount,
-          updatesAnalyzed: analyzedCount
-        });
-      } catch (error) {
-        console.error('[AtlasXray] Failed to update counts:', error);
-      }
-    };
-    
     // Update immediately
     updateCounts();
     
@@ -43,7 +44,22 @@ export default function FloatingButton(): React.JSX.Element {
     const interval = setInterval(updateCounts, 2000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [updateCounts]);
+  
+  // 🚀 REAL-TIME UPDATES: Listen for analysis completion events
+  useEffect(() => {
+    const handleAnalysisComplete = () => {
+      console.log('[AtlasXray] 🔄 Analysis completed, updating counts immediately...');
+      updateCounts(); // Update counts immediately when analysis finishes
+    };
+    
+    // Listen for custom events when analysis completes
+    window.addEventListener('atlas-xray:analysis-complete', handleAnalysisComplete);
+    
+    return () => {
+      window.removeEventListener('atlas-xray:analysis-complete', handleAnalysisComplete);
+    };
+  }, [updateCounts]);
   
   const { projectsStored, updatesStored, updatesAnalyzed } = counts;
 

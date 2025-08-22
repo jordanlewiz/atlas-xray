@@ -12,12 +12,42 @@ export interface AtlasXrayDB extends Dexie {
 
 const db = new Dexie("AtlasXrayDB") as AtlasXrayDB;
 
-db.version(9).stores({
+db.version(10).stores({
   projectView: "projectKey",
   projectStatusHistory: "id,projectKey",
-  projectUpdates: "id,projectKey",
+  projectUpdates: "id,projectKey,analyzed",
   projectImages: "id,projectKey,mediaId",
   meta: "key"
+});
+
+// Migration function to add analyzed field to existing updates
+db.on('ready', async () => {
+  try {
+    // Check if we need to migrate existing updates
+    const existingUpdates = await db.projectUpdates.toArray();
+    const updatesNeedingMigration = existingUpdates.filter(update => update.analyzed === undefined);
+    
+    if (updatesNeedingMigration.length > 0) {
+      console.log(`[AtlasXray] 🔄 Migrating ${updatesNeedingMigration.length} existing updates to add analyzed field...`);
+      
+              // Add analyzed field to existing updates
+        for (const update of updatesNeedingMigration) {
+          await db.projectUpdates.update(update.id, {
+            analyzed: 0, // Mark existing updates as not analyzed (use 0 instead of false)
+            analysisDate: null,
+            updateQuality: null,
+            qualityLevel: null,
+            qualitySummary: null,
+            qualityRecommendations: null,
+            qualityMissingInfo: null
+          });
+        }
+      
+      console.log(`[AtlasXray] ✅ Migration complete for ${updatesNeedingMigration.length} updates`);
+    }
+  } catch (error) {
+    console.error('[AtlasXray] ❌ Migration failed:', error);
+  }
 });
 
 // ProjectView store

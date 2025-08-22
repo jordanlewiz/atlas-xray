@@ -960,6 +960,13 @@ export class ProjectPipeline {
       await Promise.all(analysisPromises);
       console.log(`[AtlasXray] ✅ Analysis complete for ${updates.length} updates`);
       
+      // 🚀 REAL-TIME UPDATES: Dispatch custom event to notify UI components
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('atlas-xray:analysis-complete', {
+          detail: { updatesCount: updates.length }
+        }));
+      }
+      
     } catch (error) {
       console.error(`[AtlasXray] ❌ Failed to trigger analysis for updates:`, error);
     }
@@ -980,7 +987,7 @@ export class ProjectPipeline {
       
       // Store the analysis results in the database
       await db.projectUpdates.update(update.id, {
-        analyzed: true,
+        analyzed: 1, // Use 1 instead of true for IndexedDB compatibility
         analysisDate: new Date().toISOString(),
         updateQuality: qualityResult.score,
         qualityLevel: qualityResult.quality,
@@ -997,7 +1004,7 @@ export class ProjectPipeline {
       // Fallback: mark as analyzed but with error
       try {
         await db.projectUpdates.update(update.id, {
-          analyzed: true,
+          analyzed: 1, // Use 1 instead of true for IndexedDB compatibility
           analysisDate: new Date().toISOString(),
           updateQuality: 0,
           qualityLevel: 'poor',
