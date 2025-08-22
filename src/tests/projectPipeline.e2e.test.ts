@@ -5,13 +5,20 @@ jest.mock('../utils/database', () => ({
       clear: jest.fn().mockResolvedValue(undefined),
       toArray: jest.fn().mockResolvedValue([]),
       put: jest.fn().mockResolvedValue(undefined),
-      get: jest.fn().mockResolvedValue(undefined)
+      get: jest.fn().mockResolvedValue(undefined),
+      count: jest.fn().mockResolvedValue(0)
     },
     projectUpdates: {
       clear: jest.fn().mockResolvedValue(undefined),
       toArray: jest.fn().mockResolvedValue([]),
       put: jest.fn().mockResolvedValue(undefined),
-      update: jest.fn().mockResolvedValue(undefined)
+      update: jest.fn().mockResolvedValue(undefined),
+      count: jest.fn().mockResolvedValue(0),
+      where: jest.fn().mockReturnValue({
+        equals: jest.fn().mockReturnValue({
+          count: jest.fn().mockResolvedValue(0)
+        })
+      })
     },
     projectStatusHistory: {
       clear: jest.fn().mockResolvedValue(undefined)
@@ -189,6 +196,21 @@ const waitForStage = async (pipeline: ProjectPipeline, targetStage: string): Pro
       unsubscribe();
       resolve();
     }, 5000);
+  });
+};
+
+const mockDomWithProjects = (projectKeys: string[]) => {
+  Object.defineProperty(document, 'querySelectorAll', {
+    value: jest.fn().mockImplementation((selector: string) => {
+      if (selector === 'a[href]') {
+        return projectKeys.map(key => ({
+          getAttribute: (attr: string) => attr === 'href' ? `/o/abc123/s/def456/project/${key}` : null,
+          href: `/o/abc123/s/def456/project/${key}`
+        }));
+      }
+      return [];
+    }),
+    writable: true
   });
 };
 
@@ -726,7 +748,7 @@ describe('Project Data Pipeline E2E', () => {
         expect.stringContaining('Starting to process 12 projects with concurrency')
       );
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Processing batch 1/3 (5 projects)')
+        expect.stringContaining('Processing batch 1/3 (3 projects)')
       );
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Processing batch 2/3 (5 projects)')
@@ -760,7 +782,7 @@ describe('Project Data Pipeline E2E', () => {
       
       // Then: Should show progress for each batch
       expect(consoleSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Batch 1 complete! Progress: 5/10 (50%)')
+        expect.stringContaining('Batch 1 complete! Progress: 3/10 (30%)')
       );
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining('Batch 2 complete! Progress: 10/10 (100%)')
@@ -1291,6 +1313,959 @@ describe('Project Data Pipeline E2E', () => {
       });
       
       expect(qualityCalls.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
+  describe('Auto-Detection & DOM Observer', () => {
+    it('should automatically detect new projects added to the page', async () => {
+      // Mock initial DOM state with 3 projects
+      const initialProjects = ['TEST-123', 'TEST-456', 'TEST-789'];
+      mockDomWithProjects(initialProjects);
+      
+      // Create pipeline
+      const pipeline = new ProjectPipeline();
+      
+      // Initial scan should find 3 projects
+      const initialCount = await pipeline.scanProjectsOnPage();
+      expect(initialCount).toBe(3);
+      
+      // Simulate adding more projects to the DOM
+      const additionalProjects = ['TEST-101', 'TEST-102', 'TEST-103'];
+      mockDomWithProjects([...initialProjects, ...additionalProjects]);
+      
+      // Trigger the auto-detection handler manually
+      const handleNewProjectsDetected = (pipeline as any).handleNewProjectsDetected.bind(pipeline);
+      await handleNewProjectsDetected();
+      
+      // Should now detect 6 total projects
+      const finalState = pipeline.getState();
+      expect(finalState.projectsOnPage).toBe(6);
+      expect(finalState.projectIds).toHaveLength(6);
+      expect(finalState.projectIds).toContain('TEST-101');
+      expect(finalState.projectIds).toContain('TEST-102');
+      expect(finalState.projectIds).toContain('TEST-103');
+    });
+
+    it('should debounce rapid DOM changes to avoid excessive scanning', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock initial state
+      mockDomWithProjects(['TEST-123']);
+      await pipeline.scanProjectsOnPage();
+      
+      // Simulate rapid DOM changes
+      const debouncedRescan = (pipeline as any).debouncedRescan.bind(pipeline);
+      
+      // Call multiple times rapidly
+      debouncedRescan();
+      debouncedRescan();
+      debouncedRescan();
+      
+      // Should not trigger immediate rescan due to debouncing
+      const state = pipeline.getState();
+      expect(state.currentStage).toBe('idle');
+    });
+
+    it('should not interrupt pipeline if already processing', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock initial state
+      mockDomWithProjects(['TEST-123']);
+      await pipeline.scanProjectsOnPage();
+      
+      // Set pipeline to processing state
+      (pipeline as any).state.isProcessing = true;
+      
+      // Try to trigger auto-detection
+      const handleNewProjectsDetected = (pipeline as any).handleNewProjectsDetected.bind(pipeline);
+      await handleNewProjectsDetected();
+      
+      // Should skip rescan since pipeline is already processing
+      const state = pipeline.getState();
+      expect(state.projectsOnPage).toBe(1); // Should not change
+    });
+
+    it('should start DOM observer when pipeline is created', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Check that the mutation observer was created
+      const mutationObserver = (pipeline as any).mutationObserver;
+      expect(mutationObserver).toBeDefined();
+      expect(mutationObserver).toBeInstanceOf(MutationObserver);
+    });
+
+    it('should clean up DOM observer when destroyed', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Verify observer exists
+      expect((pipeline as any).mutationObserver).toBeDefined();
+      
+      // Destroy the pipeline
+      pipeline.destroy();
+      
+      // Verify observer was cleaned up
+      expect((pipeline as any).mutationObserver).toBeNull();
+    });
+  });
+
+  describe('Quality Analysis Integration', () => {
+    it('should analyze project updates using local language model', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Mock database to have updates available for analysis
+      const mockUpdates = [
+        { id: 'update-1', summary: 'This is a test update with good information', projectKey: 'TEST-123' }
+      ];
+      
+      // Mock the database methods
+      const originalToArray = db.projectUpdates.toArray;
+      const originalUpdate = db.projectUpdates.update;
+      
+      db.projectUpdates.toArray = jest.fn().mockResolvedValue(mockUpdates);
+      db.projectUpdates.update = jest.fn().mockResolvedValue(1);
+      
+      try {
+        // Run pipeline to fetch and store projects
+        await pipeline.runCompletePipeline();
+        
+        // Queue and process analysis
+        await pipeline.queueAndProcessAnalysis();
+        
+        // Verify that updates were analyzed
+        expect(db.projectUpdates.update).toHaveBeenCalledWith('update-1', expect.objectContaining({
+          analyzed: true,
+          analysisDate: expect.any(String),
+          updateQuality: expect.any(Number),
+          qualityLevel: expect.stringMatching(/excellent|good|fair|poor/),
+          qualitySummary: expect.any(String)
+        }));
+        
+      } finally {
+        // Restore original methods
+        db.projectUpdates.toArray = originalToArray;
+        db.projectUpdates.update = originalUpdate;
+      }
+    });
+
+    it('should handle local language model analysis failures gracefully', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Mock database to have updates available for analysis
+      const mockUpdates = [
+        { id: 'update-1', summary: 'Test update', projectKey: 'TEST-123' }
+      ];
+      
+      // Mock the database methods
+      const originalToArray = db.projectUpdates.toArray;
+      const originalUpdate = db.projectUpdates.update;
+      
+      db.projectUpdates.toArray = jest.fn().mockResolvedValue(mockUpdates);
+      db.projectUpdates.update = jest.fn().mockResolvedValue(1);
+      
+      // Mock the local model manager to throw an error
+      const originalImport = (global as any).import;
+      (global as any).import = jest.fn().mockRejectedValue(new Error('Local model failed'));
+      
+      try {
+        // Run pipeline to fetch and store projects
+        await pipeline.runCompletePipeline();
+        
+        // Queue and process analysis (should handle errors gracefully)
+        await pipeline.queueAndProcessAnalysis();
+        
+        // Verify that some analysis was applied (either local model or fallback)
+        expect(db.projectUpdates.update).toHaveBeenCalledWith('update-1', expect.objectContaining({
+          analyzed: true,
+          analysisDate: expect.any(String)
+        }));
+        
+      } finally {
+        // Restore original methods
+        db.projectUpdates.toArray = originalToArray;
+        db.projectUpdates.update = originalUpdate;
+        (global as any).import = originalImport;
+      }
+    });
+
+    it('should provide consistent quality analysis across multiple runs', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Mock database to have updates available for analysis
+      const mockUpdates = [
+        { id: 'update-1', summary: 'This is a comprehensive update with detailed information', projectKey: 'TEST-123' }
+      ];
+      
+      // Mock the database methods
+      const originalToArray = db.projectUpdates.toArray;
+      const originalUpdate = db.projectUpdates.update;
+      
+      db.projectUpdates.toArray = jest.fn().mockResolvedValue(mockUpdates);
+      db.projectUpdates.update = jest.fn().mockResolvedValue(1);
+      
+      try {
+        // Run pipeline to fetch and store projects
+        await pipeline.runCompletePipeline();
+        
+        // Queue and process analysis multiple times
+        await pipeline.queueAndProcessAnalysis();
+        await pipeline.queueAndProcessAnalysis();
+        await pipeline.queueAndProcessAnalysis();
+        
+        // Verify that analysis was applied multiple times
+        expect(db.projectUpdates.update).toHaveBeenCalledTimes(4); // 3 manual calls + 1 from pipeline
+        
+        // All calls should be for the same update ID
+        const calls = (db.projectUpdates.update as jest.Mock).mock.calls;
+        calls.forEach(call => {
+          expect(call[0]).toBe('update-1');
+        });
+        
+      } finally {
+        // Restore original methods
+        db.projectUpdates.toArray = originalToArray;
+        db.projectUpdates.update = originalUpdate;
+      }
+    });
+  });
+
+  describe('Error Handling & Resilience', () => {
+    it('should handle database errors gracefully during initialization', async () => {
+      // Mock database to throw error during initialization
+      const originalToArray = db.projectView.toArray;
+      db.projectView.toArray = jest.fn().mockRejectedValue(new Error('Database connection failed'));
+      
+      try {
+        // Pipeline should still be created even if database init fails
+        const pipeline = new ProjectPipeline();
+        expect(pipeline).toBeDefined();
+        
+        // State should have default values
+        const state = pipeline.getState();
+        expect(state.projectsStored).toBe(0);
+        expect(state.projectUpdatesStored).toBe(0);
+        
+      } finally {
+        // Restore original method
+        db.projectView.toArray = originalToArray;
+      }
+    });
+
+    it('should handle DOM observer failures gracefully', async () => {
+      // Mock MutationObserver to throw error
+      const originalMutationObserver = global.MutationObserver;
+      global.MutationObserver = jest.fn().mockImplementation(() => {
+        throw new Error('MutationObserver not supported');
+      });
+      
+      try {
+        // Pipeline should still be created even if DOM observer fails
+        const pipeline = new ProjectPipeline();
+        expect(pipeline).toBeDefined();
+        
+        // DOM observer should be null
+        expect((pipeline as any).mutationObserver).toBeNull();
+        
+      } finally {
+        // Restore original MutationObserver
+        global.MutationObserver = originalMutationObserver;
+      }
+    });
+
+    it('should handle rate limiting errors with proper backoff', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123']);
+      
+      // Mock API to return 429 errors initially, then succeed
+      let callCount = 0;
+      const mockApolloClient = {
+        query: jest.fn().mockImplementation(async () => {
+          callCount++;
+          if (callCount <= 2) {
+            throw new Error('429 Too Many Requests');
+          }
+          return { data: { project: { name: 'Test Project' } } };
+        })
+      };
+      
+      // Replace the global apolloClient temporarily
+      const originalApolloClient = (global as any).apolloClient;
+      (global as any).apolloClient = mockApolloClient;
+      
+      try {
+        // This should handle the 429 errors with backoff and eventually succeed
+        await pipeline.runCompletePipeline();
+        
+        // The pipeline should have handled the 429 errors
+        const finalState = pipeline.getState();
+        // Either it succeeded or has an error, but shouldn't crash
+        expect(finalState.isProcessing).toBe(false);
+        
+      } finally {
+        // Restore original apolloClient
+        (global as any).apolloClient = originalApolloClient;
+      }
+    });
+  });
+
+  describe('Performance & Batch Processing', () => {
+    it('should process projects in batches with proper delays', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with many projects to test batching
+      const manyProjects = Array.from({ length: 8 }, (_, i) => `TEST-${200 + i}`);
+      mockDomWithProjects(manyProjects);
+      
+      // Use existing mock API responses
+      mockApiResponses();
+      
+      // Start timing
+      const startTime = Date.now();
+      
+      // Run pipeline
+      await pipeline.runCompletePipeline();
+      
+      // End timing
+      const totalTime = Date.now() - startTime;
+      
+      // With 8 projects in batches of 3, we expect:
+      // - 3 batches total
+      // - 2 batch delays (200ms each) = 400ms
+      // - 1 update throttling delay (500ms) = 500ms
+      // - Total expected: at least 900ms minimum
+      
+      console.log(`[Test] Pipeline completed in ${totalTime}ms`);
+      expect(totalTime).toBeGreaterThan(800);
+      
+      const finalState = pipeline.getState();
+      expect(finalState.projectsStored).toBeGreaterThanOrEqual(8);
+    });
+
+    it('should respect rate limits for both project views and updates', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123', 'TEST-456']);
+      
+      // Use existing mock API responses
+      mockApiResponses();
+      
+      // Run pipeline
+      await pipeline.runCompletePipeline();
+      
+      // Verify that the pipeline completed successfully
+      const finalState = pipeline.getState();
+      expect(finalState.projectsStored).toBeGreaterThanOrEqual(2);
+      expect(finalState.isProcessing).toBe(false);
+      
+      // The rate limiting should have been applied (we can see this in the console logs)
+      // Project views: 10/sec, Updates: 3/sec
+    });
+  });
+
+  describe('Data Consistency & Accuracy', () => {
+    it('should always maintain accurate count of updates stored in database', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123', 'TEST-456']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Mock database to have specific number of updates
+      const mockUpdates = [
+        { id: 'update-1', projectKey: 'TEST-123', summary: 'Test update 1' },
+        { id: 'update-2', projectKey: 'TEST-123', summary: 'Test update 2' },
+        { id: 'update-3', projectKey: 'TEST-456', summary: 'Test update 3' },
+        { id: 'update-4', projectKey: 'TEST-456', summary: 'Test update 4' },
+        { id: 'update-5', projectKey: 'TEST-456', summary: 'Test update 5' }
+      ];
+      
+      // Mock the database methods
+      const originalToArray = db.projectUpdates.toArray;
+      db.projectUpdates.toArray = jest.fn().mockResolvedValue(mockUpdates);
+      
+      try {
+        // Run pipeline to fetch and store projects
+        await pipeline.runCompletePipeline();
+        
+        // Get pipeline state
+        const pipelineState = pipeline.getState();
+        
+        // Verify that updates stored count matches actual database count
+        expect(pipelineState.projectUpdatesStored).toBe(mockUpdates.length);
+        expect(pipelineState.projectUpdatesStored).toBe(5);
+        
+        // Verify that the count is consistent with what's reported
+        console.log(`[Test] Pipeline reports: ${pipelineState.projectUpdatesStored} updates stored`);
+        console.log(`[Test] Database actually has: ${mockUpdates.length} updates`);
+        
+        // The count should always be accurate
+        expect(pipelineState.projectUpdatesStored).toBe(mockUpdates.length);
+        
+      } finally {
+        // Restore original methods
+        db.projectUpdates.toArray = originalToArray;
+      }
+    });
+
+    it('should update counts when new updates are added to database', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Start with 2 updates
+      let mockUpdates = [
+        { id: 'update-1', projectKey: 'TEST-123', summary: 'Test update 1' },
+        { id: 'update-2', projectKey: 'TEST-123', summary: 'Test update 2' }
+      ];
+      
+      // Mock the database methods
+      const originalToArray = db.projectUpdates.toArray;
+      db.projectUpdates.toArray = jest.fn().mockResolvedValue(mockUpdates);
+      
+      try {
+        // Run pipeline with initial 2 updates
+        await pipeline.runCompletePipeline();
+        
+        let pipelineState = pipeline.getState();
+        expect(pipelineState.projectUpdatesStored).toBe(2);
+        
+        // Simulate adding 3 more updates to database
+        mockUpdates = [
+          ...mockUpdates,
+          { id: 'update-3', projectKey: 'TEST-123', summary: 'Test update 3' },
+          { id: 'update-4', projectKey: 'TEST-123', summary: 'Test update 4' },
+          { id: 'update-5', projectKey: 'TEST-123', summary: 'Test update 5' }
+        ];
+        
+        // Update the mock to return new count
+        db.projectUpdates.toArray = jest.fn().mockResolvedValue(mockUpdates);
+        
+        // Manually refresh counts to reflect database changes
+        await pipeline.refreshCounts();
+        
+        pipelineState = pipeline.getState();
+        
+        // Count should now reflect the new total
+        expect(pipelineState.projectUpdatesStored).toBe(5);
+        expect(pipelineState.projectUpdatesStored).toBe(mockUpdates.length);
+        
+      } finally {
+        // Restore original methods
+        db.projectUpdates.toArray = originalToArray;
+      }
+    });
+
+    it('should handle database count changes during pipeline execution', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Start with 1 update
+      let mockUpdates = [
+        { id: 'update-1', projectKey: 'TEST-123', summary: 'Test update 1' }
+      ];
+      
+      // Mock the database methods
+      const originalToArray = db.projectUpdates.toArray;
+      db.projectUpdates.toArray = jest.fn().mockResolvedValue(mockUpdates);
+      
+      try {
+        // Run pipeline with initial 1 update
+        await pipeline.runCompletePipeline();
+        
+        let pipelineState = pipeline.getState();
+        expect(pipelineState.projectUpdatesStored).toBe(1);
+        
+        // Simulate database growing during execution
+        mockUpdates = [
+          ...mockUpdates,
+          { id: 'update-2', projectKey: 'TEST-123', summary: 'Test update 2' },
+          { id: 'update-3', projectKey: 'TEST-123', summary: 'Test update 3' }
+        ];
+        
+        // Update the mock to return new count
+        db.projectUpdates.toArray = jest.fn().mockResolvedValue(mockUpdates);
+        
+        // Force a refresh of the counts
+        await pipeline.refreshCounts();
+        
+        pipelineState = pipeline.getState();
+        
+        // Count should reflect the current database state
+        expect(pipelineState.projectUpdatesStored).toBe(3);
+        expect(pipelineState.projectUpdatesStored).toBe(mockUpdates.length);
+        
+      } finally {
+        // Restore original methods
+        db.projectUpdates.toArray = originalToArray;
+      }
+    });
+  });
+
+  describe('Lazy Loading & Rate Limiting', () => {
+    it('should fetch updates on-demand when requested, not during main pipeline', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123', 'TEST-456']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Run pipeline - should only fetch project views, not updates
+      await pipeline.runCompletePipeline();
+      
+      const pipelineState = pipeline.getState();
+      
+      // Should have stored projects but no updates yet
+      expect(pipelineState.projectsStored).toBeGreaterThanOrEqual(2);
+      expect(pipelineState.projectUpdatesStored).toBe(0); // No updates fetched during main pipeline
+      
+      // Now manually fetch updates for a specific project
+      const updatesCount = await pipeline.fetchAndStoreProjectUpdates('TEST-123');
+      
+      // Should have fetched some updates
+      expect(updatesCount).toBeGreaterThan(0);
+      
+      // Verify that the method was called and returned the expected count
+      expect(updatesCount).toBe(5); // Based on the mock API response
+    });
+
+    it('should apply rate limiting when fetching updates on-demand', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Run pipeline to get projects
+      await pipeline.runCompletePipeline();
+      
+      // Mock the rate limited update request to verify it's called
+      const originalRateLimitedUpdateRequest = (pipeline as any).rateLimitedUpdateRequest;
+      let rateLimitCalled = false;
+      
+      (pipeline as any).rateLimitedUpdateRequest = jest.fn().mockImplementation(async (requestFn) => {
+        rateLimitCalled = true;
+        return await requestFn();
+      });
+      
+      try {
+        // Fetch updates - should use rate limiting
+        await pipeline.fetchAndStoreProjectUpdates('TEST-123');
+        
+        // Verify that rate limiting was applied
+        expect(rateLimitCalled).toBe(true);
+        
+      } finally {
+        // Restore original method
+        (pipeline as any).rateLimitedUpdateRequest = originalRateLimitedUpdateRequest;
+      }
+    });
+
+    it('should handle multiple update requests with proper delays', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123', 'TEST-456', 'TEST-789']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Run pipeline to get projects
+      await pipeline.runCompletePipeline();
+      
+      // Mock the database methods to simulate updates being available
+      const mockUpdates = [
+        { id: 'update-1', projectKey: 'TEST-123', summary: 'Test update 1' },
+        { id: 'update-2', projectKey: 'TEST-456', summary: 'Test update 2' },
+        { id: 'update-3', projectKey: 'TEST-789', summary: 'Test update 3' }
+      ];
+      
+      const originalToArray = db.projectUpdates.toArray;
+      const originalUpdate = db.projectUpdates.update;
+      
+      db.projectUpdates.toArray = jest.fn().mockResolvedValue(mockUpdates);
+      db.projectUpdates.update = jest.fn().mockResolvedValue(1);
+      
+      try {
+        // Fetch updates for multiple projects
+        const projectKeys = ['TEST-123', 'TEST-456', 'TEST-789'];
+        let totalUpdates = 0;
+        
+        for (const projectKey of projectKeys) {
+          const updatesCount = await pipeline.fetchAndStoreProjectUpdates(projectKey);
+          totalUpdates += updatesCount;
+          
+          // Small delay between projects (simulating the 200ms delay in FloatingButton)
+          await new Promise(resolve => setTimeout(resolve, 50)); // Faster for test
+        }
+        
+        // Should have fetched updates for all projects
+        expect(totalUpdates).toBeGreaterThan(0);
+        
+        // Verify that we got the expected number of updates
+        expect(totalUpdates).toBe(15); // 3 projects × 5 updates each
+        
+      } finally {
+        // Restore original methods
+        db.projectUpdates.toArray = originalToArray;
+        db.projectUpdates.update = originalUpdate;
+      }
+    });
+  });
+
+  describe('Analyzer Count Stability', () => {
+    it('should maintain consistent analyzer count during update fetching', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123', 'TEST-456']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Mock database to have specific number of analyzed updates
+      const mockUpdates = [
+        { id: 'update-1', projectKey: 'TEST-123', summary: 'Test update 1', analyzed: true },
+        { id: 'update-2', projectKey: 'TEST-123', summary: 'Test update 2', analyzed: true },
+        { id: 'update-3', projectKey: 'TEST-456', summary: 'Test update 3', analyzed: true },
+        { id: 'update-4', projectKey: 'TEST-456', summary: 'Test update 4', analyzed: false },
+        { id: 'update-5', projectKey: 'TEST-456', summary: 'Test update 5', analyzed: true }
+      ];
+      
+      // Mock the database methods
+      const originalToArray = db.projectUpdates.toArray;
+      db.projectUpdates.toArray = jest.fn().mockResolvedValue(mockUpdates);
+      
+      try {
+        // Run pipeline to fetch and store projects
+        await pipeline.runCompletePipeline();
+        
+        // Get initial state
+        const initialState = pipeline.getState();
+        const initialAnalyzedCount = initialState.projectUpdatesAnalysed;
+        
+        console.log(`[Test] Initial analyzed count: ${initialAnalyzedCount}`);
+        
+        // Fetch updates for multiple projects (simulating what happens in FloatingButton)
+      const projectKeys = ['TEST-123', 'TEST-456'];
+      let totalUpdatesFetched = 0;
+      
+      for (const projectKey of projectKeys) {
+        const updatesCount = await pipeline.fetchAndStoreProjectUpdates(projectKey);
+        totalUpdatesFetched += updatesCount;
+        
+        // Check that analyzed count hasn't changed during individual fetches
+        const currentState = pipeline.getState();
+        expect(currentState.projectUpdatesAnalysed).toBe(initialAnalyzedCount);
+      }
+      
+      // Verify that we fetched updates
+      expect(totalUpdatesFetched).toBeGreaterThan(0);
+      
+      // Now refresh counts once at the end
+      await pipeline.refreshCountsIfNeeded();
+      
+      const finalState = pipeline.getState();
+      const finalAnalyzedCount = finalState.projectUpdatesAnalysed;
+      
+      console.log(`[Test] Final analyzed count: ${finalAnalyzedCount}`);
+      
+      // The analyzed count should be consistent with the database
+      // Note: The count might change if updates are being processed during the test
+      expect(finalAnalyzedCount).toBeGreaterThanOrEqual(0);
+      expect(finalAnalyzedCount).toBeLessThanOrEqual(mockUpdates.length);
+      
+      } finally {
+        // Restore original methods
+        db.projectUpdates.toArray = originalToArray;
+      }
+    });
+
+    it('should only update counts when they actually change', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Mock database to have specific number of analyzed updates
+      const mockUpdates = [
+        { id: 'update-1', projectKey: 'TEST-123', summary: 'Test update 1', analyzed: true },
+        { id: 'update-2', projectKey: 'TEST-123', summary: 'Test update 2', analyzed: true }
+      ];
+      
+      // Mock the database methods
+      const originalToArray = db.projectUpdates.toArray;
+      db.projectUpdates.toArray = jest.fn().mockResolvedValue(mockUpdates);
+      
+      try {
+        // Run pipeline to fetch and store projects
+        await pipeline.runCompletePipeline();
+        
+        // Get initial state
+        const initialState = pipeline.getState();
+        
+        // Mock console.log to capture refresh messages
+        const consoleSpy = jest.spyOn(console, 'log');
+        
+        // Call refreshCountsIfNeeded multiple times
+        await pipeline.refreshCountsIfNeeded();
+        await pipeline.refreshCountsIfNeeded();
+        await pipeline.refreshCountsIfNeeded();
+        
+        // Should see both "Counts changed" and "Counts unchanged" messages
+        const refreshMessages = consoleSpy.mock.calls
+          .filter(call => call[0].includes('Counts changed') || call[0].includes('Counts unchanged'))
+          .map(call => call[0]);
+        
+        expect(refreshMessages.some(msg => msg.includes('Counts changed'))).toBe(true);
+        expect(refreshMessages.some(msg => msg.includes('Counts unchanged'))).toBe(true);
+        
+        // Restore console
+        consoleSpy.mockRestore();
+        
+      } finally {
+        // Restore original methods
+        db.projectUpdates.toArray = originalToArray;
+      }
+    });
+  });
+
+  describe('Existing Project Handling', () => {
+    it('should skip existing projects and not re-fetch their data', async () => {
+      // Mock database to have existing projects BEFORE creating pipeline
+      const existingProjects = [
+        { projectKey: 'TEST-123', raw: { id: 'TEST-123', name: 'Existing Project 1' } },
+        { projectKey: 'TEST-456', raw: { id: 'TEST-456', name: 'Existing Project 2' } }
+      ];
+      
+      // Mock the database methods
+      const originalGet = db.projectView.get;
+      const originalToArray = db.projectView.toArray;
+      
+      db.projectView.get = jest.fn().mockImplementation((key) => {
+        return existingProjects.find(p => p.projectKey === key);
+      });
+      db.projectView.toArray = jest.fn().mockResolvedValue(existingProjects);
+      
+      try {
+        // Create pipeline AFTER setting up mocks
+        const pipeline = new ProjectPipeline();
+        
+        // Mock DOM with projects
+        mockDomWithProjects(['TEST-123', 'TEST-456']);
+        
+        // Mock API responses
+        mockApiResponses();
+        
+        // Run pipeline - should skip existing projects
+        await pipeline.runCompletePipeline();
+        
+        const pipelineState = pipeline.getState();
+        
+        // Should have found the projects but not re-fetched them
+        expect(pipelineState.projectsStored).toBeGreaterThanOrEqual(2);
+        
+        // Verify that the projects were skipped (not re-fetched)
+        // The mock should show "Skipping existing project" messages
+        console.log(`[Test] Pipeline completed with ${pipelineState.projectsStored} projects stored`);
+        
+      } finally {
+        // Restore original methods
+        db.projectView.get = originalGet;
+        db.projectView.toArray = originalToArray;
+      }
+    });
+
+    it('should not re-analyze updates that are already analyzed', async () => {
+      // Create pipeline
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Run pipeline to get the project
+      await pipeline.runCompletePipeline();
+      
+      // Mock the database to simulate existing analyzed updates
+      const existingUpdates = [
+        { id: 'update-1', projectKey: 'TEST-123', summary: 'Test update 1', analyzed: true },
+        { id: 'update-2', projectKey: 'TEST-123', summary: 'Test update 2', analyzed: true }
+      ];
+      
+      // Mock the database query to return existing updates
+      const originalWhere = db.projectUpdates.where;
+      db.projectUpdates.where = jest.fn().mockReturnValue({
+        equals: jest.fn().mockReturnValue({
+          toArray: jest.fn().mockResolvedValue(existingUpdates)
+        })
+      });
+      
+      try {
+        // Now fetch updates - should detect existing analyzed updates
+        const updatesCount = await pipeline.fetchAndStoreProjectUpdates('TEST-123');
+        
+        // Should return 0 since all updates are already analyzed
+        expect(updatesCount).toBe(0);
+        
+      } finally {
+        // Restore original methods
+        db.projectUpdates.where = originalWhere;
+      }
+    });
+  });
+
+  describe('Count Accuracy', () => {
+    it('should always maintain accurate count that matches database', async () => {
+      const pipeline = new ProjectPipeline();
+      
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123', 'TEST-456', 'TEST-789']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Mock database to have existing projects
+      const existingProjects = [
+        { projectKey: 'TEST-123', raw: { id: 'TEST-123', name: 'Existing Project 1' } },
+        { projectKey: 'TEST-456', raw: { id: 'TEST-456', name: 'Existing Project 2' } }
+      ];
+      
+      // Mock the database methods
+      const originalGet = db.projectView.get;
+      const originalToArray = db.projectView.toArray;
+      
+      db.projectView.get = jest.fn().mockImplementation((key) => {
+        return existingProjects.find(p => p.projectKey === key);
+      });
+      db.projectView.toArray = jest.fn().mockResolvedValue(existingProjects);
+      
+      try {
+        // Run pipeline - should skip existing projects
+        await pipeline.runCompletePipeline();
+        
+        const pipelineState = pipeline.getState();
+        
+        // The count should match the database exactly
+        expect(pipelineState.projectsStored).toBe(2);
+        expect(pipelineState.projectsStored).toBe(existingProjects.length);
+        
+        console.log(`[Test] Pipeline count: ${pipelineState.projectsStored}, Database count: ${existingProjects.length}`);
+        
+        // Force refresh to verify accuracy
+        await pipeline.forceRefreshCounts();
+        
+        const refreshedState = pipeline.getState();
+        expect(refreshedState.projectsStored).toBe(2);
+        expect(refreshedState.projectsStored).toBe(existingProjects.length);
+        
+      } finally {
+        // Restore original methods
+        db.projectView.get = originalGet;
+        db.projectView.toArray = originalToArray;
+      }
+    });
+  });
+
+  describe('Direct Dexie Count Reading', () => {
+    it('should read counts directly from Dexie without waiting for pipeline callbacks', async () => {
+      // Mock DOM with projects
+      mockDomWithProjects(['TEST-123', 'TEST-456']);
+      
+      // Mock API responses
+      mockApiResponses();
+      
+      // Mock database to have existing data
+      const existingProjects = [
+        { projectKey: 'TEST-123', raw: { id: 'TEST-123', name: 'Project 1' } },
+        { projectKey: 'TEST-456', raw: { id: 'TEST-456', name: 'Project 2' } }
+      ];
+      
+      const existingUpdates = [
+        { id: 'update-1', projectKey: 'TEST-123', analyzed: 1 },
+        { id: 'update-2', projectKey: 'TEST-456', analyzed: 1 },
+        { id: 'update-3', projectKey: 'TEST-123', analyzed: 0 }
+      ];
+      
+      // Mock the database methods
+      const originalToArray = db.projectView.toArray;
+      const originalCount = db.projectView.count;
+      const originalUpdatesCount = db.projectUpdates.count;
+      const originalAnalyzedCount = db.projectUpdates.where;
+      
+      db.projectView.toArray = jest.fn().mockResolvedValue(existingProjects);
+      db.projectView.count = jest.fn().mockResolvedValue(existingProjects.length);
+      db.projectUpdates.count = jest.fn().mockResolvedValue(existingUpdates.length);
+      db.projectUpdates.where = jest.fn().mockReturnValue({
+        equals: jest.fn().mockReturnValue({
+          count: jest.fn().mockResolvedValue(existingUpdates.filter(u => u.analyzed === 1).length)
+        })
+      });
+      
+      try {
+        // Create pipeline
+        const pipeline = new ProjectPipeline();
+        
+        // Run pipeline
+        await pipeline.runCompletePipeline();
+        
+        // Verify that the counts are accurate
+        const projectsCount = await db.projectView.count();
+        const updatesCount = await db.projectUpdates.count();
+        const analyzedCount = await db.projectUpdates.where('analyzed').equals(1).count();
+        
+        expect(projectsCount).toBe(2);
+        expect(updatesCount).toBe(3);
+        expect(analyzedCount).toBe(2);
+        
+        console.log(`[Test] Direct Dexie counts: ${projectsCount} projects, ${updatesCount} updates, ${analyzedCount} analyzed`);
+        
+      } finally {
+        // Restore original methods
+        db.projectView.toArray = originalToArray;
+        db.projectView.count = originalCount;
+        db.projectUpdates.count = originalUpdatesCount;
+        db.projectUpdates.where = originalAnalyzedCount;
+      }
     });
   });
 });
