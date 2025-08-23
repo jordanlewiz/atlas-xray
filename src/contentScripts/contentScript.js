@@ -133,12 +133,12 @@ setTimeout(async () => {
   try {
     console.log('[AtlasXray] 📥 Starting simple project fetch on page load...');
     
-    // Import and run the simple project fetcher (only runs once per page load)
-    const { simpleProjectFetcher } = await import('../services/simpleProjectFetcher.js');
-    console.log('[AtlasXray] ✅ Simple project fetcher imported');
+    // Import and run the simple project list fetcher (only runs once per page load)
+    const { simpleProjectListFetcher } = await import('../services/simpleProjectListFetcher.js');
+    console.log('[AtlasXray] ✅ Simple project list fetcher imported');
     
     // Fetch projects on page load (no periodic fetching)
-    await simpleProjectFetcher.fetchProjectsOnPageLoad();
+    await simpleProjectListFetcher.fetchProjectsOnPageLoad();
     
   } catch (error) {
     console.error('[AtlasXray] ❌ Failed to start simple project fetcher:', error);
@@ -165,9 +165,9 @@ if (typeof window !== 'undefined') {
       
       // Test simple project fetching
       try {
-        const { simpleProjectFetcher } = await import('../services/simpleProjectFetcher.js');
-        console.log('[AtlasXray] 🧪 Testing simple project fetch...');
-        const projects = await simpleProjectFetcher.fetchProjectsOnPageLoad();
+        const { simpleProjectListFetcher } = await import('../services/simpleProjectListFetcher.js');
+        console.log('[AtlasXray] 🧪 Testing simple project list fetch...');
+        const projects = await simpleProjectListFetcher.fetchProjectsOnPageLoad();
         console.log('[AtlasXray] ✅ Simple fetch test result:', projects);
       } catch (error) {
         console.error('[AtlasXray] ❌ Simple fetch test failed:', error);

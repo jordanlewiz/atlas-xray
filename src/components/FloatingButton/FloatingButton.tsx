@@ -15,7 +15,7 @@ export default function FloatingButton(): React.JSX.Element {
   const projectsFound = useLiveQuery(() => getVisibleProjectIds());
   const projectsStored = useLiveQuery(() => db.projectViews.count());
   const updatesStored = useLiveQuery(() => db.projectUpdates.count());
-  const updatesAnalyzed = useLiveQuery(() => db.projectUpdates.where('analyzed').equals(1).count());
+  const updatesAnalyzed = useLiveQuery(() => db.projectUpdates.where('updateQuality').above(0).count());
   
   // Get the count of visible projects (not the full array)
   const projectsVisible = projectsFound ? projectsFound.length : 0;

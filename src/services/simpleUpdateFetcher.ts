@@ -1,5 +1,5 @@
 import { db, storeProjectUpdate } from '../utils/database';
-import { analyzeUpdateQuality } from '../utils/localModelManager';
+import { simpleUpdateAnalyzer } from './simpleUpdateAnalyzer';
 
 /**
  * Simple Update Fetcher - No bullshit, just fetch and store
@@ -59,8 +59,7 @@ export class SimpleUpdateFetcher {
               oldDueDate: node.oldDueDate?.label,
               oldState: node.oldState?.projectStateValue,
               summary: node.summary || '',
-              details: node.notes ? JSON.stringify(node.notes) : undefined,
-              analyzed: false
+              details: node.notes ? JSON.stringify(node.notes) : undefined
             };
 
             // Store the update
@@ -69,37 +68,7 @@ export class SimpleUpdateFetcher {
 
             // Analyze the update immediately if it has a summary
             if (update.summary && update.summary.trim()) {
-              try {
-                const analysisResult = await analyzeUpdateQuality(update.summary);
-                
-                // Update the stored update with analysis results
-                const analyzedUpdate = {
-                  ...update,
-                  updateQuality: analysisResult.score,
-                  qualityLevel: analysisResult.quality,
-                  qualitySummary: analysisResult.summary,
-                  qualityMissingInfo: analysisResult.missingInfo || [],
-                  qualityRecommendations: analysisResult.recommendations || [],
-                  analyzed: true,
-                  analysisDate: new Date().toISOString()
-                };
-
-                await storeProjectUpdate(analyzedUpdate);
-                console.log(`[SimpleUpdateFetcher] 🧠 Analyzed update for ${projectKey}: ${analysisResult.score}/100`);
-              } catch (analysisError) {
-                console.error(`[SimpleUpdateFetcher] ❌ Analysis failed for ${projectKey}:`, analysisError);
-                
-                // Mark as analyzed but with error
-                const errorUpdate = {
-                  ...update,
-                  updateQuality: 0,
-                  qualityLevel: 'poor' as const,
-                  qualitySummary: 'Analysis failed',
-                  analyzed: true,
-                  analysisDate: new Date().toISOString()
-                };
-                await storeProjectUpdate(errorUpdate);
-              }
+              await simpleUpdateAnalyzer.analyzeUpdate(update);
             } else {
               console.log(`[SimpleUpdateFetcher] ⏭️ Skipping analysis for ${projectKey}: no summary`);
             }

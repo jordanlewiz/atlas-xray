@@ -1,31 +1,25 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "../utils/database";
+import { db, type ProjectView, type ProjectUpdate } from "../utils/database";
 import { getWeekRanges, getAllProjectDates } from "../utils/timelineUtils";
 import type { 
-  ProjectView, 
-  ProjectUpdate, 
-  ProjectStatusHistory, 
   WeekRange, 
   ProjectViewModel, 
   UseTimelineDataReturn 
 } from "../types";
-import type { AtlasXrayDB } from "../types/database";
 
 export function useTimeline(weekLimit: number = 12) {
   // Fetch raw data from database
-  const projects = useLiveQuery(() => (db as AtlasXrayDB).projectViews.toArray(), []) as ProjectView[] | undefined;
-  const allUpdates = useLiveQuery(() => (db as AtlasXrayDB).projectUpdates.toArray(), []) as ProjectUpdate[] | undefined;
-  const allStatusHistory = useLiveQuery(() => (db as AtlasXrayDB).projectStatusHistory.toArray(), []) as ProjectStatusHistory[] | undefined;
+  const projects = useLiveQuery(() => db.projectViews.toArray(), []) as ProjectView[] | undefined;
+  const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []) as ProjectUpdate[] | undefined;
 
   // Transform data into clean view models
   return useMemo(() => {
-    if (!projects || !allUpdates || !allStatusHistory) {
+    if (!projects || !allUpdates) {
       return {
         weekRanges: [],
         projectViewModels: [],
         updatesByProject: {},
-        statusByProject: {},
         isLoading: true
       };
     }
@@ -44,17 +38,7 @@ export function useTimeline(weekLimit: number = 12) {
     
 
 
-    // Group status history by project
-    const statusByProject: Record<string, ProjectStatusHistory[]> = {};
-    allStatusHistory.forEach((status: ProjectStatusHistory) => {
-      const key = status.projectKey;
-      if (key) {
-        if (!statusByProject[key]) {
-          statusByProject[key] = [];
-        }
-        statusByProject[key].push(status);
-      }
-    });
+
 
     // Simple project view models - just basic info + references to data
     const projectViewModels: ProjectViewModel[] = projects.map((project: ProjectView) => {
@@ -72,13 +56,12 @@ export function useTimeline(weekLimit: number = 12) {
     
     if (!allDates.minDate || !allDates.maxDate) {
       console.warn('[AtlasXray] No valid dates found - timeline will be empty');
-      return {
-        weekRanges: [],
-        projectViewModels,
-        updatesByProject,
-        statusByProject,
-        isLoading: false
-      };
+          return {
+      weekRanges: [],
+      projectViewModels,
+      updatesByProject,
+      isLoading: false
+    };
     }
     
     const weekRanges: WeekRange[] = getWeekRanges(allDates.minDate, allDates.maxDate);
@@ -121,8 +104,7 @@ export function useTimeline(weekLimit: number = 12) {
       weekRanges: limitedWeekRanges,
       projectViewModels,
       updatesByProject,
-      statusByProject,
       isLoading: false
     };
-  }, [projects, allUpdates, allStatusHistory, weekLimit]);
+  }, [projects, allUpdates, weekLimit]);
 }

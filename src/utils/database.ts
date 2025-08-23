@@ -30,7 +30,6 @@ export interface ProjectUpdate {
   qualitySummary?: string;
   qualityMissingInfo?: string[];
   qualityRecommendations?: string[];
-  analyzed?: boolean;
   analysisDate?: string;
 }
 
@@ -49,11 +48,11 @@ export class AtlasXrayDB extends Dexie {
   constructor() {
     super('AtlasXrayDB');
     
-          this.version(1).stores({
-        projectViews: 'projectKey', // projectKey as primary key
-        projectUpdates: 'uuid, projectKey, creationDate', // UUID as primary key with indexes
-        meta: 'key'
-      });
+                          this.version(1).stores({
+                  projectViews: 'projectKey', // projectKey as primary key
+                  projectUpdates: 'uuid, projectKey, creationDate, updateQuality', // UUID as primary key with indexes
+                  meta: 'key'
+                });
   }
 }
 
@@ -78,7 +77,7 @@ export async function getUpdatesCount(): Promise<number> {
 }
 
 export async function getAnalyzedUpdatesCount(): Promise<number> {
-  return await db.projectUpdates.where('analyzed').equals(1).count();
+  return await db.projectUpdates.where('updateQuality').above(0).count();
 }
 
 export async function getMetaValue(key: string): Promise<string | null> {
@@ -130,8 +129,7 @@ export async function upsertProjectUpdates(nodes: any[]): Promise<string> {
         oldDueDate: node.oldDueDate?.label,
         oldState: node.oldState?.projectStateValue,
         summary: node.summary || '',
-        details: node.notes ? JSON.stringify(node.notes) : undefined,
-        analyzed: false
+        details: node.notes ? JSON.stringify(node.notes) : undefined
       };
       await storeProjectUpdate(update);
     }
