@@ -50,9 +50,11 @@ export class SimpleProjectFetcher {
   private setupUrlChangeListener(): void {
     // Store initial URL
     this.currentUrl = window.location.href;
+    console.log(`[AtlasXray] 🔗 Initial URL stored: ${this.currentUrl}`);
 
     // Listen for popstate events (back/forward navigation)
     this.urlChangeListener = () => {
+      console.log('[AtlasXray] 🔙 Popstate event detected');
       this.handleUrlChange();
     };
     window.addEventListener('popstate', this.urlChangeListener);
@@ -62,16 +64,44 @@ export class SimpleProjectFetcher {
     const originalReplaceState = history.replaceState;
 
     history.pushState = (...args) => {
+      console.log('[AtlasXray] 🔄 pushState intercepted:', args);
       originalPushState.apply(history, args);
       setTimeout(() => this.handleUrlChange(), 100); // Small delay for DOM updates
     };
 
     history.replaceState = (...args) => {
+      console.log('[AtlasXray] 🔄 replaceState intercepted:', args);
       originalReplaceState.apply(history, args);
       setTimeout(() => this.handleUrlChange(), 100); // Small delay for DOM updates
     };
 
-    console.log('[AtlasXray] 🔗 URL change listener setup complete');
+    // Also try MutationObserver for DOM-based navigation detection
+    const observer = new MutationObserver(() => {
+      const currentUrl = window.location.href;
+      if (currentUrl !== this.currentUrl) {
+        console.log('[AtlasXray] 🔍 MutationObserver detected URL change');
+        this.handleUrlChange();
+      }
+    });
+
+    // Observe URL changes in the address bar or document
+    observer.observe(document, { 
+      subtree: true, 
+      childList: true,
+      attributes: true,
+      attributeFilter: ['href']
+    });
+
+    // Polling fallback (every 2 seconds)
+    setInterval(() => {
+      const currentUrl = window.location.href;
+      if (currentUrl !== this.currentUrl) {
+        console.log('[AtlasXray] 🕒 Polling detected URL change');
+        this.handleUrlChange();
+      }
+    }, 2000);
+
+    console.log('[AtlasXray] 🔗 URL change listener setup complete with multiple detection methods');
   }
 
   /**
@@ -80,6 +110,11 @@ export class SimpleProjectFetcher {
   private async handleUrlChange(): Promise<void> {
     const newUrl = window.location.href;
     
+    console.log(`[AtlasXray] 🔍 Checking URL change:`);
+    console.log(`[AtlasXray] 🔍 Current stored URL: ${this.currentUrl}`);
+    console.log(`[AtlasXray] 🔍 New URL: ${newUrl}`);
+    console.log(`[AtlasXray] 🔍 URLs are different: ${newUrl !== this.currentUrl}`);
+    
     if (newUrl !== this.currentUrl) {
       console.log(`[AtlasXray] 🔄 URL changed from: ${this.currentUrl}`);
       console.log(`[AtlasXray] 🔄 URL changed to: ${newUrl}`);
@@ -87,11 +122,19 @@ export class SimpleProjectFetcher {
       this.currentUrl = newUrl;
       
       // Check if this is still a projects page with TQL parameters
-      if (newUrl.includes('/projects') && newUrl.includes('tql=')) {
+      const hasProjects = newUrl.includes('/projects');
+      const hasTql = newUrl.includes('tql=');
+      
+      console.log(`[AtlasXray] 🔍 URL analysis:`);
+      console.log(`[AtlasXray] 🔍 - Contains '/projects': ${hasProjects}`);
+      console.log(`[AtlasXray] 🔍 - Contains 'tql=': ${hasTql}`);
+      
+      if (hasProjects && hasTql) {
         console.log('[AtlasXray] 🚀 TQL filter change detected - refetching projects...');
         
         // Reset hasRun flag to allow refetch
         this.hasRun = false;
+        console.log('[AtlasXray] 🔄 Reset hasRun flag to allow refetch');
         
         // Trigger refetch with new TQL
         try {
@@ -101,7 +144,11 @@ export class SimpleProjectFetcher {
         }
       } else {
         console.log('[AtlasXray] ⏭️ URL change not relevant for project fetching');
+        console.log(`[AtlasXray] ⏭️ - Missing '/projects': ${!hasProjects}`);
+        console.log(`[AtlasXray] ⏭️ - Missing 'tql=': ${!hasTql}`);
       }
+    } else {
+      console.log('[AtlasXray] ⏭️ No URL change detected');
     }
   }
 
