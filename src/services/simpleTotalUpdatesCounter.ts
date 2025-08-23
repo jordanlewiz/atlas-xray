@@ -32,7 +32,7 @@ export class SimpleTotalUpdatesCounter {
       // Import dependencies
       const { apolloClient } = await import('./apolloClient');
       const { gql } = await import('@apollo/client');
-      const { PROJECT_UPDATES_QUERY } = await import('../graphql/projectUpdatesQuery');
+      const { PROJECT_STATUS_HISTORY_QUERY } = await import('../graphql/projectStatusHistoryQuery');
 
       // Get visible project IDs
       const { getVisibleProjectIds } = await import('../utils/database');
@@ -49,13 +49,17 @@ export class SimpleTotalUpdatesCounter {
         for (const projectKey of visibleProjectIds) {
           try {
             const { data } = await apolloClient.query({
-              query: gql`${PROJECT_UPDATES_QUERY}`,
-              variables: { key: projectKey, isUpdatesTab: true },
+              query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
+              variables: { projectKey: projectKey },
               fetchPolicy: 'cache-first' // Use cache to avoid repeated API calls
             });
 
             if (data?.project?.updates?.edges) {
-              const updateCount = data.project.updates.edges.length;
+              // Only count updates that haven't been missed (missedUpdate = false)
+              const nonMissedUpdates = data.project.updates.edges.filter(
+                (edge: any) => !edge.node.missedUpdate
+              );
+              const updateCount = nonMissedUpdates.length;
               totalUpdates += updateCount;
             }
           } catch (error) {

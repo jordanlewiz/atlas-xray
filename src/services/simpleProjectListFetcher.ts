@@ -248,15 +248,11 @@ export class SimpleProjectListFetcher {
         
         console.log(`[AtlasXray] ✅ Visible projects tracked: ${projectKeys.length} project IDs stored`);
 
-        // Update the total updates available count from server (only if we don't have it)
+        // Update the total updates available count from server immediately
         try {
-          const { getTotalUpdatesAvailableCount } = await import('../utils/database');
-          const existingCount = await getTotalUpdatesAvailableCount();
-          if (existingCount === 0) {
-            const { simpleTotalUpdatesCounter } = await import('./simpleTotalUpdatesCounter');
-            await simpleTotalUpdatesCounter.getTotalUpdatesAvailableCount();
-            console.log(`[AtlasXray] ✅ Updated total updates available count`);
-          }
+          const { simpleTotalUpdatesCounter } = await import('./simpleTotalUpdatesCounter');
+          await simpleTotalUpdatesCounter.getTotalUpdatesAvailableCount();
+          console.log(`[AtlasXray] ✅ Updated total updates available count`);
         } catch (error) {
           console.warn('[AtlasXray] ⚠️ Failed to update total updates count:', error);
         }
