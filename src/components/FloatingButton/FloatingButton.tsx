@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import ProjectStatusHistoryModal from '../ProjectStatusHistoryModal';
 import { StatusTimelineHeatmap } from '../StatusTimelineHeatmap';
-import { getVisibleProjectIds } from '../../utils/database';
+import { getVisibleProjectIds, getTotalUpdatesAvailableCount } from '../../utils/database';
 import { db } from '../../utils/database';
 import './FloatingButton.scss';
 import Tooltip from "@atlaskit/tooltip";
@@ -20,14 +20,8 @@ export default function FloatingButton(): React.JSX.Element {
   // Get the count of visible projects (not the full array)
   const projectsVisible = projectsFound ? projectsFound.length : 0;
   
-  // Calculate updates available (total updates that could be fetched for visible projects)
-  const updatesAvailable = useLiveQuery(async () => {
-    if (!projectsFound || projectsFound.length === 0) return 0;
-    
-    // For now, we'll estimate based on visible projects
-    // This could be enhanced to track actual available updates per project
-    return projectsFound.length * 10; // Rough estimate: 10 updates per project on average
-  }) || 0;
+  // Calculate updates available (count from server stored in database)
+  const updatesAvailable = useLiveQuery(() => getTotalUpdatesAvailableCount()) || 0;
 
   // Initialize on mount
   useEffect(() => {

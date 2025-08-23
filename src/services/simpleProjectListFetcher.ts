@@ -247,6 +247,15 @@ export class SimpleProjectListFetcher {
         await setVisibleProjectIds(projectKeys);
         
         console.log(`[AtlasXray] ✅ Visible projects tracked: ${projectKeys.length} project IDs stored`);
+
+        // Update the total updates available count from server
+        try {
+          const { simpleTotalUpdatesCounter } = await import('./simpleTotalUpdatesCounter');
+          await simpleTotalUpdatesCounter.getTotalUpdatesAvailableCount();
+          console.log(`[AtlasXray] ✅ Updated total updates available count`);
+        } catch (error) {
+          console.warn('[AtlasXray] ⚠️ Failed to update total updates count:', error);
+        }
         console.log(`[AtlasXray] 🚀 Now fetching project views and updates for timeline...`);
 
         // 🎯 FETCH PROJECT VIEWS AND UPDATES IMMEDIATELY

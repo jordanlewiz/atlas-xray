@@ -103,6 +103,16 @@ export async function getVisibleProjectIds(): Promise<string[]> {
   return ids ? JSON.parse(ids) : [];
 }
 
+// Store and get total updates available count from server
+export async function setTotalUpdatesAvailableCount(count: number): Promise<void> {
+  await setMetaValue('totalUpdatesAvailable', count.toString());
+}
+
+export async function getTotalUpdatesAvailableCount(): Promise<number> {
+  const count = await getMetaValue('totalUpdatesAvailable');
+  return count ? parseInt(count, 10) : 0;
+}
+
 export default db;
 
 // Backward compatibility exports

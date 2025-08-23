@@ -1,0 +1,110 @@
+import { bootstrapService } from './bootstrapService';
+
+/**
+ * Simple Total Updates Counter Service
+ * Counts total updates available from server for visible projects
+ * (Shows count while fetching, so users know how many more are coming)
+ */
+export class SimpleTotalUpdatesCounter {
+  private static instance: SimpleTotalUpdatesCounter;
+  private isCounting = false;
+
+  static getInstance(): SimpleTotalUpdatesCounter {
+    if (!SimpleTotalUpdatesCounter.instance) {
+      SimpleTotalUpdatesCounter.instance = new SimpleTotalUpdatesCounter();
+    }
+    return SimpleTotalUpdatesCounter.instance;
+  }
+
+  /**
+   * Get total count of updates available from server for visible projects
+   */
+  async getTotalUpdatesAvailableCount(): Promise<number> {
+    if (this.isCounting) {
+      console.log('[SimpleTotalUpdatesCounter] Already counting, returning cached result');
+      return 0;
+    }
+
+    this.isCounting = true;
+    console.log('[SimpleTotalUpdatesCounter] 🚀 Counting total updates available from server...');
+
+    try {
+      // Import dependencies
+      const { apolloClient } = await import('./apolloClient');
+      const { gql } = await import('@apollo/client');
+      const { PROJECT_STATUS_HISTORY_QUERY } = await import('../graphql/projectStatusHistoryQuery');
+
+      // Get visible project IDs
+      const { getVisibleProjectIds } = await import('../utils/database');
+      const visibleProjectIds = await getVisibleProjectIds();
+      
+      if (visibleProjectIds.length === 0) {
+        console.log('[SimpleTotalUpdatesCounter] No visible projects found');
+        return 0;
+      }
+
+      let totalUpdates = 0;
+      
+      // Count updates for each visible project using ProjectStatusHistoryQuery
+      for (const projectKey of visibleProjectIds) {
+                try {
+          const { data } = await apolloClient.query({
+            query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
+            variables: { projectKey: projectKey },
+            fetchPolicy: 'cache-first' // Use cache to avoid repeated API calls
+          });
+
+          if (data?.project?.updates?.edges) {
+            const updateCount = data.project.updates.edges.length;
+            totalUpdates += updateCount;
+            console.log(`[SimpleTotalUpdatesCounter] 📊 ${projectKey}: ${updateCount} updates available`);
+          }
+        } catch (error) {
+          console.warn(`[SimpleTotalUpdatesCounter] Failed to count updates for ${projectKey}:`, error);
+          // Continue with other projects even if one fails
+        }
+      }
+
+      console.log(`[SimpleTotalUpdatesCounter] ✅ Total updates available: ${totalUpdates}`);
+      
+      // Store the count in database for reactive UI updates
+      const { setTotalUpdatesAvailableCount } = await import('../utils/database');
+      await setTotalUpdatesAvailableCount(totalUpdates);
+      
+      return totalUpdates;
+
+    } catch (error) {
+      console.error('[SimpleTotalUpdatesCounter] ❌ Failed to get total updates count:', error);
+      return 0;
+    } finally {
+      this.isCounting = false;
+    }
+  }
+
+  /**
+   * Get count for a specific project
+   */
+  async getProjectUpdatesCount(projectKey: string): Promise<number> {
+    try {
+      const { apolloClient } = await import('./apolloClient');
+      const { gql } = await import('@apollo/client');
+      const { PROJECT_STATUS_HISTORY_QUERY } = await import('../graphql/projectStatusHistoryQuery');
+
+            const { data } = await apolloClient.query({
+        query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
+        variables: { projectKey: projectKey },
+        fetchPolicy: 'cache-first'
+      });
+
+      if (data?.project?.updates?.edges) {
+        return data.project.updates.edges.length;
+      }
+      return 0;
+    } catch (error) {
+      console.error(`[SimpleTotalUpdatesCounter] Failed to get count for ${projectKey}:`, error);
+      return 0;
+    }
+  }
+}
+
+export const simpleTotalUpdatesCounter = SimpleTotalUpdatesCounter.getInstance();
