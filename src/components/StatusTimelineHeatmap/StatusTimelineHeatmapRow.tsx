@@ -77,7 +77,7 @@ function StatusTimelineHeatmapRow({
                 >
               {/* Show update indicator for any cell with updates FIRST */}
               <Tooltip content="Click to view update details" position="top">
-                {showEmojis && u.id ? (
+                {showEmojis && u.uuid ? (
                   // Show quality indicator when toggle is on and quality data is available
                   (() => {
                     // Get quality data directly from the update object (populated by ProjectPipeline)
