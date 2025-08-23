@@ -1,252 +1,143 @@
-import Dexie from "dexie";
-import { getGlobalCloudId, getGlobalSectionId } from "./globalState";
+import Dexie, { Table } from 'dexie';
 
-// Database interface extending Dexie
-export interface AtlasXrayDB extends Dexie {
-  projectView: Dexie.Table<any, string>;
-  projectStatusHistory: Dexie.Table<any, string>;
-  projectUpdates: Dexie.Table<any, string>;
-  projectImages: Dexie.Table<any, string>;
-  meta: Dexie.Table<any, string>;
+// Simple database interface - just what we need
+export interface ProjectView {
+  projectKey: string; // Primary key
+  name?: string;
+  status?: string;
+  team?: string;
+  owner?: string;
+  lastUpdated?: string;
+  archived?: boolean;
+  createdAt?: string;
 }
 
-const db = new Dexie("AtlasXrayDB") as AtlasXrayDB;
-
-db.version(10).stores({
-  projectView: "projectKey",
-  projectStatusHistory: "id,projectKey",
-  projectUpdates: "id,projectKey,analyzed",
-  projectImages: "id,projectKey,mediaId",
-  meta: "key"
-});
-
-// Migration function to add analyzed field to existing updates
-db.on('ready', async () => {
-  try {
-    // Check if we need to migrate existing updates
-    const existingUpdates = await db.projectUpdates.toArray();
-    const updatesNeedingMigration = existingUpdates.filter(update => update.analyzed === undefined);
-    
-    if (updatesNeedingMigration.length > 0) {
-      console.log(`[AtlasXray] 🔄 Migrating ${updatesNeedingMigration.length} existing updates to add analyzed field...`);
-      
-      // Add analyzed field to existing updates
-      for (const update of updatesNeedingMigration) {
-        await db.projectUpdates.update(update.id, {
-          analyzed: 0, // Mark existing updates as not analyzed (use 0 instead of false)
-          analysisDate: null,
-          updateQuality: null,
-          qualityLevel: null,
-          qualitySummary: null,
-          qualityRecommendations: null,
-          qualityMissingInfo: null
-        });
-      }
-      
-      console.log(`[AtlasXray] ✅ Migration complete for ${updatesNeedingMigration.length} updates`);
-    }
-  } catch (error) {
-    console.error('[AtlasXray] ❌ Migration failed:', error);
-  }
-});
-
-// 🎯 AUTOMATIC UPDATE ANALYSIS: Schedule analysis after transaction completes
-db.projectUpdates.hook('creating', (update: any, key: any) => {
-  // Schedule analysis to run after the current transaction completes
-  setTimeout(async () => {
-    try {
-      console.log(`[AtlasXray] 🔄 New update stored in DB: ${key}, triggering analysis...`);
-      
-      // Import the analysis function dynamically to avoid circular dependencies
-      const { analyzeUpdateQuality } = await import('./localModelManager');
-      
-      // Get the update text for analysis
-      const updateText = update.summary || update.details || 'No update text available';
-      console.log(`[AtlasXray] 📝 Analyzing text: "${updateText.substring(0, 100)}..."`);
-      
-      // Run local language model analysis
-      console.log(`[AtlasXray] 🤖 Running local model analysis...`);
-      const qualityResult = await analyzeUpdateQuality(updateText);
-      console.log(`[AtlasXray] 📊 Analysis result:`, qualityResult);
-      
-      // Update the newly created record with analysis results (in new transaction)
-      await db.projectUpdates.update(key, {
-        analyzed: 1,
-        analysisDate: new Date().toISOString(),
-        updateQuality: qualityResult.score,
-        qualityLevel: qualityResult.quality,
-        qualitySummary: qualityResult.summary,
-        qualityRecommendations: JSON.stringify(qualityResult.recommendations),
-        qualityMissingInfo: JSON.stringify(qualityResult.missingInfo)
-      });
-      
-      console.log(`[AtlasXray] ✅ Update ${key} automatically analyzed: ${qualityResult.quality} quality (${qualityResult.score}/100)`);
-      
-    } catch (error) {
-      console.error(`[AtlasXray] ❌ Failed to automatically analyze update ${key}:`, error);
-      
-      // Fallback: mark as analyzed but with error
-      try {
-        await db.projectUpdates.update(key, {
-          analyzed: 1,
-          analysisDate: new Date().toISOString(),
-          updateQuality: 0,
-          qualityLevel: 'poor',
-          qualitySummary: 'Automatic analysis failed - fallback to basic analysis'
-        });
-        console.log(`[AtlasXray] ✅ Fallback analysis applied for update ${key}`);
-      } catch (dbError) {
-        console.error(`[AtlasXray] ❌ Failed to apply fallback analysis for update ${key}:`, dbError);
-      }
-    }
-  }, 0); // Run on next tick after transaction completes
-});
-
-// ProjectView store
-export async function setProjectView(projectKey: string, data: any): Promise<void> {
-  // No longer store projectUrl
-  await db.projectView.put({ projectKey, ...data });
-}
-
-// Meta store
-export async function setMeta(key: string, value: any): Promise<void> {
-  await db.meta.put({ key, value });
-}
-
-export async function getMeta(key: string): Promise<any> {
-  const entry = await db.meta.get(key);
-  return entry ? entry.value : null;
-}
-
-// Generic key-value helpers (backward compatibility, use meta store)
-export async function setItem(key: string, value: any): Promise<void> {
-  await setMeta(key, value);
-}
-
-export async function getItem(key: string): Promise<any> {
-  return getMeta(key);
-}
-
-// Visible project management
-async function setVisibleProjectIds(projectIds: string[]): Promise<void> {
-  await setMeta('visibleProjectIds', projectIds);
-}
-
-async function getVisibleProjectIds(): Promise<string[]> {
-  const ids = await getMeta('visibleProjectIds');
-  return Array.isArray(ids) ? ids : [];
-}
-
-async function addVisibleProject(projectId: string): Promise<string[]> {
-  const currentIds = await getVisibleProjectIds();
-  if (!currentIds.includes(projectId)) {
-    const newIds = [...currentIds, projectId];
-    await setVisibleProjectIds(newIds);
-    return newIds;
-  }
-  return currentIds;
-}
-
-async function getVisibleProjectCount(): Promise<number> {
-  const ids = await getVisibleProjectIds();
-  return ids.length;
-}
-
-// GraphQL node types
-interface GraphQLNode {
-  id?: string;
-  uuid?: string;
-  project?: {
-    key?: string;
-  };
-  creationDate?: string;
-  newState?: {
-    projectStateValue?: string;
-  };
-  missedUpdate?: boolean;
-  newTargetDate?: string;
-  newDueDate?: {
-    label?: string;
-  };
-  oldDueDate?: {
-    label?: string;
-  };
-  oldState?: {
-    projectStateValue?: string;
-  };
+export interface ProjectUpdate {
+  uuid: string; // Primary key from GraphQL
+  projectKey: string;
+  creationDate: string;
+  state?: string;
+  missedUpdate: boolean;
+  targetDate?: string;
+  newDueDate?: string;
+  oldDueDate?: string;
+  oldState?: string;
   summary?: string;
-  notes?: any[];
+  details?: string;
+  // Analysis results stored directly in the update
+  updateQuality?: number;
+  qualityLevel?: 'excellent' | 'good' | 'fair' | 'poor';
+  qualitySummary?: string;
+  qualityMissingInfo?: string[];
+  qualityRecommendations?: string[];
+  analyzed?: boolean;
+  analysisDate?: string;
 }
 
-
-
-/**
- * Upsert normalized project updates into the DB.
- * @param nodes - Array of GraphQL nodes
- * @returns Promise
- */
-function upsertProjectUpdates(nodes: GraphQLNode[]): Promise<string> {
-  const rows = nodes.map((n) => ({
-    id: n.id ?? n.uuid,
-    projectKey: n.project?.key,
-    creationDate: n.creationDate ? new Date(n.creationDate).toISOString() : undefined,
-    state: n.newState?.projectStateValue,
-    missedUpdate: !!n.missedUpdate,
-    targetDate: n.newTargetDate,
-    newDueDate: n.newDueDate?.label,
-    oldDueDate: n.oldDueDate?.label,
-    oldState: n.oldState?.projectStateValue,
-    summary: n.summary,
-    details: n.notes ? JSON.stringify(n.notes) : null,
-    updateQuality: null, // Will be populated by AI analysis
-  }));
-  return db.projectUpdates.bulkPut(rows);
+export interface MetaData {
+  key: string;
+  value: string;
+  lastUpdated: string;
 }
 
+// Simple database class
+export class AtlasXrayDB extends Dexie {
+  projectViews!: Table<ProjectView>;
+  projectUpdates!: Table<ProjectUpdate>;
+  meta!: Table<MetaData>;
 
+  constructor() {
+    super('AtlasXrayDB');
+    
+          this.version(1).stores({
+        projectViews: 'projectKey', // projectKey as primary key
+        projectUpdates: 'uuid, projectKey, creationDate', // UUID as primary key with indexes
+        meta: 'key'
+      });
+  }
+}
 
-/**
- * Store project images in IndexedDB
- * @param projectKey - Project key
- * @param mediaId - Media ID from ProseMirror
- * @param imageData - Base64 encoded image data
- * @param mimeType - MIME type of the image
- * @returns Promise
- */
-export async function storeProjectImage(
-  projectKey: string, 
-  mediaId: string, 
-  imageData: string, 
-  mimeType: string
-): Promise<void> {
-  await db.projectImages.put({
-    id: `${projectKey}-${mediaId}`,
-    projectKey,
-    mediaId,
-    imageData,
-    mimeType,
-    storedAt: new Date().toISOString()
+// Create and export database instance
+export const db = new AtlasXrayDB();
+
+// Simple utility functions
+export async function storeProjectView(view: ProjectView): Promise<void> {
+  await db.projectViews.put(view);
+}
+
+export async function storeProjectUpdate(update: ProjectUpdate): Promise<void> {
+  await db.projectUpdates.put(update);
+}
+
+export async function getVisibleProjectCount(): Promise<number> {
+  return await db.projectViews.count();
+}
+
+export async function getUpdatesCount(): Promise<number> {
+  return await db.projectUpdates.count();
+}
+
+export async function getAnalyzedUpdatesCount(): Promise<number> {
+  return await db.projectUpdates.where('analyzed').equals(1).count();
+}
+
+export async function getMetaValue(key: string): Promise<string | null> {
+  const meta = await db.meta.get(key);
+  return meta?.value || null;
+}
+
+export async function setMetaValue(key: string, value: string): Promise<void> {
+  await db.meta.put({
+    key,
+    value,
+    lastUpdated: new Date().toISOString()
   });
 }
 
-/**
- * Retrieve project image from IndexedDB
- * @param projectKey - Project key
- * @param mediaId - Media ID from ProseMirror
- * @returns Promise<{imageData: string, mimeType: string} | null>
- */
+// Visible project management
+export async function setVisibleProjectIds(projectIds: string[]): Promise<void> {
+  await setMetaValue('visibleProjectIds', JSON.stringify(projectIds));
+}
+
+export async function getVisibleProjectIds(): Promise<string[]> {
+  const ids = await getMetaValue('visibleProjectIds');
+  return ids ? JSON.parse(ids) : [];
+}
+
+export default db;
+
+// Backward compatibility exports
 export async function getProjectImage(
   projectKey: string, 
   mediaId: string
 ): Promise<{imageData: string, mimeType: string} | null> {
-  const image = await db.projectImages.get(`${projectKey}-${mediaId}`);
-  return image ? { imageData: image.imageData, mimeType: image.mimeType } : null;
+  // Not implemented in new schema
+  return null;
 }
 
-export { 
-  db, 
-  upsertProjectUpdates, 
-  setVisibleProjectIds,
-  getVisibleProjectIds,
-  getVisibleProjectCount
-};
+export async function upsertProjectUpdates(nodes: any[]): Promise<string> {
+  // Legacy function - now just calls storeProjectUpdate for each node
+  try {
+    for (const node of nodes) {
+      const update = {
+        uuid: node.uuid || node.id || `update_${Date.now()}_${Math.random()}`, // Use UUID or generate fallback
+        projectKey: node.project?.key || node.projectKey,
+        creationDate: node.creationDate ? new Date(node.creationDate).toISOString() : new Date().toISOString(),
+        state: node.newState?.projectStateValue,
+        missedUpdate: !!node.missedUpdate,
+        targetDate: node.newTargetDate,
+        newDueDate: node.newDueDate?.label,
+        oldDueDate: node.oldDueDate?.label,
+        oldState: node.oldState?.projectStateValue,
+        summary: node.summary || '',
+        details: node.notes ? JSON.stringify(node.notes) : undefined,
+        analyzed: false
+      };
+      await storeProjectUpdate(update);
+    }
+    return `Successfully stored ${nodes.length} project updates`;
+  } catch (error) {
+    console.error('Error storing project updates:', error);
+    throw error;
+  }
+}

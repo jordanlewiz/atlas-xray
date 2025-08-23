@@ -1,5 +1,5 @@
 import { DIRECTORY_VIEW_PROJECT_QUERY } from '../graphql/DirectoryViewProjectQuery';
-import { setVisibleProjectIds } from '../utils/database';
+import { setVisibleProjectIds, db } from '../utils/database';
 import { bootstrapService } from './bootstrapService';
 
 interface ProjectNode {
@@ -252,8 +252,26 @@ export class SimpleProjectFetcher {
         // 🎯 FETCH PROJECT VIEWS AND UPDATES IMMEDIATELY
         // This ensures the timeline has all data when modal opens
         try {
-          const { reactivePipeline } = await import('./reactivePipeline');
-          await reactivePipeline.handleProjectsDiscovered(projectKeys);
+          // Store project views first
+          for (const project of projects) {
+            await db.projectViews.put({
+              projectKey: project.key,
+              name: project.name,
+              status: project.status?.name,
+              team: project.team?.name,
+              owner: project.owner?.displayName,
+              lastUpdated: project.lastUpdated,
+              archived: project.archived,
+              createdAt: project.createdAt
+            });
+          }
+          console.log(`[AtlasXray] ✅ Stored ${projects.length} project views`);
+
+          // Then fetch updates for each project
+          const { simpleUpdateFetcher } = await import('./simpleUpdateFetcher');
+          for (const projectKey of projectKeys) {
+            await simpleUpdateFetcher.fetchAndStoreUpdates(projectKey);
+          }
           console.log(`[AtlasXray] ✅ Project views and updates fetched successfully`);
         } catch (error) {
           console.error('[AtlasXray] ❌ Error fetching project views and updates:', error);

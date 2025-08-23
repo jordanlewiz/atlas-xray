@@ -1,21 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { useLiveQuery } from "dexie-react-hooks";
-import StatusTimelineHeatmap from "../StatusTimelineHeatmap/StatusTimelineHeatmap";
-import ProjectStatusHistoryModal from "../ProjectStatusHistoryModal";
+import React, { useState, useEffect } from 'react';
+import { useLiveQuery } from 'dexie-react-hooks';
+import ProjectStatusHistoryModal from '../ProjectStatusHistoryModal';
+import { StatusTimelineHeatmap } from '../StatusTimelineHeatmap';
+import { getVisibleProjectIds } from '../../utils/database';
+import { db } from '../../utils/database';
+import './FloatingButton.scss';
 import Tooltip from "@atlaskit/tooltip";
-import { db, getVisibleProjectIds } from "../../utils/database";
 
-/**
- * Simplified floating button that opens the timeline modal.
- * Uses network monitoring for GraphQL detection and useLiveQuery for real-time updates.
- */
 export default function FloatingButton(): React.JSX.Element {
   const [modalOpen, setModalOpen] = useState(false);
   const [visibleProjectKeys, setVisibleProjectKeys] = useState<string[]>([]);
 
-  // 🚀 REAL-TIME COUNTS: Use useLiveQuery for automatic updates
+  // 🚀 REAL-TIME COUNTS: Use LiveQuery for automatic updates
   const projectsFound = useLiveQuery(() => getVisibleProjectIds());
-  const projectsStored = useLiveQuery(() => db.projectView.count());
+  const projectsStored = useLiveQuery(() => db.projectViews.count());
   const updatesStored = useLiveQuery(() => db.projectUpdates.count());
   const updatesAnalyzed = useLiveQuery(() => db.projectUpdates.where('analyzed').equals(1).count());
   
@@ -113,4 +111,4 @@ export default function FloatingButton(): React.JSX.Element {
       </ProjectStatusHistoryModal>
     </>
   );
-}
+};

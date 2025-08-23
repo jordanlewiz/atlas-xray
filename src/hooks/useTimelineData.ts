@@ -14,7 +14,7 @@ import type { AtlasXrayDB } from "../types/database";
 
 export function useTimeline(weekLimit: number = 12) {
   // Fetch raw data from database
-  const projects = useLiveQuery(() => (db as AtlasXrayDB).projectView.toArray(), []) as ProjectView[] | undefined;
+  const projects = useLiveQuery(() => (db as AtlasXrayDB).projectViews.toArray(), []) as ProjectView[] | undefined;
   const allUpdates = useLiveQuery(() => (db as AtlasXrayDB).projectUpdates.toArray(), []) as ProjectUpdate[] | undefined;
   const allStatusHistory = useLiveQuery(() => (db as AtlasXrayDB).projectStatusHistory.toArray(), []) as ProjectStatusHistory[] | undefined;
 
@@ -58,11 +58,8 @@ export function useTimeline(weekLimit: number = 12) {
 
     // Simple project view models - just basic info + references to data
     const projectViewModels: ProjectViewModel[] = projects.map((project: ProjectView) => {
-      // Try both raw and direct access patterns
-      const projectName = project.raw?.project?.name || 
-                         project.raw?.name || 
-                         (project as any).project?.name || 
-                         "Unknown Project";
+      // Use the new direct field structure
+      const projectName = project.name || "Unknown Project";
       return {
         projectKey: project.projectKey,
         name: projectName,
