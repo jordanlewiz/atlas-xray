@@ -30,24 +30,76 @@ db.on('ready', async () => {
     if (updatesNeedingMigration.length > 0) {
       console.log(`[AtlasXray] 🔄 Migrating ${updatesNeedingMigration.length} existing updates to add analyzed field...`);
       
-              // Add analyzed field to existing updates
-        for (const update of updatesNeedingMigration) {
-          await db.projectUpdates.update(update.id, {
-            analyzed: 0, // Mark existing updates as not analyzed (use 0 instead of false)
-            analysisDate: null,
-            updateQuality: null,
-            qualityLevel: null,
-            qualitySummary: null,
-            qualityRecommendations: null,
-            qualityMissingInfo: null
-          });
-        }
+      // Add analyzed field to existing updates
+      for (const update of updatesNeedingMigration) {
+        await db.projectUpdates.update(update.id, {
+          analyzed: 0, // Mark existing updates as not analyzed (use 0 instead of false)
+          analysisDate: null,
+          updateQuality: null,
+          qualityLevel: null,
+          qualitySummary: null,
+          qualityRecommendations: null,
+          qualityMissingInfo: null
+        });
+      }
       
       console.log(`[AtlasXray] ✅ Migration complete for ${updatesNeedingMigration.length} updates`);
     }
   } catch (error) {
     console.error('[AtlasXray] ❌ Migration failed:', error);
   }
+});
+
+// 🎯 AUTOMATIC UPDATE ANALYSIS: Schedule analysis after transaction completes
+db.projectUpdates.hook('creating', (update: any, key: any) => {
+  // Schedule analysis to run after the current transaction completes
+  setTimeout(async () => {
+    try {
+      console.log(`[AtlasXray] 🔄 New update stored in DB: ${key}, triggering analysis...`);
+      
+      // Import the analysis function dynamically to avoid circular dependencies
+      const { analyzeUpdateQuality } = await import('./localModelManager');
+      
+      // Get the update text for analysis
+      const updateText = update.summary || update.details || 'No update text available';
+      console.log(`[AtlasXray] 📝 Analyzing text: "${updateText.substring(0, 100)}..."`);
+      
+      // Run local language model analysis
+      console.log(`[AtlasXray] 🤖 Running local model analysis...`);
+      const qualityResult = await analyzeUpdateQuality(updateText);
+      console.log(`[AtlasXray] 📊 Analysis result:`, qualityResult);
+      
+      // Update the newly created record with analysis results (in new transaction)
+      await db.projectUpdates.update(key, {
+        analyzed: 1,
+        analysisDate: new Date().toISOString(),
+        updateQuality: qualityResult.score,
+        qualityLevel: qualityResult.quality,
+        qualitySummary: qualityResult.summary,
+        qualityRecommendations: JSON.stringify(qualityResult.recommendations),
+        qualityMissingInfo: JSON.stringify(qualityResult.missingInfo)
+      });
+      
+      console.log(`[AtlasXray] ✅ Update ${key} automatically analyzed: ${qualityResult.quality} quality (${qualityResult.score}/100)`);
+      
+    } catch (error) {
+      console.error(`[AtlasXray] ❌ Failed to automatically analyze update ${key}:`, error);
+      
+      // Fallback: mark as analyzed but with error
+      try {
+        await db.projectUpdates.update(key, {
+          analyzed: 1,
+          analysisDate: new Date().toISOString(),
+          updateQuality: 0,
+          qualityLevel: 'poor',
+          qualitySummary: 'Automatic analysis failed - fallback to basic analysis'
+        });
+        console.log(`[AtlasXray] ✅ Fallback analysis applied for update ${key}`);
+      } catch (dbError) {
+        console.error(`[AtlasXray] ❌ Failed to apply fallback analysis for update ${key}:`, dbError);
+      }
+    }
+  }, 0); // Run on next tick after transaction completes
 });
 
 // ProjectView store

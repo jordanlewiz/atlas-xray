@@ -67,19 +67,7 @@ export default function FloatingButton(): React.JSX.Element {
     
     await updateVisibleProjects();
     
-    // 🚀 PERFORMANCE OPTIMIZATION: Fetch project updates only when modal opens
-    if (visibleProjectKeys.length > 0) {
-      console.log(`[AtlasXray] 🚀 Modal opened - now fetching project updates for ${visibleProjectKeys.length} projects...`);
-      
-      try {
-        // Use the modal data fetcher to get project updates and analyze them
-        const { modalDataFetcher } = await import('../../services/modalDataFetcher');
-        const result = await modalDataFetcher.fetchProjectUpdatesForModal();
-        console.log(`[AtlasXray] ✅ Modal data fetch complete: ${result.fetched} updates fetched, ${result.analyzed} analyzed`);
-      } catch (error) {
-        console.error('[AtlasXray] ❌ Failed to fetch modal data:', error);
-      }
-    }
+    console.log(`[AtlasXray] 🚀 Modal opened - project data already fetched and ready for timeline`);
   };
 
   // Get display text with all 5 hardcoded metrics

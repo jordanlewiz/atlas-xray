@@ -337,7 +337,7 @@ export class ReactivePipeline {
       // Import dependencies
       const { apolloClient } = await import('./apolloClient');
       const { gql } = await import('@apollo/client');
-      const { PROJECT_VIEW_QUERY } = await import('../graphql/projectViewQuery');
+      const { DIRECTORY_VIEW_PROJECT_QUERY } = await import('../graphql/DirectoryViewProjectQuery');
       const { bootstrapService } = await import('./bootstrapService');
       
       // 🎯 SINGLE QUERY: Get all existing projects at once
@@ -370,30 +370,62 @@ export class ReactivePipeline {
         return { fetched: 0, skipped: existingKeys.size };
       }
       
-      // Fetch all missing projects in parallel with rate limiting
-      const fetchPromises = missingKeys.map(async (projectKey, index) => {
-        // Small delay between requests to be respectful to the API
-        await new Promise(resolve => setTimeout(resolve, index * 100));
+      // 🎯 BATCH PROCESSING: Process projects in chunks of 30 with delays
+      const batchSize = 25;
+      const projectBatches = [];
+      
+      for (let i = 0; i < missingKeys.length; i += batchSize) {
+        projectBatches.push(missingKeys.slice(i, i + batchSize));
+      }
+      
+      console.log(`[AtlasXray] 📦 Processing ${projectBatches.length} batches of up to ${batchSize} projects each`);
+      
+      let totalFetched = 0;
+      
+      for (let batchIndex = 0; batchIndex < projectBatches.length; batchIndex++) {
+        const batch = projectBatches[batchIndex];
+        console.log(`[AtlasXray] 📥 Processing project batch ${batchIndex + 1}/${projectBatches.length} with ${batch.length} projects...`);
         
-        try {
+        // Process projects in this batch with small delays between individual requests
+        const batchPromises = batch.map(async (projectKey, index) => {
+          // Small delay between requests to be respectful to the API
+          await new Promise(resolve => setTimeout(resolve, index * 200)); // Increased to 200ms
+          
+          try {
           const { data } = await apolloClient.query({
-            query: gql`${PROJECT_VIEW_QUERY}`,
+            query: gql`${DIRECTORY_VIEW_PROJECT_QUERY}`,
             variables: {
-              key: projectKey.trim(),
-              trackViewEvent: "DIRECT",
-              workspaceId: workspaceId,
-              onboardingKeyFilter: "PROJECT_SPOTLIGHT",
-              areMilestonesEnabled: false,
-              cloudId: bootstrapData.cloudIds[0] || null, // Use first cloud ID from bootstrap
-              isNavRefreshEnabled: true
-            }
+              first: 1, // Just fetch one project at a time
+              workspaceUuid: workspaceId,
+              tql: `(archived = false) AND (key = '${projectKey.trim()}')`, // Filter for specific project
+              // Required boolean flags (same as simpleProjectFetcher)
+              isTableOrSavedView: true,
+              isTimelineOrSavedView: false,
+              includeContributors: false,
+              includeFollowerCount: false,
+              includeFollowing: false,
+              includeLastUpdated: false,
+              includeOwner: false,
+              includeRelatedProjects: false,
+              includeStatus: false,
+              includeTargetDate: false,
+              includeTeam: false,
+              includeGoals: false,
+              includeTags: false,
+              includeStartDate: false,
+              includedCustomFieldUuids: [],
+              skipTableTql: false
+            },
+            fetchPolicy: 'network-only'
           });
           
-          if (data?.project) {
+          if (data?.projectTql?.edges?.length > 0) {
+            const projectNode = data.projectTql.edges[0].node;
+            
             // Store project view
             await db.projectView.put({
               projectKey: projectKey,
-              raw: data.project
+              raw: projectNode
             });
             console.log(`[AtlasXray] ✅ Stored project view for ${projectKey}`);
             
@@ -409,6 +441,7 @@ export class ReactivePipeline {
               console.log(`[AtlasXray] 🔄 Project ${projectKey} stored, immediately fetching updates...`);
               const updateResult = await this.fetchAndStoreProjectUpdatesBulk([projectKey]);
               console.log(`[AtlasXray] ✅ Updates fetched for ${projectKey}: ${updateResult.fetched} fetched, ${updateResult.skipped} skipped`);
+              console.log(`[AtlasXray] 💡 Updates will be automatically analyzed by database hook`);
             } catch (updateError) {
               console.error(`[AtlasXray] ❌ Failed to fetch updates for ${projectKey}:`, updateError);
             }
@@ -420,16 +453,28 @@ export class ReactivePipeline {
           }
         } catch (error) {
           console.error(`[AtlasXray] ❌ Failed to fetch project ${projectKey}:`, error);
-          return false;
+                      return false;
+          }
+        });
+        
+        // Wait for this batch to complete
+        const batchResults = await Promise.all(batchPromises);
+        const batchSuccessful = batchResults.filter(r => r === true).length;
+        totalFetched += batchSuccessful;
+        
+        console.log(`[AtlasXray] ✅ Project batch ${batchIndex + 1} complete: ${batchSuccessful} fetched`);
+        
+        // 🎯 RATE LIMITING: Add delay between batches (except for the last batch)
+        if (batchIndex < projectBatches.length - 1) {
+          const delay = 2000; // 2 second delay between project batches
+          console.log(`[AtlasXray] ⏳ Waiting ${delay}ms before next project batch to respect rate limits...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
         }
-      });
+      }
       
-      const results = await Promise.all(fetchPromises);
-      const successful = results.filter(r => r === true).length;
+      console.log(`[AtlasXray] ✅ Bulk fetch complete: ${totalFetched} fetched, ${existingKeys.size} skipped`);
       
-      console.log(`[AtlasXray] ✅ Bulk fetch complete: ${successful} fetched, ${existingKeys.size} skipped`);
-      
-      return { fetched: successful, skipped: existingKeys.size };
+      return { fetched: totalFetched, skipped: existingKeys.size };
       
     } catch (error) {
       console.error(`[AtlasXray] ❌ Bulk fetch failed:`, error);
@@ -511,38 +556,8 @@ export class ReactivePipeline {
               totalUpdatesFetched += nodes.length;
               console.log(`[AtlasXray] ✅ Stored ${nodes.length} updates for ${projectKey}`);
               
-              // 🎯 ANALYZE NEW UPDATES: Run quality analysis on newly stored updates
-              for (const node of nodes) {
-                try {
-                  const updateId = node.id ?? node.uuid;
-                  if (updateId) {
-                    // Get the stored update from database to analyze
-                    const storedUpdate = await db.projectUpdates.get(updateId);
-                    console.log(`[AtlasXray] 🔍 Checking update ${updateId} for analysis:`, {
-                      exists: !!storedUpdate,
-                      analyzed: storedUpdate?.analyzed,
-                      needsAnalysis: storedUpdate && storedUpdate.analyzed === 0
-                    });
-                    
-                    if (storedUpdate && storedUpdate.analyzed === 0) {
-                      console.log(`[AtlasXray] 🤖 Analyzing newly stored update ${updateId}...`);
-                      await this.analyzeUpdate(storedUpdate);
-                      
-                      // Verify the update was marked as analyzed
-                      const updatedUpdate = await db.projectUpdates.get(updateId);
-                      console.log(`[AtlasXray] ✅ Update ${updateId} analysis complete:`, {
-                        analyzed: updatedUpdate?.analyzed,
-                        analysisDate: updatedUpdate?.analysisDate,
-                        qualityLevel: updatedUpdate?.qualityLevel
-                      });
-                    } else if (storedUpdate) {
-                      console.log(`[AtlasXray] ⏭️ Update ${updateId} already analyzed (${storedUpdate.analyzed})`);
-                    }
-                  }
-                } catch (analysisError) {
-                  console.error(`[AtlasXray] ❌ Failed to analyze update ${node.id}:`, analysisError);
-                }
-              }
+              // 🎯 ANALYSIS: Updates are automatically analyzed by database hook when stored
+              console.log(`[AtlasXray] ✅ ${nodes.length} updates stored - analysis will be triggered automatically by database hook`);
             }
           }
           
@@ -565,7 +580,7 @@ export class ReactivePipeline {
   }
 
   /**
-   * 🎯 AUTO-FETCH UPDATES ON PAGE LOAD: Fetch updates for all visible projects
+   * 🎯 AUTO-FETCH UPDATES ON PAGE LOAD: Fetch updates for visible projects in batches of 30
    */
   private async autoFetchUpdatesForVisibleProjects(): Promise<void> {
     try {
@@ -576,12 +591,45 @@ export class ReactivePipeline {
       }
 
       const projectKeys = visibleProjects;
-      console.log(`[AtlasXray] 🚀 Auto-fetching updates for ${projectKeys.length} visible projects on page load...`);
+      console.log(`[AtlasXray] 🚀 Auto-fetching updates for ${projectKeys.length} visible projects in batches of 30...`);
       
-      // Fetch updates for all visible projects
-      const result = await this.fetchAndStoreProjectUpdatesBulk(projectKeys);
+      // 🎯 BATCH PROCESSING: Process in chunks of 30 with delays
+      const batchSize = 30;
+      const batches = [];
       
-      console.log(`[AtlasXray] ✅ Auto-fetch complete: ${result.fetched} updates fetched, ${result.skipped} skipped`);
+      for (let i = 0; i < projectKeys.length; i += batchSize) {
+        batches.push(projectKeys.slice(i, i + batchSize));
+      }
+      
+      console.log(`[AtlasXray] 📦 Processing ${batches.length} batches of up to ${batchSize} projects each`);
+      
+      let totalFetched = 0;
+      let totalSkipped = 0;
+      
+      for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
+        const batch = batches[batchIndex];
+        console.log(`[AtlasXray] 📥 Processing batch ${batchIndex + 1}/${batches.length} with ${batch.length} projects...`);
+        
+        try {
+          const result = await this.fetchAndStoreProjectUpdatesBulk(batch);
+          totalFetched += result.fetched;
+          totalSkipped += result.skipped;
+          
+          console.log(`[AtlasXray] ✅ Batch ${batchIndex + 1} complete: ${result.fetched} fetched, ${result.skipped} skipped`);
+          
+          // 🎯 RATE LIMITING: Add delay between batches (except for the last batch)
+          if (batchIndex < batches.length - 1) {
+            const delay = 3000; // 3 second delay between batches
+            console.log(`[AtlasXray] ⏳ Waiting ${delay}ms before next batch to respect rate limits...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+          }
+          
+        } catch (error) {
+          console.error(`[AtlasXray] ❌ Batch ${batchIndex + 1} failed:`, error);
+        }
+      }
+      
+      console.log(`[AtlasXray] ✅ Auto-fetch complete: ${totalFetched} total updates fetched, ${totalSkipped} total skipped`);
       
     } catch (error) {
       console.error('[AtlasXray] ❌ Auto-fetch updates failed:', error);

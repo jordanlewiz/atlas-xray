@@ -247,7 +247,17 @@ export class SimpleProjectFetcher {
         await setVisibleProjectIds(projectKeys);
         
         console.log(`[AtlasXray] ✅ Visible projects tracked: ${projectKeys.length} project IDs stored`);
-        console.log(`[AtlasXray] 💡 Heavy data will be fetched when modal opens`);
+        console.log(`[AtlasXray] 🚀 Now fetching project views and updates for timeline...`);
+
+        // 🎯 FETCH PROJECT VIEWS AND UPDATES IMMEDIATELY
+        // This ensures the timeline has all data when modal opens
+        try {
+          const { reactivePipeline } = await import('./reactivePipeline');
+          await reactivePipeline.handleProjectsDiscovered(projectKeys);
+          console.log(`[AtlasXray] ✅ Project views and updates fetched successfully`);
+        } catch (error) {
+          console.error('[AtlasXray] ❌ Error fetching project views and updates:', error);
+        }
 
         return projectKeys;
       } else {
