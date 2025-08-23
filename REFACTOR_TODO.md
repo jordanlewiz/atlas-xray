@@ -56,6 +56,10 @@
   - [ ] Ensure tooltip displays same information as floating button
   - [ ] Align tooltip format with new HTML display format
   - [ ] Test tooltip content matches button display exactly
+- [ ] **Fix FloatingButton update counts**
+  - [ ] Limit counts to updates that haven't been missed (`missedUpdate = false`)
+  - [ ] Ensure consistency between button display and actual data
+  - [ ] Update metrics calculation to filter out missed updates
   - [ ] Find and update all `db.*` references
   - [ ] Update all `analysisDB.*` references
   - [ ] Ensure consistent access patterns
@@ -242,6 +246,7 @@
 - **API request size**: Reduce from 500 to 100 projects per fetch (80% reduction)
 - **Rate limit errors**: Eliminate 429 errors through exponential backoff
 - **Tooltip consistency**: 100% alignment between button display and tooltip content
+- **Update count accuracy**: 100% accuracy by filtering out missed updates
 - **Response time**: Improve through concurrent processing and reduced payload sizes
 
 ### **Quality Improvements**
