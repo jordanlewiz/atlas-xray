@@ -35,14 +35,19 @@ export class SimpleProjectFetcher {
         return;
       }
 
-      // Fetch detailed project view
-      const { data } = await apolloClient.query({
-        query: gql`${PROJECT_VIEW_QUERY}`,
-        variables: {
-          key: projectKey,
-          workspaceUuid: workspaceId
-        },
-        fetchPolicy: 'network-only'
+      // Import rate limiting utilities
+      const { withRateLimit } = await import('../utils/rateLimitManager');
+      
+      // Fetch detailed project view with rate limiting
+      const { data } = await withRateLimit(async () => {
+        return apolloClient.query({
+          query: gql`${PROJECT_VIEW_QUERY}`,
+          variables: {
+            key: projectKey,
+            workspaceUuid: workspaceId
+          },
+          fetchPolicy: 'network-only'
+        });
       });
 
       if (data?.project) {

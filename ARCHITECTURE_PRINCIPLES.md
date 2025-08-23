@@ -448,6 +448,83 @@ class ProjectService {
 - **Fallback to cached data** when fresh data unavailable
 - **Background refresh** to restore data when possible
 
+#### **8.2.3 Rate Limiting & 429 Prevention**
+- **Exponential backoff** for all GraphQL API calls
+- **Retry logic** with increasing delays for rate limit errors
+- **Rate limit header detection** (`X-RateLimit-Remaining`, `Retry-After`)
+- **Consistent application** across all services making API calls
+- **Adaptive delays** based on server response patterns
+
+### **8.3 GraphQL Rate Limiting Patterns**
+
+#### **8.3.1 Exponential Backoff Implementation**
+```typescript
+// ✅ CORRECT: Consistent rate limiting across all GraphQL calls
+class RateLimitManager {
+  private retryCount = 0;
+  private baseDelay = 1000; // 1 second base delay
+  
+  async executeWithBackoff<T>(
+    operation: () => Promise<T>, 
+    maxRetries: number = 3
+  ): Promise<T> {
+    try {
+      return await operation();
+    } catch (error) {
+      if (this.isRateLimitError(error) && this.retryCount < maxRetries) {
+        const delay = this.baseDelay * Math.pow(2, this.retryCount);
+        this.retryCount++;
+        console.log(`[RateLimit] Retry ${this.retryCount}/${maxRetries} after ${delay}ms delay`);
+        await this.delay(delay);
+        return this.executeWithBackoff(operation, maxRetries);
+      }
+      throw error;
+    }
+  }
+  
+  private isRateLimitError(error: any): boolean {
+    return error?.message?.includes('429') || 
+           error?.graphQLErrors?.some((e: any) => e.extensions?.code === 'RATE_LIMIT_EXCEEDED');
+  }
+}
+```
+
+#### **8.3.2 Rate Limit Header Detection**
+```typescript
+// ✅ CORRECT: Detect and respect server rate limits
+const response = await apolloClient.query({...});
+const remainingRequests = response.headers?.['x-ratelimit-remaining'];
+const retryAfter = response.headers?.['retry-after'];
+
+if (remainingRequests && parseInt(remainingRequests) < 10) {
+  console.log(`[RateLimit] Only ${remainingRequests} requests remaining, slowing down`);
+  await this.delay(2000);
+}
+
+if (retryAfter) {
+  console.log(`[RateLimit] Server requests ${retryAfter}s delay`);
+  await this.delay(parseInt(retryAfter) * 1000);
+}
+```
+
+#### **8.3.3 Service Integration Pattern**
+```typescript
+// ✅ CORRECT: All services use the same rate limiting approach
+export class ProjectService {
+  private rateLimiter = new RateLimitManager();
+  
+  async fetchProjects(): Promise<Project[]> {
+    return this.rateLimiter.executeWithBackoff(async () => {
+      const { data } = await apolloClient.query({
+        query: PROJECTS_QUERY,
+        fetchPolicy: 'cache-first'
+      });
+      return data.projects;
+    });
+  }
+}
+```
+
 #### **8.2.2 User Recovery**
 - **Clear error messages** explaining what went wrong
 - **Recovery actions** - retry, refresh, manual intervention

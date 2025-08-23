@@ -46,6 +46,16 @@
   - [ ] Ensure proper indexing strategy
   - [ ] Maintain data integrity rules
 - [ ] **Update all database calls**
+
+### **1.3 Performance & Rate Limiting Optimizations** 🔥 **HIGH PRIORITY**
+- [ ] **Reduce directory fetch size**
+  - [ ] Change `first: 500` to `first: 100` in `simpleProjectListFetcher.ts`
+  - [ ] Implement subsequent fetches for page navigation if detected
+  - [ ] Add pagination logic for large project lists
+- [ ] **Fix FloatingButton tooltip consistency**
+  - [ ] Ensure tooltip displays same information as floating button
+  - [ ] Align tooltip format with new HTML display format
+  - [ ] Test tooltip content matches button display exactly
   - [ ] Find and update all `db.*` references
   - [ ] Update all `analysisDB.*` references
   - [ ] Ensure consistent access patterns
@@ -227,6 +237,12 @@
 - **Service overlap**: Eliminate 536+ lines
 - **Unused/legacy code**: Eliminate 1,361+ lines
 - **Total reduction target**: 3,600+ lines (approximately 40% reduction)
+
+### **Performance & Rate Limiting Targets**
+- **API request size**: Reduce from 500 to 100 projects per fetch (80% reduction)
+- **Rate limit errors**: Eliminate 429 errors through exponential backoff
+- **Tooltip consistency**: 100% alignment between button display and tooltip content
+- **Response time**: Improve through concurrent processing and reduced payload sizes
 
 ### **Quality Improvements**
 - **Architectural consistency**: 100% compliance with principles

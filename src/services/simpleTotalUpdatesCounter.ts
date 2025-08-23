@@ -43,30 +43,38 @@ export class SimpleTotalUpdatesCounter {
         return 0;
       }
 
-      let totalUpdates = 0;
+      // Import rate limiting utilities
+      const { withRateLimit } = await import('../utils/rateLimitManager');
       
-              // Count updates for each visible project using ProjectStatusHistoryQuery
-        for (const projectKey of visibleProjectIds) {
-          try {
-            const { data } = await apolloClient.query({
+      // Process all projects concurrently for better performance with rate limiting
+      const projectQueries = visibleProjectIds.map(async (projectKey) => {
+        try {
+          const { data } = await withRateLimit(async () => {
+            return apolloClient.query({
               query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
               variables: { projectKey: projectKey },
               fetchPolicy: 'cache-first' // Use cache to avoid repeated API calls
             });
+          });
 
-            if (data?.project?.updates?.edges) {
-              // Only count updates that haven't been missed (missedUpdate = false)
-              const nonMissedUpdates = data.project.updates.edges.filter(
-                (edge: any) => !edge.node.missedUpdate
-              );
-              const updateCount = nonMissedUpdates.length;
-              totalUpdates += updateCount;
-            }
-          } catch (error) {
-            console.warn(`[SimpleTotalUpdatesCounter] Failed to count updates for ${projectKey}:`, error);
-            // Continue with other projects even if one fails
+          if (data?.project?.updates?.edges) {
+            // Only count updates that haven't been missed (missedUpdate = false)
+            const nonMissedUpdates = data.project.updates.edges.filter(
+              (edge: any) => !edge.node.missedUpdate
+            );
+            return nonMissedUpdates.length;
           }
+          return 0;
+        } catch (error) {
+          console.warn(`[SimpleTotalUpdatesCounter] Failed to count updates for ${projectKey}:`, error);
+          // Return 0 for failed projects to continue processing
+          return 0;
         }
+      });
+
+      // Wait for all queries to complete and sum the results
+      const updateCounts = await Promise.all(projectQueries);
+      const totalUpdates = updateCounts.reduce((sum, count) => sum + count, 0);
 
       console.log(`[SimpleTotalUpdatesCounter] ✅ Total updates available: ${totalUpdates}`);
       

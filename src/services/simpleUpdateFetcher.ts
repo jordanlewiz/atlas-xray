@@ -34,10 +34,15 @@ export class SimpleUpdateFetcher {
       const { PROJECT_UPDATES_QUERY } = await import('../graphql/projectUpdatesQuery');
 
       // Fetch updates from GraphQL
-      const { data } = await apolloClient.query({
-        query: gql`${PROJECT_UPDATES_QUERY}`,
-        variables: { key: projectKey, isUpdatesTab: true },
-        fetchPolicy: 'network-only'
+      // Import rate limiting utilities
+      const { withRateLimit } = await import('../utils/rateLimitManager');
+      
+      const { data } = await withRateLimit(async () => {
+        return apolloClient.query({
+          query: gql`${PROJECT_UPDATES_QUERY}`,
+          variables: { key: projectKey, isUpdatesTab: true },
+          fetchPolicy: 'network-only'
+        });
       });
 
       if (data?.project?.updates?.edges) {

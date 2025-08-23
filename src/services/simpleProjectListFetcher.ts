@@ -92,14 +92,14 @@ export class SimpleProjectListFetcher {
       attributeFilter: ['href']
     });
 
-    // Polling fallback (every 2 seconds)
+    // Polling fallback (every 10 seconds) - reduced frequency for better performance
     setInterval(() => {
       const currentUrl = window.location.href;
       if (currentUrl !== this.currentUrl) {
         console.log('[AtlasXray] 🕒 Polling detected URL change');
         this.handleUrlChange();
       }
-    }, 2000);
+    }, 10000);
 
     console.log('[AtlasXray] 🔗 URL change listener setup complete with multiple detection methods');
   }
@@ -202,31 +202,36 @@ export class SimpleProjectListFetcher {
       console.log(`[AtlasXray] 📥 Fetching projects with TQL: ${tql}`);
       console.log(`[AtlasXray] 🔍 URL TQL parameter: ${pageTql || 'none'}`);
       
-      const { data } = await apolloClient.query({
-        query: gql`${DIRECTORY_VIEW_PROJECT_QUERY}`,
-        variables: {
-          first: 500, // Request up to 500, but server may return fewer
-          workspaceUuid: workspaceId,
-          tql: tql, // Dynamic TQL from URL
-          // Required boolean flags
-          isTableOrSavedView: true,
-          isTimelineOrSavedView: false,
-          includeContributors: false,
-          includeFollowerCount: false,
-          includeFollowing: false,
-          includeLastUpdated: false,
-          includeOwner: false,
-          includeRelatedProjects: false,
-          includeStatus: false,
-          includeTargetDate: false,
-          includeTeam: false,
-          includeGoals: false,
-          includeTags: false,
-          includeStartDate: false,
-          includedCustomFieldUuids: [],
-          skipTableTql: false
-        },
-        fetchPolicy: 'network-only'
+      // Import rate limiting utilities
+      const { withRateLimit } = await import('../utils/rateLimitManager');
+      
+      const { data } = await withRateLimit(async () => {
+        return apolloClient.query({
+          query: gql`${DIRECTORY_VIEW_PROJECT_QUERY}`,
+          variables: {
+            first: 500, // Request up to 500, but server may return fewer
+            workspaceUuid: workspaceId,
+            tql: tql, // Dynamic TQL from URL
+            // Required boolean flags
+            isTableOrSavedView: true,
+            isTimelineOrSavedView: false,
+            includeContributors: false,
+            includeFollowerCount: false,
+            includeFollowing: false,
+            includeLastUpdated: false,
+            includeOwner: false,
+            includeRelatedProjects: false,
+            includeStatus: false,
+            includeTargetDate: false,
+            includeTeam: false,
+            includeGoals: false,
+            includeTags: false,
+            includeStartDate: false,
+            includedCustomFieldUuids: [],
+            skipTableTql: false
+          },
+          fetchPolicy: 'network-only'
+        });
       });
 
       if (data?.projectTql) {

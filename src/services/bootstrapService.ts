@@ -59,11 +59,16 @@ export class BootstrapService {
       const { apolloClient } = await import('./apolloClient');
       const { gql } = await import('@apollo/client');
 
-      // Execute the bootstrap query without variables first
-      const { data } = await apolloClient.query({
-        query: gql`${BOOTSTRAP_QUERY}`,
-        variables: {}, // No variables for now
-        fetchPolicy: 'network-only' // Always fetch fresh data
+      // Import rate limiting utilities
+      const { withRateLimit } = await import('../utils/rateLimitManager');
+      
+      // Execute the bootstrap query without variables first with rate limiting
+      const { data } = await withRateLimit(async () => {
+        return apolloClient.query({
+          query: gql`${BOOTSTRAP_QUERY}`,
+          variables: {}, // No variables for now
+          fetchPolicy: 'network-only' // Always fetch fresh data
+        });
       });
 
       if (data?.bootstrap) {
