@@ -44,12 +44,23 @@ export class SimpleUpdateFetcher {
         const nodes = data.project.updates.edges.map((edge: any) => edge.node).filter(Boolean);
         console.log(`[SimpleUpdateFetcher] 📥 Found ${nodes.length} updates for ${projectKey}`);
 
-        // Store each update and analyze it immediately
+        // Check what updates we already have to avoid duplicates
+        const existingUpdates = await db.projectUpdates.where('projectKey').equals(projectKey).toArray();
+        const existingUuids = new Set(existingUpdates.map(u => u.uuid));
+        
+        // Store each new update and analyze it immediately
         for (const node of nodes) {
+          const uuid = node.uuid || node.id || `update_${Date.now()}_${Math.random()}`;
+          
+          // Skip if we already have this update
+          if (existingUuids.has(uuid)) {
+            continue;
+          }
+          
           try {
             // Create the update object
             const update = {
-              uuid: node.uuid || node.id || `update_${Date.now()}_${Math.random()}`, // Use UUID from GraphQL
+              uuid: uuid,
               projectKey: node.project?.key || projectKey,
               creationDate: node.creationDate ? new Date(node.creationDate).toISOString() : new Date().toISOString(),
               state: node.newState?.projectStateValue,
@@ -64,13 +75,10 @@ export class SimpleUpdateFetcher {
 
             // Store the update
             await storeProjectUpdate(update);
-            console.log(`[SimpleUpdateFetcher] ✅ Stored update for ${projectKey}`);
 
             // Analyze the update immediately if it has a summary
             if (update.summary && update.summary.trim()) {
               await simpleUpdateAnalyzer.analyzeUpdate(update);
-            } else {
-              console.log(`[SimpleUpdateFetcher] ⏭️ Skipping analysis for ${projectKey}: no summary`);
             }
 
           } catch (updateError) {

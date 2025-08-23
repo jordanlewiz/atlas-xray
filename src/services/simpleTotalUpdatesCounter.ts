@@ -45,25 +45,24 @@ export class SimpleTotalUpdatesCounter {
 
       let totalUpdates = 0;
       
-      // Count updates for each visible project using ProjectStatusHistoryQuery
-      for (const projectKey of visibleProjectIds) {
-                try {
-          const { data } = await apolloClient.query({
-            query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
-            variables: { projectKey: projectKey },
-            fetchPolicy: 'cache-first' // Use cache to avoid repeated API calls
-          });
+              // Count updates for each visible project using ProjectStatusHistoryQuery
+        for (const projectKey of visibleProjectIds) {
+          try {
+            const { data } = await apolloClient.query({
+              query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
+              variables: { projectKey: projectKey },
+              fetchPolicy: 'cache-first' // Use cache to avoid repeated API calls
+            });
 
-          if (data?.project?.updates?.edges) {
-            const updateCount = data.project.updates.edges.length;
-            totalUpdates += updateCount;
-            console.log(`[SimpleTotalUpdatesCounter] 📊 ${projectKey}: ${updateCount} updates available`);
+            if (data?.project?.updates?.edges) {
+              const updateCount = data.project.updates.edges.length;
+              totalUpdates += updateCount;
+            }
+          } catch (error) {
+            console.warn(`[SimpleTotalUpdatesCounter] Failed to count updates for ${projectKey}:`, error);
+            // Continue with other projects even if one fails
           }
-        } catch (error) {
-          console.warn(`[SimpleTotalUpdatesCounter] Failed to count updates for ${projectKey}:`, error);
-          // Continue with other projects even if one fails
         }
-      }
 
       console.log(`[SimpleTotalUpdatesCounter] ✅ Total updates available: ${totalUpdates}`);
       

@@ -248,11 +248,15 @@ export class SimpleProjectListFetcher {
         
         console.log(`[AtlasXray] ✅ Visible projects tracked: ${projectKeys.length} project IDs stored`);
 
-        // Update the total updates available count from server
+        // Update the total updates available count from server (only if we don't have it)
         try {
-          const { simpleTotalUpdatesCounter } = await import('./simpleTotalUpdatesCounter');
-          await simpleTotalUpdatesCounter.getTotalUpdatesAvailableCount();
-          console.log(`[AtlasXray] ✅ Updated total updates available count`);
+          const { getTotalUpdatesAvailableCount } = await import('../utils/database');
+          const existingCount = await getTotalUpdatesAvailableCount();
+          if (existingCount === 0) {
+            const { simpleTotalUpdatesCounter } = await import('./simpleTotalUpdatesCounter');
+            await simpleTotalUpdatesCounter.getTotalUpdatesAvailableCount();
+            console.log(`[AtlasXray] ✅ Updated total updates available count`);
+          }
         } catch (error) {
           console.warn('[AtlasXray] ⚠️ Failed to update total updates count:', error);
         }
@@ -261,20 +265,23 @@ export class SimpleProjectListFetcher {
         // 🎯 FETCH PROJECT VIEWS AND UPDATES IMMEDIATELY
         // This ensures the timeline has all data when modal opens
         try {
-          // Store project views first
-          for (const project of projects) {
+                  // Check what projects we already have to avoid unnecessary updates
+        const existingProjects = await db.projectViews.toArray();
+        const existingProjectKeys = new Set(existingProjects.map(p => p.projectKey));
+        
+        // Store only new/updated project views
+        let newProjects = 0;
+        for (const project of projects) {
+          if (!existingProjectKeys.has(project.key)) {
             await db.projectViews.put({
               projectKey: project.key,
               name: project.name,
-              status: project.status?.name,
-              team: project.team?.name,
-              owner: project.owner?.displayName,
-              lastUpdated: project.lastUpdated,
-              archived: project.archived,
-              createdAt: project.createdAt
+              archived: project.archived
             });
+            newProjects++;
           }
-          console.log(`[AtlasXray] ✅ Stored ${projects.length} project views`);
+        }
+        console.log(`[AtlasXray] ✅ Stored ${newProjects} new project views (${existingProjects.length} already existed)`);
 
           // Then fetch updates for each project
           const { simpleUpdateFetcher } = await import('./simpleUpdateFetcher');
