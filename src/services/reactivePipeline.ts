@@ -215,17 +215,28 @@ export class ReactivePipeline {
    */
   private async analyzeUpdate(update: any): Promise<void> {
     try {
+      console.log(`[AtlasXray] 🚀 Starting analysis for update ${update.id}:`, {
+        id: update.id,
+        summary: update.summary?.substring(0, 50) + '...',
+        details: update.details?.substring(0, 50) + '...',
+        analyzed: update.analyzed
+      });
+      
       // Import dynamically to avoid circular dependencies
       const { analyzeUpdateQuality } = await import('../utils/localModelManager');
       const { db } = await import('../utils/database');
       
       // Get the update text for analysis
       const updateText = update.summary || update.details || 'No update text available';
+      console.log(`[AtlasXray] 📝 Analyzing text: "${updateText.substring(0, 100)}..."`);
       
       // Run local language model analysis
+      console.log(`[AtlasXray] 🤖 Running local model analysis...`);
       const qualityResult = await analyzeUpdateQuality(updateText);
+      console.log(`[AtlasXray] 📊 Analysis result:`, qualityResult);
       
       // Store the analysis results in the database
+      console.log(`[AtlasXray] 💾 Updating database for update ${update.id}...`);
       await db.projectUpdates.update(update.id, {
         analyzed: 1, // This will trigger the 'updating' hook
         analysisDate: new Date().toISOString(),
@@ -243,6 +254,7 @@ export class ReactivePipeline {
       
       // Fallback: mark as analyzed but with error
       try {
+        console.log(`[AtlasXray] 🔄 Applying fallback analysis for update ${update.id}...`);
         const { db } = await import('../utils/database');
         await db.projectUpdates.update(update.id, {
           analyzed: 1,
@@ -251,6 +263,7 @@ export class ReactivePipeline {
           qualityLevel: 'poor',
           qualitySummary: 'Analysis failed - fallback to basic analysis'
         });
+        console.log(`[AtlasXray] ✅ Fallback analysis applied for update ${update.id}`);
       } catch (dbError) {
         console.error(`[AtlasXray] ❌ Failed to update database for update ${update.id}:`, dbError);
       }
@@ -505,9 +518,25 @@ export class ReactivePipeline {
                   if (updateId) {
                     // Get the stored update from database to analyze
                     const storedUpdate = await db.projectUpdates.get(updateId);
+                    console.log(`[AtlasXray] 🔍 Checking update ${updateId} for analysis:`, {
+                      exists: !!storedUpdate,
+                      analyzed: storedUpdate?.analyzed,
+                      needsAnalysis: storedUpdate && storedUpdate.analyzed === 0
+                    });
+                    
                     if (storedUpdate && storedUpdate.analyzed === 0) {
                       console.log(`[AtlasXray] 🤖 Analyzing newly stored update ${updateId}...`);
                       await this.analyzeUpdate(storedUpdate);
+                      
+                      // Verify the update was marked as analyzed
+                      const updatedUpdate = await db.projectUpdates.get(updateId);
+                      console.log(`[AtlasXray] ✅ Update ${updateId} analysis complete:`, {
+                        analyzed: updatedUpdate?.analyzed,
+                        analysisDate: updatedUpdate?.analysisDate,
+                        qualityLevel: updatedUpdate?.qualityLevel
+                      });
+                    } else if (storedUpdate) {
+                      console.log(`[AtlasXray] ⏭️ Update ${updateId} already analyzed (${storedUpdate.analyzed})`);
                     }
                   }
                 } catch (analysisError) {

@@ -125,23 +125,23 @@ setTimeout(async () => {
   }
 }, 1000);
 
-// Initialize direct project fetching
-console.log('[AtlasXray] 🚀 Initializing direct project fetcher...');
+// Initialize simple project fetching on page load
+console.log('[AtlasXray] 🚀 Initializing simple project fetcher...');
 
-// Start direct project fetching after a short delay to ensure page is loaded
+// Start simple project fetching after a short delay to ensure page is loaded
 setTimeout(async () => {
   try {
-    console.log('[AtlasXray] 📥 Starting direct project fetch...');
+    console.log('[AtlasXray] 📥 Starting simple project fetch on page load...');
     
-    // Import and start the direct project fetcher
-    const { directProjectFetcher } = await import('../services/directProjectFetcher.js');
-    console.log('[AtlasXray] ✅ Direct project fetcher imported');
+    // Import and run the simple project fetcher (only runs once per page load)
+    const { simpleProjectFetcher } = await import('../services/simpleProjectFetcher.js');
+    console.log('[AtlasXray] ✅ Simple project fetcher imported');
     
-    // Start periodic fetching
-    directProjectFetcher.startPeriodicFetch();
+    // Fetch projects on page load (no periodic fetching)
+    await simpleProjectFetcher.fetchProjectsOnPageLoad();
     
   } catch (error) {
-    console.error('[AtlasXray] ❌ Failed to start direct project fetcher:', error);
+    console.error('[AtlasXray] ❌ Failed to start simple project fetcher:', error);
   }
 }, 2000); // Wait 2 seconds for page to fully load
 
@@ -163,14 +163,24 @@ if (typeof window !== 'undefined') {
         console.error('[AtlasXray] ❌ Bootstrap test failed:', error);
       }
       
-      // Test direct project fetching
+      // Test simple project fetching
       try {
-        const { directProjectFetcher } = await import('../services/directProjectFetcher.js');
-        console.log('[AtlasXray] 🧪 Testing direct project fetch...');
-        const projects = await directProjectFetcher.fetchProjects();
-        console.log('[AtlasXray] ✅ Direct fetch test result:', projects);
+        const { simpleProjectFetcher } = await import('../services/simpleProjectFetcher.js');
+        console.log('[AtlasXray] 🧪 Testing simple project fetch...');
+        const projects = await simpleProjectFetcher.fetchProjectsOnPageLoad();
+        console.log('[AtlasXray] ✅ Simple fetch test result:', projects);
       } catch (error) {
-        console.error('[AtlasXray] ❌ Direct fetch test failed:', error);
+        console.error('[AtlasXray] ❌ Simple fetch test failed:', error);
+      }
+      
+      // Test modal data fetching
+      try {
+        const { modalDataFetcher } = await import('../services/modalDataFetcher.js');
+        console.log('[AtlasXray] 🧪 Testing modal data fetch...');
+        const result = await modalDataFetcher.fetchProjectUpdatesForModal();
+        console.log('[AtlasXray] ✅ Modal data fetch test result:', result);
+      } catch (error) {
+        console.error('[AtlasXray] ❌ Modal data fetch test failed:', error);
       }
       
     } catch (error) {
