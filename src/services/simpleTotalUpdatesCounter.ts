@@ -32,7 +32,7 @@ export class SimpleTotalUpdatesCounter {
       // Import dependencies
       const { apolloClient } = await import('./apolloClient');
       const { gql } = await import('@apollo/client');
-      const { PROJECT_STATUS_HISTORY_QUERY } = await import('../graphql/projectStatusHistoryQuery');
+      const { PROJECT_UPDATES_QUERY } = await import('../graphql/projectUpdatesQuery');
 
       // Get visible project IDs
       const { getVisibleProjectIds } = await import('../utils/database');
@@ -49,8 +49,8 @@ export class SimpleTotalUpdatesCounter {
         for (const projectKey of visibleProjectIds) {
           try {
             const { data } = await apolloClient.query({
-              query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
-              variables: { projectKey: projectKey },
+              query: gql`${PROJECT_UPDATES_QUERY}`,
+              variables: { key: projectKey, isUpdatesTab: true },
               fetchPolicy: 'cache-first' // Use cache to avoid repeated API calls
             });
 
@@ -87,11 +87,11 @@ export class SimpleTotalUpdatesCounter {
     try {
       const { apolloClient } = await import('./apolloClient');
       const { gql } = await import('@apollo/client');
-      const { PROJECT_STATUS_HISTORY_QUERY } = await import('../graphql/projectStatusHistoryQuery');
+      const { PROJECT_UPDATES_QUERY } = await import('../graphql/projectUpdatesQuery');
 
             const { data } = await apolloClient.query({
-        query: gql`${PROJECT_STATUS_HISTORY_QUERY}`,
-        variables: { projectKey: projectKey },
+        query: gql`${PROJECT_UPDATES_QUERY}`,
+        variables: { key: projectKey, isUpdatesTab: true },
         fetchPolicy: 'cache-first'
       });
 
