@@ -4,6 +4,7 @@ import ProjectStatusHistoryModal from '../ProjectStatusHistoryModal';
 import { StatusTimelineHeatmap } from '../StatusTimelineHeatmap';
 import { getVisibleProjectIds, getTotalUpdatesAvailableCount } from '../../utils/database';
 import { db } from '../../utils/database';
+import { formatFloatingButtonMetrics, formatFloatingButtonTooltip, type FloatingButtonMetrics } from './metricsDisplay';
 import './FloatingButton.scss';
 import Tooltip from "@atlaskit/tooltip";
 
@@ -22,6 +23,15 @@ export default function FloatingButton(): React.JSX.Element {
   
   // Calculate updates available (count from server stored in database)
   const updatesAvailable = useLiveQuery(() => getTotalUpdatesAvailableCount()) || 0;
+
+  // Create metrics object for display utilities
+  const displayMetrics: FloatingButtonMetrics = {
+    projectsVisible,
+    projectsStored: projectsStored || 0,
+    updatesAvailable,
+    updatesStored: updatesStored || 0,
+    updatesAnalyzed: updatesAnalyzed || 0
+  };
 
   // Initialize on mount
   useEffect(() => {
@@ -62,22 +72,36 @@ export default function FloatingButton(): React.JSX.Element {
     console.log(`[AtlasXray] 🚀 Modal opened - project data already fetched and ready for timeline`);
   };
 
-  // Get display text with all 5 hardcoded metrics
-  const getDisplayText = (): string => {
-    return `Projects Visible: ${projectsVisible} | ProjectsStored: ${projectsStored || 0} | Updates Available: ${updatesAvailable} | Updates Stored: ${updatesStored || 0} | Updates Analyzed: ${updatesAnalyzed || 0}`;
+  // Get display text using utility function - HTML formatted for better readability
+  const getDisplayText = (): React.ReactNode => {
+    const htmlText = formatFloatingButtonMetrics(displayMetrics);
+    const lines = htmlText.split('\n');
+    
+    return (
+      <>
+        {lines.map((line: string, index: number) => (
+          <div key={index} dangerouslySetInnerHTML={{ __html: line }} />
+        ))}
+      </>
+    );
   };
 
-  // Get tooltip content with all 5 hardcoded metrics
+  // Get tooltip content as a React component - consistent with display text
   const getTooltipContent = (): React.ReactNode => {
+    const tooltipText = formatFloatingButtonTooltip(displayMetrics);
+    const lines = tooltipText.split('\n');
+    
     return (
       <div>
-        <div><strong>Atlas Xray Status</strong></div>
-        <div>Projects Visible (on page): {projectsVisible}</div>
-        <div>Projects Stored (in local DB): {projectsStored || 0}</div>
-        <div>Updates Available (for all stored Projects): {updatesAvailable}</div>
-        <div>Updates Stored: {updatesStored || 0}</div>
-        <div>Updates Analyzed: {updatesAnalyzed || 0}</div>
-        <div>Project Fetching: Direct GraphQL API</div>
+        {lines.map((line: string, index: number) => (
+          <div key={index}>
+            {line.includes('Atlas Xray Status') ? (
+              <strong>{line}</strong>
+            ) : (
+              line
+            )}
+          </div>
+        ))}
       </div>
     );
   };

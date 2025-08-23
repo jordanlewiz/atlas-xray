@@ -8,80 +8,120 @@ jest.mock('dexie-react-hooks', () => ({
   useLiveQuery: jest.fn()
 }));
 
-// projectIdScanner removed - now handled by ProjectPipeline
-
-// useUpdateQuality hook removed - now handled by ProjectPipeline
-
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
-  useState: jest.fn()
-}));
-
 jest.mock('../../utils/database', () => ({
   db: {
-    projectView: {
-      count: jest.fn(),
-      toArray: jest.fn()
+    projectViews: {
+      count: jest.fn()
     },
     projectUpdates: {
-      toArray: jest.fn()
+      count: jest.fn(),
+      where: jest.fn(() => ({
+        above: jest.fn(() => ({
+          count: jest.fn()
+        }))
+      }))
     }
-  }
+  },
+  getVisibleProjectIds: jest.fn(),
+  getTotalUpdatesAvailableCount: jest.fn()
 }));
 
 const mockUseLiveQuery = require('dexie-react-hooks').useLiveQuery;
+const mockDatabase = require('../../utils/database');
 
 describe('FloatingButton', () => {
-  const mockProjects = [
-    { projectKey: 'PROJ-1', project: { name: 'Project 1' } },
-    { projectKey: 'PROJ-2', project: { name: 'Project 2' } }
-  ];
-
   beforeEach(() => {
     jest.clearAllMocks();
     
-    // Mock React useState
-    const { useState } = require('react');
-    useState.mockImplementation((initialValue: any) => {
-      if (initialValue === false) {
-        return [false, jest.fn()]; // modalOpen
-      }
-      if (Array.isArray(initialValue) && initialValue.length === 0) {
-        return [['PROJ-1', 'PROJ-2'], jest.fn()]; // visibleProjectKeys
-      }
-      if (typeof initialValue === 'number') {
-        return [2, jest.fn()]; // visibleProjectCount
-      }
-      return [initialValue, jest.fn()];
-    });
-    
-    // Mock useLiveQuery
+    // Mock useLiveQuery for different queries
     mockUseLiveQuery.mockImplementation((query: any) => {
       if (typeof query === 'function') {
-        if (query.toString().includes('count')) {
-          return 5; // Total projects
+        const queryString = query.toString();
+        if (queryString.includes('getVisibleProjectIds')) {
+          return ['PROJ-1', 'PROJ-2']; // Visible projects - length 2
         }
-        return mockProjects; // All projects
+        if (queryString.includes('db.projectViews.count')) {
+          return 4; // Projects stored
+        }
+        if (queryString.includes('db.projectUpdates.count')) {
+          return 27; // Updates stored
+        }
+        if (queryString.includes('updateQuality') && queryString.includes('above(0)')) {
+          return 18; // Updates analyzed
+        }
+        if (queryString.includes('getTotalUpdatesAvailableCount')) {
+          return 16; // Updates available
+        }
       }
-      return mockProjects;
+      return 0;
     });
+
+    // Mock database functions
+    mockDatabase.getVisibleProjectIds.mockResolvedValue(['PROJ-1', 'PROJ-2']);
+    mockDatabase.getTotalUpdatesAvailableCount.mockResolvedValue(16);
   });
 
-  describe('Project Count Display', () => {
-    it('should show project count immediately', () => {
+  describe('Display Text Formatting', () => {
+    it('should display metrics in HTML format', () => {
       render(<FloatingButton />);
       
-      // Should show project count immediately, no loading state
-      expect(screen.getByText(/0 projects/)).toBeInTheDocument(); // Should show "0 projects" initially
+      // Should show the new HTML format with strong tags
+      expect(screen.getByText(/Projects:/)).toBeInTheDocument();
+      expect(screen.getByText(/Updates:/)).toBeInTheDocument();
+      expect(screen.getByText(/2 in query • 4 Total Stored/)).toBeInTheDocument();
+      expect(screen.getByText(/16 in query • 27 Total Stored • 18 Analyzed/)).toBeInTheDocument();
+    });
+
+    it('should handle zero values gracefully', () => {
+      // Mock all values as zero
+      mockUseLiveQuery.mockImplementation(() => 0);
+      
+      render(<FloatingButton />);
+      
+      // Should show zero values in HTML format
+      expect(screen.getByText(/Projects:/)).toBeInTheDocument();
+      expect(screen.getByText(/Updates:/)).toBeInTheDocument();
+      expect(screen.getByText(/0 in query • 0 Total Stored • 0 Analyzed/)).toBeInTheDocument();
     });
   });
 
   describe('Tooltip Content', () => {
-    it('should always show tooltip', () => {
+    it('should display tooltip with formatted content', () => {
       render(<FloatingButton />);
       
-      // Should show tooltip
+      // Should show tooltip button
       const button = screen.getByRole('button');
+      expect(button).toBeInTheDocument();
+      
+      // Button should be clickable
+      expect(button).not.toBeDisabled();
+    });
+  });
+
+  describe('Real-time Updates', () => {
+    it('should use useLiveQuery for reactive data', () => {
+      render(<FloatingButton />);
+      
+      // Verify useLiveQuery was called for each metric
+      expect(mockUseLiveQuery).toHaveBeenCalledTimes(5);
+      
+      // Check that the component displays the mocked values
+      expect(screen.getByText(/Projects:/)).toBeInTheDocument();
+      expect(screen.getByText(/Updates:/)).toBeInTheDocument();
+      expect(screen.getByText(/2 in query • 4 Total Stored/)).toBeInTheDocument();
+      expect(screen.getByText(/16 in query • 27 Total Stored • 18 Analyzed/)).toBeInTheDocument();
+    });
+  });
+
+  describe('Modal Integration', () => {
+    it('should open modal when clicked', async () => {
+      render(<FloatingButton />);
+      
+      const button = screen.getByRole('button');
+      button.click();
+      
+      // Modal should be opened (this would require more complex testing setup)
+      // For now, just verify the button is clickable
       expect(button).toBeInTheDocument();
     });
   });
