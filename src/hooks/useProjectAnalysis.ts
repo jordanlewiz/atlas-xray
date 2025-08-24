@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { analysisDB, StoredAnalysis } from '../utils/analysisDatabase';
+import { analysisDB, StoredAnalysis } from '../services/DatabaseService';
 import { analyzeProjectUpdate, ProjectUpdateAnalysis } from '../services/AnalysisService';
 
 interface UseProjectAnalysisReturn {

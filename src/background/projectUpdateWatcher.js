@@ -5,7 +5,7 @@
  * and automatically analyzes them using Transformers.js
  */
 
-import { analysisDB, initializeAnalysisDatabase } from '../utils/analysisDatabase';
+import { analysisDB, initializeDatabase } from '../services/DatabaseService';
 import { analyzeProjectUpdate } from '../services/AnalysisService';
 
 // Performance optimizations
@@ -32,7 +32,7 @@ async function initializeWatcher() {
     console.log('[ProjectUpdateWatcher] Initializing...');
     
     // Initialize database
-    await initializeAnalysisDatabase();
+    await initializeDatabase();
     
     // Start watching for updates
     startWatching();

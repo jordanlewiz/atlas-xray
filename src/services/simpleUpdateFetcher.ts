@@ -1,5 +1,4 @@
-import { db, storeProjectUpdate } from '../utils/database';
-import { analyzeUpdateQuality } from './AnalysisService';
+import { db } from './DatabaseService';
 
 /**
  * Simple Update Fetcher - No bullshit, just fetch and store
@@ -79,46 +78,10 @@ export class SimpleUpdateFetcher {
             };
 
             // Store the update
-            await storeProjectUpdate(update);
+            await db.storeProjectUpdate(update);
 
-            // Analyze the update immediately if it has a summary
-            if (update.summary && update.summary.trim()) {
-              try {
-                const analysisResult = await analyzeUpdateQuality(update.summary);
-                
-                // Update the stored update with analysis results
-                const analyzedUpdate = {
-                  ...update,
-                  updateQuality: analysisResult.overallScore,
-                  qualityLevel: analysisResult.qualityLevel,
-                  qualitySummary: analysisResult.summary,
-                  qualityMissingInfo: analysisResult.missingInfo || [],
-                  qualityRecommendations: analysisResult.recommendations || [],
-                  analysisDate: new Date().toISOString()
-                };
-
-                // Store the updated record
-                await db.projectUpdates.put(analyzedUpdate);
-              } catch (analysisError) {
-                console.error(`[SimpleUpdateFetcher] ❌ Analysis failed for ${projectKey}:`, analysisError);
-                
-                // Mark as analyzed but with error
-                const errorUpdate = {
-                  ...update,
-                  updateQuality: 0,
-                  qualityLevel: 'poor' as const,
-                  qualitySummary: 'Analysis failed',
-                  analyzed: true,
-                  analysisDate: new Date().toISOString()
-                };
-                
-                try {
-                  await db.projectUpdates.put(errorUpdate);
-                } catch (dbError) {
-                  console.error(`[SimpleUpdateFetcher] ❌ Failed to store error update for ${projectKey}:`, dbError);
-                }
-              }
-            }
+            // Analysis is now handled automatically by DatabaseService.storeProjectUpdate()
+            // No need for manual analysis here
 
           } catch (updateError) {
             console.error(`[SimpleUpdateFetcher] ❌ Failed to store update for ${projectKey}:`, updateError);

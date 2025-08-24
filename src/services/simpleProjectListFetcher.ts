@@ -1,5 +1,5 @@
 import { DIRECTORY_VIEW_PROJECT_QUERY } from '../graphql/DirectoryViewProjectQuery';
-import { setVisibleProjectIds, db } from '../utils/database';
+import { db } from './DatabaseService';
 import { bootstrapService } from './bootstrapService';
 
 interface ProjectNode {
@@ -249,7 +249,7 @@ export class SimpleProjectListFetcher {
         console.log(`[AtlasXray] 📋 Project keys: ${projectKeys.join(', ')}`);
 
         // Store visible project IDs in database (lightweight)
-        await setVisibleProjectIds(projectKeys);
+        await db.setVisibleProjectIds(projectKeys);
         
         console.log(`[AtlasXray] ✅ Visible projects tracked: ${projectKeys.length} project IDs stored`);
 

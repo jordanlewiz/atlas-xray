@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { getProjectImage } from '../../utils/database';
+import { getProjectImage } from '../../services/DatabaseService';
 import { base64ToDataUrl } from '../../utils/imageUtils';
 
 interface ImageRendererProps {

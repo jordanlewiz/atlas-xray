@@ -6,7 +6,7 @@
  */
 
 import { analyzeProjectUpdate } from '../services/AnalysisService';
-import { analysisDB } from './analysisDatabase';
+import { analysisDB } from '../services/DatabaseService';
 import { useProjectAnalysis } from '../hooks/useProjectAnalysis';
 
 // Example 1: Basic integration with existing project updates

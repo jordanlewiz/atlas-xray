@@ -16,14 +16,24 @@ if (typeof window !== 'undefined') {
     window.location.href.includes('about:');
 }
 
-// Only import AI libraries if we're not in a content script context
-if (!isContentScript) {
+// Lazy loading function for AI libraries
+async function loadAILibraries(): Promise<boolean> {
+  if (isContentScript) {
+    return false;
+  }
+  
+  if (pipeline) {
+    return true; // Already loaded
+  }
+  
   try {
     // @ts-ignore
-    const transformers = require('@xenova/transformers');
+    const transformers = await import('@xenova/transformers');
     pipeline = transformers.pipeline;
+    return true;
   } catch (error) {
     console.log('AI libraries not available in this context:', error);
+    return false;
   }
 }
 
@@ -937,8 +947,8 @@ export class AnalysisService {
   /**
    * Check if AI analysis is available
    */
-  isAIAvailable(): boolean {
-    return !!(pipeline && !isContentScript);
+  async isAIAvailable(): Promise<boolean> {
+    return await loadAILibraries();
   }
 
   /**

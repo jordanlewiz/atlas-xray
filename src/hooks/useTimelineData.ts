@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, type ProjectView, type ProjectUpdate } from "../utils/database";
+import { db, type ProjectView, type ProjectUpdate } from "../services/DatabaseService";
 import { getWeekRanges, getAllProjectDates } from "../utils/timelineUtils";
 import type { 
   WeekRange, 
