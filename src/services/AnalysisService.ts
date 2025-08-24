@@ -6,7 +6,6 @@
 
 // Conditional imports for AI functionality
 let pipeline: any = null;
-let projectAnalyzerFunction: any = null;
 
 // Chrome API types
 declare const chrome: any;
@@ -24,9 +23,6 @@ if (!isContentScript) {
     // @ts-ignore
     const transformers = require('@xenova/transformers');
     pipeline = transformers.pipeline;
-    
-    const projectAnalyzer = require('../utils/projectAnalyzer');
-    projectAnalyzerFunction = projectAnalyzer.analyzeProjectUpdate;
   } catch (error) {
     console.log('AI libraries not available in this context:', error);
   }
@@ -427,68 +423,7 @@ function determineQualityLevel(score: number): 'excellent' | 'good' | 'fair' | '
   return 'poor';
 }
 
-/**
- * Provide fallback analysis when AI is not available
- */
-function provideFallbackAnalysis(
-  updateText: string,
-  updateType?: string,
-  state?: string
-): UpdateQualityResult {
-  // Simple rule-based fallback analysis
-  const applicableCriteria = determineApplicableCriteria(updateType, state, updateText);
-  
-  const analysis: QualityAnalysis[] = applicableCriteria.map(criteria => {
-    // Simple scoring based on text length and content
-    const textLength = updateText.length;
-    const hasDates = /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(updateText);
-    const hasStateChange = state && state !== 'on-track';
-    const hasDetails = updateText.split('.').length > 2;
-    
-    let score = 0;
-    if (textLength > 100) score++;
-    if (hasDates) score++;
-    if (hasStateChange) score++;
-    if (hasDetails) score++;
-    
-    const missingInfo: string[] = [];
-    const recommendations: string[] = [];
-    
-    if (textLength < 50) {
-      missingInfo.push('More detailed explanation needed');
-      recommendations.push('Provide more context and details');
-    }
-    
-    if (!hasDates && (updateType === 'date-change' || updateText.includes('date'))) {
-      missingInfo.push('Specific dates not mentioned');
-      recommendations.push('Include specific dates and timelines');
-    }
-    
-    return {
-      criteriaId: criteria.id,
-      title: criteria.title,
-      score: Math.min(score, criteria.requiredAnswers),
-      maxScore: criteria.requiredAnswers,
-      answers: [updateText.substring(0, 100) + '...'],
-      missingInfo,
-      recommendations
-    };
-  });
-  
-  const totalScore = analysis.reduce((sum, criterion) => sum + criterion.score, 0);
-  const maxPossibleScore = analysis.reduce((sum, criterion) => sum + criterion.maxScore, 0);
-  const overallScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
-  
-  return {
-    overallScore,
-    qualityLevel: determineQualityLevel(overallScore),
-    analysis,
-    missingInfo: analysis.flatMap(criterion => criterion.missingInfo),
-    recommendations: analysis.flatMap(criterion => criterion.recommendations),
-    summary: `Fallback analysis: ${overallScore}/100 quality score`,
-    timestamp: new Date()
-  };
-}
+
 
 /**
  * Determine which quality criteria are applicable to this update
