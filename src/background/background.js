@@ -19,7 +19,16 @@ import { VersionChecker } from '../utils/versionChecker';
 import { memoryManager } from '../utils/memoryManager';
 
 // Import project update watcher for AI analysis
-import './projectUpdateWatcher.js';
+console.log('[AtlasXray] Importing ProjectUpdateWatcher...');
+try {
+  import('./projectUpdateWatcher.js').then(() => {
+    console.log('[AtlasXray] ✅ ProjectUpdateWatcher imported successfully');
+  }).catch(error => {
+    console.error('[AtlasXray] ❌ Failed to import ProjectUpdateWatcher:', error);
+  });
+} catch (error) {
+  console.error('[AtlasXray] ❌ Import error:', error);
+}
 
 // Import AI analysis capabilities
 let projectAnalyzer = null;
@@ -62,7 +71,7 @@ let isProcessingQueue = false;
 // });
 
 // Message handler for communication with content scripts
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   console.log('[AtlasXray] 📨 Message received:', message.type, 'from:', sender.tab?.url);
   
   if (message.type === 'PING') {
@@ -128,6 +137,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
     return true;
   }
+  
+  // AI analysis now happens directly in content script - no need for complex messaging
+  // The content script has bundled AI libraries and can analyze updates directly
 
   if (message.type === 'FORCE_CLEANUP') {
     memoryManager.performCleanup({

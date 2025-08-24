@@ -47,15 +47,7 @@ export interface ProjectUpdate {
   analysisDate?: string;
 }
 
-export interface StoredAnalysis {
-  id?: number;
-  projectId: string;
-  updateId: string;
-  originalText: string;
-  analysis: any; // ProjectUpdateAnalysis from AnalysisService
-  createdAt: Date;
-  updatedAt: Date;
-}
+// REMOVED: StoredAnalysis interface - forbidden by architecture
 
 export interface MetaData {
   key: string;
@@ -84,7 +76,11 @@ export class DatabaseService extends Dexie {
   visibleProjects!: Table<{ id: string; projectKey: string; timestamp: Date }>;
 
   constructor() {
-    super('AtlasXrayDB');
+    // Use extension-specific database name to ensure consistency across contexts
+    const dbName = typeof chrome !== 'undefined' && chrome.runtime ? 
+      `AtlasXrayDB_${chrome.runtime.id}` : 
+      'AtlasXrayDB';
+    super(dbName);
     
     this.version(1).stores({
       // Core tables
@@ -95,9 +91,7 @@ export class DatabaseService extends Dexie {
       // Visible projects tracking
       visibleProjects: 'id, projectKey, timestamp',
       
-      // Analysis tables
-      storedAnalyses: '++id, projectId, updateId, createdAt',
-      analysisCache: 'id, timestamp'
+      // NO ANALYSIS TABLES - Keep it simple!
     });
   }
 
@@ -383,20 +377,8 @@ export class DatabaseService extends Dexie {
     }
   }
 
-  /**
-   * Get analysis by project ID and update ID
-   */
-  async getAnalysis(projectId: string, updateId: string): Promise<StoredAnalysis | undefined> {
-    try {
-      return await this.storedAnalyses
-        .where(['projectId', 'updateId'])
-        .equals([projectId, updateId])
-        .first();
-    } catch (error) {
-      console.error(`[DatabaseService] Failed to get analysis for ${projectId}/${updateId}:`, error);
-      return undefined;
-    }
-  }
+  // REMOVED: getAnalysis method - forbidden by architecture
+  // Analysis data is stored directly in ProjectUpdate records
 
   /**
    * Update a project update with quality analysis results
@@ -457,14 +439,49 @@ export class DatabaseService extends Dexie {
       ) && !window.location.href.includes('chrome-extension://') && !window.location.href.includes('moz-extension://');
 
       if (isContentScript) {
-        console.log(`[DatabaseService] ⚠️ Deferring AI analysis for update ${update.uuid} to background script (content script context)`);
-        // Mark as pending analysis - background script will handle it
-        const pendingUpdate: ProjectUpdate = {
-          ...update,
-          analyzed: false, // Keep as false so background script can process it
-          analysisDate: new Date().toISOString()
-        };
-        await this.projectUpdates.put(pendingUpdate);
+        console.log(`[DatabaseService] 🔍 Analyzing update ${update.uuid} directly in content script (AI libraries bundled)`);
+        
+        // Perform AI analysis directly in content script since libraries are bundled
+        try {
+          const analysisResult = await analyzeUpdateQuality(update.summary);
+          
+          // Update the stored update with analysis results
+          const analyzedUpdate: ProjectUpdate = {
+            ...update,
+            updateQuality: analysisResult.overallScore,
+            qualityLevel: analysisResult.qualityLevel,
+            qualitySummary: analysisResult.summary,
+            qualityMissingInfo: analysisResult.missingInfo || [],
+            qualityRecommendations: analysisResult.recommendations || [],
+            analyzed: true,
+            analysisDate: new Date().toISOString()
+          };
+          
+          // Store the updated record - SIMPLE!
+          await this.projectUpdates.put(analyzedUpdate);
+          
+          console.log(`[DatabaseService] ✅ Analysis complete for update ${update.uuid} - Quality: ${analysisResult.overallScore}%`);
+          
+        } catch (error) {
+          console.error(`[DatabaseService] ❌ AI Analysis failed for update ${update.uuid}:`, error);
+          
+          // Mark as analyzed but with error
+          const errorUpdate: ProjectUpdate = {
+            ...update,
+            updateQuality: 0,
+            qualityLevel: 'poor',
+            qualitySummary: 'AI Analysis failed',
+            analyzed: true,
+            analysisDate: new Date().toISOString()
+          };
+          
+          try {
+            await this.projectUpdates.put(errorUpdate);
+          } catch (dbError) {
+            console.error(`[DatabaseService] ❌ Failed to store error update for ${update.uuid}:`, dbError);
+          }
+        }
+        
         return;
       }
 
@@ -485,11 +502,8 @@ export class DatabaseService extends Dexie {
         analysisDate: new Date().toISOString()
       };
 
-      // Store the updated record
+      // Store the updated record - SIMPLE!
       await this.projectUpdates.put(analyzedUpdate);
-      
-      // Also store in the analysis table for detailed results
-      await this.storeAnalysis(update.projectKey, update.uuid, update.summary, analysisResult);
       
       console.log(`[DatabaseService] ✅ Analysis complete for update ${update.uuid} - Quality: ${analysisResult.overallScore}%`);
       
@@ -514,71 +528,8 @@ export class DatabaseService extends Dexie {
     }
   }
 
-  /**
-   * Store analysis results in the analysis table
-   */
-  async storeAnalysis(
-    projectId: string, 
-    updateId: string, 
-    originalText: string, 
-    analysis: any
-  ): Promise<number> {
-    try {
-      const id = await this.storedAnalyses.add({
-        projectId,
-        updateId,
-        originalText,
-        analysis,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      });
-      
-      console.log(`[DatabaseService] ✅ Stored analysis for update ${updateId}`);
-      return id;
-    } catch (error) {
-      console.error(`[DatabaseService] ❌ Failed to store analysis for update ${updateId}:`, error);
-      throw error;
-    }
-  }
-
-
-
-  /**
-   * Get all analyses for a project
-   */
-  async getProjectAnalyses(projectId: string): Promise<StoredAnalysis[]> {
-    try {
-      return await this.storedAnalyses
-        .where('projectId')
-        .equals(projectId)
-        .toArray();
-    } catch (error) {
-      console.error(`[DatabaseService] Failed to get analyses for ${projectId}:`, error);
-      return [];
-    }
-  }
-
-  /**
-   * Clear expired analysis cache
-   */
-  async clearExpiredCache(): Promise<void> {
-    try {
-      const cacheExpiryHours = 24;
-      const expiryTime = new Date(Date.now() - (cacheExpiryHours * 60 * 60 * 1000));
-      
-      const expiredEntries = await this.analysisCache
-        .where('timestamp')
-        .below(expiryTime)
-        .toArray();
-      
-      if (expiredEntries.length > 0) {
-        await this.analysisCache.bulkDelete(expiredEntries.map(entry => entry.id));
-        console.log(`[DatabaseService] 🗑️ Cleared ${expiredEntries.length} expired cache entries`);
-      }
-    } catch (error) {
-      console.error('[DatabaseService] Failed to clear expired cache:', error);
-    }
-  }
+  // REMOVED: All forbidden analysis table methods
+  // Analysis results are stored directly in ProjectUpdate records
 
   // ============================================================================
   // META DATA OPERATIONS
@@ -624,39 +575,29 @@ export class DatabaseService extends Dexie {
     projectViews: number;
     projectUpdates: number;
     analyzedUpdates: number;
-    totalAnalyses: number;
-    cacheEntries: number;
   }> {
     try {
       const [
         projectViews,
         projectUpdates,
-        analyzedUpdates,
-        totalAnalyses,
-        cacheEntries
+        analyzedUpdates
       ] = await Promise.all([
         this.countProjectViews(),
         this.countProjectUpdates(),
-        this.countAnalyzedUpdates(),
-        this.storedAnalyses.count(),
-        this.analysisCache.count()
+        this.countAnalyzedUpdates()
       ]);
 
       return {
         projectViews,
         projectUpdates,
-        analyzedUpdates,
-        totalAnalyses,
-        cacheEntries
+        analyzedUpdates
       };
     } catch (error) {
       console.error('[DatabaseService] Failed to get database stats:', error);
       return {
         projectViews: 0,
         projectUpdates: 0,
-        analyzedUpdates: 0,
-        totalAnalyses: 0,
-        cacheEntries: 0
+        analyzedUpdates: 0
       };
     }
   }
@@ -669,22 +610,16 @@ export class DatabaseService extends Dexie {
       const [
         projectViews,
         projectUpdates,
-        storedAnalyses,
-        analysisCache,
         meta
       ] = await Promise.all([
         this.getProjectViews(),
         this.getProjectUpdates(),
-        this.storedAnalyses.toArray(),
-        this.analysisCache.toArray(),
         this.meta.toArray()
       ]);
 
       return {
         projectViews,
         projectUpdates,
-        storedAnalyses,
-        analysisCache,
         meta,
         exportDate: new Date().toISOString()
       };
@@ -702,16 +637,12 @@ export class DatabaseService extends Dexie {
       await this.transaction('rw', [
         this.projectViews,
         this.projectUpdates,
-        this.storedAnalyses,
-        this.analysisCache,
         this.meta
       ], async () => {
         // Clear existing data
         await Promise.all([
           this.projectViews.clear(),
           this.projectUpdates.clear(),
-          this.storedAnalyses.clear(),
-          this.analysisCache.clear(),
           this.meta.clear()
         ]);
 
@@ -722,12 +653,7 @@ export class DatabaseService extends Dexie {
         if (data.projectUpdates) {
           await this.projectUpdates.bulkAdd(data.projectUpdates);
         }
-        if (data.storedAnalyses) {
-          await this.storedAnalyses.bulkAdd(data.storedAnalyses);
-        }
-        if (data.analysisCache) {
-          await this.analysisCache.bulkAdd(data.analysisCache);
-        }
+        // REMOVED: Forbidden analysis table imports
         if (data.meta) {
           await this.meta.bulkAdd(data.meta);
         }
@@ -748,8 +674,6 @@ export class DatabaseService extends Dexie {
       await Promise.all([
         this.projectViews.clear(),
         this.projectUpdates.clear(),
-        this.storedAnalyses.clear(),
-        this.analysisCache.clear(),
         this.meta.clear()
       ]);
       
@@ -784,11 +708,20 @@ export const analyzeAllUnanalyzedUpdates = () => databaseService.analyzeAllUnana
 // Initialize database
 export async function initializeDatabase(): Promise<void> {
   try {
-    await databaseService.open();
-    console.log('[DatabaseService] ✅ Database initialized successfully');
+    console.log('[DatabaseService] 🔧 Starting database initialization...');
     
-    // Clear expired cache on startup
-    await databaseService.clearExpiredCache();
+    // Check if we're in content script or background script
+    const isContentScript = typeof window !== 'undefined' && (
+      window.location.href.includes('http://') || 
+      window.location.href.includes('https://') 
+    ) && !window.location.href.includes('chrome-extension://') && !window.location.href.includes('moz-extension://');
+    
+    console.log(`[DatabaseService] 📍 Context: ${isContentScript ? 'Content Script' : 'Background Script'}`);
+    
+    await databaseService.open();
+    console.log('[DatabaseService] ✅ Database opened successfully');
+    
+    // NO CACHE TO CLEAR - Keep it simple!
     
     // Log database stats
     const stats = await databaseService.getDatabaseStats();
@@ -797,6 +730,7 @@ export async function initializeDatabase(): Promise<void> {
     // Analyze any unanalyzed updates in the background
     setTimeout(async () => {
       try {
+        console.log('[DatabaseService] 🔍 Starting background analysis of unanalyzed updates...');
         await databaseService.analyzeAllUnanalyzedUpdates();
       } catch (error) {
         console.error('[DatabaseService] ❌ Background analysis failed:', error);

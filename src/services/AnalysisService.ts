@@ -11,7 +11,7 @@ let isContentScript: boolean = false;
 // Check if we're in a content script context
 if (typeof window !== 'undefined') {
   // Content scripts run on web pages (http/https), background scripts run in extension context
-  // Background scripts can access AI libraries, content scripts cannot
+  // BUT: Since we bundle AI libraries, content scripts CAN now access them!
   isContentScript = (window.location.href.includes('http://') || 
     window.location.href.includes('https://')) && 
     !window.location.href.includes('chrome-extension://') && 
@@ -24,10 +24,8 @@ async function loadAILibraries(): Promise<boolean> {
   console.log('[AnalysisService] Current context:', typeof window !== 'undefined' ? window.location.href : 'no window');
   console.log('[AnalysisService] isContentScript:', isContentScript);
   
-  if (isContentScript) {
-    console.log('[AnalysisService] In content script context - AI not available');
-    return false;
-  }
+  // Since we bundle AI libraries, they're available in all contexts
+  // No need to block content scripts anymore
   
   if (pipeline) {
     console.log('[AnalysisService] AI pipeline already loaded');

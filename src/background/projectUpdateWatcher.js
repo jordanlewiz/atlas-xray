@@ -5,8 +5,26 @@
  * and automatically analyzes them using Transformers.js
  */
 
-import { analysisDB, initializeDatabase } from '../services/DatabaseService';
-import { analyzeUpdateQuality } from '../services/AnalysisService';
+// Use dynamic imports for ES6 modules in background script
+let analysisDB, initializeDatabase, analyzeUpdateQuality;
+
+// Initialize imports when script loads
+async function initializeImports() {
+  try {
+    const dbModule = await import('../services/DatabaseService');
+    const analysisModule = await import('../services/AnalysisService');
+    
+    analysisDB = dbModule.analysisDB;
+    initializeDatabase = dbModule.initializeDatabase;
+    analyzeUpdateQuality = analysisModule.analyzeUpdateQuality;
+    
+    console.log('[ProjectUpdateWatcher] ✅ Imports initialized successfully');
+    return true;
+  } catch (error) {
+    console.error('[ProjectUpdateWatcher] ❌ Failed to initialize imports:', error);
+    return false;
+  }
+}
 
 // Performance optimizations - SIMPLIFIED
 const WATCH_INTERVAL = 60000; // Check every 60 seconds
@@ -29,6 +47,13 @@ let memoryUsage = 0; // Track memory usage
 async function initializeWatcher() {
   try {
     console.log('[ProjectUpdateWatcher] Initializing...');
+    
+    // First initialize imports
+    const importsReady = await initializeImports();
+    if (!importsReady) {
+      console.error('[ProjectUpdateWatcher] Failed to initialize imports, aborting');
+      return;
+    }
     
     // Initialize database (this will trigger background analysis of unanalyzed updates)
     await initializeDatabase();
@@ -180,10 +205,17 @@ async function processUpdateWithRateLimit(update) {
  */
 async function getNewUpdatesFromDexie() {
   try {
+    // Debug: Check total updates first
+    const totalUpdates = await analysisDB.countProjectUpdates();
+    const analyzedUpdates = await analysisDB.countAnalyzedUpdates();
+    
+    console.log(`[ProjectUpdateWatcher] Database status: ${totalUpdates} total updates, ${analyzedUpdates} analyzed`);
+    
     // Get unanalyzed updates from the database
     const unanalyzedUpdates = await analysisDB.getUnanalyzedUpdates();
     
     if (unanalyzedUpdates.length === 0) {
+      console.log(`[ProjectUpdateWatcher] No unanalyzed updates found. Total: ${totalUpdates}, Analyzed: ${analyzedUpdates}`);
       return [];
     }
     
@@ -258,106 +290,11 @@ async function analyzeAndStoreUpdate(update) {
   }
 }
 
-/**
- * Generate a hash for text to use as cache key
- */
-function generateTextHash(text) {
-  // Simple hash function - you might want to use a more robust one
-  let hash = 0;
-  if (text.length === 0) return hash.toString();
-  
-  for (let i = 0; i < text.length; i++) {
-    const char = text.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  
-  return hash.toString();
-}
+// REMOVED: Unused functions - Keep it simple!
 
-/**
- * Show notification when analysis is complete
- */
-async function showAnalysisCompleteNotification(projectId, updateId, analysis) {
-  try {
-    const notificationId = `analysis-complete-${Date.now()}`;
-    
-    await chrome.notifications.create(notificationId, {
-      type: 'basic',
-      iconUrl: chrome.runtime.getURL('icons/icon-48.png'),
-      title: 'Project Update Analyzed',
-      message: `Analysis complete for project ${projectId}. Sentiment: ${analysis.sentiment.label}`,
-      priority: 1
-    });
+// REMOVED: Unused alarm handler
 
-    // Auto-clear notification after 10 seconds
-    chrome.alarms.create(`clear-${notificationId}`, { when: Date.now() + 10000 });
-    
-  } catch (error) {
-    console.warn('[ProjectUpdateWatcher] Failed to show notification:', error);
-  }
-}
-
-/**
- * Handle manual analysis request from popup or content script
- */
-async function handleManualAnalysisRequest(request, sender, sendResponse) {
-  try {
-    const { projectId, updateId, text } = request;
-    
-    console.log(`[ProjectUpdateWatcher] Manual analysis requested for update ${updateId}`);
-    
-    // Check if analysis already exists
-    const existingAnalysis = await analysisDB.getAnalysis(projectId, updateId);
-    if (existingAnalysis) {
-      sendResponse({ 
-        success: true, 
-        analysis: existingAnalysis.analysis,
-        message: 'Analysis already exists'
-      });
-      return;
-    }
-
-    // Perform analysis
-    const analysis = await analyzeProjectUpdate(text);
-    
-    // Store results
-    await analysisDB.storeAnalysis(projectId, updateId, text, analysis);
-    
-    sendResponse({ 
-      success: true, 
-      analysis,
-      message: 'Analysis completed successfully'
-    });
-    
-  } catch (error) {
-    console.error('[ProjectUpdateWatcher] Manual analysis failed:', error);
-    sendResponse({ 
-      success: false, 
-      error: error.message 
-    });
-  }
-}
-
-/**
- * Handle alarm events for notification clearing
- */
-function handleAlarm(alarm) {
-  if (alarm.name.startsWith('clear-')) {
-    const notificationId = alarm.name.replace('clear-', '');
-    chrome.notifications.clear(notificationId);
-  }
-}
-
-// Event listeners
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'ANALYZE_UPDATE') {
-    handleManualAnalysisRequest(request, sender, sendResponse);
-    return true; // Keep message channel open for async response
-  }
-});
-
-chrome.alarms.onAlarm.addListener(handleAlarm);
+// NO MESSAGE LISTENERS - Keep it simple!
 
 // Initialize when service worker starts
 initializeWatcher();
@@ -366,5 +303,8 @@ initializeWatcher();
 self.addEventListener('beforeunload', () => {
   stopWatching();
 });
+
+// Export functions for use by background script
+self.analyzeAndStoreUpdate = analyzeAndStoreUpdate;
 
 console.log('[ProjectUpdateWatcher] Service worker loaded');
