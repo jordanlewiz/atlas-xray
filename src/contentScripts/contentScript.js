@@ -125,23 +125,23 @@ setTimeout(async () => {
   }
 }, 1000);
 
-// Initialize project discovery service on page load
-console.log('[AtlasXray] 🚀 Initializing project discovery service...');
+// Initialize simple project fetching on page load
+console.log('[AtlasXray] 🚀 Initializing simple project fetcher...');
 
-// Start project discovery after a short delay to ensure page is loaded
+// Start simple project fetching after a short delay to ensure page is loaded
 setTimeout(async () => {
   try {
-    console.log('[AtlasXray] 📥 Starting project discovery on page load...');
+    console.log('[AtlasXray] 📥 Starting simple project fetch on page load...');
     
-    // Import and run the project discovery service (only runs once per page load)
-    const { projectDiscoveryService } = await import('../services/ProjectDiscoveryService.js');
-    console.log('[AtlasXray] ✅ Project discovery service imported');
+    // Import and run the simple project list fetcher (only runs once per page load)
+    const { simpleProjectListFetcher } = await import('../services/simpleProjectListFetcher.js');
+    console.log('[AtlasXray] ✅ Simple project list fetcher imported');
     
     // Fetch projects on page load (no periodic fetching)
-    await projectDiscoveryService.discoverProjectsOnPage();
+    await simpleProjectListFetcher.fetchProjectsOnPageLoad();
     
   } catch (error) {
-    console.error('[AtlasXray] ❌ Failed to start project discovery service:', error);
+    console.error('[AtlasXray] ❌ Failed to start simple project fetcher:', error);
   }
 }, 2000); // Wait 2 seconds for page to fully load
 
@@ -163,14 +163,14 @@ if (typeof window !== 'undefined') {
         console.error('[AtlasXray] ❌ Bootstrap test failed:', error);
       }
       
-      // Test project discovery service
+      // Test simple project fetching
       try {
-        const { projectDiscoveryService } = await import('../services/ProjectDiscoveryService.js');
-        console.log('[AtlasXray] 🧪 Testing project discovery service...');
-        const projects = await projectDiscoveryService.discoverProjectsOnPage();
-        console.log('[AtlasXray] ✅ Project discovery test result:', projects);
+        const { simpleProjectListFetcher } = await import('../services/simpleProjectListFetcher.js');
+        console.log('[AtlasXray] 🧪 Testing simple project list fetch...');
+        const projects = await simpleProjectListFetcher.fetchProjectsOnPageLoad();
+        console.log('[AtlasXray] ✅ Simple fetch test result:', projects);
       } catch (error) {
-        console.error('[AtlasXray] ❌ Project discovery test failed:', error);
+        console.error('[AtlasXray] ❌ Simple fetch test failed:', error);
       }
       
       // Test modal data fetching
