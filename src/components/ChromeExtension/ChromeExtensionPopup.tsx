@@ -24,7 +24,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { VersionChecker } from "../../utils/versionChecker";
+import { getLatestVersionInfo } from '../../services/VersionService';
 import "./ChromeExtensionPopup.scss";
 
 // Chrome extension types
@@ -68,7 +68,7 @@ const Popup: React.FC = () => {
   const checkForUpdates = async (): Promise<void> => {
     try {
       setIsCheckingVersion(true);
-      const result = await VersionChecker.getLatestVersionInfo();
+      const result = await getLatestVersionInfo();
       setVersionInfo(result);
     } catch (error) {
       console.warn('[AtlasXray] Version check failed:', error);

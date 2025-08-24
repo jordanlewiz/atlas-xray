@@ -1,3 +1,12 @@
+/**
+ * Version Service - Handles extension version checking and update notifications
+ * Restored from original working VersionChecker implementation
+ * Follows architecture principles: singleton pattern, clear responsibilities
+ */
+
+// Chrome extension types
+declare const chrome: any;
+
 interface GitHubRelease {
   tag_name: string;
   html_url: string;
@@ -5,21 +14,44 @@ interface GitHubRelease {
   published_at: string;
 }
 
-export class VersionChecker {
-  private static readonly GITHUB_API_URL = 'https://api.github.com/repos/jordanlewiz/atlas-xray/releases/latest';
-  private static readonly CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
-  private static readonly STORAGE_KEY = 'lastVersionCheck';
+export interface VersionInfo {
+  hasUpdate: boolean;
+  latestVersion?: string;
+  releaseUrl?: string;
+}
+
+/**
+ * Version Service for checking extension updates
+ * Implements singleton pattern as per architecture principles
+ * Maintains exact same functionality as original VersionChecker
+ */
+export class VersionService {
+  private static instance: VersionService;
+  private readonly GITHUB_API_URL = 'https://api.github.com/repos/jordanlewiz/atlas-xray/releases/latest';
+  private readonly CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
+  private readonly STORAGE_KEY = 'lastVersionCheck';
   
   // Static map to store notification ID to release URL mapping
-  private static readonly notificationReleaseUrls = new Map<string, string>();
+  private readonly notificationReleaseUrls = new Map<string, string>();
   
   // Static flag to ensure listener is registered only once
-  private static isListenerRegistered = false;
+  private isListenerRegistered = false;
   
+  private constructor() {
+    // Private constructor for singleton pattern
+  }
+
+  public static getInstance(): VersionService {
+    if (!VersionService.instance) {
+      VersionService.instance = new VersionService();
+    }
+    return VersionService.instance;
+  }
+
   /**
    * Check if current version is a local development build
    */
-  static isLocalDevVersion(): boolean {
+  isLocalDevVersion(): boolean {
     const currentVersion = chrome.runtime.getManifest().version;
     
     // Local dev versions typically have patterns like:
@@ -33,7 +65,7 @@ export class VersionChecker {
   /**
    * Get version type description
    */
-  static getVersionType(): string {
+  getVersionType(): string {
     if (this.isLocalDevVersion()) {
       return 'Local Development Build';
     }
@@ -43,7 +75,7 @@ export class VersionChecker {
   /**
    * Get latest version information (no rate limiting)
    */
-  static async getLatestVersionInfo(): Promise<{ hasUpdate: boolean; latestVersion?: string; releaseUrl?: string }> {
+  async getLatestVersionInfo(): Promise<VersionInfo> {
     try {
       // Fetch latest release from GitHub
       const response = await fetch(this.GITHUB_API_URL);
@@ -77,7 +109,7 @@ export class VersionChecker {
   /**
    * Check if a new version is available (with rate limiting)
    */
-  static async checkForUpdates(): Promise<{ hasUpdate: boolean; latestVersion?: string; releaseUrl?: string }> {
+  async checkForUpdates(): Promise<VersionInfo> {
     try {
       // Check if we should perform the check (avoid checking too frequently)
       const lastCheck = await this.getLastCheckTime();
@@ -123,7 +155,7 @@ export class VersionChecker {
   /**
    * Compare two semantic versions
    */
-  public static isNewerVersion(latest: string, current: string): boolean {
+  private isNewerVersion(latest: string, current: string): boolean {
     const l = latest.split('.').map(part => parseInt(part, 10) || 0);
     const c = current.split('.').map(part => parseInt(part, 10) || 0);
     
@@ -141,7 +173,7 @@ export class VersionChecker {
   /**
    * Get the last time we checked for updates
    */
-  private static async getLastCheckTime(): Promise<number> {
+  private async getLastCheckTime(): Promise<number> {
     try {
       const result = await chrome.storage.local.get(this.STORAGE_KEY);
       return result[this.STORAGE_KEY] || 0;
@@ -153,7 +185,7 @@ export class VersionChecker {
   /**
    * Set the last check time
    */
-  private static async setLastCheckTime(timestamp: number): Promise<void> {
+  private async setLastCheckTime(timestamp: number): Promise<void> {
     try {
       await chrome.storage.local.set({ [this.STORAGE_KEY]: timestamp });
     } catch (error) {
@@ -164,10 +196,10 @@ export class VersionChecker {
   /**
    * Register notification click listener (called only once)
    */
-  private static registerNotificationListener(): void {
+  private registerNotificationListener(): void {
     if (this.isListenerRegistered) return;
     
-    chrome.notifications.onClicked.addListener((id) => {
+    chrome.notifications.onClicked.addListener((id: string) => {
       const releaseUrl = this.notificationReleaseUrls.get(id);
       if (releaseUrl) {
         chrome.tabs.create({ url: releaseUrl });
@@ -182,14 +214,14 @@ export class VersionChecker {
   /**
    * Clean up notification mapping (called when notification is cleared)
    */
-  static cleanupNotification(notificationId: string): void {
+  cleanupNotification(notificationId: string): void {
     this.notificationReleaseUrls.delete(notificationId);
   }
 
   /**
    * Show update notification to user
    */
-  static async showUpdateNotification(latestVersion: string, releaseUrl: string): Promise<void> {
+  async showUpdateNotification(latestVersion: string, releaseUrl: string): Promise<void> {
     try {
       // Ensure listener is registered
       this.registerNotificationListener();
@@ -220,3 +252,14 @@ export class VersionChecker {
     }
   }
 }
+
+// Export singleton instance
+export const versionService = VersionService.getInstance();
+
+// Export individual functions for backward compatibility
+export const checkForUpdates = () => versionService.checkForUpdates();
+export const getLatestVersionInfo = () => versionService.getLatestVersionInfo();
+export const showUpdateNotification = (version: string, releaseUrl: string) => 
+  versionService.showUpdateNotification(version, releaseUrl);
+export const cleanupNotification = (notificationId: string) => 
+  versionService.cleanupNotification(notificationId);

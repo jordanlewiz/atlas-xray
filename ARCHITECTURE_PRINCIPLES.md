@@ -383,6 +383,91 @@ class ProjectService {
 - **If AI analysis breaks, fix the AI, don't work around it**
 - **Quality over quantity** - better no analysis than bad analysis
 
+### **5.4 ProseMirror Rendering Rules** 🔥 **CRITICAL**
+
+#### **5.4.1 ProseMirror Rendering is Mandatory**
+- **NEVER remove ProseMirror rendering** - it's critical for displaying Atlassian content
+- **ProseMirror content must be rendered as HTML** - Atlassian APIs return JSON that needs conversion
+- **Support all Atlassian node types** - paragraphs, lists, headings, media, status, dates, etc.
+- **Handle media content properly** - images, files, and inline cards must render correctly
+- **Maintain styling consistency** - use Atlassian design system colors and spacing
+
+#### **5.4.2 ProseMirror Service Requirements**
+```typescript
+// ✅ CORRECT: ProseMirror service with full Atlassian support
+class ProseMirrorService {
+  // Must support all Atlassian content types
+  renderProseMirror(content: string | any): string
+  
+  // Must handle media nodes for proper display
+  private renderMediaNode(node: ProseMirrorNode): string
+  
+  // Must support status and date nodes
+  private renderStatusNode(node: ProseMirrorNode): string
+  private renderDateNode(node: ProseMirrorNode): string
+}
+
+// ❌ WRONG: Simple text extraction
+const simpleRenderer = (content: string) => content; // Loses formatting and media
+```
+
+#### **5.4.3 Content Rendering Patterns**
+```typescript
+// ✅ CORRECT: Full ProseMirror rendering
+<div dangerouslySetInnerHTML={{ 
+  __html: renderProseMirror(update.summary) 
+}} />
+
+// ❌ WRONG: Direct text display
+<div>{update.summary}</div> // Shows raw JSON, not formatted content
+```
+
+### **5.5 Version Checking Rules** 🔥 **CRITICAL**
+
+#### **5.5.1 Version Checking is Mandatory**
+- **NEVER remove version checking** - it's critical for extension updates and user experience
+- **Version checking must use GitHub API** - compare current version with latest release
+- **Rate limiting must be implemented** - avoid hitting GitHub API limits
+- **Notifications must work properly** - users need to know about updates
+- **Local dev builds must be detected** - skip checks for development versions
+
+#### **5.5.2 Version Service Requirements**
+```typescript
+// ✅ CORRECT: Full version checking service
+class VersionService {
+  // Must check GitHub releases
+  async checkForUpdates(): Promise<VersionInfo>
+  
+  // Must implement rate limiting
+  private async getLastCheckTime(): Promise<number>
+  private async setLastCheckTime(timestamp: number): Promise<void>
+  
+  // Must show proper notifications
+  async showUpdateNotification(version: string, releaseUrl: string): Promise<void>
+  
+  // Must handle local dev builds
+  isLocalDevVersion(): boolean
+}
+
+// ❌ WRONG: Simplified version checking
+const simpleVersionCheck = () => ({ hasUpdate: false }); // No actual checking
+```
+
+#### **5.5.3 Version Checking Patterns**
+```typescript
+// ✅ CORRECT: Full version checking workflow
+const updateInfo = await versionService.checkForUpdates();
+if (updateInfo.hasUpdate) {
+  await versionService.showUpdateNotification(
+    updateInfo.latestVersion!, 
+    updateInfo.releaseUrl!
+  );
+}
+
+// ❌ WRONG: No version checking
+// Missing version checking - users won't know about updates
+```
+
 #### **5.3.2 Analysis Strategy Priority**
 ```typescript
 // ✅ CORRECT: AI-only strategy

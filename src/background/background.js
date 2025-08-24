@@ -15,8 +15,40 @@
 console.log('[AtlasXray] Background service worker is running');
 
 // Import version checker (will be bundled by esbuild)
-import { VersionChecker } from '../utils/versionChecker';
-import { memoryManager } from '../utils/memoryManager';
+import { checkForUpdates, showUpdateNotification, cleanupNotification } from '../services/VersionService';
+// Simple memory management (replacing removed memoryManager)
+const memoryManager = {
+  getCurrentMemoryStats: () => {
+    if (performance.memory) {
+      return {
+        usedJSHeapSize: performance.memory.usedJSHeapSize,
+        totalJSHeapSize: performance.memory.totalJSHeapSize,
+        jsHeapSizeLimit: performance.memory.jsHeapSizeLimit
+      };
+    }
+    return { usedJSHeapSize: 0, totalJSHeapSize: 0, jsHeapSizeLimit: 0 };
+  },
+  getMemorySummary: () => {
+    if (performance.memory) {
+      const used = (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
+      const total = (performance.memory.totalJSHeapSize / 1024 / 1024).toFixed(2);
+      const limit = (performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2);
+      return `Memory: ${used}MB used / ${total}MB total / ${limit}MB limit`;
+    }
+    return 'Memory stats not available';
+  },
+  performCleanup: (options) => {
+    console.log('[AtlasXray] Memory cleanup requested:', options);
+    // Simple cleanup - clear any caches and force GC if available
+    if (options.forceGC && global.gc) {
+      global.gc();
+      console.log('[AtlasXray] Forced garbage collection');
+    }
+    // Clear analysis queue
+    analysisQueue.length = 0;
+    console.log('[AtlasXray] Analysis queue cleared');
+  }
+};
 
 // Import project update watcher for AI analysis
 console.log('[AtlasXray] Importing ProjectUpdateWatcher...');
@@ -486,9 +518,7 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
     chrome.notifications.clear(notificationId);
     
     // Clean up the notification mapping
-    if (typeof VersionChecker !== 'undefined') {
-      VersionChecker.cleanupNotification(notificationId);
-    }
+    cleanupNotification(notificationId);
     
     console.log('[AtlasXray] Cleared notification:', notificationId);
   }
@@ -504,37 +534,8 @@ chrome.alarms.get('version-check', (alarm) => {
   }
 });
 
-/**
- * Check for updates and notify user if new version is available
- */
-async function checkForUpdates() {
-  try {
-    // Skip update checks for local development builds
-    const currentVersion = chrome.runtime.getManifest().version;
-    const isLocalDev = currentVersion === '0.0.0';
-    
-    if (isLocalDev) {
-      console.log('[AtlasXray] Local dev build detected, skipping update checks');
-      return;
-    }
-    
-    const updateInfo = await VersionChecker.checkForUpdates();
-    
-    if (updateInfo.hasUpdate) {
-      console.log('[AtlasXray] New version available:', updateInfo.latestVersion);
-      
-      // Show notification to user
-      await VersionChecker.showUpdateNotification(
-        updateInfo.latestVersion,
-        updateInfo.releaseUrl
-      );
-    } else {
-      console.log('[AtlasXray] No updates available');
-    }
-  } catch (error) {
-    console.error('[AtlasXray] Version check failed:', error);
-  }
-}
+// Version checking is now handled by VersionService
+// The imported checkForUpdates function handles all version checking logic
 
 // Handle extension icon click (optional)
 chrome.action.onClicked.addListener((tab) => {

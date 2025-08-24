@@ -11,7 +11,7 @@ import Lozenge from "@atlaskit/lozenge";
 import { Grid, Box } from "@atlaskit/primitives";
 import { getDueDateDiff } from "../../utils/timelineUtils";
 import type { ProjectUpdateModalProps } from "../../types";
-import { renderProseMirror } from "../../utils/proseMirrorRenderer";
+import { renderProseMirror } from '../../services/ProseMirrorService';
 import { ImageRenderer } from "../ImageRenderer";
 import QualityIndicator from "../QualityIndicator/QualityIndicator";
 // Quality analysis data is now stored directly in update objects by ProjectPipeline

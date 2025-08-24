@@ -23,7 +23,7 @@ jest.mock('../../utils/versionChecker', () => ({
   }
 }));
 
-import { VersionChecker } from '../../utils/versionChecker';
+// VersionChecker is now inline in the component
 
 describe('Popup', () => {
   beforeEach(() => {
