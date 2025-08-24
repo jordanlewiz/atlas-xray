@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI CDN Test - AtlasXray</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .loading { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 20px; margin: 5px; font-size: 16px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🤖 AI CDN Model Loading Test</h1>
+    <p>This page tests if @xenova/transformers can load AI models from HuggingFace CDN in content script context.</p>
+    
+    <div class="test-section">
+        <h3>Test 1: Basic Library Import</h3>
+        <button onclick="testBasicImport()">Test Basic Import</button>
+        <div id="basic-import-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 2: Model Loading from CDN</h3>
+        <button onclick="testModelLoading()">Test Model Loading</button>
+        <div id="model-loading-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Test 3: Simple Sentiment Analysis</h3>
+        <button onclick="testSentimentAnalysis()">Test Sentiment Analysis</button>
+        <div id="sentiment-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h3>Console Logs</h3>
+        <div id="console-logs"></div>
+    </div>
+
+    <script>
+        // Capture console logs for display
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        function addLog(type, message, ...args) {
+            const logsDiv = document.getElementById('console-logs');
+            const logEntry = document.createElement('div');
+            logEntry.style.margin = '5px 0';
+            logEntry.style.padding = '5px';
+            logEntry.style.borderRadius = '3px';
+            
+            if (type === 'error') {
+                logEntry.style.backgroundColor = '#f8d7da';
+                logEntry.style.color = '#721c24';
+            } else if (type === 'warn') {
+                logEntry.style.backgroundColor = '#fff3cd';
+                logEntry.style.color = '#856404';
+            } else {
+                logEntry.style.backgroundColor = '#d4edda';
+                logEntry.style.color = '#155724';
+            }
+            
+            logEntry.textContent = `[${type.toUpperCase()}] ${message} ${args.map(arg => 
+                typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+            ).join(' ')}`;
+            
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+        }
+        
+        console.log = (...args) => {
+            originalLog(...args);
+            addLog('log', ...args);
+        };
+        
+        console.error = (...args) => {
+            originalError(...args);
+            addLog('error', ...args);
+        };
+        
+        console.warn = (...args) => {
+            originalWarn(...args);
+            addLog('warn', ...args);
+        };
+
+        // Test 1: Basic Library Import
+        async function testBasicImport() {
+            const resultDiv = document.getElementById('basic-import-result');
+            resultDiv.innerHTML = '<div class="loading">Testing basic import...</div>';
+            
+            try {
+                console.log('🧪 Testing basic @xenova/transformers import...');
+                
+                // Test if we can import the library
+                const transformers = await import('@xenova/transformers');
+                console.log('✅ Basic import successful:', Object.keys(transformers));
+                
+                resultDiv.innerHTML = '<div class="success">✅ Basic import successful! Library keys: ' + Object.keys(transformers).join(', ') + '</div>';
+                
+            } catch (error) {
+                console.error('❌ Basic import failed:', error);
+                resultDiv.innerHTML = '<div class="error">❌ Basic import failed: ' + error.message + '</div>';
+            }
+        }
+
+        // Test 2: Model Loading from CDN
+        async function testModelLoading() {
+            const resultDiv = document.getElementById('model-loading-result');
+            resultDiv.innerHTML = '<div class="loading">Testing model loading from CDN...</div>';
+            
+            try {
+                console.log('🧪 Testing model loading from HuggingFace CDN...');
+                
+                // Import the library
+                const { pipeline } = await import('@xenova/transformers');
+                console.log('✅ Pipeline imported successfully');
+                
+                // Try to load a small sentiment model
+                console.log('🔄 Loading sentiment model...');
+                const sentimentPipeline = await pipeline('sentiment-analysis', 'Xenova/distilbert-base-uncased-finetuned-sst-2-english');
+                
+                console.log('✅ Sentiment model loaded successfully:', sentimentPipeline);
+                resultDiv.innerHTML = '<div class="success">✅ Model loading successful! Pipeline: ' + (sentimentPipeline ? 'Loaded' : 'Failed') + '</div>';
+                
+            } catch (error) {
+                console.error('❌ Model loading failed:', error);
+                resultDiv.innerHTML = '<div class="error">❌ Model loading failed: ' + error.message + '</div>';
+            }
+        }
+
+        // Test 3: Simple Sentiment Analysis
+        async function testSentimentAnalysis() {
+            const resultDiv = document.getElementById('sentiment-result');
+            resultDiv.innerHTML = '<div class="loading">Testing sentiment analysis...</div>';
+            
+            try {
+                console.log('🧪 Testing sentiment analysis with loaded model...');
+                
+                // Import and load model
+                const { pipeline } = await import('@xenova/transformers');
+                const sentimentPipeline = await pipeline('sentiment-analysis', 'Xenova/distilbert-base-uncased-finetuned-sst-2-english');
+                
+                // Test with simple text
+                const testText = "This is a great project update!";
+                console.log('🔄 Analyzing text:', testText);
+                
+                const result = await sentimentPipeline(testText);
+                console.log('✅ Sentiment analysis result:', result);
+                
+                resultDiv.innerHTML = '<div class="success">✅ Sentiment analysis successful! Result: ' + JSON.stringify(result, null, 2) + '</div>';
+                
+            } catch (error) {
+                console.error('❌ Sentiment analysis failed:', error);
+                resultDiv.innerHTML = '<div class="error">❌ Sentiment analysis failed: ' + error.message + '</div>';
+            }
+        }
+
+        // Auto-run basic test on page load
+        window.addEventListener('load', () => {
+            console.log('🚀 AI CDN Test Page Loaded');
+            console.log('📍 Current context:', window.location.href);
+            console.log('🔧 User Agent:', navigator.userAgent);
+        });
+    </script>
+</body>
+</html>
