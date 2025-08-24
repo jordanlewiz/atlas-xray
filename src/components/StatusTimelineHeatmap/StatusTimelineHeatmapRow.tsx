@@ -78,10 +78,10 @@ function StatusTimelineHeatmapRow({
               {/* Show update indicator for any cell with updates FIRST */}
               <Tooltip content="Click to view update details" position="top">
                 {showEmojis && u.uuid ? (
-                  // Show quality indicator when toggle is on and quality data is available
+                  // Show quality indicator when toggle is on
                   (() => {
-                    // Get quality data directly from the update object (populated by ProjectPipeline)
-                    if (u.updateQuality && u.qualityLevel) {
+                    // Check if analysis is complete
+                    if (u.updateQuality !== undefined && u.qualityLevel) {
                       return (
                         <QualityIndicator
                           score={u.updateQuality}
@@ -91,12 +91,16 @@ function StatusTimelineHeatmapRow({
                         />
                       );
                     }
-                    // Show white bullet when toggle is on but no quality data available
+                    // Show pending analysis indicator when toggle is on but analysis not complete
                     return (
                       <span 
-                        className="update-indicator" 
-                        data-testid="update-indicator"
-                        title="Project update"
+                        className="update-indicator pending-analysis" 
+                        data-testid="update-indicator-pending"
+                        title="Analysis in progress..."
+                        style={{
+                          backgroundColor: '#ffab00',
+                          animation: 'pulse 2s infinite'
+                        }}
                       />
                     );
                   })()

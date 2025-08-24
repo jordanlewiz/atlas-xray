@@ -13,6 +13,8 @@ export function useTimeline(weekLimit: number = 12) {
   const projects = useLiveQuery(() => db.projectViews.toArray(), []) as ProjectView[] | undefined;
   const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []) as ProjectUpdate[] | undefined;
 
+
+
   // Transform data into clean view models
   return useMemo(() => {
     if (!projects || !allUpdates) {

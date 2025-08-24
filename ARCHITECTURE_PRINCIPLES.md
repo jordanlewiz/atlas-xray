@@ -33,12 +33,18 @@
 - **Debounced updates** for frequent operations (URL changes, typing)
 - **Efficient queries** with proper indexes and minimal data transfer
 
-## 🗄️ **DATABASE ARCHITECTURE**
+## 🗄️ **DATABASE ARCHITECTURE** - **KEEP IT SIMPLE**
 
-### **2.1 Database Schema**
+### **2.0 CORE RULE: ONE TABLE PER ENTITY**
+- **NO DUPLICATE DATA STORAGE** - Analysis results go DIRECTLY in ProjectUpdate
+- **NO SEPARATE ANALYSIS TABLES** - analysisCache and storedAnalyses are FORBIDDEN
+- **NO COMPLEX JOINS** - Keep queries simple and fast
+- **NO CACHING LAYERS** - Database IS the cache
+
+### **2.1 Database Schema - SIMPLIFIED**
 
 ```typescript
-// Core tables - these are immutable and cannot be changed without migration
+// ONLY THESE TABLES - NO MORE, NO LESS
 interface ProjectView {
   projectKey: string;        // Primary key - project identifier
   name?: string;             // Project name
@@ -63,13 +69,14 @@ interface ProjectUpdate {
   summary?: string;          // Update summary text
   details?: string;          // Additional details (JSON string)
   
-  // Analysis results - stored directly in update record
-  updateQuality?: number;    // Quality score 0-100
-  qualityLevel?: 'excellent' | 'good' | 'fair' | 'poor';
-  qualitySummary?: string;   // Human-readable quality summary
-  qualityMissingInfo?: string[]; // Missing information points
-  qualityRecommendations?: string[]; // Improvement recommendations
-  analysisDate?: string;     // When analysis was performed
+  // AI Analysis results - ALL STORED HERE, NO SEPARATE TABLES
+  updateQuality?: number;    // Quality score 0-100 FROM LOCAL AI MODEL ONLY
+  qualityLevel?: 'excellent' | 'good' | 'fair' | 'poor'; // FROM AI ONLY
+  qualitySummary?: string;   // AI-generated quality summary
+  qualityMissingInfo?: string[]; // What AI detected as missing
+  qualityRecommendations?: string[]; // AI recommendations for improvement
+  analyzed?: boolean;        // Whether AI analysis is complete
+  analysisDate?: string;     // When AI analysis was performed
 }
 
 interface MetaData {
@@ -77,9 +84,20 @@ interface MetaData {
   value: string;             // Metadata value (JSON string for complex data)
   lastUpdated: string;       // ISO date string
 }
+// 🚫 FORBIDDEN TABLES - THESE VIOLATE SIMPLICITY RULES
+// ❌ analysisCache - NO CACHING TABLES, DATABASE IS THE CACHE
+// ❌ storedAnalyses - NO SEPARATE ANALYSIS TABLES, USE ProjectUpdate FIELDS
+// ❌ qualityScores - NO DUPLICATE DATA STORAGE
+// ❌ sentimentAnalysis - NO COMPLEX ANALYSIS TABLES
 ```
 
-### **2.2 Database Rules**
+### **2.2 Database Rules - KEEP IT SIMPLE**
+
+#### **2.2.0 FORBIDDEN PATTERNS**
+- **NO SEPARATE ANALYSIS TABLES** - All analysis data goes in ProjectUpdate
+- **NO CACHING TABLES** - Database is the cache, no analysisCache table
+- **NO DUPLICATE STORAGE** - One piece of data, one location
+- **NO COMPLEX JOINS** - Simple queries only
 
 #### **2.2.1 Table Design**
 - **No nested objects** - flatten data structures for efficient querying
@@ -421,6 +439,113 @@ async isAIAvailable(): Promise<boolean> {
 if (pipeline && !isContentScript) {
   // This bypasses proper AI loading and can fail
 }
+```
+
+#### **5.3.5 SIMPLIFIED AI ANALYSIS FLOW** 🔥 **MANDATORY**
+```typescript
+// ✅ CORRECT: Simple AI analysis storage
+async analyzeUpdate(updateText: string, updateUuid: string): Promise<void> {
+  // 1. Run AI analysis
+  const qualityResult = await analyzeUpdateQuality(updateText);
+  
+  // 2. Store DIRECTLY in ProjectUpdate table - NO SEPARATE TABLES
+  await db.projectUpdates.update(updateUuid, {
+    updateQuality: qualityResult.overallScore,
+    qualityLevel: qualityResult.qualityLevel,
+    qualitySummary: qualityResult.summary,
+    qualityMissingInfo: qualityResult.missingInfo,
+    qualityRecommendations: qualityResult.recommendations,
+    analyzed: true,
+    analysisDate: new Date().toISOString()
+  });
+}
+
+// ❌ FORBIDDEN: Separate analysis tables
+await storedAnalyses.add(analysis);     // NEVER DO THIS
+await analysisCache.put(cached);        // NEVER DO THIS
+await qualityScores.insert(scores);     // NEVER DO THIS
+```
+
+#### **5.3.6 FORBIDDEN ANALYSIS PATTERNS** ❌
+- **NO separate analysis tables**: analysisCache, storedAnalyses, qualityScores
+- **NO rule-based analysis**: All rule-based methods are forbidden
+- **NO complex caching**: Database IS the cache
+- **NO fallback strategies**: AI or nothing
+
+#### **5.3.7 EXTENSION CONTEXT SEPARATION** 🔥 **CRITICAL**
+```typescript
+// ✅ CORRECT: Content Script (web pages)
+// - Runs on: https://home.atlassian.com, https://github.com, etc.
+// - CANNOT: Load @xenova/transformers (dynamic import blocked)
+// - CAN: Store ProjectUpdate records, read database
+// - MUST: Defer AI analysis to background script
+
+// ✅ CORRECT: Background Script (extension context)
+// - Runs on: chrome-extension://[id] (extension service worker)
+// - CAN: Load @xenova/transformers, run AI models
+// - CAN: Access IndexedDB, process deferred analysis
+// - MUST: Handle all AI analysis requests
+
+// ❌ WRONG: Attempting AI in content script
+if (isContentScript) {
+  // NEVER try to load AI libraries here
+  // NEVER try to run analysis here
+  // ALWAYS defer to background script
+}
+```
+
+#### **5.3.8 CONTENT SCRIPT DETECTION RULES**
+```typescript
+// ✅ CORRECT: Simple content script detection
+const isContentScript = typeof window !== 'undefined' && (
+  (window.location.href.includes('http://') || 
+   window.location.href.includes('https://')) && 
+  !window.location.href.includes('chrome-extension://') && 
+  !window.location.href.includes('moz-extension://')
+);
+
+// ❌ WRONG: Complex detection that can fail
+const isContentScript = window.location.href.includes('chrome-extension://') || 
+  window.location.href.includes('moz-extension://') ||
+  window.location.href.includes('chrome://') ||
+  window.location.href.includes('about:');
+```
+
+#### **5.3.9 CROSS-CONTEXT DATA FLOW** 🔄
+```typescript
+// 1. CONTENT SCRIPT: Store update with analyzed: false
+await db.storeProjectUpdate({
+  uuid: 'update-123',
+  projectKey: 'PROJ-123',
+  summary: 'Update text here...',
+  analyzed: false  // ← Mark for background processing
+});
+
+// 2. BACKGROUND SCRIPT: Find and process unanalyzed updates
+const unanalyzed = await db.getUnanalyzedUpdates();
+for (const update of unanalyzed) {
+  const qualityResult = await analyzeUpdateQuality(update.summary);
+  await db.updateProjectUpdateQuality(update.uuid, qualityResult);
+}
+
+// 3. UI: Read quality data from ProjectUpdate table
+const updates = useLiveQuery(() => 
+  db.projectUpdates.where('analyzed').equals(true).toArray()
+);
+// UI automatically updates when background script completes analysis
+```
+
+#### **5.3.10 BACKGROUND SCRIPT INITIALIZATION** 🚀
+```typescript
+// ✅ CORRECT: Background script startup
+// src/background/background.js
+import './projectUpdateWatcher.js';  // Import watcher for AI analysis
+
+// src/background/projectUpdateWatcher.js
+initializeWatcher();  // Start watching for unanalyzed updates
+
+// ❌ WRONG: Forgetting to import watcher
+// This will cause AI analysis to never run
 ```
 
 ## 🧩 **COMPONENT PATTERNS**

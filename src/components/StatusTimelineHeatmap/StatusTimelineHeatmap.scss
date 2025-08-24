@@ -16,6 +16,26 @@
     &:hover {
       opacity: 1;
     }
+    
+    &.pending-analysis {
+      background-color: #ffab00;
+      opacity: 1;
+    }
+  }
+
+  @keyframes pulse {
+    0% {
+      opacity: 0.5;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+    100% {
+      opacity: 0.5;
+      transform: scale(1);
+    }
   }
 
 .timeline-row {

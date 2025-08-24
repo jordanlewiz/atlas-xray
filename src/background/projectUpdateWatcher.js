@@ -6,12 +6,11 @@
  */
 
 import { analysisDB, initializeDatabase } from '../services/DatabaseService';
-import { analyzeProjectUpdate } from '../services/AnalysisService';
+import { analyzeUpdateQuality } from '../services/AnalysisService';
 
-// Performance optimizations
-const WATCH_INTERVAL = 60000; // Check every 60 seconds (increased from 30)
-const MAX_TEXT_LENGTH = 1500; // Reduced from 2000
-const CACHE_DURATION_HOURS = 12; // Reduced from 24
+// Performance optimizations - SIMPLIFIED
+const WATCH_INTERVAL = 60000; // Check every 60 seconds
+const MAX_TEXT_LENGTH = 1500; // Limit text length for AI
 const MAX_CONCURRENT_ANALYSES = 3; // Limit concurrent processing
 const ANALYSIS_TIMEOUT = 10000; // 10 second timeout per analysis
 const MAX_UPDATES_PER_BATCH = 5; // Process max 5 updates at once
@@ -177,15 +176,25 @@ async function processUpdateWithRateLimit(update) {
 
 /**
  * Get new updates from your existing Dexie database
- * You'll need to adapt this to match your database structure
+ * This fetches updates that haven't been analyzed yet
  */
 async function getNewUpdatesFromDexie() {
   try {
-    // This is a placeholder - you'll need to implement this based on your existing database
-    // Example: check for updates that don't have analysis results yet
+    // Get unanalyzed updates from the database
+    const unanalyzedUpdates = await analysisDB.getUnanalyzedUpdates();
     
-    // For now, return empty array - implement based on your existing database schema
-    return [];
+    if (unanalyzedUpdates.length === 0) {
+      return [];
+    }
+    
+    console.log(`[ProjectUpdateWatcher] Found ${unanalyzedUpdates.length} unanalyzed updates`);
+    
+    // Convert to the format expected by analyzeAndStoreUpdate
+    return unanalyzedUpdates.map(update => ({
+      projectId: update.projectKey,
+      updateId: update.uuid,
+      text: update.summary || ''
+    }));
     
   } catch (error) {
     console.error('[ProjectUpdateWatcher] Failed to get updates from Dexie:', error);
@@ -194,7 +203,7 @@ async function getNewUpdatesFromDexie() {
 }
 
 /**
- * Analyze a project update and store the results
+ * Analyze a project update and store the results DIRECTLY in ProjectUpdate
  */
 async function analyzeAndStoreUpdate(update) {
   try {
@@ -202,60 +211,47 @@ async function analyzeAndStoreUpdate(update) {
     
     console.log(`[ProjectUpdateWatcher] Analyzing update ${updateId} for project ${projectId}`);
     
-    // Check if we already have analysis for this update
-    const existingAnalysis = await analysisDB.getAnalysis(projectId, updateId);
-    if (existingAnalysis) {
-      console.log(`[ProjectUpdateWatcher] Analysis already exists for update ${updateId}`);
+    // Check if already analyzed
+    const existingUpdate = await analysisDB.projectUpdates.where('uuid').equals(updateId).first();
+    if (existingUpdate?.analyzed) {
+      console.log(`[ProjectUpdateWatcher] Update ${updateId} already analyzed`);
       return;
     }
 
-    // Check cache first
-    const textHash = generateTextHash(text);
-    const cachedAnalysis = await analysisDB.getCachedAnalysis(textHash, CACHE_DURATION_HOURS);
+    // Truncate text if too long
+    const truncatedText = text.length > MAX_TEXT_LENGTH 
+      ? text.substring(0, MAX_TEXT_LENGTH) + '...'
+      : text;
     
-    let analysis;
-    if (cachedAnalysis) {
-      console.log(`[ProjectUpdateWatcher] Using cached analysis for update ${updateId}`);
-      analysis = cachedAnalysis;
-    } else {
-      // Perform new analysis with timeout protection
-      console.log(`[ProjectUpdateWatcher] Performing new analysis for update ${updateId}`);
+    console.log(`[ProjectUpdateWatcher] Performing AI analysis for update ${updateId}`);
+    
+    // Add timeout protection
+    const analysisPromise = analyzeUpdateQuality(truncatedText);
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Analysis timeout')), ANALYSIS_TIMEOUT);
+    });
+    
+    try {
+      const qualityResult = await Promise.race([analysisPromise, timeoutPromise]);
       
-      // Truncate text if too long
-      const truncatedText = text.length > MAX_TEXT_LENGTH 
-        ? text.substring(0, MAX_TEXT_LENGTH) + '...'
-        : text;
+      // Update ProjectUpdate record directly - SIMPLE!
+      await analysisDB.updateProjectUpdateQuality(updateId, qualityResult);
       
-      // Add timeout protection
-      const analysisPromise = analyzeProjectUpdate(truncatedText);
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Analysis timeout')), ANALYSIS_TIMEOUT);
-      });
+      console.log(`[ProjectUpdateWatcher] ✅ Successfully analyzed update ${updateId} with quality score: ${qualityResult.overallScore}%`);
       
-      try {
-        analysis = await Promise.race([analysisPromise, timeoutPromise]);
-        
-        // Cache the result
-        await analysisDB.cacheAnalysis(textHash, analysis);
-      } catch (error) {
-        console.error(`[ProjectUpdateWatcher] Analysis failed for update ${updateId}:`, error);
-        // Return fallback analysis
-        analysis = {
-          sentiment: { score: 0.5, label: 'neutral' },
-          analysis: [],
-          summary: 'Analysis failed - fallback result',
-          timestamp: new Date()
-        };
+    } catch (error) {
+      console.error(`[ProjectUpdateWatcher] AI Analysis failed for update ${updateId}:`, error);
+      
+      // Mark as analyzed but with error state
+      if (existingUpdate) {
+        await analysisDB.projectUpdates.update(existingUpdate.uuid, {
+          analyzed: true,
+          updateQuality: 0,
+          qualityLevel: 'poor',
+          analysisDate: new Date().toISOString()
+        });
       }
     }
-
-    // Store analysis results
-    await analysisDB.storeAnalysis(projectId, updateId, text, analysis);
-    
-    console.log(`[ProjectUpdateWatcher] Successfully analyzed and stored update ${updateId}`);
-    
-    // Show notification for completed analysis
-    await showAnalysisCompleteNotification(projectId, updateId, analysis);
     
   } catch (error) {
     console.error(`[ProjectUpdateWatcher] Failed to analyze update ${update.updateId}:`, error);

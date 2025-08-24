@@ -75,17 +75,13 @@ export interface AnalysisSummary {
 // ============================================================================
 
 export class DatabaseService extends Dexie {
-  // Core tables
+  // Core tables - SIMPLIFIED
   projectViews!: Table<ProjectView>;
   projectUpdates!: Table<ProjectUpdate>;
   meta!: Table<MetaData>;
   
   // Visible projects tracking
   visibleProjects!: Table<{ id: string; projectKey: string; timestamp: Date }>;
-  
-  // Analysis tables
-  storedAnalyses!: Table<StoredAnalysis>;
-  analysisCache!: Table<{ id: string; analysis: any; timestamp: Date }>;
 
   constructor() {
     super('AtlasXrayDB');
@@ -402,12 +398,44 @@ export class DatabaseService extends Dexie {
     }
   }
 
+  /**
+   * Update a project update with quality analysis results
+   * This is critical for the UI to display quality indicators
+   */
+  async updateProjectUpdateQuality(updateUuid: string, qualityResult: any): Promise<void> {
+    try {
+      const update = await this.projectUpdates.where('uuid').equals(updateUuid).first();
+      if (!update) {
+        console.error(`[DatabaseService] Update ${updateUuid} not found for quality update`);
+        return;
+      }
+
+      const updatedUpdate: ProjectUpdate = {
+        ...update,
+        updateQuality: qualityResult.overallScore,
+        qualityLevel: qualityResult.qualityLevel,
+        qualitySummary: qualityResult.summary,
+        qualityMissingInfo: qualityResult.missingInfo || [],
+        qualityRecommendations: qualityResult.recommendations || [],
+        analyzed: true,
+        analysisDate: new Date().toISOString()
+      };
+
+      await this.projectUpdates.put(updatedUpdate);
+      console.log(`[DatabaseService] ✅ Updated update ${updateUuid} with quality score: ${qualityResult.overallScore}%`);
+    } catch (error) {
+      console.error(`[DatabaseService] Failed to update quality for update ${updateUuid}:`, error);
+      throw error;
+    }
+  }
+
   // ============================================================================
   // ANALYSIS OPERATIONS
   // ============================================================================
 
   /**
    * Analyze a project update and store results
+   * Note: AI analysis is deferred to background script due to content script limitations
    */
   async analyzeUpdate(update: ProjectUpdate): Promise<void> {
     try {
@@ -421,9 +449,28 @@ export class DatabaseService extends Dexie {
         return;
       }
 
+      // Check if we're in a content script context
+      // Content scripts run on web pages (http/https), background scripts run in extension context
+      const isContentScript = typeof window !== 'undefined' && (
+        window.location.href.includes('http://') || 
+        window.location.href.includes('https://') 
+      ) && !window.location.href.includes('chrome-extension://') && !window.location.href.includes('moz-extension://');
+
+      if (isContentScript) {
+        console.log(`[DatabaseService] ⚠️ Deferring AI analysis for update ${update.uuid} to background script (content script context)`);
+        // Mark as pending analysis - background script will handle it
+        const pendingUpdate: ProjectUpdate = {
+          ...update,
+          analyzed: false, // Keep as false so background script can process it
+          analysisDate: new Date().toISOString()
+        };
+        await this.projectUpdates.put(pendingUpdate);
+        return;
+      }
+
       console.log(`[DatabaseService] 🔍 Analyzing update ${update.uuid} for ${update.projectKey}`);
       
-      // Perform analysis using the unified AnalysisService
+      // Perform analysis using the unified AnalysisService (only in background script)
       const analysisResult = await analyzeUpdateQuality(update.summary);
       
       // Update the stored update with analysis results

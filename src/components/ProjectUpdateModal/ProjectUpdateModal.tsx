@@ -87,15 +87,15 @@ export default function ProjectUpdateModal({
                   </div>
 
                   {/* Quality Analysis Section */}
-                  {selectedUpdate.id && (() => {
-                    // Get quality data directly from the update object (populated by ProjectPipeline)
+                  {selectedUpdate.uuid && (() => {
+                    // Get quality data directly from the update object (populated by AnalysisService)
                     if (selectedUpdate.updateQuality && selectedUpdate.qualityLevel) {
                       const quality = {
                         overallScore: selectedUpdate.updateQuality,
                         qualityLevel: selectedUpdate.qualityLevel,
                         summary: selectedUpdate.qualitySummary || 'Quality analysis completed',
-                        analysis: selectedUpdate.qualityAnalysis ? JSON.parse(selectedUpdate.qualityAnalysis) : [],
-                        missingInfo: selectedUpdate.qualityMissingInfo ? JSON.parse(selectedUpdate.qualityMissingInfo) : []
+                        analysis: [], // No detailed analysis in current interface
+                        missingInfo: selectedUpdate.qualityMissingInfo || []
                       };
                       return (
                         <SectionMessage

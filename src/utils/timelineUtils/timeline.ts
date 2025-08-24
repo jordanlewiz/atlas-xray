@@ -174,7 +174,7 @@ const timelineCellCache = new Map<string, TimelineCell[]>();
   // Cache key generator for timeline cells
   function getTimelineCellCacheKey(weekRanges: WeekRange[], updates: ProjectUpdate[]): string {
     const weekRangeKey = weekRanges.map(w => `${w.start.getTime()}-${w.end.getTime()}`).join('|');
-    const updatesKey = updates.map(u => `${u.id || 'unknown'}-${u.creationDate || 'no-date'}`).join('|');
+    const updatesKey = updates.map(u => `${u.uuid || 'unknown'}-${u.creationDate || 'no-date'}`).join('|');
     return `${weekRangeKey}|${updatesKey}`;
   }
 

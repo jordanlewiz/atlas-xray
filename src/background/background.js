@@ -18,6 +18,9 @@ console.log('[AtlasXray] Background service worker is running');
 import { VersionChecker } from '../utils/versionChecker';
 import { memoryManager } from '../utils/memoryManager';
 
+// Import project update watcher for AI analysis
+import './projectUpdateWatcher.js';
+
 // Import AI analysis capabilities
 let projectAnalyzer = null;
 let isAIAvailable = false;

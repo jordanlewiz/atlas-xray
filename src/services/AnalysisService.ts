@@ -10,30 +10,39 @@ let isContentScript: boolean = false;
 
 // Check if we're in a content script context
 if (typeof window !== 'undefined') {
-  // More comprehensive content script detection
-  isContentScript = window.location.href.includes('chrome-extension://') || 
-    window.location.href.includes('moz-extension://') ||
-    window.location.href.includes('chrome://') ||
-    window.location.href.includes('about:');
+  // Content scripts run on web pages (http/https), background scripts run in extension context
+  // Background scripts can access AI libraries, content scripts cannot
+  isContentScript = (window.location.href.includes('http://') || 
+    window.location.href.includes('https://')) && 
+    !window.location.href.includes('chrome-extension://') && 
+    !window.location.href.includes('moz-extension://');
 }
 
 // Lazy loading function for AI libraries
 async function loadAILibraries(): Promise<boolean> {
+  console.log('[AnalysisService] Checking AI availability...');
+  console.log('[AnalysisService] Current context:', typeof window !== 'undefined' ? window.location.href : 'no window');
+  console.log('[AnalysisService] isContentScript:', isContentScript);
+  
   if (isContentScript) {
+    console.log('[AnalysisService] In content script context - AI not available');
     return false;
   }
   
   if (pipeline) {
+    console.log('[AnalysisService] AI pipeline already loaded');
     return true; // Already loaded
   }
   
   try {
+    console.log('[AnalysisService] Loading AI libraries...');
     // @ts-ignore
     const transformers = await import('@xenova/transformers');
     pipeline = transformers.pipeline;
+    console.log('[AnalysisService] AI libraries loaded successfully');
     return true;
   } catch (error) {
-    console.log('AI libraries not available in this context:', error);
+    console.error('[AnalysisService] AI libraries not available in this context:', error);
     return false;
   }
 }
@@ -443,7 +452,10 @@ export class AnalysisService {
     updateType?: string, 
     state?: string
   ): Promise<UpdateQualityResult> {
+    console.log('[AnalysisService] Starting AI quality analysis...');
+    
     if (!(await this.isAIAvailable())) {
+      console.error('[AnalysisService] AI not available for quality analysis');
       throw new Error('AI quality analysis not available in this context');
     }
 
@@ -454,6 +466,7 @@ export class AnalysisService {
     
     // Determine applicable criteria
     const applicableCriteria = this.determineApplicableCriteria(updateType, state, text);
+    console.log('[AnalysisService] Applicable criteria:', applicableCriteria.length);
     
     // Analyze each criterion using AI
     const analysisPromises = applicableCriteria.map(async (criteria) => {
@@ -461,6 +474,7 @@ export class AnalysisService {
     });
     
     const analysis = await Promise.all(analysisPromises);
+    console.log('[AnalysisService] Analysis complete, calculating result...');
     
     // Calculate overall score and generate result
     return this.calculateQualityResult(analysis, text);
@@ -539,8 +553,8 @@ export class AnalysisService {
       
       return { score, label };
     } catch (error) {
-      console.warn('[AnalysisService] AI sentiment analysis failed:', error);
-      return this.analyzeSentimentRuleBased(text);
+      console.error('[AnalysisService] AI sentiment analysis failed:', error);
+      throw new Error('AI sentiment analysis failed - no fallback available');
     }
   }
 
@@ -586,85 +600,12 @@ export class AnalysisService {
       });
       return result[0].summary_text || 'AI summary generation failed';
     } catch (error) {
-      console.warn('[AnalysisService] AI summary generation failed:', error);
-      return this.generateSummaryRuleBased(text);
+      console.error('[AnalysisService] AI summary generation failed:', error);
+      throw new Error('AI summary generation failed - no fallback available');
     }
   }
 
-  // ============================================================================
-  // AI ANALYSIS IMPLEMENTATIONS
-  // ============================================================================
 
-  private analyzeSentimentRuleBased(text: string): { score: number; label: string } {
-    const lowerText = text.toLowerCase();
-    let score = 0.5; // Neutral base
-    
-    // Positive indicators
-    if (lowerText.includes('completed') || lowerText.includes('successful') || lowerText.includes('on track')) {
-      score += 0.3;
-    }
-    if (lowerText.includes('progress') || lowerText.includes('advance') || lowerText.includes('improve')) {
-      score += 0.2;
-    }
-    
-    // Negative indicators
-    if (lowerText.includes('delayed') || lowerText.includes('blocked') || lowerText.includes('issue')) {
-      score -= 0.3;
-    }
-    if (lowerText.includes('failed') || lowerText.includes('cancelled') || lowerText.includes('risk')) {
-      score -= 0.2;
-    }
-    
-    score = Math.max(0, Math.min(1, score));
-    
-    let label: string;
-    if (score > 0.6) label = 'positive';
-    else if (score < 0.4) label = 'negative';
-    else label = 'neutral';
-    
-    return { score, label };
-  }
-
-  private performQAAnalysisRuleBased(text: string): AnalysisResult[] {
-    return ANALYSIS_QUESTIONS.map(questionData => {
-      const lowerText = text.toLowerCase();
-      let answer = 'No clear information found';
-      let confidence = 0.1;
-      
-      // Simple keyword-based analysis
-      if (questionData.id === 'initiative' && lowerText.includes('initiative')) {
-        answer = 'Initiative mentioned in update';
-        confidence = 0.6;
-      } else if (questionData.id === 'date_change' && (lowerText.includes('date') || lowerText.includes('deadline'))) {
-        answer = 'Date-related information found';
-        confidence = 0.5;
-      } else if (questionData.id === 'impact_scope' && lowerText.includes('scope')) {
-        answer = 'Scope impact mentioned';
-        confidence = 0.5;
-      }
-      
-      return {
-        id: questionData.id,
-        question: questionData.q,
-        answer,
-        confidence,
-        missing: confidence < 0.25
-      };
-    });
-  }
-
-  private generateSummaryRuleBased(text: string): string {
-    if (text.length <= 100) {
-      return text;
-    }
-    
-    const sentences = text.split('.').filter(s => s.trim().length > 0);
-    if (sentences.length <= 2) {
-      return text;
-    }
-    
-    return sentences.slice(0, 2).join('. ') + '.';
-  }
 
   // ============================================================================
   // QUALITY ANALYSIS HELPERS
