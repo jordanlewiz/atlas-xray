@@ -748,6 +748,87 @@ export class AnalysisService {
       };
     }
   }
+    const answers: string[] = [];
+    const missingInfo: string[] = [];
+    const recommendations: string[] = [];
+    
+    // More lenient keyword analysis - give credit for any content
+    for (const question of criteria.questions) {
+      const lowerQuestion = question.toLowerCase();
+      let found = false;
+      
+      // Check for various indicators that might answer the question
+      if (lowerQuestion.includes('why') || lowerQuestion.includes('reason')) {
+        // Look for reason indicators
+        if (lowerText.includes('because') || lowerText.includes('due to') || lowerText.includes('reason') || 
+            lowerText.includes('caused by') || lowerText.includes('result of') || lowerText.includes('since')) {
+          answers.push('Reason or explanation provided');
+          found = true;
+        }
+      } else if (lowerQuestion.includes('impact') || lowerQuestion.includes('effect')) {
+        // Look for impact indicators
+        if (lowerText.includes('impact') || lowerText.includes('affect') || lowerText.includes('result') ||
+            lowerText.includes('consequence') || lowerText.includes('outcome') || lowerText.includes('change')) {
+          answers.push('Impact or effects discussed');
+          found = true;
+        }
+      } else if (lowerQuestion.includes('support') || lowerQuestion.includes('help')) {
+        // Look for support indicators
+        if (lowerText.includes('support') || lowerText.includes('help') || lowerText.includes('need') ||
+            lowerText.includes('require') || lowerText.includes('assist') || lowerText.includes('resource')) {
+          answers.push('Support or assistance mentioned');
+          found = true;
+        }
+      } else if (lowerQuestion.includes('decision') || lowerQuestion.includes('how')) {
+        // Look for decision-making indicators
+        if (lowerText.includes('decision') || lowerText.includes('decided') || lowerText.includes('choose') ||
+            lowerText.includes('selected') || lowerText.includes('approved') || lowerText.includes('team')) {
+          answers.push('Decision-making process referenced');
+          found = true;
+        }
+      } else if (lowerQuestion.includes('when') || lowerQuestion.includes('date') || lowerQuestion.includes('time')) {
+        // Look for timing indicators
+        if (lowerText.includes('date') || lowerText.includes('when') || lowerText.includes('schedule') ||
+            lowerText.includes('timeline') || lowerText.includes('deadline') || /\d{1,2}\/\d{1,2}/.test(lowerText)) {
+          answers.push('Timing or schedule information provided');
+          found = true;
+        }
+      } else {
+        // For any other question, give credit if the text has reasonable length and content
+        if (text.trim().length > 20 && (lowerText.includes('project') || lowerText.includes('update') || 
+            lowerText.includes('status') || lowerText.includes('progress'))) {
+          answers.push('General project information provided');
+          found = true;
+        }
+      }
+      
+      if (!found) {
+        missingInfo.push(question);
+        recommendations.push(`Consider providing more specific information about: ${question}`);
+      }
+    }
+    
+    // Be more generous with scoring - give partial credit
+    const baseScore = Math.min(answers.length, criteria.requiredAnswers);
+    // Add bonus points for having substantial content
+    const contentBonus = text.trim().length > 100 ? 1 : 0;
+    const score = Math.min(baseScore + contentBonus, criteria.requiredAnswers);
+    const maxScore = criteria.requiredAnswers;
+    
+    if (missingInfo.length > 0) {
+      recommendations.push(`Consider addressing the ${missingInfo.length} missing information points to improve quality`);
+    }
+    
+    return {
+      criteriaId: criteria.id,
+      title: criteria.title,
+      score,
+      maxScore,
+      answers,
+      missingInfo,
+      recommendations
+    };
+  }
 
   private calculateQualityResult(analysis: QualityAnalysis[], text: string): UpdateQualityResult {
     const totalScore = analysis.reduce((sum, criterion) => sum + criterion.score, 0);

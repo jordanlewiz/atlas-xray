@@ -31,7 +31,7 @@ async function initializeWatcher() {
   try {
     console.log('[ProjectUpdateWatcher] Initializing...');
     
-    // Initialize database
+    // Initialize database (this will trigger background analysis of unanalyzed updates)
     await initializeDatabase();
     
     // Start watching for updates

@@ -4,6 +4,14 @@
 
 ## 🎯 **CORE PRINCIPLES**
 
+### **1.0 AI ANALYSIS IS MANDATORY** 🔥 **CRITICAL RULE**
+- **NEVER revert to rule-based analysis** - AI analysis must be the primary method
+- **AI analysis is the core value proposition** - NO FALLBACKS to rule-based analysis
+- **If AI analysis fails, get NO RESULT** - do not degrade to inferior rule-based analysis
+- **Rule-based analysis is completely forbidden** - it produces poor quality results and is never acceptable
+- **This rule is non-negotiable** - any attempt to bypass AI analysis will be reverted
+- **AI or nothing** - quality over quantity
+
 ### **1.1 Single Source of Truth**
 - **Database**: IndexedDB via Dexie is the single source of truth for all data
 - **State**: React state should be derived from database queries, not duplicated
@@ -345,6 +353,73 @@ class ProjectService {
   private cleanup(): void {
     // Clean up resources, clear caches, etc.
   }
+}
+```
+
+### **5.3 AI Analysis Rules** 🔥 **CRITICAL**
+
+#### **5.3.1 AI Analysis is Mandatory**
+- **NEVER use rule-based analysis** - it produces inferior results and is completely forbidden
+- **AI analysis must be attempted first** in all analysis strategies
+- **NO FALLBACKS to rule-based** - if AI fails, get no result
+- **If AI analysis breaks, fix the AI, don't work around it**
+- **Quality over quantity** - better no analysis than bad analysis
+
+#### **5.3.2 Analysis Strategy Priority**
+```typescript
+// ✅ CORRECT: AI-only strategy
+async performAutoAnalysis(text: string): Promise<ProjectUpdateAnalysis> {
+  // 1. Try AI analysis first
+  if (await this.isAIAvailable()) {
+    try {
+      return await this.performAIAnalysis(text);
+    } catch (error) {
+      console.log('[AnalysisService] AI failed, no fallback - analysis incomplete');
+      throw new Error('AI analysis failed and no fallback is allowed');
+    }
+  }
+  
+  // 2. No AI available - no analysis possible
+  throw new Error('AI analysis not available in this context');
+}
+
+// ❌ WRONG: Rule-based first
+async performAutoAnalysis(text: string): Promise<ProjectUpdateAnalysis> {
+  // This is forbidden - rule-based should never be primary
+  return await this.performRuleBasedAnalysis(text);
+}
+
+#### **5.3.4 Complete Removal of Rule-Based Analysis**
+```typescript
+// ✅ CORRECT: No rule-based strategy available
+export interface AnalysisConfig {
+  strategy: 'ai' | 'hybrid' | 'auto';  // rule-based removed
+  // ... other config
+}
+
+// ✅ CORRECT: No rule-based in available strategies
+async getAvailableStrategies(): Promise<string[]> {
+  const strategies: string[] = [];
+  
+  if (await this.isAIAvailable()) {
+    strategies.push('ai', 'hybrid', 'auto');
+  }
+  
+  return strategies;
+}
+```
+```
+
+#### **5.3.3 AI Availability Check**
+```typescript
+// ✅ CORRECT: Proper AI availability check
+async isAIAvailable(): Promise<boolean> {
+  return await loadAILibraries();
+}
+
+// ❌ WRONG: Direct pipeline check
+if (pipeline && !isContentScript) {
+  // This bypasses proper AI loading and can fail
 }
 ```
 

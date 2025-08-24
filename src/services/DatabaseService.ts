@@ -251,7 +251,7 @@ export class DatabaseService extends Dexie {
   async getUnanalyzedUpdates(): Promise<ProjectUpdate[]> {
     try {
       return await this.projectUpdates
-        .filter(update => !update.analyzed && update.summary && update.summary.trim())
+        .filter(update => !update.analyzed && update.summary && update.summary.trim().length > 0)
         .toArray();
     } catch (error) {
       console.error('[DatabaseService] Failed to get unanalyzed updates:', error);
@@ -350,6 +350,40 @@ export class DatabaseService extends Dexie {
     } catch (error) {
       console.error('[DatabaseService] Failed to get all project summaries:', error);
       return [];
+    }
+  }
+
+  /**
+   * Force analysis of all unanalyzed updates
+   */
+  async analyzeAllUnanalyzedUpdates(): Promise<void> {
+    try {
+      const unanalyzedUpdates = await this.getUnanalyzedUpdates();
+      console.log(`[DatabaseService] 🔍 Found ${unanalyzedUpdates.length} unanalyzed updates`);
+      
+      if (unanalyzedUpdates.length === 0) {
+        console.log('[DatabaseService] ✅ All updates are already analyzed');
+        return;
+      }
+
+      console.log('[DatabaseService] 🚀 Starting batch analysis of unanalyzed updates...');
+      
+      // Process updates in smaller batches to avoid overwhelming the system
+      const batchSize = 10;
+      for (let i = 0; i < unanalyzedUpdates.length; i += batchSize) {
+        const batch = unanalyzedUpdates.slice(i, i + batchSize);
+        console.log(`[DatabaseService] 📦 Processing batch ${Math.floor(i/batchSize) + 1}/${Math.ceil(unanalyzedUpdates.length/batchSize)} (${batch.length} updates)`);
+        
+        // Process batch concurrently
+        await Promise.all(batch.map(update => this.analyzeUpdate(update)));
+        
+        // Small delay between batches to prevent overwhelming
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      
+      console.log(`[DatabaseService] ✅ Completed analysis of ${unanalyzedUpdates.length} updates`);
+    } catch (error) {
+      console.error('[DatabaseService] ❌ Failed to analyze unanalyzed updates:', error);
     }
   }
 
@@ -698,6 +732,7 @@ export const setTotalUpdatesAvailableCount = (count: number) => databaseService.
 export const storeProjectView = (projectView: ProjectView) => databaseService.storeProjectView(projectView);
 export const storeProjectUpdate = (update: ProjectUpdate) => databaseService.storeProjectUpdate(update);
 export const getProjectImage = (projectKey: string) => databaseService.getProjectImage(projectKey);
+export const analyzeAllUnanalyzedUpdates = () => databaseService.analyzeAllUnanalyzedUpdates();
 
 // Initialize database
 export async function initializeDatabase(): Promise<void> {
@@ -711,6 +746,15 @@ export async function initializeDatabase(): Promise<void> {
     // Log database stats
     const stats = await databaseService.getDatabaseStats();
     console.log('[DatabaseService] 📊 Database stats:', stats);
+    
+    // Analyze any unanalyzed updates in the background
+    setTimeout(async () => {
+      try {
+        await databaseService.analyzeAllUnanalyzedUpdates();
+      } catch (error) {
+        console.error('[DatabaseService] ❌ Background analysis failed:', error);
+      }
+    }, 2000); // 2 second delay to let other initialization complete
     
   } catch (error) {
     console.error('[DatabaseService] ❌ Failed to initialize database:', error);

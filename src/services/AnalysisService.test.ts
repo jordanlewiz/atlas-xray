@@ -46,14 +46,14 @@ describe('AnalysisService', () => {
 
     it('should update configuration', () => {
       const newConfig: Partial<AnalysisConfig> = {
-        strategy: 'rule-based',
+        strategy: 'ai',
         maxTextLength: 2000
       };
       
       service.updateConfig(newConfig);
       const config = service.getConfig();
       
-      expect(config.strategy).toBe('rule-based');
+      expect(config.strategy).toBe('ai');
       expect(config.maxTextLength).toBe(2000);
       expect(config.timeout).toBe(15000); // unchanged
     });
@@ -89,12 +89,12 @@ describe('AnalysisService', () => {
       const text = 'Test update text';
       
       // First call should cache
-      await service.analyzeProjectUpdate(text, 'rule-based');
+      await service.analyzeProjectUpdate(text, 'ai');
       const stats1 = service.getCacheStats();
       expect(stats1.misses).toBe(1);
       
       // Second call should use cache
-      await service.analyzeProjectUpdate(text, 'rule-based');
+      await service.analyzeProjectUpdate(text, 'ai');
       const stats2 = service.getCacheStats();
       expect(stats2.hits).toBe(1);
     });
@@ -103,7 +103,7 @@ describe('AnalysisService', () => {
       const text = 'Test update text';
       
       // Populate cache
-      await service.analyzeProjectUpdate(text, 'rule-based');
+      await service.analyzeProjectUpdate(text, 'ai');
       expect(service.getCacheStats().size).toBeGreaterThan(0);
       
       // Clear cache
@@ -115,9 +115,9 @@ describe('AnalysisService', () => {
       service.updateConfig({ maxCacheSize: 2 });
       
       // Add more items than cache size
-      await service.analyzeProjectUpdate('Text 1', 'rule-based');
-      await service.analyzeProjectUpdate('Text 2', 'rule-based');
-      await service.analyzeProjectUpdate('Text 3', 'rule-based');
+      await service.analyzeProjectUpdate('Text 1', 'ai');
+      await service.analyzeProjectUpdate('Text 2', 'ai');
+      await service.analyzeProjectUpdate('Text 3', 'ai');
       
       const stats = service.getCacheStats();
       // Cache cleanup happens after adding items, so size might be 2 or 3
@@ -127,9 +127,9 @@ describe('AnalysisService', () => {
   });
 
   describe('Rule-based Analysis', () => {
-    it('should perform rule-based project analysis', async () => {
+    it('should perform ai project analysis', async () => {
       const text = 'Project is on track and progressing well. We completed the milestone ahead of schedule.';
-      const result = await service.analyzeProjectUpdate(text, 'rule-based');
+      const result = await service.analyzeProjectUpdate(text, 'ai');
       
       expect(result).toBeDefined();
       expect(result.sentiment).toBeDefined();
@@ -139,9 +139,9 @@ describe('AnalysisService', () => {
       expect(result.analysis.length).toBe(ANALYSIS_QUESTIONS.length);
     });
 
-    it('should perform rule-based quality analysis', async () => {
+    it('should perform ai quality analysis', async () => {
       const text = 'Project is paused due to resource constraints. We need support to resume.';
-      const result = await service.analyzeUpdateQuality(text, 'paused', 'paused', 'rule-based');
+      const result = await service.analyzeUpdateQuality(text, 'paused', 'paused', 'ai');
       
       expect(result).toBeDefined();
       expect(result.overallScore).toBeGreaterThanOrEqual(0);
@@ -152,25 +152,26 @@ describe('AnalysisService', () => {
     });
 
     it('should handle empty text', async () => {
-      const result = await service.analyzeProjectUpdate('', 'rule-based');
+      const result = await service.analyzeProjectUpdate('', 'ai');
       expect(result).toBeDefined();
       expect(result.sentiment.label).toBe('neutral');
     });
 
     it('should handle very long text', async () => {
       const longText = 'A'.repeat(3000);
-      const result = await service.analyzeProjectUpdate(longText, 'rule-based');
+      const result = await service.analyzeProjectUpdate(longText, 'ai');
       expect(result).toBeDefined();
     });
   });
 
   describe('Strategy Selection', () => {
-    it('should return available strategies', () => {
-      const strategies = service.getAvailableStrategies();
-      expect(strategies).toContain('rule-based');
+    it('should return available strategies', async () => {
+      const strategies = await service.getAvailableStrategies();
+      expect(strategies).toContain('ai');
       
       // AI strategies depend on context
-      if (service.isAIAvailable()) {
+      const aiAvailable = await service.isAIAvailable();
+      if (aiAvailable) {
         expect(strategies).toContain('ai');
         expect(strategies).toContain('hybrid');
         expect(strategies).toContain('auto');
@@ -185,7 +186,7 @@ describe('AnalysisService', () => {
 
     it('should respect specified strategy', async () => {
       const text = 'Test text';
-      const result = await service.analyzeProjectUpdate(text, 'rule-based');
+      const result = await service.analyzeProjectUpdate(text, 'ai');
       expect(result).toBeDefined();
     });
   });
@@ -217,7 +218,7 @@ describe('AnalysisService', () => {
     it('should provide fallback for failed analysis', async () => {
       // Mock a failure scenario
       const text = 'Test text';
-      const result = await service.analyzeProjectUpdate(text, 'rule-based');
+      const result = await service.analyzeProjectUpdate(text, 'ai');
       
       expect(result).toBeDefined();
       expect(result.sentiment).toBeDefined();
@@ -237,20 +238,20 @@ describe('AnalysisService', () => {
   describe('Backward Compatibility', () => {
     it('should export analyzeProjectUpdate function', async () => {
       const text = 'Test text';
-      const result = await analyzeProjectUpdate(text, 'rule-based');
+      const result = await analyzeProjectUpdate(text, 'ai');
       expect(result).toBeDefined();
     });
 
     it('should export analyzeUpdateQuality function', async () => {
       const text = 'Test text';
-      const result = await analyzeUpdateQuality(text, 'paused', 'paused', 'rule-based');
+      const result = await analyzeUpdateQuality(text, 'paused', 'paused', 'ai');
       expect(result).toBeDefined();
     });
   });
 
   describe('AI Model Management', () => {
-    it('should check AI availability', () => {
-      const isAvailable = service.isAIAvailable();
+    it('should check AI availability', async () => {
+      const isAvailable = await service.isAIAvailable();
       expect(typeof isAvailable).toBe('boolean');
     });
 
@@ -262,7 +263,7 @@ describe('AnalysisService', () => {
   describe('Error Handling', () => {
     it('should handle analysis errors gracefully', async () => {
       const text = 'Test text';
-      const result = await service.analyzeProjectUpdate(text, 'rule-based');
+      const result = await service.analyzeProjectUpdate(text, 'ai');
       
       expect(result).toBeDefined();
       expect(result.sentiment).toBeDefined();
@@ -284,8 +285,8 @@ describe('AnalysisService', () => {
       const shortText = 'Short text';
       const longText = 'A'.repeat(2000);
       
-      const shortResult = await service.analyzeProjectUpdate(shortText, 'rule-based');
-      const longResult = await service.analyzeProjectUpdate(longText, 'rule-based');
+      const shortResult = await service.analyzeProjectUpdate(shortText, 'ai');
+      const longResult = await service.analyzeProjectUpdate(longText, 'ai');
       
       expect(shortResult).toBeDefined();
       expect(longResult).toBeDefined();
@@ -295,11 +296,11 @@ describe('AnalysisService', () => {
       const text = 'Performance test text';
       
       const start1 = Date.now();
-      await service.analyzeProjectUpdate(text, 'rule-based');
+      await service.analyzeProjectUpdate(text, 'ai');
       const time1 = Date.now() - start1;
       
       const start2 = Date.now();
-      await service.analyzeProjectUpdate(text, 'rule-based');
+      await service.analyzeProjectUpdate(text, 'ai');
       const time2 = Date.now() - start2;
       
       // Second call should be faster due to caching
