@@ -1,17 +1,25 @@
 import { db } from './DatabaseService';
 
 /**
- * Simple Update Fetcher - No bullshit, just fetch and store
+ * Project Updates Service
+ * 
+ * Responsible for fetching and storing project updates from the server.
+ * This service handles:
+ * - Fetching updates for specific projects
+ * - Storing updates in the database
+ * - Avoiding duplicate updates
+ * - Integration with the analysis system
+ * - Rate limiting and performance optimization
  */
-export class SimpleUpdateFetcher {
-  private static instance: SimpleUpdateFetcher;
+export class ProjectUpdatesService {
+  private static instance: ProjectUpdatesService;
   private isProcessing = false;
 
-  static getInstance(): SimpleUpdateFetcher {
-    if (!SimpleUpdateFetcher.instance) {
-      SimpleUpdateFetcher.instance = new SimpleUpdateFetcher();
+  static getInstance(): ProjectUpdatesService {
+    if (!ProjectUpdatesService.instance) {
+      ProjectUpdatesService.instance = new ProjectUpdatesService();
     }
-    return SimpleUpdateFetcher.instance;
+    return ProjectUpdatesService.instance;
   }
 
   /**
@@ -19,12 +27,12 @@ export class SimpleUpdateFetcher {
    */
   async fetchAndStoreUpdates(projectKey: string): Promise<void> {
     if (this.isProcessing) {
-      console.log(`[SimpleUpdateFetcher] Already processing updates for ${projectKey}, skipping`);
+      console.log(`[ProjectUpdatesService] Already processing updates for ${projectKey}, skipping`);
       return;
     }
 
     this.isProcessing = true;
-    console.log(`[SimpleUpdateFetcher] 🚀 Fetching updates for ${projectKey}`);
+    console.log(`[ProjectUpdatesService] 🚀 Fetching updates for ${projectKey}`);
 
     try {
       // Import Apollo client and query
@@ -32,8 +40,7 @@ export class SimpleUpdateFetcher {
       const { gql } = await import('@apollo/client');
       const { PROJECT_UPDATES_QUERY } = await import('../graphql/projectUpdatesQuery');
 
-      // Fetch updates from GraphQL
-      // Import rate limiting utilities
+      // Fetch updates from GraphQL with rate limiting
       const { withRateLimit } = await import('../utils/rateLimitManager');
       
       const { data } = await withRateLimit(async () => {
@@ -46,7 +53,7 @@ export class SimpleUpdateFetcher {
 
       if (data?.project?.updates?.edges) {
         const nodes = data.project.updates.edges.map((edge: any) => edge.node).filter(Boolean);
-        console.log(`[SimpleUpdateFetcher] 📥 Found ${nodes.length} updates for ${projectKey}`);
+        console.log(`[ProjectUpdatesService] 📥 Found ${nodes.length} updates for ${projectKey}`);
 
         // Check what updates we already have to avoid duplicates
         const existingUpdates = await db.projectUpdates.where('projectKey').equals(projectKey).toArray();
@@ -84,26 +91,26 @@ export class SimpleUpdateFetcher {
             // No need for manual analysis here
 
           } catch (updateError) {
-            console.error(`[SimpleUpdateFetcher] ❌ Failed to store update for ${projectKey}:`, updateError);
+            console.error(`[ProjectUpdatesService] ❌ Failed to store update for ${projectKey}:`, updateError);
           }
         }
 
-        console.log(`[SimpleUpdateFetcher] ✅ Completed processing ${nodes.length} updates for ${projectKey}`);
+        console.log(`[ProjectUpdatesService] ✅ Completed processing ${nodes.length} updates for ${projectKey}`);
       } else {
-        console.log(`[SimpleUpdateFetcher] ℹ️ No updates found for ${projectKey}`);
+        console.log(`[ProjectUpdatesService] ℹ️ No updates found for ${projectKey}`);
       }
 
     } catch (error) {
-      console.error(`[SimpleUpdateFetcher] ❌ Failed to fetch updates for ${projectKey}:`, error);
+      console.error(`[ProjectUpdatesService] ❌ Failed to fetch updates for ${projectKey}:`, error);
     } finally {
       this.isProcessing = false;
     }
   }
 
   /**
-   * Get count of updates available for a project (estimate)
+   * Get updates count for a specific project
    */
-  async getUpdatesAvailableCount(projectKey: string): Promise<number> {
+  async getProjectUpdatesCount(projectKey: string): Promise<number> {
     try {
       const { apolloClient } = await import('./apolloClient');
       const { gql } = await import('@apollo/client');
@@ -115,12 +122,33 @@ export class SimpleUpdateFetcher {
         fetchPolicy: 'cache-first'
       });
 
-      return data?.project?.updates?.edges?.length || 0;
+      if (data?.project?.updates?.edges) {
+        const nodes = data.project.updates.edges.map((edge: any) => edge.node).filter(Boolean);
+        return nodes.length;
+      }
+      return 0;
+
     } catch (error) {
-      console.error(`[SimpleUpdateFetcher] Failed to get updates count for ${projectKey}:`, error);
+      console.error(`[ProjectUpdatesService] Failed to get updates count for ${projectKey}:`, error);
       return 0;
     }
   }
+
+  /**
+   * Reset the processing state (useful for testing or manual refresh)
+   */
+  resetProcessingState(): void {
+    this.isProcessing = false;
+    console.log('[ProjectUpdatesService] Processing state reset');
+  }
+
+  /**
+   * Check if the service is currently processing updates
+   */
+  isCurrentlyProcessing(): boolean {
+    return this.isProcessing;
+  }
 }
 
-export const simpleUpdateFetcher = SimpleUpdateFetcher.getInstance();
+// Export singleton instance
+export const projectUpdatesService = ProjectUpdatesService.getInstance();
