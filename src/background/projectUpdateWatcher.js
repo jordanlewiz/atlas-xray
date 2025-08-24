@@ -14,7 +14,7 @@ async function initializeImports() {
     const dbModule = await import('../services/DatabaseService');
     const analysisModule = await import('../services/AnalysisService');
     
-    analysisDB = dbModule.analysisDB;
+    analysisDB = dbModule.db;
     initializeDatabase = dbModule.initializeDatabase;
     analyzeUpdateQuality = analysisModule.analyzeUpdateQuality;
     
@@ -101,10 +101,8 @@ function cleanupMemory() {
     console.log('[ProjectUpdateWatcher] Forced garbage collection');
   }
   
-  // Clear any cached data
-  if (analysisDB && analysisDB.clearCache) {
-    analysisDB.clearCache();
-  }
+      // Clear any cached data - DatabaseService handles this automatically
+    // No manual cache clearing needed
 }
 
 /**
@@ -244,7 +242,9 @@ async function analyzeAndStoreUpdate(update) {
     console.log(`[ProjectUpdateWatcher] Analyzing update ${updateId} for project ${projectId}`);
     
     // Check if already analyzed
-    const existingUpdate = await analysisDB.projectUpdates.where('uuid').equals(updateId).first();
+    const existingUpdate = await analysisDB.getProjectUpdates().then(updates => 
+      updates.find(u => u.uuid === updateId)
+    );
     if (existingUpdate?.analyzed) {
       console.log(`[ProjectUpdateWatcher] Update ${updateId} already analyzed`);
       return;
@@ -276,11 +276,15 @@ async function analyzeAndStoreUpdate(update) {
       
       // Mark as analyzed but with error state
       if (existingUpdate) {
-        await analysisDB.projectUpdates.update(existingUpdate.uuid, {
-          analyzed: true,
-          updateQuality: 0,
+        // Update the existing update with error state
+        await analysisDB.updateProjectUpdateQuality(existingUpdate.uuid, {
+          overallScore: 0,
           qualityLevel: 'poor',
-          analysisDate: new Date().toISOString()
+          analysis: [],
+          missingInfo: ['Analysis failed'],
+          recommendations: ['Retry analysis'],
+          summary: 'Analysis failed due to error',
+          timestamp: new Date()
         });
       }
     }

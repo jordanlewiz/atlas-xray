@@ -209,7 +209,7 @@ export class SimpleProjectListFetcher {
         return apolloClient.query({
           query: gql`${DIRECTORY_VIEW_PROJECT_QUERY}`,
           variables: {
-            first: 500, // Request up to 500, but server may return fewer
+            first: 100, // Request up to 100, but server may return fewer
             workspaceUuid: workspaceId,
             tql: tql, // Dynamic TQL from URL
             // Required boolean flags

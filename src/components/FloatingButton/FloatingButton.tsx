@@ -19,11 +19,11 @@ export default function FloatingButton(): React.JSX.Element {
   const allUpdates = useLiveQuery(() => db.projectUpdates.toArray()) || [];
   
   // Filter out missed updates for consistency with server counts
-  const nonMissedUpdates = allUpdates.filter(update => !update.missedUpdate);
+  const nonMissedUpdates = allUpdates.filter((update: any) => !update.missedUpdate);
   const updatesStored = nonMissedUpdates.length;
   
   // Count analyzed updates (those that have been processed, regardless of score)
-  const updatesAnalyzed = nonMissedUpdates.filter(update => update.analyzed).length;
+  const updatesAnalyzed = nonMissedUpdates.filter((update: any) => update.analyzed).length;
   
   // Get the count of visible projects (not the full array)
   const projectsVisible = projectsFound ? projectsFound.length : 0;

@@ -47,13 +47,15 @@ The system analyzes updates against these fixed criteria:
 
 ### Core Components
 
-1. **`ProjectAnalyzer`** (`src/utils/projectAnalyzer.ts`)
+1. **`AnalysisService`** (`src/services/AnalysisService.ts`)
+   - Unified analysis service consolidating all analysis engines
    - Handles AI model initialization and management
    - Performs sentiment analysis, QA extraction, and summarization
    - Manages confidence scoring and result grouping
 
-2. **`AnalysisDatabase`** (`src/utils/analysisDatabase.ts`)
-   - Dexie-based storage for analysis results
+2. **`DatabaseService`** (`src/services/DatabaseService.ts`)
+   - Unified Dexie-based storage for all project data and analysis results
+   - Automatic analysis integration when storing updates
    - Caching system for performance optimization
    - Export/import functionality for data portability
 
@@ -120,19 +122,27 @@ function MyComponent() {
 ### Database Operations
 
 ```typescript
-import { analysisDB } from '../utils/analysisDatabase';
+import { db } from '../services/DatabaseService';
 
-// Store analysis
-const id = await analysisDB.storeAnalysis(projectId, updateId, text, analysis);
+// Store analysis (now automatic when storing updates)
+await db.storeProjectUpdate({
+  uuid: updateId,
+  projectKey: projectId,
+  creationDate: new Date().toISOString(),
+  missedUpdate: false,
+  analyzed: true,
+  analysisDate: new Date().toISOString()
+});
 
 // Retrieve analysis
-const analysis = await analysisDB.getAnalysis(projectId, updateId);
+const updates = await db.getProjectUpdates();
+const analysis = updates.find(u => u.uuid === updateId && u.analyzed);
 
 // Get project summaries
-const summaries = await analysisDB.getAllProjectSummaries();
+const summaries = await db.getAllProjectSummaries();
 
 // Export data
-const data = await analysisDB.exportData();
+const data = await db.exportData();
 ```
 
 ## Configuration
@@ -148,42 +158,31 @@ Models are downloaded automatically on first use:
 
 ```typescript
 // In projectUpdateWatcher.js
-const WATCH_INTERVAL = 30000; // Check every 30 seconds
-const MAX_TEXT_LENGTH = 2000; // Maximum text length for analysis
-const CACHE_DURATION_HOURS = 24; // Cache analysis results for 24 hours
+const WATCH_INTERVAL = 60000; // Check every 60 seconds
+const MAX_TEXT_LENGTH = 1500; // Maximum text length for analysis
+const MAX_CONCURRENT_ANALYSES = 3; // Limit concurrent processing
 ```
 
 ### Confidence Thresholds
 
 ```typescript
-// In projectAnalyzer.ts
+// In AnalysisService.ts
 const missing = confidence < 0.25; // Treat low confidence as missing
 ```
 
 ## Integration with Existing Database
 
-To integrate with your existing Dexie database, update the `getNewUpdatesFromDexie()` function in `projectUpdateWatcher.js`:
+The system now automatically integrates with the unified DatabaseService. Updates are automatically analyzed when stored, and the analysis results are stored directly in the ProjectUpdate records. No additional integration is needed.
+
+If you need to customize the analysis behavior, you can modify the `analyzeUpdate` method in `DatabaseService.ts`:
 
 ```typescript
-async function getNewUpdatesFromDexie() {
-  try {
-    // Example: Check for updates that don't have analysis results yet
-    const updates = await yourExistingDB.projectUpdates
-      .where('hasAnalysis')
-      .equals(false)
-      .limit(10)
-      .toArray();
-    
-    return updates.map(update => ({
-      projectId: update.projectId,
-      updateId: update.id,
-      text: update.content || update.description
-    }));
-    
-  } catch (error) {
-    console.error('Failed to get updates from Dexie:', error);
-    return [];
-  }
+async analyzeUpdate(update: ProjectUpdate): Promise<void> {
+  // Custom analysis logic here
+  const analysis = await analyzeUpdateQuality(update.summary || '');
+  
+  // Update the ProjectUpdate record with analysis results
+  await this.updateProjectUpdateQuality(update.uuid, analysis);
 }
 ```
 
