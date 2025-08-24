@@ -25,7 +25,7 @@ import {
   AnalysisResult, 
   groupAnalysisResults,
   QuestionId 
-} from '../../utils/projectAnalyzer';
+} from '../../services/AnalysisService';
 import './ProjectAnalysisModal.scss';
 
 interface ProjectAnalysisModalProps {

@@ -35,7 +35,7 @@ let isProcessingQueue = false;
 //     console.log('[AtlasXray] Initializing AI capabilities...');
 //     
 //     // Import project analyzer (this will be bundled)
-//     const analyzerModule = await import('../utils/projectAnalyzer');
+//     const analyzerModule = await import('../services/AnalysisService');
 //     projectAnalyzer = analyzerModule.analyzeProjectUpdate;
 //     
 //     if (projectAnalyzer) {

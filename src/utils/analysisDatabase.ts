@@ -1,5 +1,5 @@
 import Dexie, { Table } from 'dexie';
-import { ProjectUpdateAnalysis, AnalysisResult, exportAnalysis } from './projectAnalyzer';
+import { ProjectUpdateAnalysis, AnalysisResult, exportAnalysis } from '../services/AnalysisService';
 
 export interface StoredAnalysis {
   id?: number;

@@ -6,7 +6,7 @@
  */
 
 import { analysisDB, initializeAnalysisDatabase } from '../utils/analysisDatabase';
-import { analyzeProjectUpdate } from '../utils/projectAnalyzer';
+import { analyzeProjectUpdate } from '../services/AnalysisService';
 
 // Performance optimizations
 const WATCH_INTERVAL = 60000; // Check every 60 seconds (increased from 30)

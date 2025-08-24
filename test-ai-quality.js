@@ -1,5 +1,5 @@
 // Test script for AI quality analysis
-const { analyzeUpdateQuality } = require('./src/utils/updateQualityAnalyzer.ts');
+const { analyzeUpdateQuality } = require('./src/services/AnalysisService.ts');
 
 async function testAIQuality() {
   console.log('🧪 Testing AI Quality Analysis System...\n');

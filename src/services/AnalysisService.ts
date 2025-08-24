@@ -1,0 +1,1001 @@
+/**
+ * Unified Analysis Service
+ * Consolidates all analysis engines (AI-powered, rule-based, and quality analysis)
+ * into a single, configurable service with fallback strategies
+ */
+
+// Conditional imports for AI functionality
+let pipeline: any = null;
+let isContentScript: boolean = false;
+
+// Check if we're in a content script context
+if (typeof window !== 'undefined') {
+  isContentScript = window.location.href.includes('chrome-extension://') || 
+    window.location.href.includes('moz-extension://') ||
+    window.location.href.includes('chrome://') ||
+    window.location.href.includes('about:');
+}
+
+// Only import AI libraries if we're not in a content script context
+if (!isContentScript) {
+  try {
+    // @ts-ignore
+    const transformers = require('@xenova/transformers');
+    pipeline = transformers.pipeline;
+  } catch (error) {
+    console.log('AI libraries not available in this context:', error);
+  }
+}
+
+// ============================================================================
+// INTERFACES & TYPES
+// ============================================================================
+
+export interface AnalysisResult {
+  id: string;
+  question: string;
+  answer: string;
+  confidence: number;
+  missing: boolean;
+}
+
+export interface ProjectUpdateAnalysis {
+  sentiment: {
+    score: number;
+    label: string;
+  };
+  analysis: AnalysisResult[];
+  summary: string;
+  timestamp: Date;
+}
+
+export interface QualityCriteria {
+  id: string;
+  title: string;
+  questions: string[];
+  requiredAnswers: number;
+  weight: number;
+}
+
+export interface QualityAnalysis {
+  criteriaId: string;
+  title: string;
+  score: number;
+  maxScore: number;
+  answers: string[];
+  missingInfo: string[];
+  recommendations: string[];
+}
+
+export interface UpdateQualityResult {
+  overallScore: number;
+  qualityLevel: 'excellent' | 'good' | 'fair' | 'poor';
+  analysis: QualityAnalysis[];
+  missingInfo: string[];
+  recommendations: string[];
+  summary: string;
+  timestamp: Date;
+}
+
+export interface AnalysisConfig {
+  strategy: 'ai' | 'rule-based' | 'hybrid' | 'auto';
+  maxTextLength: number;
+  timeout: number;
+  enableCaching: boolean;
+  maxCacheSize: number;
+}
+
+// ============================================================================
+// CONSTANTS & CONFIGURATION
+// ============================================================================
+
+// Fixed criteria IDs and questions (from projectAnalyzer)
+export const ANALYSIS_QUESTIONS = [
+  { id: "initiative",        q: "Which initiative or milestone is discussed?" },
+  { id: "date_change",       q: "Did the date change? If yes, what is the new date?" },
+  { id: "reason",            q: "What is the reason for the date change?" },
+  { id: "impact_scope",      q: "What is the impact on scope?" },
+  { id: "impact_time",      q: "What is the impact on timeline or schedule?" },
+  { id: "impact_cost",       q: "What is the impact on cost or budget?" },
+  { id: "impact_risk",       q: "What is the impact on risk or quality?" },
+  { id: "decision_making",   q: "How was this decision made? Who decided and what inputs were used?" },
+  { id: "dependencies",      q: "What dependencies are affected?" },
+  { id: "stakeholders",      q: "Which stakeholders were informed or need to be informed?" },
+  { id: "support_needed",    q: "Is any support needed? What is the specific ask and by whom?" },
+  { id: "mitigation_plan",   q: "What mitigation or recovery actions are proposed?" },
+  { id: "next_steps",        q: "What are the next steps and who owns them?" },
+  { id: "risks",             q: "What new or heightened risks are mentioned?" },
+  { id: "confidence_evidence", q: "What confidence, evidence, or data is cited to support this update?" }
+] as const;
+
+export type QuestionId = typeof ANALYSIS_QUESTIONS[number]['id'];
+
+// Quality criteria (from updateQualityAnalyzer)
+export const QUALITY_CRITERIA: QualityCriteria[] = [
+  {
+    id: 'prioritization',
+    title: 'Initiative Prioritization',
+    questions: [
+      'Why has this new initiative been prioritised?',
+      'What is the reason + impact?',
+      'How was this decision made?',
+      'Is any support needed?'
+    ],
+    requiredAnswers: 3,
+    weight: 1.0
+  },
+  {
+    id: 'paused',
+    title: 'Project Paused',
+    questions: [
+      'Why was this Paused?',
+      'What is the reason + impact?',
+      'When will it be resumed?',
+      'How was this decision made?',
+      'Is any support needed?'
+    ],
+    requiredAnswers: 4,
+    weight: 1.0
+  },
+  {
+    id: 'off-track',
+    title: 'Project Off-track',
+    questions: [
+      'Why is this off-track?',
+      'Summary of situation',
+      'What steps are being taken to get back on-track?',
+      'What is the impact of this being off-track?',
+      'What support is needed?'
+    ],
+    requiredAnswers: 4,
+    weight: 1.0
+  },
+  {
+    id: 'at-risk',
+    title: 'Project At-risk',
+    questions: [
+      'Why is this at-risk?',
+      'What is the risk?',
+      'What is the mitigation plan?',
+      'What is the impact if this risk materialises?',
+      'What support is needed?'
+    ],
+    requiredAnswers: 4,
+    weight: 1.0
+  }
+];
+
+
+
+// ============================================================================
+// CACHE MANAGEMENT
+// ============================================================================
+
+class AnalysisCache {
+  private cache = new Map<string, any>();
+  private maxSize: number;
+  private hits = 0;
+  private misses = 0;
+
+  constructor(maxSize: number = 1000) {
+    this.maxSize = maxSize;
+  }
+
+  get(key: string): any | undefined {
+    if (this.cache.has(key)) {
+      this.hits++;
+      return this.cache.get(key);
+    }
+    this.misses++;
+    return undefined;
+  }
+
+  set(key: string, value: any): void {
+    if (this.cache.size >= this.maxSize) {
+      this.cleanup();
+    }
+    this.cache.set(key, value);
+  }
+
+  private cleanup(): void {
+    const entries = Array.from(this.cache.entries());
+    const removeCount = Math.floor(this.maxSize * 0.2);
+    for (let i = 0; i < removeCount; i++) {
+      this.cache.delete(entries[i][0]);
+    }
+    console.log(`[AnalysisCache] Cleaned up cache, removed ${removeCount} entries`);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+
+  getStats(): { hits: number; misses: number; size: number } {
+    return {
+      hits: this.hits,
+      misses: this.misses,
+      size: this.cache.size
+    };
+  }
+}
+
+// ============================================================================
+// MAIN ANALYSIS SERVICE
+// ============================================================================
+
+export class AnalysisService {
+  private static instance: AnalysisService;
+  private cache: AnalysisCache;
+  private config: AnalysisConfig;
+  private aiModels: {
+    sentimentModel: any;
+    qaModel: any;
+    summarizer: any;
+  } = {
+    sentimentModel: null,
+    qaModel: null,
+    summarizer: null
+  };
+
+  private constructor(config?: Partial<AnalysisConfig>) {
+    this.config = {
+      strategy: 'auto',
+      maxTextLength: 1500,
+      timeout: 15000,
+      enableCaching: true,
+      maxCacheSize: 1000,
+      ...config
+    };
+    
+    this.cache = new AnalysisCache(this.config.maxCacheSize);
+  }
+
+  static getInstance(config?: Partial<AnalysisConfig>): AnalysisService {
+    if (!AnalysisService.instance) {
+      AnalysisService.instance = new AnalysisService(config);
+    }
+    return AnalysisService.instance;
+  }
+
+  // ============================================================================
+  // PUBLIC ANALYSIS METHODS
+  // ============================================================================
+
+  /**
+   * Analyze a project update using the configured strategy
+   */
+  async analyzeProjectUpdate(
+    text: string, 
+    strategy?: 'ai' | 'rule-based' | 'hybrid' | 'auto'
+  ): Promise<ProjectUpdateAnalysis> {
+    const analysisStrategy = strategy || this.config.strategy;
+    
+    try {
+      // Limit text length
+      if (text.length > this.config.maxTextLength) {
+        text = text.substring(0, this.config.maxTextLength) + '...';
+        console.log(`[AnalysisService] Text truncated to ${this.config.maxTextLength} characters`);
+      }
+
+      // Check cache first
+      if (this.config.enableCaching) {
+        const cacheKey = `project_${text.substring(0, 100)}`;
+        const cached = this.cache.get(cacheKey);
+        if (cached) {
+          console.log('[AnalysisService] Using cached analysis result');
+          return cached;
+        }
+      }
+
+      let result: ProjectUpdateAnalysis;
+
+      switch (analysisStrategy) {
+        case 'ai':
+          result = await this.performAIAnalysis(text);
+          break;
+        case 'rule-based':
+          result = await this.performRuleBasedAnalysis(text);
+          break;
+        case 'hybrid':
+          result = await this.performHybridAnalysis(text);
+          break;
+        case 'auto':
+        default:
+          result = await this.performAutoAnalysis(text);
+          break;
+      }
+
+      // Cache the result
+      if (this.config.enableCaching) {
+        const cacheKey = `project_${text.substring(0, 100)}`;
+        this.cache.set(cacheKey, result);
+      }
+
+      return result;
+
+    } catch (error) {
+      console.error('[AnalysisService] Analysis failed:', error);
+      return this.createFallbackAnalysis(text);
+    }
+  }
+
+  /**
+   * Analyze update quality using the configured strategy
+   */
+  async analyzeUpdateQuality(
+    text: string,
+    updateType?: string,
+    state?: string,
+    strategy?: 'ai' | 'rule-based' | 'hybrid' | 'auto'
+  ): Promise<UpdateQualityResult> {
+    const analysisStrategy = strategy || this.config.strategy;
+    
+    try {
+      // Check cache first
+      if (this.config.enableCaching) {
+        const cacheKey = `quality_${text.substring(0, 100)}_${updateType || 'unknown'}`;
+        const cached = this.cache.get(cacheKey);
+        if (cached) {
+          console.log('[AnalysisService] Using cached quality analysis result');
+          return cached;
+        }
+      }
+
+      let result: UpdateQualityResult;
+
+      switch (analysisStrategy) {
+        case 'ai':
+          result = await this.performAIQualityAnalysis(text, updateType, state);
+          break;
+        case 'rule-based':
+          result = await this.performRuleBasedQualityAnalysis(text, updateType, state);
+          break;
+        case 'hybrid':
+          result = await this.performHybridQualityAnalysis(text, updateType, state);
+          break;
+        case 'auto':
+        default:
+          result = await this.performAutoQualityAnalysis(text, updateType, state);
+          break;
+      }
+
+      // Cache the result
+      if (this.config.enableCaching) {
+        const cacheKey = `quality_${text.substring(0, 100)}_${updateType || 'unknown'}`;
+        this.cache.set(cacheKey, result);
+      }
+
+      return result;
+
+    } catch (error) {
+      console.error('[AnalysisService] Quality analysis failed:', error);
+      return this.createFallbackQualityAnalysis(text, updateType, state);
+    }
+  }
+
+  // ============================================================================
+  // PRIVATE ANALYSIS IMPLEMENTATIONS
+  // ============================================================================
+
+  private async performAIAnalysis(text: string): Promise<ProjectUpdateAnalysis> {
+    if (!pipeline || isContentScript) {
+      throw new Error('AI analysis not available in this context');
+    }
+
+    console.log('[AnalysisService] Performing AI analysis...');
+    
+    // Initialize AI models
+    await this.initializeAIModels();
+    
+    // Perform sentiment analysis
+    const sentiment = await this.analyzeSentiment(text);
+    
+    // Perform QA analysis
+    const analysis = await this.performQAAnalysis(text);
+    
+    // Generate summary
+    const summary = await this.generateSummary(text);
+    
+    return {
+      sentiment,
+      analysis,
+      summary,
+      timestamp: new Date()
+    };
+  }
+
+  private async performRuleBasedAnalysis(text: string): Promise<ProjectUpdateAnalysis> {
+    console.log('[AnalysisService] Performing rule-based analysis...');
+    
+    // Simple rule-based sentiment analysis
+    const sentiment = this.analyzeSentimentRuleBased(text);
+    
+    // Simple rule-based QA analysis
+    const analysis = this.performQAAnalysisRuleBased(text);
+    
+    // Simple rule-based summary
+    const summary = this.generateSummaryRuleBased(text);
+    
+    return {
+      sentiment,
+      analysis,
+      summary,
+      timestamp: new Date()
+    };
+  }
+
+  private async performHybridAnalysis(text: string): Promise<ProjectUpdateAnalysis> {
+    console.log('[AnalysisService] Performing hybrid analysis...');
+    
+    try {
+      // Try AI first
+      return await this.performAIAnalysis(text);
+    } catch (error) {
+      console.log('[AnalysisService] AI failed, falling back to rule-based');
+      return await this.performRuleBasedAnalysis(text);
+    }
+  }
+
+  private async performAutoAnalysis(text: string): Promise<ProjectUpdateAnalysis> {
+    // Auto strategy: try AI if available, otherwise rule-based
+    if (pipeline && !isContentScript) {
+      try {
+        return await this.performAIAnalysis(text);
+      } catch (error) {
+        console.log('[AnalysisService] AI failed, falling back to rule-based');
+      }
+    }
+    
+    return await this.performRuleBasedAnalysis(text);
+  }
+
+  private async performAIQualityAnalysis(
+    text: string, 
+    updateType?: string, 
+    state?: string
+  ): Promise<UpdateQualityResult> {
+    if (!pipeline || isContentScript) {
+      throw new Error('AI quality analysis not available in this context');
+    }
+
+    console.log('[AnalysisService] Performing AI quality analysis...');
+    
+    // Initialize AI models
+    await this.initializeAIModels();
+    
+    // Determine applicable criteria
+    const applicableCriteria = this.determineApplicableCriteria(updateType, state, text);
+    
+    // Analyze each criterion using AI
+    const analysisPromises = applicableCriteria.map(async (criteria) => {
+      return await this.analyzeCriterionWithAI(text, criteria);
+    });
+    
+    const analysis = await Promise.all(analysisPromises);
+    
+    // Calculate overall score and generate result
+    return this.calculateQualityResult(analysis, text);
+  }
+
+  private async performRuleBasedQualityAnalysis(
+    text: string, 
+    updateType?: string, 
+    state?: string
+  ): Promise<UpdateQualityResult> {
+    console.log('[AnalysisService] Performing rule-based quality analysis...');
+    
+    // Determine applicable criteria
+    const applicableCriteria = this.determineApplicableCriteria(updateType, state, text);
+    
+    // Analyze each criterion using rule-based logic
+    const analysis = applicableCriteria.map(criteria => {
+      return this.analyzeCriterionRuleBased(text, criteria);
+    });
+    
+    // Calculate overall score and generate result
+    return this.calculateQualityResult(analysis, text);
+  }
+
+  private async performHybridQualityAnalysis(
+    text: string, 
+    updateType?: string, 
+    state?: string
+  ): Promise<UpdateQualityResult> {
+    try {
+      return await this.performAIQualityAnalysis(text, updateType, state);
+    } catch (error) {
+      console.log('[AnalysisService] AI quality analysis failed, falling back to rule-based');
+      return await this.performRuleBasedQualityAnalysis(text, updateType, state);
+    }
+  }
+
+  private async performAutoQualityAnalysis(
+    text: string, 
+    updateType?: string, 
+    state?: string
+  ): Promise<UpdateQualityResult> {
+    if (pipeline && !isContentScript) {
+      try {
+        return await this.performAIQualityAnalysis(text, updateType, state);
+      } catch (error) {
+        console.log('[AnalysisService] AI quality analysis failed, falling back to rule-based');
+      }
+    }
+    
+    return await this.performRuleBasedQualityAnalysis(text, updateType, state);
+  }
+
+  // ============================================================================
+  // AI MODEL MANAGEMENT
+  // ============================================================================
+
+  private async initializeAIModels(): Promise<void> {
+    try {
+      if (!this.aiModels.sentimentModel) {
+        console.log('[AnalysisService] Loading sentiment model...');
+        this.aiModels.sentimentModel = await pipeline('sentiment-analysis', 'Xenova/distilbert-base-uncased-finetuned-sst-2-english');
+      }
+      
+      if (!this.aiModels.qaModel) {
+        console.log('[AnalysisService] Loading QA model...');
+        this.aiModels.qaModel = await pipeline('question-answering', 'Xenova/distilbert-base-cased-distilled-squad');
+      }
+      
+      if (!this.aiModels.summarizer) {
+        console.log('[AnalysisService] Loading summarizer...');
+        this.aiModels.summarizer = await pipeline('summarization', 'Xenova/sshleifer-tiny-cnn');
+      }
+      
+      console.log('[AnalysisService] All AI models loaded successfully');
+    } catch (error) {
+      console.error('[AnalysisService] Failed to load AI models:', error);
+      throw error;
+    }
+  }
+
+  private async analyzeSentiment(text: string): Promise<{ score: number; label: string }> {
+    try {
+      const result = await this.aiModels.sentimentModel(text);
+      const score = result[0].score;
+      
+      let label: string;
+      if (score > 0.6) label = 'positive';
+      else if (score < 0.4) label = 'negative';
+      else label = 'neutral';
+      
+      return { score, label };
+    } catch (error) {
+      console.warn('[AnalysisService] AI sentiment analysis failed:', error);
+      return this.analyzeSentimentRuleBased(text);
+    }
+  }
+
+  private async performQAAnalysis(text: string): Promise<AnalysisResult[]> {
+    const analysis: AnalysisResult[] = [];
+    
+    for (const questionData of ANALYSIS_QUESTIONS) {
+      try {
+        const result = await this.aiModels.qaModel(questionData.q, text);
+        const confidence = result.score || 0.5;
+        
+        analysis.push({
+          id: questionData.id,
+          question: questionData.q,
+          answer: result.answer || 'No clear answer found',
+          confidence,
+          missing: confidence < 0.25
+        });
+        
+        // Add small delay between questions
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (error) {
+        console.warn(`[AnalysisService] AI QA analysis failed for question ${questionData.id}:`, error);
+        analysis.push({
+          id: questionData.id,
+          question: questionData.q,
+          answer: 'Analysis failed',
+          confidence: 0,
+          missing: true
+        });
+      }
+    }
+    
+    return analysis;
+  }
+
+  private async generateSummary(text: string): Promise<string> {
+    try {
+      const result = await this.aiModels.summarizer(text, {
+        max_length: 100,
+        min_length: 30,
+        do_sample: false
+      });
+      return result[0].summary_text || 'AI summary generation failed';
+    } catch (error) {
+      console.warn('[AnalysisService] AI summary generation failed:', error);
+      return this.generateSummaryRuleBased(text);
+    }
+  }
+
+  // ============================================================================
+  // RULE-BASED ANALYSIS IMPLEMENTATIONS
+  // ============================================================================
+
+  private analyzeSentimentRuleBased(text: string): { score: number; label: string } {
+    const lowerText = text.toLowerCase();
+    let score = 0.5; // Neutral base
+    
+    // Positive indicators
+    if (lowerText.includes('completed') || lowerText.includes('successful') || lowerText.includes('on track')) {
+      score += 0.3;
+    }
+    if (lowerText.includes('progress') || lowerText.includes('advance') || lowerText.includes('improve')) {
+      score += 0.2;
+    }
+    
+    // Negative indicators
+    if (lowerText.includes('delayed') || lowerText.includes('blocked') || lowerText.includes('issue')) {
+      score -= 0.3;
+    }
+    if (lowerText.includes('failed') || lowerText.includes('cancelled') || lowerText.includes('risk')) {
+      score -= 0.2;
+    }
+    
+    score = Math.max(0, Math.min(1, score));
+    
+    let label: string;
+    if (score > 0.6) label = 'positive';
+    else if (score < 0.4) label = 'negative';
+    else label = 'neutral';
+    
+    return { score, label };
+  }
+
+  private performQAAnalysisRuleBased(text: string): AnalysisResult[] {
+    return ANALYSIS_QUESTIONS.map(questionData => {
+      const lowerText = text.toLowerCase();
+      let answer = 'No clear information found';
+      let confidence = 0.1;
+      
+      // Simple keyword-based analysis
+      if (questionData.id === 'initiative' && lowerText.includes('initiative')) {
+        answer = 'Initiative mentioned in update';
+        confidence = 0.6;
+      } else if (questionData.id === 'date_change' && (lowerText.includes('date') || lowerText.includes('deadline'))) {
+        answer = 'Date-related information found';
+        confidence = 0.5;
+      } else if (questionData.id === 'impact_scope' && lowerText.includes('scope')) {
+        answer = 'Scope impact mentioned';
+        confidence = 0.5;
+      }
+      
+      return {
+        id: questionData.id,
+        question: questionData.q,
+        answer,
+        confidence,
+        missing: confidence < 0.25
+      };
+    });
+  }
+
+  private generateSummaryRuleBased(text: string): string {
+    if (text.length <= 100) {
+      return text;
+    }
+    
+    const sentences = text.split('.').filter(s => s.trim().length > 0);
+    if (sentences.length <= 2) {
+      return text;
+    }
+    
+    return sentences.slice(0, 2).join('. ') + '.';
+  }
+
+  // ============================================================================
+  // QUALITY ANALYSIS HELPERS
+  // ============================================================================
+
+  private determineApplicableCriteria(
+    updateType?: string, 
+    state?: string, 
+    text?: string
+  ): QualityCriteria[] {
+    if (updateType) {
+      return QUALITY_CRITERIA.filter(criteria => criteria.id === updateType);
+    }
+    
+    if (state) {
+      // Map state to criteria
+      const stateToCriteria: Record<string, string> = {
+        'paused': 'paused',
+        'off-track': 'off-track',
+        'at-risk': 'at-risk'
+      };
+      
+      const criteriaId = stateToCriteria[state];
+      if (criteriaId) {
+        return QUALITY_CRITERIA.filter(criteria => criteria.id === criteriaId);
+      }
+    }
+    
+    // Default to all criteria if no specific type/state
+    return QUALITY_CRITERIA;
+  }
+
+  private async analyzeCriterionWithAI(text: string, criteria: QualityCriteria): Promise<QualityAnalysis> {
+    try {
+      const answers: string[] = [];
+      const missingInfo: string[] = [];
+      const recommendations: string[] = [];
+      
+      for (const question of criteria.questions) {
+        try {
+          const result = await this.aiModels.qaModel(question, text);
+          const confidence = result.score || 0.5;
+          
+          if (confidence >= 0.3) {
+            answers.push(result.answer || question);
+          } else {
+            missingInfo.push(question);
+            recommendations.push(`Provide more specific information about: ${question}`);
+          }
+        } catch (error) {
+          missingInfo.push(question);
+          recommendations.push(`Provide more specific information about: ${question}`);
+        }
+      }
+      
+      const score = Math.min(answers.length, criteria.requiredAnswers);
+      const maxScore = criteria.requiredAnswers;
+      
+      if (missingInfo.length > 0) {
+        recommendations.push(`Consider addressing the ${missingInfo.length} missing information points to improve quality`);
+      }
+      
+      return {
+        criteriaId: criteria.id,
+        title: criteria.title,
+        score,
+        maxScore,
+        answers,
+        missingInfo,
+        recommendations
+      };
+    } catch (error) {
+      return {
+        criteriaId: criteria.id,
+        title: criteria.title,
+        score: 0,
+        maxScore: criteria.requiredAnswers,
+        answers: [],
+        missingInfo: criteria.questions,
+        recommendations: ['AI analysis failed for this criterion - manual review needed']
+      };
+    }
+  }
+
+  private analyzeCriterionRuleBased(text: string, criteria: QualityCriteria): QualityAnalysis {
+    const lowerText = text.toLowerCase();
+    const answers: string[] = [];
+    const missingInfo: string[] = [];
+    const recommendations: string[] = [];
+    
+    for (const question of criteria.questions) {
+      const lowerQuestion = question.toLowerCase();
+      
+      // Simple keyword matching
+      if (lowerText.includes('why') && lowerQuestion.includes('why')) {
+        answers.push('Reason mentioned in update');
+      } else if (lowerText.includes('impact') && lowerQuestion.includes('impact')) {
+        answers.push('Impact discussed in update');
+      } else if (lowerText.includes('support') && lowerQuestion.includes('support')) {
+        answers.push('Support needs mentioned');
+      } else {
+        missingInfo.push(question);
+        recommendations.push(`Provide more specific information about: ${question}`);
+      }
+    }
+    
+    const score = Math.min(answers.length, criteria.requiredAnswers);
+    const maxScore = criteria.requiredAnswers;
+    
+    if (missingInfo.length > 0) {
+      recommendations.push(`Consider addressing the ${missingInfo.length} missing information points to improve quality`);
+    }
+    
+    return {
+      criteriaId: criteria.id,
+      title: criteria.title,
+      score,
+      maxScore,
+      answers,
+      missingInfo,
+      recommendations
+    };
+  }
+
+  private calculateQualityResult(analysis: QualityAnalysis[], text: string): UpdateQualityResult {
+    const totalScore = analysis.reduce((sum, criterion) => sum + criterion.score, 0);
+    const maxPossibleScore = analysis.reduce((sum, criterion) => sum + criterion.maxScore, 0);
+    const overallScore = maxPossibleScore > 0 ? Math.round((totalScore / maxPossibleScore) * 100) : 0;
+    
+    const qualityLevel = this.determineQualityLevel(overallScore);
+    
+    const missingInfo = analysis.flatMap(criterion => criterion.missingInfo);
+    const recommendations = analysis.flatMap(criterion => criterion.recommendations);
+    
+    return {
+      overallScore,
+      qualityLevel,
+      analysis,
+      missingInfo,
+      recommendations,
+      summary: `Quality analysis complete. Score: ${overallScore}%. ${missingInfo.length} information points missing.`,
+      timestamp: new Date()
+    };
+  }
+
+  private determineQualityLevel(score: number): 'excellent' | 'good' | 'fair' | 'poor' {
+    if (score >= 80) return 'excellent';
+    if (score >= 60) return 'good';
+    if (score >= 40) return 'fair';
+    return 'poor';
+  }
+
+  // ============================================================================
+  // FALLBACK METHODS
+  // ============================================================================
+
+  private createFallbackAnalysis(text: string): ProjectUpdateAnalysis {
+    return {
+      sentiment: { score: 0.5, label: 'neutral' },
+      analysis: ANALYSIS_QUESTIONS.map(q => ({
+        id: q.id,
+        question: q.q,
+        answer: 'Analysis failed',
+        confidence: 0,
+        missing: true
+      })),
+      summary: 'Analysis failed - fallback result',
+      timestamp: new Date()
+    };
+  }
+
+  private createFallbackQualityAnalysis(
+    text: string, 
+    updateType?: string, 
+    state?: string
+  ): UpdateQualityResult {
+    const applicableCriteria = this.determineApplicableCriteria(updateType, state, text);
+    
+    return {
+      overallScore: 0,
+      qualityLevel: 'poor',
+      analysis: applicableCriteria.map(criteria => ({
+        criteriaId: criteria.id,
+        title: criteria.title,
+        score: 0,
+        maxScore: criteria.requiredAnswers,
+        answers: [],
+        missingInfo: criteria.questions,
+        recommendations: ['Analysis failed - manual review needed']
+      })),
+      missingInfo: ['Analysis could not complete'],
+      recommendations: ['Please try again or provide shorter text'],
+      summary: 'Quality analysis failed - fallback result',
+      timestamp: new Date()
+    };
+  }
+
+  // ============================================================================
+  // UTILITY METHODS
+  // ============================================================================
+
+  /**
+   * Update configuration
+   */
+  updateConfig(newConfig: Partial<AnalysisConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+    
+    if (newConfig.maxCacheSize && newConfig.maxCacheSize !== this.config.maxCacheSize) {
+      this.cache = new AnalysisCache(newConfig.maxCacheSize);
+    }
+  }
+
+  /**
+   * Get current configuration
+   */
+  getConfig(): AnalysisConfig {
+    return { ...this.config };
+  }
+
+  /**
+   * Clear analysis cache
+   */
+  clearCache(): void {
+    this.cache.clear();
+  }
+
+  /**
+   * Get cache statistics
+   */
+  getCacheStats(): { hits: number; misses: number; size: number } {
+    return this.cache.getStats();
+  }
+
+  /**
+   * Clean up AI models
+   */
+  cleanupAIModels(): void {
+    this.aiModels.sentimentModel = null;
+    this.aiModels.qaModel = null;
+    this.aiModels.summarizer = null;
+    console.log('[AnalysisService] AI models cleaned up');
+  }
+
+  /**
+   * Check if AI analysis is available
+   */
+  isAIAvailable(): boolean {
+    return !!(pipeline && !isContentScript);
+  }
+
+  /**
+   * Get available analysis strategies
+   */
+  getAvailableStrategies(): string[] {
+    const strategies = ['rule-based'];
+    
+    if (this.isAIAvailable()) {
+      strategies.push('ai', 'hybrid', 'auto');
+    }
+    
+    return strategies;
+  }
+}
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+/**
+ * Get analysis results grouped by confidence levels
+ */
+export function groupAnalysisResults(analysis: AnalysisResult[]) {
+  const clearlyStated = analysis.filter(result => result.confidence >= 0.25);
+  const missing = analysis.filter(result => result.confidence < 0.25);
+  
+  return {
+    clearlyStated,
+    missing,
+    totalQuestions: analysis.length,
+    coverage: (clearlyStated.length / analysis.length) * 100
+  };
+}
+
+/**
+ * Export analysis results for storage
+ */
+export function exportAnalysis(analysis: ProjectUpdateAnalysis) {
+  return {
+    ...analysis,
+    timestamp: analysis.timestamp.toISOString(),
+    grouped: groupAnalysisResults(analysis.analysis)
+  };
+}
+
+// ============================================================================
+// EXPORTS & SINGLETON INSTANCE
+// ============================================================================
+
+export const analysisService = AnalysisService.getInstance();
+
+// Convenience functions for backward compatibility
+export const analyzeProjectUpdate = (text: string, strategy?: 'ai' | 'rule-based' | 'hybrid' | 'auto') => 
+  analysisService.analyzeProjectUpdate(text, strategy);
+
+export const analyzeUpdateQuality = (text: string, updateType?: string, state?: string, strategy?: 'ai' | 'rule-based' | 'hybrid' | 'auto') => 
+  analysisService.analyzeUpdateQuality(text, updateType, state, strategy);
+
+

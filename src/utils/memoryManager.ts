@@ -225,10 +225,10 @@ class MemoryManager {
    */
   private async clearModels(): Promise<void> {
     try {
-      // Import and cleanup models from projectAnalyzer
-      const { cleanupModels } = await import('./projectAnalyzer');
-      if (cleanupModels) {
-        cleanupModels();
+          // Import and cleanup models from AnalysisService
+      const { analysisService } = await import('../services/AnalysisService');
+      if (analysisService) {
+        analysisService.cleanupAIModels();
         console.log('[MemoryManager] AI models cleared');
       }
     } catch (error) {

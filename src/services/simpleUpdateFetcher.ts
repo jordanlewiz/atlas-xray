@@ -1,5 +1,5 @@
 import { db, storeProjectUpdate } from '../utils/database';
-import { simpleUpdateAnalyzer } from './simpleUpdateAnalyzer';
+import { analyzeUpdateQuality } from './AnalysisService';
 
 /**
  * Simple Update Fetcher - No bullshit, just fetch and store
@@ -83,7 +83,41 @@ export class SimpleUpdateFetcher {
 
             // Analyze the update immediately if it has a summary
             if (update.summary && update.summary.trim()) {
-              await simpleUpdateAnalyzer.analyzeUpdate(update);
+              try {
+                const analysisResult = await analyzeUpdateQuality(update.summary);
+                
+                // Update the stored update with analysis results
+                const analyzedUpdate = {
+                  ...update,
+                  updateQuality: analysisResult.overallScore,
+                  qualityLevel: analysisResult.qualityLevel,
+                  qualitySummary: analysisResult.summary,
+                  qualityMissingInfo: analysisResult.missingInfo || [],
+                  qualityRecommendations: analysisResult.recommendations || [],
+                  analysisDate: new Date().toISOString()
+                };
+
+                // Store the updated record
+                await db.projectUpdates.put(analyzedUpdate);
+              } catch (analysisError) {
+                console.error(`[SimpleUpdateFetcher] ❌ Analysis failed for ${projectKey}:`, analysisError);
+                
+                // Mark as analyzed but with error
+                const errorUpdate = {
+                  ...update,
+                  updateQuality: 0,
+                  qualityLevel: 'poor' as const,
+                  qualitySummary: 'Analysis failed',
+                  analyzed: true,
+                  analysisDate: new Date().toISOString()
+                };
+                
+                try {
+                  await db.projectUpdates.put(errorUpdate);
+                } catch (dbError) {
+                  console.error(`[SimpleUpdateFetcher] ❌ Failed to store error update for ${projectKey}:`, dbError);
+                }
+              }
             }
 
           } catch (updateError) {
