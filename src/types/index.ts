@@ -34,6 +34,18 @@ export interface ProjectUpdate {
   qualityRecommendations?: string[]; // Array of recommendations (matches DatabaseService)
 }
 
+// NEW: Project Dependencies interface
+export interface ProjectDependency {
+  id: string;                    // Primary key - composite dependency ID from GraphQL
+  sourceProjectKey: string;      // Project that has the dependency
+  targetProjectKey: string;      // Project that is depended upon
+  sourceProjectName?: string;    // For display purposes
+  targetProjectName?: string;    // For display purposes
+  createdAt: string;            // When dependency was discovered
+  lastUpdated: string;          // When dependency was last verified
+  raw?: any;                    // Full GraphQL response for backward compatibility
+}
+
 export interface ProjectStatusHistory {
   id: string;
   projectKey: string;

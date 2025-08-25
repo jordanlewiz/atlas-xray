@@ -47,6 +47,18 @@ export interface ProjectUpdate {
   analysisDate?: string;
 }
 
+// NEW: Project Dependencies interface
+export interface ProjectDependency {
+  id: string;                    // Primary key - composite dependency ID from GraphQL
+  sourceProjectKey: string;      // Project that has the dependency
+  targetProjectKey: string;      // Project that is depended upon
+  sourceProjectName?: string;    // For display purposes
+  targetProjectName?: string;    // For display purposes
+  createdAt: string;            // When dependency was discovered
+  lastUpdated: string;          // When dependency was last verified
+  raw?: any;                    // Full GraphQL response for backward compatibility
+}
+
 // REMOVED: StoredAnalysis interface - forbidden by architecture
 
 export interface MetaData {
@@ -70,6 +82,7 @@ export class DatabaseService extends Dexie {
   // Core tables - SIMPLIFIED
   projectViews!: Table<ProjectView>;
   projectUpdates!: Table<ProjectUpdate>;
+  projectDependencies!: Table<ProjectDependency>; // NEW
   meta!: Table<MetaData>;
   
   // Visible projects tracking
@@ -86,6 +99,7 @@ export class DatabaseService extends Dexie {
       // Core tables
       projectViews: 'projectKey',
       projectUpdates: 'uuid, projectKey, creationDate, updateQuality, analyzed',
+      projectDependencies: 'id, sourceProjectKey, targetProjectKey, createdAt', // NEW
       meta: 'key',
       
       // Visible projects tracking
@@ -412,6 +426,104 @@ export class DatabaseService extends Dexie {
   }
 
   // ============================================================================
+  // PROJECT DEPENDENCIES OPERATIONS
+  // ============================================================================
+
+  /**
+   * Store project dependencies from GraphQL response
+   */
+  async storeProjectDependencies(
+    sourceProjectKey: string, 
+    dependencies: any[]
+  ): Promise<void> {
+    try {
+      for (const dep of dependencies) {
+        const dependency: ProjectDependency = {
+          id: dep.id, // GraphQL dependency ID
+          sourceProjectKey,
+          targetProjectKey: dep.outgoingProject.key,
+          sourceProjectName: '', // Will be populated from project view
+          targetProjectName: dep.outgoingProject.name,
+          createdAt: new Date().toISOString(),
+          lastUpdated: new Date().toISOString(),
+          raw: dep // Store full GraphQL response
+        };
+        
+        await this.projectDependencies.put(dependency);
+      }
+      
+      console.log(`[DatabaseService] ✅ Stored ${dependencies.length} dependencies for ${sourceProjectKey}`);
+    } catch (error) {
+      console.error(`[DatabaseService] ❌ Failed to store dependencies for ${sourceProjectKey}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all dependencies for a project
+   */
+  async getProjectDependencies(projectKey: string): Promise<ProjectDependency[]> {
+    try {
+      return await this.projectDependencies
+        .where('sourceProjectKey')
+        .equals(projectKey)
+        .toArray();
+    } catch (error) {
+      console.error(`[DatabaseService] Failed to get dependencies for ${projectKey}:`, error);
+      return [];
+    }
+  }
+
+  /**
+   * Get all projects that depend on a specific project
+   */
+  async getProjectsDependingOn(projectKey: string): Promise<ProjectDependency[]> {
+    try {
+      return await this.projectDependencies
+        .where('targetProjectKey')
+        .equals(projectKey)
+        .toArray();
+      } catch (error) {
+        console.error(`[DatabaseService] Failed to get projects depending on ${projectKey}:`, error);
+        return [];
+      }
+  }
+
+  /**
+   * Get all project dependencies (for overview)
+   */
+  async getAllProjectDependencies(): Promise<ProjectDependency[]> {
+    try {
+      return await this.projectDependencies.toArray();
+    } catch (error) {
+      console.error('[DatabaseService] Failed to get all project dependencies:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Clear dependencies for a project (when project is deleted/archived)
+   */
+  async clearProjectDependencies(projectKey: string): Promise<void> {
+    try {
+      await this.projectDependencies
+        .where('sourceProjectKey')
+        .equals(projectKey)
+        .delete();
+      
+      await this.projectDependencies
+        .where('targetProjectKey')
+        .equals(projectKey)
+        .delete();
+      
+      console.log(`[DatabaseService] ✅ Cleared dependencies for ${projectKey}`);
+    } catch (error) {
+      console.error(`[DatabaseService] ❌ Failed to clear dependencies for ${projectKey}:`, error);
+      throw error;
+    }
+  }
+
+  // ============================================================================
   // ANALYSIS OPERATIONS
   // ============================================================================
 
@@ -610,16 +722,19 @@ export class DatabaseService extends Dexie {
       const [
         projectViews,
         projectUpdates,
+        projectDependencies, // NEW
         meta
       ] = await Promise.all([
         this.getProjectViews(),
         this.getProjectUpdates(),
+        this.getAllProjectDependencies(), // NEW
         this.meta.toArray()
       ]);
 
       return {
         projectViews,
         projectUpdates,
+        projectDependencies, // NEW
         meta,
         exportDate: new Date().toISOString()
       };
@@ -637,12 +752,14 @@ export class DatabaseService extends Dexie {
       await this.transaction('rw', [
         this.projectViews,
         this.projectUpdates,
+        this.projectDependencies, // NEW
         this.meta
       ], async () => {
         // Clear existing data
         await Promise.all([
           this.projectViews.clear(),
           this.projectUpdates.clear(),
+          this.projectDependencies.clear(), // NEW
           this.meta.clear()
         ]);
 
@@ -652,6 +769,10 @@ export class DatabaseService extends Dexie {
         }
         if (data.projectUpdates) {
           await this.projectUpdates.bulkAdd(data.projectUpdates);
+        }
+        // NEW: Import dependencies
+        if (data.projectDependencies) {
+          await this.projectDependencies.bulkAdd(data.projectDependencies);
         }
         // REMOVED: Forbidden analysis table imports
         if (data.meta) {
@@ -674,13 +795,13 @@ export class DatabaseService extends Dexie {
       await Promise.all([
         this.projectViews.clear(),
         this.projectUpdates.clear(),
+        this.projectDependencies.clear(), // NEW: Clear dependencies
         this.meta.clear()
       ]);
       
       console.log('[DatabaseService] ✅ All data cleared');
     } catch (error) {
       console.error('[DatabaseService] ❌ Failed to clear data:', error);
-      throw error;
     }
   }
 }
@@ -704,6 +825,13 @@ export const storeProjectView = (projectView: ProjectView) => databaseService.st
 export const storeProjectUpdate = (update: ProjectUpdate) => databaseService.storeProjectUpdate(update);
 export const getProjectImage = (projectKey: string) => databaseService.getProjectImage(projectKey);
 export const analyzeAllUnanalyzedUpdates = () => databaseService.analyzeAllUnanalyzedUpdates();
+
+// NEW: Dependency function exports
+export const storeProjectDependencies = (sourceProjectKey: string, dependencies: any[]) => databaseService.storeProjectDependencies(sourceProjectKey, dependencies);
+export const getProjectDependencies = (projectKey: string) => databaseService.getProjectDependencies(projectKey);
+export const getProjectsDependingOn = (projectKey: string) => databaseService.getProjectsDependingOn(projectKey);
+export const getAllProjectDependencies = () => databaseService.getAllProjectDependencies();
+export const clearProjectDependencies = (projectKey: string) => databaseService.clearProjectDependencies(projectKey);
 
 // Initialize database
 export async function initializeDatabase(): Promise<void> {

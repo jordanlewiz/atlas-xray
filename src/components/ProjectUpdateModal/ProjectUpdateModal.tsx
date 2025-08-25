@@ -49,6 +49,14 @@ export default function ProjectUpdateModal({
   onClose 
 }: ProjectUpdateModalProps): React.JSX.Element | null {
   
+  // Debug logging
+  console.log('🔍 [ProjectUpdateModal] Modal opened with:', {
+    selectedUpdate,
+    project,
+    projectKey: project?.projectKey,
+    projectName: project?.name
+  });
+  
   const getLozengeAppearance = (status: string | undefined): any => {
     if (!status) return 'new';
     const normalizedStatus = status.toLowerCase().replace(/_/g, '-');
@@ -85,6 +93,9 @@ export default function ProjectUpdateModal({
                   <div className="project-key">
                     <small>Project Key:</small> {project?.projectKey}
                   </div>
+
+                  {/* Dependencies Display */}
+                  {/* Dependencies Display */}
 
                   {/* Quality Analysis Section */}
                   {selectedUpdate.uuid && (() => {

@@ -98,7 +98,42 @@
     width: 100%;
     color: #aaa;
     font-size: 10px;
-   }
+  }
+  
+  // NEW: Dependencies styling
+  .timeline-dependencies {
+    display: flex;
+    gap: 8px;
+    margin-top: 4px;
+    align-items: center;
+    
+    .dependency-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 6px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 500;
+      cursor: help;
+      
+      &.depends-on {
+        background-color: #E3F2FD;
+        color: #1976D2;
+        border: 1px solid #BBDEFB;
+      }
+      
+      &.required-by {
+        background-color: #F3E5F5;
+        color: #7B1FA2;
+        border: 1px solid #E1BEE7;
+      }
+      
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+  }
 }
 
 .timeline-cell {
@@ -225,3 +260,4 @@
   justify-content: flex-end;
   white-space: nowrap;
 }
+

@@ -7,6 +7,17 @@ interface ProjectNode {
   name: string;
   archived: boolean;
   __typename: string;
+  dependencies?: {
+    edges: Array<{
+      node: {
+        id: string;
+        outgoingProject: {
+          key: string;
+          name: string;
+        };
+      };
+    }>;
+  };
 }
 
 interface ProjectEdge {
@@ -220,7 +231,7 @@ export class SimpleProjectListFetcher {
             includeFollowing: false,
             includeLastUpdated: false,
             includeOwner: false,
-            includeRelatedProjects: false,
+            includeRelatedProjects: true,  // 🆕 ENABLED: Fetch project dependencies
             includeStatus: false,
             includeTargetDate: false,
             includeTeam: false,
@@ -280,6 +291,15 @@ export class SimpleProjectListFetcher {
               archived: project.archived
             });
             newProjects++;
+            
+            // 🆕 NEW: Store dependencies if they exist
+            if (project.dependencies && project.dependencies.edges) {
+              const dependencies = project.dependencies.edges.map(edge => edge.node);
+              if (dependencies.length > 0) {
+                console.log(`[AtlasXray] 🔗 Found ${dependencies.length} dependencies for ${project.key}`);
+                await db.storeProjectDependencies(project.key, dependencies);
+              }
+            }
           }
         }
         console.log(`[AtlasXray] ✅ Stored ${newProjects} new project views (${existingProjects.length} already existed)`);

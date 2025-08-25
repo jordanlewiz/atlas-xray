@@ -11,8 +11,49 @@ import {
   getDueDateTooltip,
   getDueDateDiff
 } from "../../utils/timelineUtils";
+import { useLiveQuery } from 'dexie-react-hooks';
+import { db } from '../../services/DatabaseService';
 // Quality analysis data is now stored directly in update objects by ProjectPipeline
 import type { StatusTimelineHeatmapRowProps } from "../../types";
+
+/**
+ * Component to display project dependencies in the timeline row
+ */
+function DependenciesDisplay({ projectKey }: { projectKey: string }) {
+  const dependencies = useLiveQuery(() => 
+    db.getProjectDependencies(projectKey)
+  );
+  
+  const dependents = useLiveQuery(() => 
+    db.getProjectsDependingOn(projectKey)
+  );
+
+  if (!dependencies || !dependents) {
+    return null; // Don't show loading state in timeline
+  }
+
+  const hasDependencies = dependencies.length > 0;
+  const hasDependents = dependents.length > 0;
+
+  if (!hasDependencies && !hasDependents) {
+    return null; // Don't show anything if no dependencies
+  }
+
+  return (
+    <div className="timeline-dependencies">
+      {hasDependencies && (
+        <span className="dependency-indicator depends-on" title={`Depends on: ${dependencies.map(d => d.targetProjectKey).join(', ')}`}>
+          🔗 {dependencies.length}
+        </span>
+      )}
+      {hasDependents && (
+        <span className="dependency-indicator required-by" title={`Required by: ${dependents.map(d => d.sourceProjectKey).join(', ')}`}>
+          📋 {dependents.length}
+        </span>
+      )}
+    </div>
+  );
+}
 
 /**
  * Renders a single project row in the status timeline heatmap.
@@ -59,6 +100,7 @@ function StatusTimelineHeatmapRow({
         >
           {project.projectKey}
         </a>
+        <DependenciesDisplay projectKey={project.projectKey} />
       </div>
       
       {weekCells.map((cell: any, i: number) => {
