@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, type ProjectView, type ProjectUpdate } from "../utils/database";
+import { db, type ProjectView, type ProjectUpdate } from "../services/DatabaseService";
 import { getWeekRanges, getAllProjectDates } from "../utils/timelineUtils";
 import type { 
   WeekRange, 
@@ -12,6 +12,8 @@ export function useTimeline(weekLimit: number = 12) {
   // Fetch raw data from database
   const projects = useLiveQuery(() => db.projectViews.toArray(), []) as ProjectView[] | undefined;
   const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []) as ProjectUpdate[] | undefined;
+
+
 
   // Transform data into clean view models
   return useMemo(() => {

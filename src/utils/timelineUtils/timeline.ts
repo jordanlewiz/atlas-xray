@@ -1,6 +1,5 @@
 import * as chrono from "chrono-node";
 import { parse, differenceInCalendarDays, isValid, parseISO, isAfter, isBefore, startOfWeek, addWeeks, format, isSameWeek, subWeeks, subDays, lastDayOfMonth } from "date-fns";
-import { getGlobalCloudId, getGlobalSectionId } from "../globalState";
 import type { ProjectViewModel, WeekRange, ProjectUpdate } from "../../types";
 
 const MONTHS = [
@@ -97,8 +96,9 @@ export function getAllProjectDates(projects: ProjectViewModel[], updatesByProjec
 }
 
 export function buildProjectUrlFromKey(projectKey: string): string | undefined {
-  const cloudId = getGlobalCloudId();
-  const sectionId = getGlobalSectionId();
+  // Get cloud ID and section ID from window (set by contentScript)
+  const cloudId = typeof window !== 'undefined' ? (window as any).atlasXrayCloudId : null;
+  const sectionId = typeof window !== 'undefined' ? (window as any).atlasXraySectionId : null;
   if (!cloudId || !sectionId || !projectKey) return undefined;
   return `https://home.atlassian.com/o/${cloudId}/s/${sectionId}/project/${projectKey}/updates`;
 }
@@ -174,7 +174,7 @@ const timelineCellCache = new Map<string, TimelineCell[]>();
   // Cache key generator for timeline cells
   function getTimelineCellCacheKey(weekRanges: WeekRange[], updates: ProjectUpdate[]): string {
     const weekRangeKey = weekRanges.map(w => `${w.start.getTime()}-${w.end.getTime()}`).join('|');
-    const updatesKey = updates.map(u => `${u.id || 'unknown'}-${u.creationDate || 'no-date'}`).join('|');
+    const updatesKey = updates.map(u => `${u.uuid || 'unknown'}-${u.creationDate || 'no-date'}`).join('|');
     return `${weekRangeKey}|${updatesKey}`;
   }
 

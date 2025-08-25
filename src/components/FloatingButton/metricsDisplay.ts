@@ -26,13 +26,17 @@ export function formatFloatingButtonMetrics(metrics: FloatingButtonMetrics): str
 }
 
 /**
- * Format metrics for tooltip display as plain text
- * Provides full context without HTML dependencies
+ * Format metrics for tooltip display - matches HTML button format exactly
+ * Uses same structure as button display for consistency
  */
 export function formatFloatingButtonTooltip(metrics: FloatingButtonMetrics): string {
   const { projectsVisible, projectsStored, updatesAvailable, updatesStored, updatesAnalyzed } = metrics;
   
-  return `Atlas Xray Status\nProjects: ${projectsVisible} in query • ${projectsStored} Total Stored\nUpdates: ${updatesAvailable} in query • ${updatesStored} Total Stored • ${updatesAnalyzed} Analyzed\nProject Fetching: Direct GraphQL API`;
+  // Match the exact format used in the button display
+  const projectsLine = `Projects: ${projectsVisible} in query • ${projectsStored} Total Stored`;
+  const updatesLine = `Updates: ${updatesAvailable} in query • ${updatesStored} Total Stored • ${updatesAnalyzed} Analyzed`;
+  
+  return `${projectsLine}\n${updatesLine}`;
 }
 
 /**

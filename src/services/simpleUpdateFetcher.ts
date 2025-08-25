@@ -1,5 +1,4 @@
-import { db, storeProjectUpdate } from '../utils/database';
-import { simpleUpdateAnalyzer } from './simpleUpdateAnalyzer';
+import { db } from './DatabaseService';
 
 /**
  * Simple Update Fetcher - No bullshit, just fetch and store
@@ -79,12 +78,10 @@ export class SimpleUpdateFetcher {
             };
 
             // Store the update
-            await storeProjectUpdate(update);
+            await db.storeProjectUpdate(update);
 
-            // Analyze the update immediately if it has a summary
-            if (update.summary && update.summary.trim()) {
-              await simpleUpdateAnalyzer.analyzeUpdate(update);
-            }
+            // Analysis is now handled automatically by DatabaseService.storeProjectUpdate()
+            // No need for manual analysis here
 
           } catch (updateError) {
             console.error(`[SimpleUpdateFetcher] ❌ Failed to store update for ${projectKey}:`, updateError);

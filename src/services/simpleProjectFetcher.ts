@@ -1,4 +1,4 @@
-import { db, storeProjectView } from '../utils/database';
+import { db } from './DatabaseService';
 import { bootstrapService } from './bootstrapService';
 
 /**
@@ -63,7 +63,7 @@ export class SimpleProjectFetcher {
           createdAt: data.project.createdAt
         };
 
-        await storeProjectView(projectView);
+        await db.storeProjectView(projectView);
         console.log(`[SimpleProjectFetcher] ✅ Stored detailed view for ${projectKey}`);
       } else {
         console.warn(`[SimpleProjectFetcher] ⚠️ No project data returned for ${projectKey}`);

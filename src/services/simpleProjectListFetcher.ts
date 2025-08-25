@@ -1,5 +1,5 @@
 import { DIRECTORY_VIEW_PROJECT_QUERY } from '../graphql/DirectoryViewProjectQuery';
-import { setVisibleProjectIds, db } from '../utils/database';
+import { db } from './DatabaseService';
 import { bootstrapService } from './bootstrapService';
 
 interface ProjectNode {
@@ -7,6 +7,17 @@ interface ProjectNode {
   name: string;
   archived: boolean;
   __typename: string;
+  dependencies?: {
+    edges: Array<{
+      node: {
+        id: string;
+        outgoingProject: {
+          key: string;
+          name: string;
+        };
+      };
+    }>;
+  };
 }
 
 interface ProjectEdge {
@@ -209,7 +220,7 @@ export class SimpleProjectListFetcher {
         return apolloClient.query({
           query: gql`${DIRECTORY_VIEW_PROJECT_QUERY}`,
           variables: {
-            first: 500, // Request up to 500, but server may return fewer
+            first: 100, // Request up to 100, but server may return fewer
             workspaceUuid: workspaceId,
             tql: tql, // Dynamic TQL from URL
             // Required boolean flags
@@ -220,7 +231,7 @@ export class SimpleProjectListFetcher {
             includeFollowing: false,
             includeLastUpdated: false,
             includeOwner: false,
-            includeRelatedProjects: false,
+            includeRelatedProjects: true,  // 🆕 ENABLED: Fetch project dependencies
             includeStatus: false,
             includeTargetDate: false,
             includeTeam: false,
@@ -249,7 +260,7 @@ export class SimpleProjectListFetcher {
         console.log(`[AtlasXray] 📋 Project keys: ${projectKeys.join(', ')}`);
 
         // Store visible project IDs in database (lightweight)
-        await setVisibleProjectIds(projectKeys);
+        await db.setVisibleProjectIds(projectKeys);
         
         console.log(`[AtlasXray] ✅ Visible projects tracked: ${projectKeys.length} project IDs stored`);
 
@@ -280,6 +291,15 @@ export class SimpleProjectListFetcher {
               archived: project.archived
             });
             newProjects++;
+            
+            // 🆕 NEW: Store dependencies if they exist
+            if (project.dependencies && project.dependencies.edges) {
+              const dependencies = project.dependencies.edges.map(edge => edge.node);
+              if (dependencies.length > 0) {
+                console.log(`[AtlasXray] 🔗 Found ${dependencies.length} dependencies for ${project.key}`);
+                await db.storeProjectDependencies(project.key, dependencies);
+              }
+            }
           }
         }
         console.log(`[AtlasXray] ✅ Stored ${newProjects} new project views (${existingProjects.length} already existed)`);

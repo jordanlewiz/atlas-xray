@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { getProjectImage } from '../../utils/database';
-import { base64ToDataUrl } from '../../utils/imageUtils';
+import { getProjectImage } from '../../services/DatabaseService';
+// Simple utility to convert base64 to data URL
+const base64ToDataUrl = (base64: string, mimeType: string): string => {
+  return `data:${mimeType};base64,${base64}`;
+};
 
 interface ImageRendererProps {
   projectKey: string;

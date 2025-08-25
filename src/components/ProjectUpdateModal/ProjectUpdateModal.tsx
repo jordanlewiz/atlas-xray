@@ -11,7 +11,7 @@ import Lozenge from "@atlaskit/lozenge";
 import { Grid, Box } from "@atlaskit/primitives";
 import { getDueDateDiff } from "../../utils/timelineUtils";
 import type { ProjectUpdateModalProps } from "../../types";
-import { renderProseMirror } from "../../utils/proseMirrorRenderer";
+import { renderProseMirror } from '../../services/ProseMirrorService';
 import { ImageRenderer } from "../ImageRenderer";
 import QualityIndicator from "../QualityIndicator/QualityIndicator";
 // Quality analysis data is now stored directly in update objects by ProjectPipeline
@@ -48,6 +48,14 @@ export default function ProjectUpdateModal({
   project, 
   onClose 
 }: ProjectUpdateModalProps): React.JSX.Element | null {
+  
+  // Debug logging
+  console.log('🔍 [ProjectUpdateModal] Modal opened with:', {
+    selectedUpdate,
+    project,
+    projectKey: project?.projectKey,
+    projectName: project?.name
+  });
   
   const getLozengeAppearance = (status: string | undefined): any => {
     if (!status) return 'new';
@@ -86,16 +94,19 @@ export default function ProjectUpdateModal({
                     <small>Project Key:</small> {project?.projectKey}
                   </div>
 
+                  {/* Dependencies Display */}
+                  {/* Dependencies Display */}
+
                   {/* Quality Analysis Section */}
-                  {selectedUpdate.id && (() => {
-                    // Get quality data directly from the update object (populated by ProjectPipeline)
+                  {selectedUpdate.uuid && (() => {
+                    // Get quality data directly from the update object (populated by AnalysisService)
                     if (selectedUpdate.updateQuality && selectedUpdate.qualityLevel) {
                       const quality = {
                         overallScore: selectedUpdate.updateQuality,
                         qualityLevel: selectedUpdate.qualityLevel,
                         summary: selectedUpdate.qualitySummary || 'Quality analysis completed',
-                        analysis: selectedUpdate.qualityAnalysis ? JSON.parse(selectedUpdate.qualityAnalysis) : [],
-                        missingInfo: selectedUpdate.qualityMissingInfo ? JSON.parse(selectedUpdate.qualityMissingInfo) : []
+                        analysis: [], // No detailed analysis in current interface
+                        missingInfo: selectedUpdate.qualityMissingInfo || []
                       };
                       return (
                         <SectionMessage

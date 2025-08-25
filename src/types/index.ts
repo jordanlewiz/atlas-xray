@@ -1,15 +1,22 @@
 // Database record types - with individual fields for easier access
 export interface ProjectView {
-  projectKey: string;
-  raw: any; // Full GraphQL response
+  projectKey: string; // Primary key
+  name?: string;
+  status?: string;
+  team?: string;
+  owner?: string;
+  lastUpdated?: string;
+  archived?: boolean;
+  createdAt?: string;
+  raw?: any; // Full GraphQL response for backward compatibility
 }
 
 export interface ProjectUpdate {
-  id: string;
+  uuid: string; // Primary key from GraphQL (matches DatabaseService)
   projectKey: string;
-  creationDate?: string;
+  creationDate: string;
   state?: string;
-  missedUpdate?: boolean;
+  missedUpdate: boolean;
   targetDate?: string; // Maps to newTargetDate from GraphQL
   newDueDate?: string;
   oldDueDate?: string;
@@ -17,15 +24,26 @@ export interface ProjectUpdate {
   summary?: string;
   details?: string; // JSON stringified notes array
   raw?: any; // Full GraphQL response (optional)
-  // Quality analysis fields (populated by local language model)
+  // Quality analysis fields (populated by AnalysisService)
   analyzed?: boolean;
   analysisDate?: string;
   updateQuality?: number;
   qualityLevel?: 'excellent' | 'good' | 'fair' | 'poor';
-  qualityAnalysis?: string; // JSON string of detailed analysis
   qualitySummary?: string;
-  qualityRecommendations?: string; // JSON string of recommendations
-  qualityMissingInfo?: string; // JSON string of missing information
+  qualityMissingInfo?: string[]; // Array of missing info (matches DatabaseService)
+  qualityRecommendations?: string[]; // Array of recommendations (matches DatabaseService)
+}
+
+// NEW: Project Dependencies interface
+export interface ProjectDependency {
+  id: string;                    // Primary key - composite dependency ID from GraphQL
+  sourceProjectKey: string;      // Project that has the dependency
+  targetProjectKey: string;      // Project that is depended upon
+  sourceProjectName?: string;    // For display purposes
+  targetProjectName?: string;    // For display purposes
+  createdAt: string;            // When dependency was discovered
+  lastUpdated: string;          // When dependency was last verified
+  raw?: any;                    // Full GraphQL response for backward compatibility
 }
 
 export interface ProjectStatusHistory {

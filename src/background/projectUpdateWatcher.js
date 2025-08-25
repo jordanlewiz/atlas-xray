@@ -5,13 +5,30 @@
  * and automatically analyzes them using Transformers.js
  */
 
-import { analysisDB, initializeAnalysisDatabase } from '../utils/analysisDatabase';
-import { analyzeProjectUpdate } from '../utils/projectAnalyzer';
+// Use dynamic imports for ES6 modules in background script
+let analysisDB, initializeDatabase, analyzeUpdateQuality;
 
-// Performance optimizations
-const WATCH_INTERVAL = 60000; // Check every 60 seconds (increased from 30)
-const MAX_TEXT_LENGTH = 1500; // Reduced from 2000
-const CACHE_DURATION_HOURS = 12; // Reduced from 24
+// Initialize imports when script loads
+async function initializeImports() {
+  try {
+    const dbModule = await import('../services/DatabaseService');
+    const analysisModule = await import('../services/AnalysisService');
+    
+    analysisDB = dbModule.db;
+    initializeDatabase = dbModule.initializeDatabase;
+    analyzeUpdateQuality = analysisModule.analyzeUpdateQuality;
+    
+    console.log('[ProjectUpdateWatcher] ✅ Imports initialized successfully');
+    return true;
+  } catch (error) {
+    console.error('[ProjectUpdateWatcher] ❌ Failed to initialize imports:', error);
+    return false;
+  }
+}
+
+// Performance optimizations - SIMPLIFIED
+const WATCH_INTERVAL = 60000; // Check every 60 seconds
+const MAX_TEXT_LENGTH = 1500; // Limit text length for AI
 const MAX_CONCURRENT_ANALYSES = 3; // Limit concurrent processing
 const ANALYSIS_TIMEOUT = 10000; // 10 second timeout per analysis
 const MAX_UPDATES_PER_BATCH = 5; // Process max 5 updates at once
@@ -31,8 +48,15 @@ async function initializeWatcher() {
   try {
     console.log('[ProjectUpdateWatcher] Initializing...');
     
-    // Initialize database
-    await initializeAnalysisDatabase();
+    // First initialize imports
+    const importsReady = await initializeImports();
+    if (!importsReady) {
+      console.error('[ProjectUpdateWatcher] Failed to initialize imports, aborting');
+      return;
+    }
+    
+    // Initialize database (this will trigger background analysis of unanalyzed updates)
+    await initializeDatabase();
     
     // Start watching for updates
     startWatching();
@@ -77,10 +101,8 @@ function cleanupMemory() {
     console.log('[ProjectUpdateWatcher] Forced garbage collection');
   }
   
-  // Clear any cached data
-  if (analysisDB && analysisDB.clearCache) {
-    analysisDB.clearCache();
-  }
+      // Clear any cached data - DatabaseService handles this automatically
+    // No manual cache clearing needed
 }
 
 /**
@@ -177,15 +199,32 @@ async function processUpdateWithRateLimit(update) {
 
 /**
  * Get new updates from your existing Dexie database
- * You'll need to adapt this to match your database structure
+ * This fetches updates that haven't been analyzed yet
  */
 async function getNewUpdatesFromDexie() {
   try {
-    // This is a placeholder - you'll need to implement this based on your existing database
-    // Example: check for updates that don't have analysis results yet
+    // Debug: Check total updates first
+    const totalUpdates = await analysisDB.countProjectUpdates();
+    const analyzedUpdates = await analysisDB.countAnalyzedUpdates();
     
-    // For now, return empty array - implement based on your existing database schema
-    return [];
+    console.log(`[ProjectUpdateWatcher] Database status: ${totalUpdates} total updates, ${analyzedUpdates} analyzed`);
+    
+    // Get unanalyzed updates from the database
+    const unanalyzedUpdates = await analysisDB.getUnanalyzedUpdates();
+    
+    if (unanalyzedUpdates.length === 0) {
+      console.log(`[ProjectUpdateWatcher] No unanalyzed updates found. Total: ${totalUpdates}, Analyzed: ${analyzedUpdates}`);
+      return [];
+    }
+    
+    console.log(`[ProjectUpdateWatcher] Found ${unanalyzedUpdates.length} unanalyzed updates`);
+    
+    // Convert to the format expected by analyzeAndStoreUpdate
+    return unanalyzedUpdates.map(update => ({
+      projectId: update.projectKey,
+      updateId: update.uuid,
+      text: update.summary || ''
+    }));
     
   } catch (error) {
     console.error('[ProjectUpdateWatcher] Failed to get updates from Dexie:', error);
@@ -194,7 +233,7 @@ async function getNewUpdatesFromDexie() {
 }
 
 /**
- * Analyze a project update and store the results
+ * Analyze a project update and store the results DIRECTLY in ProjectUpdate
  */
 async function analyzeAndStoreUpdate(update) {
   try {
@@ -202,166 +241,64 @@ async function analyzeAndStoreUpdate(update) {
     
     console.log(`[ProjectUpdateWatcher] Analyzing update ${updateId} for project ${projectId}`);
     
-    // Check if we already have analysis for this update
-    const existingAnalysis = await analysisDB.getAnalysis(projectId, updateId);
-    if (existingAnalysis) {
-      console.log(`[ProjectUpdateWatcher] Analysis already exists for update ${updateId}`);
+    // Check if already analyzed
+    const existingUpdate = await analysisDB.getProjectUpdates().then(updates => 
+      updates.find(u => u.uuid === updateId)
+    );
+    if (existingUpdate?.analyzed) {
+      console.log(`[ProjectUpdateWatcher] Update ${updateId} already analyzed`);
       return;
     }
 
-    // Check cache first
-    const textHash = generateTextHash(text);
-    const cachedAnalysis = await analysisDB.getCachedAnalysis(textHash, CACHE_DURATION_HOURS);
+    // Truncate text if too long
+    const truncatedText = text.length > MAX_TEXT_LENGTH 
+      ? text.substring(0, MAX_TEXT_LENGTH) + '...'
+      : text;
     
-    let analysis;
-    if (cachedAnalysis) {
-      console.log(`[ProjectUpdateWatcher] Using cached analysis for update ${updateId}`);
-      analysis = cachedAnalysis;
-    } else {
-      // Perform new analysis with timeout protection
-      console.log(`[ProjectUpdateWatcher] Performing new analysis for update ${updateId}`);
+    console.log(`[ProjectUpdateWatcher] Performing AI analysis for update ${updateId}`);
+    
+    // Add timeout protection
+    const analysisPromise = analyzeUpdateQuality(truncatedText);
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Analysis timeout')), ANALYSIS_TIMEOUT);
+    });
+    
+    try {
+      const qualityResult = await Promise.race([analysisPromise, timeoutPromise]);
       
-      // Truncate text if too long
-      const truncatedText = text.length > MAX_TEXT_LENGTH 
-        ? text.substring(0, MAX_TEXT_LENGTH) + '...'
-        : text;
+      // Update ProjectUpdate record directly - SIMPLE!
+      await analysisDB.updateProjectUpdateQuality(updateId, qualityResult);
       
-      // Add timeout protection
-      const analysisPromise = analyzeProjectUpdate(truncatedText);
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Analysis timeout')), ANALYSIS_TIMEOUT);
-      });
+      console.log(`[ProjectUpdateWatcher] ✅ Successfully analyzed update ${updateId} with quality score: ${qualityResult.overallScore}%`);
       
-      try {
-        analysis = await Promise.race([analysisPromise, timeoutPromise]);
-        
-        // Cache the result
-        await analysisDB.cacheAnalysis(textHash, analysis);
-      } catch (error) {
-        console.error(`[ProjectUpdateWatcher] Analysis failed for update ${updateId}:`, error);
-        // Return fallback analysis
-        analysis = {
-          sentiment: { score: 0.5, label: 'neutral' },
+    } catch (error) {
+      console.error(`[ProjectUpdateWatcher] AI Analysis failed for update ${updateId}:`, error);
+      
+      // Mark as analyzed but with error state
+      if (existingUpdate) {
+        // Update the existing update with error state
+        await analysisDB.updateProjectUpdateQuality(existingUpdate.uuid, {
+          overallScore: 0,
+          qualityLevel: 'poor',
           analysis: [],
-          summary: 'Analysis failed - fallback result',
+          missingInfo: ['Analysis failed'],
+          recommendations: ['Retry analysis'],
+          summary: 'Analysis failed due to error',
           timestamp: new Date()
-        };
+        });
       }
     }
-
-    // Store analysis results
-    await analysisDB.storeAnalysis(projectId, updateId, text, analysis);
-    
-    console.log(`[ProjectUpdateWatcher] Successfully analyzed and stored update ${updateId}`);
-    
-    // Show notification for completed analysis
-    await showAnalysisCompleteNotification(projectId, updateId, analysis);
     
   } catch (error) {
     console.error(`[ProjectUpdateWatcher] Failed to analyze update ${update.updateId}:`, error);
   }
 }
 
-/**
- * Generate a hash for text to use as cache key
- */
-function generateTextHash(text) {
-  // Simple hash function - you might want to use a more robust one
-  let hash = 0;
-  if (text.length === 0) return hash.toString();
-  
-  for (let i = 0; i < text.length; i++) {
-    const char = text.charCodeAt(i);
-    hash = ((hash << 5) - hash) + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-  
-  return hash.toString();
-}
+// REMOVED: Unused functions - Keep it simple!
 
-/**
- * Show notification when analysis is complete
- */
-async function showAnalysisCompleteNotification(projectId, updateId, analysis) {
-  try {
-    const notificationId = `analysis-complete-${Date.now()}`;
-    
-    await chrome.notifications.create(notificationId, {
-      type: 'basic',
-      iconUrl: chrome.runtime.getURL('icons/icon-48.png'),
-      title: 'Project Update Analyzed',
-      message: `Analysis complete for project ${projectId}. Sentiment: ${analysis.sentiment.label}`,
-      priority: 1
-    });
+// REMOVED: Unused alarm handler
 
-    // Auto-clear notification after 10 seconds
-    chrome.alarms.create(`clear-${notificationId}`, { when: Date.now() + 10000 });
-    
-  } catch (error) {
-    console.warn('[ProjectUpdateWatcher] Failed to show notification:', error);
-  }
-}
-
-/**
- * Handle manual analysis request from popup or content script
- */
-async function handleManualAnalysisRequest(request, sender, sendResponse) {
-  try {
-    const { projectId, updateId, text } = request;
-    
-    console.log(`[ProjectUpdateWatcher] Manual analysis requested for update ${updateId}`);
-    
-    // Check if analysis already exists
-    const existingAnalysis = await analysisDB.getAnalysis(projectId, updateId);
-    if (existingAnalysis) {
-      sendResponse({ 
-        success: true, 
-        analysis: existingAnalysis.analysis,
-        message: 'Analysis already exists'
-      });
-      return;
-    }
-
-    // Perform analysis
-    const analysis = await analyzeProjectUpdate(text);
-    
-    // Store results
-    await analysisDB.storeAnalysis(projectId, updateId, text, analysis);
-    
-    sendResponse({ 
-      success: true, 
-      analysis,
-      message: 'Analysis completed successfully'
-    });
-    
-  } catch (error) {
-    console.error('[ProjectUpdateWatcher] Manual analysis failed:', error);
-    sendResponse({ 
-      success: false, 
-      error: error.message 
-    });
-  }
-}
-
-/**
- * Handle alarm events for notification clearing
- */
-function handleAlarm(alarm) {
-  if (alarm.name.startsWith('clear-')) {
-    const notificationId = alarm.name.replace('clear-', '');
-    chrome.notifications.clear(notificationId);
-  }
-}
-
-// Event listeners
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.type === 'ANALYZE_UPDATE') {
-    handleManualAnalysisRequest(request, sender, sendResponse);
-    return true; // Keep message channel open for async response
-  }
-});
-
-chrome.alarms.onAlarm.addListener(handleAlarm);
+// NO MESSAGE LISTENERS - Keep it simple!
 
 // Initialize when service worker starts
 initializeWatcher();
@@ -370,5 +307,8 @@ initializeWatcher();
 self.addEventListener('beforeunload', () => {
   stopWatching();
 });
+
+// Export functions for use by background script
+self.analyzeAndStoreUpdate = analyzeAndStoreUpdate;
 
 console.log('[ProjectUpdateWatcher] Service worker loaded');

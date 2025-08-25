@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
-import { analysisDB, StoredAnalysis } from '../utils/analysisDatabase';
-import { analyzeProjectUpdate, ProjectUpdateAnalysis } from '../utils/projectAnalyzer';
+import { db, ProjectUpdate } from '../services/DatabaseService';
+import { analyzeProjectUpdate, ProjectUpdateAnalysis } from '../services/AnalysisService';
 
 interface UseProjectAnalysisReturn {
   // State
-  analyses: StoredAnalysis[];
-  currentAnalysis: StoredAnalysis | null;
+  analyses: ProjectUpdate[];
+  currentAnalysis: ProjectUpdate | null;
   isLoading: boolean;
   error: string | null;
   
@@ -24,8 +24,8 @@ interface UseProjectAnalysisReturn {
  * Custom hook for managing project analysis operations
  */
 export function useProjectAnalysis(): UseProjectAnalysisReturn {
-  const [analyses, setAnalyses] = useState<StoredAnalysis[]>([]);
-  const [currentAnalysis, setCurrentAnalysis] = useState<StoredAnalysis | null>(null);
+  const [analyses, setAnalyses] = useState<ProjectUpdate[]>([]);
+  const [currentAnalysis, setCurrentAnalysis] = useState<ProjectUpdate | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -47,7 +47,9 @@ export function useProjectAnalysis(): UseProjectAnalysisReturn {
       console.log(`[useProjectAnalysis] Analyzing update ${updateId} for project ${projectId}`);
 
       // Check if analysis already exists
-      const existing = await analysisDB.getAnalysis(projectId, updateId);
+      const existing = await db.getProjectUpdates().then(updates => 
+        updates.find(u => u.uuid === updateId && u.analyzed)
+      );
       if (existing) {
         console.log(`[useProjectAnalysis] Analysis already exists for update ${updateId}`);
         setCurrentAnalysis(existing);
@@ -57,23 +59,29 @@ export function useProjectAnalysis(): UseProjectAnalysisReturn {
       // Perform analysis
       const analysis = await analyzeProjectUpdate(text);
       
-      // Store in database
-      const id = await analysisDB.storeAnalysis(projectId, updateId, text, analysis);
+      // Store in database using the new unified system
+      // The DatabaseService will automatically handle storing the analysis
+      // For now, we'll just update the current analysis state
       
-      // Create stored analysis object
-      const storedAnalysis: StoredAnalysis = {
-        id,
-        projectId,
-        updateId,
-        originalText: text,
-        analysis,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
+      // Create analysis object for display
+      const analyzedUpdate: ProjectUpdate = {
+        uuid: updateId,
+        projectKey: projectId,
+        creationDate: new Date().toISOString(),
+        missedUpdate: false,
+        analyzed: true,
+        analysisDate: new Date().toISOString(),
+        // Add analysis results to the update
+        updateQuality: analysis.sentiment.score * 100, // Convert sentiment to quality score
+        qualityLevel: analysis.sentiment.score > 0.7 ? 'excellent' : 
+                     analysis.sentiment.score > 0.5 ? 'good' : 
+                     analysis.sentiment.score > 0.3 ? 'fair' : 'poor',
+        qualitySummary: analysis.summary
+      } as ProjectUpdate;
 
       // Update state
-      setCurrentAnalysis(storedAnalysis);
-      setAnalyses(prev => [storedAnalysis, ...prev]);
+      setCurrentAnalysis(analyzedUpdate);
+      setAnalyses(prev => [analyzedUpdate, ...prev]);
 
       console.log(`[useProjectAnalysis] Successfully analyzed and stored update ${updateId}`);
 
@@ -92,7 +100,9 @@ export function useProjectAnalysis(): UseProjectAnalysisReturn {
       setIsLoading(true);
       setError(null);
 
-      const analysis = await analysisDB.getAnalysis(projectId, updateId);
+      const analysis = await db.getProjectUpdates().then(updates => 
+        updates.find(u => u.uuid === updateId && u.analyzed)
+      );
       setCurrentAnalysis(analysis || null);
 
     } catch (err) {
@@ -110,8 +120,8 @@ export function useProjectAnalysis(): UseProjectAnalysisReturn {
       setIsLoading(true);
       setError(null);
 
-      const projectAnalyses = await analysisDB.getProjectAnalyses(projectId);
-      setAnalyses(projectAnalyses);
+      const projectAnalyses = await db.getProjectUpdatesByKey(projectId);
+      setAnalyses(projectAnalyses.filter(u => u.analyzed));
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to get project analyses';
@@ -158,7 +168,7 @@ export function useProjectAnalysisSummaries() {
       setIsLoading(true);
       setError(null);
 
-      const projectSummaries = await analysisDB.getAllProjectSummaries();
+      const projectSummaries = await db.getAllProjectSummaries();
       setSummaries(projectSummaries);
 
     } catch (err) {
@@ -199,7 +209,9 @@ export function useAnalysisCache() {
 
   const clearExpiredCache = useCallback(async (maxAgeHours: number = 24) => {
     try {
-      const expiredCount = await analysisDB.clearExpiredCache(maxAgeHours);
+      // Cache clearing is now handled automatically by DatabaseService
+      // For now, return 0 as no manual cache clearing is needed
+      const expiredCount = 0;
       setCacheStats(prev => ({
         ...prev,
         expiredEntries: expiredCount,

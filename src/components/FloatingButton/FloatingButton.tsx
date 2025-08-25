@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import ProjectStatusHistoryModal from '../ProjectStatusHistoryModal';
 import { StatusTimelineHeatmap } from '../StatusTimelineHeatmap';
-import { getVisibleProjectIds, getTotalUpdatesAvailableCount } from '../../utils/database';
-import { db } from '../../utils/database';
+import { getVisibleProjectIds, getTotalUpdatesAvailableCount, db } from '../../services/DatabaseService';
 import { formatFloatingButtonMetrics, formatFloatingButtonTooltip, type FloatingButtonMetrics } from './metricsDisplay';
 import './FloatingButton.scss';
 import Tooltip from "@atlaskit/tooltip";
@@ -15,8 +14,16 @@ export default function FloatingButton(): React.JSX.Element {
   // 🚀 REAL-TIME COUNTS: Use LiveQuery for automatic updates
   const projectsFound = useLiveQuery(() => getVisibleProjectIds());
   const projectsStored = useLiveQuery(() => db.projectViews.count());
-  const updatesStored = useLiveQuery(() => db.projectUpdates.count());
-  const updatesAnalyzed = useLiveQuery(() => db.projectUpdates.where('updateQuality').above(0).count());
+  
+  // Get all updates and filter properly
+  const allUpdates = useLiveQuery(() => db.projectUpdates.toArray()) || [];
+  
+  // Filter out missed updates for consistency with server counts
+  const nonMissedUpdates = allUpdates.filter((update: any) => !update.missedUpdate);
+  const updatesStored = nonMissedUpdates.length;
+  
+  // Count analyzed updates (those that have been processed, regardless of score)
+  const updatesAnalyzed = nonMissedUpdates.filter((update: any) => update.analyzed).length;
   
   // Get the count of visible projects (not the full array)
   const projectsVisible = projectsFound ? projectsFound.length : 0;

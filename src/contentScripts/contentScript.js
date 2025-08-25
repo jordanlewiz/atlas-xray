@@ -18,72 +18,6 @@ import "../components/FloatingButton/FloatingButton.scss";
 
 // Custom styles will be merged with contentScript.css during build
 
-// Extract and store cloud ID and section ID from URL
-const extractAndStoreCloudId = () => {
-  try {
-    const url = window.location.href;
-    console.log('[AtlasXray] 🔍 Extracting cloud ID from URL:', url);
-    
-    let cloudId = null;
-    let sectionId = null;
-
-    // PRIORITY 1: Extract from URL path /o/{cloudId}/s/{sectionId} (most reliable)
-    const pathMatch = url.match(/\/o\/([a-f0-9\-]+)\/s\/([a-f0-9\-]+)/);
-    if (pathMatch && pathMatch[1] && pathMatch[2]) {
-      cloudId = pathMatch[1];
-      sectionId = pathMatch[2];
-      console.log('[AtlasXray] ✅ Extracted from path:', { cloudId, sectionId });
-    }
-
-    // PRIORITY 2: Extract from URL path /o/{cloudId}/projects (fallback)
-    if (!cloudId) {
-      const projectsMatch = url.match(/\/o\/([a-f0-9\-]+)\/projects/);
-      if (projectsMatch && projectsMatch[1]) {
-        cloudId = projectsMatch[1];
-        // For projects pages, try to get section ID from URL parameter
-        const sectionIdParam = url.match(/[?&]cloudId=([a-f0-9\-]+)/);
-        if (sectionIdParam && sectionIdParam[1]) {
-          sectionId = sectionIdParam[1];
-        } else {
-          sectionId = 'default';
-        }
-        console.log('[AtlasXray] ✅ Extracted from projects path:', { cloudId, sectionId });
-      }
-    }
-
-    // PRIORITY 3: Extract from URL parameter cloudId=... (least reliable, only if path fails)
-    if (!cloudId) {
-      const cloudIdParam = url.match(/[?&]cloudId=([a-f0-9\-]+)/);
-      if (cloudIdParam && cloudIdParam[1]) {
-        cloudId = cloudIdParam[1];
-        sectionId = 'default';
-        console.log('[AtlasXray] ✅ Extracted from URL parameter:', { cloudId, sectionId });
-      }
-    }
-
-    if (cloudId) {
-      // Store in global state
-      if (typeof window !== 'undefined') {
-        window.atlasXrayCloudId = cloudId;
-        window.atlasXraySectionId = sectionId;
-        console.log('[AtlasXray] 🌐 Cloud ID stored in window:', { cloudId, sectionId });
-      }
-    } else {
-      console.warn('[AtlasXray] ⚠️ Could not extract cloud ID from URL');
-    }
-  } catch (error) {
-    console.error('[AtlasXray] ❌ Error extracting cloud ID:', error);
-  }
-};
-
-// Extract cloud ID immediately
-extractAndStoreCloudId();
-
-// Debug: Check what was extracted
-setTimeout(() => {
-  console.log('[AtlasXray] 🔍 Debug - Window cloud ID:', window.atlasXrayCloudId);
-  console.log('[AtlasXray] 🔍 Debug - Window section ID:', window.atlasXraySectionId);
-}, 100);
 
 const container = document.createElement("div");
 document.body.appendChild(container);
@@ -97,22 +31,7 @@ setTimeout(async () => {
       const response = await chrome.runtime.sendMessage({ type: 'PING' });
       if (response && response.success) {
         console.log('[AtlasXray] ✅ Background script communication working:', response);
-        
-        // Test AI analysis capability
-        // console.log('[AtlasXray] 🧪 Testing AI analysis capability...');
-        // const testResponse = await chrome.runtime.sendMessage({
-        //   type: 'ANALYZE_UPDATE_QUALITY',
-        //   updateId: 'test_initial',
-        //   updateText: 'Initial test of AI analysis system',
-        //   updateType: 'general',
-        //   state: 'on-track'
-        // });
-        // 
-        // if (testResponse && testResponse.success) {
-        //   console.log('[AtlasXray] ✅ AI analysis system ready:', testResponse.result);
-        // } else {
-        //   console.warn('[AtlasXray] ⚠️ AI analysis test failed:', testResponse?.error);
-        // }
+    
         
       } else {
         console.error('[AtlasXray] ❌ Background script communication failed:', response);

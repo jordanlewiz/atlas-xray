@@ -35,7 +35,7 @@ export class SimpleTotalUpdatesCounter {
       const { PROJECT_STATUS_HISTORY_QUERY } = await import('../graphql/projectStatusHistoryQuery');
 
       // Get visible project IDs
-      const { getVisibleProjectIds } = await import('../utils/database');
+      const { getVisibleProjectIds } = await import('./DatabaseService');
       const visibleProjectIds = await getVisibleProjectIds();
       
       if (visibleProjectIds.length === 0) {
@@ -79,7 +79,7 @@ export class SimpleTotalUpdatesCounter {
       console.log(`[SimpleTotalUpdatesCounter] ✅ Total updates available: ${totalUpdates}`);
       
       // Store the count in database for reactive UI updates
-      const { setTotalUpdatesAvailableCount } = await import('../utils/database');
+      const { setTotalUpdatesAvailableCount } = await import('./DatabaseService');
       await setTotalUpdatesAvailableCount(totalUpdates);
       
       return totalUpdates;

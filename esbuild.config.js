@@ -32,7 +32,7 @@ async function buildPopup() {
     entryPoints: ['src/components/ChromeExtension/ChromeExtensionEntry.tsx'],
     outfile: 'dist/popup.js',
     loader: { '.ts': 'tsx', '.tsx': 'tsx' },
-    external: ['chrome', '@xenova/transformers'],
+    external: ['chrome'], // Remove @xenova/transformers from external - bundle it!
     plugins: [scssLoader]
   });
 }
@@ -45,9 +45,9 @@ async function buildChromeExtension() {
     entryPoints: ['src/contentScripts/contentScript.js'],
     outfile: 'dist/contentScript.js',
     loader: { '.js': 'jsx', '.tsx': 'tsx', '.ts': 'tsx' },
-    external: ['chrome', '@xenova/transformers'],
+    external: ['chrome'], // Remove @xenova/transformers from external - bundle it!
     globalName: 'AtlasXrayExtension',
-    inject: ['./src/utils/dexie-global.js'],
+
     plugins: [scssLoader]
   });
 }
@@ -58,7 +58,7 @@ async function buildBackground() {
     entryPoints: ['src/background/background.js'],
     outfile: 'dist/background.js',
     loader: { '.ts': 'tsx' },
-    external: ['chrome', '@xenova/transformers']
+    external: ['chrome'] // Remove @xenova/transformers from external - bundle it!
   });
 }
 
