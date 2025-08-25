@@ -54,6 +54,7 @@ export interface ProjectDependency {
   targetProjectKey: string;      // Project that is depended upon
   sourceProjectName?: string;    // For display purposes
   targetProjectName?: string;    // For display purposes
+  linkType: string;              // Add linkType field for D3 visualization
   createdAt: string;            // When dependency was discovered
   lastUpdated: string;          // When dependency was last verified
   raw?: any;                    // Full GraphQL response for backward compatibility
@@ -255,7 +256,7 @@ export class DatabaseService extends Dexie {
   async getUnanalyzedUpdates(): Promise<ProjectUpdate[]> {
     try {
       return await this.projectUpdates
-        .filter(update => !update.analyzed && update.summary && update.summary.trim().length > 0)
+        .filter(update => (update.analyzed === undefined || !update.analyzed) && update.summary && update.summary.trim().length > 0)
         .toArray();
     } catch (error) {
       console.error('[DatabaseService] Failed to get unanalyzed updates:', error);
@@ -280,7 +281,7 @@ export class DatabaseService extends Dexie {
    */
   async countAnalyzedUpdates(): Promise<number> {
     try {
-      return await this.projectUpdates.filter(update => update.analyzed).count();
+      return await this.projectUpdates.filter(update => update.analyzed === true).count();
     } catch (error) {
       console.error('[DatabaseService] Failed to count analyzed updates:', error);
       return 0;
@@ -430,31 +431,35 @@ export class DatabaseService extends Dexie {
   // ============================================================================
 
   /**
-   * Store project dependencies from GraphQL response
+   * Store project dependencies
    */
   async storeProjectDependencies(
     sourceProjectKey: string, 
-    dependencies: any[]
+    dependencies: Array<{
+      id: string;
+      outgoingProject: { key: string; name?: string };
+      linkType: string;
+    }>
   ): Promise<void> {
     try {
-      for (const dep of dependencies) {
-        const dependency: ProjectDependency = {
-          id: dep.id, // GraphQL dependency ID
-          sourceProjectKey,
-          targetProjectKey: dep.outgoingProject.key,
-          sourceProjectName: '', // Will be populated from project view
-          targetProjectName: dep.outgoingProject.name,
-          createdAt: new Date().toISOString(),
-          lastUpdated: new Date().toISOString(),
-          raw: dep // Store full GraphQL response
-        };
-        
-        await this.projectDependencies.put(dependency);
-      }
+      console.log(`[DatabaseService] 📦 Storing ${dependencies.length} dependencies for project ${sourceProjectKey}`);
       
-      console.log(`[DatabaseService] ✅ Stored ${dependencies.length} dependencies for ${sourceProjectKey}`);
+      const dependencyRecords: ProjectDependency[] = dependencies.map(dep => ({
+        id: dep.id,
+        sourceProjectKey,
+        targetProjectKey: dep.outgoingProject.key,
+        sourceProjectName: '', // Will be populated from project view
+        targetProjectName: dep.outgoingProject.name,
+        linkType: dep.linkType, // Add linkType
+        createdAt: new Date().toISOString(),
+        lastUpdated: new Date().toISOString(),
+        raw: dep
+      }));
+      
+      await this.projectDependencies.bulkPut(dependencyRecords);
+      console.log(`[DatabaseService] ✅ Stored ${dependencies.length} dependencies for project ${sourceProjectKey}`);
     } catch (error) {
-      console.error(`[DatabaseService] ❌ Failed to store dependencies for ${sourceProjectKey}:`, error);
+      console.error(`[DatabaseService] ❌ Failed to store dependencies for project ${sourceProjectKey}:`, error);
       throw error;
     }
   }

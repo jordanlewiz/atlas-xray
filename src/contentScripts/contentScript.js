@@ -52,6 +52,10 @@ setTimeout(async () => {
   try {
     console.log('[AtlasXray] 📥 Starting simple project fetch on page load...');
     
+    // First, ensure bootstrap service is loaded
+    const { bootstrapService } = await import('../services/bootstrapService.js');
+    await bootstrapService.loadBootstrapData();
+    
     // Import and run the simple project list fetcher (only runs once per page load)
     const { simpleProjectListFetcher } = await import('../services/simpleProjectListFetcher.js');
     console.log('[AtlasXray] ✅ Simple project list fetcher imported');
@@ -64,51 +68,6 @@ setTimeout(async () => {
   }
 }, 2000); // Wait 2 seconds for page to fully load
 
-// Add test functions to window for debugging
-if (typeof window !== 'undefined') {
-  window.testAtlasXray = async () => {
-    console.log('[AtlasXray] 🧪 Manual test triggered...');
-    try {
-      const response = await chrome.runtime.sendMessage({ type: 'PING' });
-      console.log('[AtlasXray] Test response:', response);
-      
-      // Test bootstrap service
-      try {
-        const { bootstrapService } = await import('../services/bootstrapService.js');
-        console.log('[AtlasXray] 🧪 Testing bootstrap service...');
-        const bootstrapData = await bootstrapService.loadBootstrapData();
-        console.log('[AtlasXray] ✅ Bootstrap test result:', bootstrapData);
-      } catch (error) {
-        console.error('[AtlasXray] ❌ Bootstrap test failed:', error);
-      }
-      
-      // Test simple project fetching
-      try {
-        const { simpleProjectListFetcher } = await import('../services/simpleProjectListFetcher.js');
-        console.log('[AtlasXray] 🧪 Testing simple project list fetch...');
-        const projects = await simpleProjectListFetcher.fetchProjectsOnPageLoad();
-        console.log('[AtlasXray] ✅ Simple fetch test result:', projects);
-      } catch (error) {
-        console.error('[AtlasXray] ❌ Simple fetch test failed:', error);
-      }
-      
-      // Test modal data fetching
-      try {
-        const { modalDataFetcher } = await import('../services/modalDataFetcher.js');
-        console.log('[AtlasXray] 🧪 Testing modal data fetch...');
-        const result = await modalDataFetcher.fetchProjectUpdatesForModal();
-        console.log('[AtlasXray] ✅ Modal data fetch test result:', result);
-      } catch (error) {
-        console.error('[AtlasXray] ❌ Modal data fetch test failed:', error);
-      }
-      
-    } catch (error) {
-      console.error('[AtlasXray] Test failed:', error);
-    }
-  };
-  
-  console.log('[AtlasXray] 🧪 Test function added to window.testAtlasXray()');
-}
+
 
 console.log('[AtlasXray] 🚀 Content script loaded and ready');
-console.log('[AtlasXray] 💡 Use window.testAtlasXray() in console to test the system');

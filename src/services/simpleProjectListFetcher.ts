@@ -1,19 +1,22 @@
+import { apolloClient } from './apolloClient';
 import { DIRECTORY_VIEW_PROJECT_QUERY } from '../graphql/DirectoryViewProjectQuery';
 import { db } from './DatabaseService';
+import { fetchMultipleProjectDependencies } from './projectDependencyFetcher';
+import { gql } from '@apollo/client';
 import { bootstrapService } from './bootstrapService';
 
 interface ProjectNode {
   key: string;
-  name: string;
-  archived: boolean;
-  __typename: string;
+  name?: string;
+  archived?: boolean;
   dependencies?: {
     edges: Array<{
       node: {
         id: string;
+        linkType: string;
         outgoingProject: {
           key: string;
-          name: string;
+          name?: string;
         };
       };
     }>;
@@ -174,165 +177,113 @@ export class SimpleProjectListFetcher {
   }
 
   /**
-   * Fetch projects with current page TQL filters
+   * Fetch projects on page load
    */
-  public async fetchProjectsOnPageLoad(): Promise<string[]> {
-    if (this.hasRun) {
-      console.log('[AtlasXray] ⏭️ Project fetch already run for current URL');
-      return [];
-    }
-
-    this.hasRun = true;
-
+  async fetchProjectsOnPageLoad(): Promise<void> {
     try {
-      console.log('[AtlasXray] 🚀 Fetching projects on page load...');
+      console.log('[SimpleProjectListFetcher] 🚀 Starting project fetch on page load...');
       
-      // Load bootstrap data first to get proper workspace ID
-      const bootstrapData = await bootstrapService.loadBootstrapData();
+      // Get the current workspace UUID from bootstrap service
+      const workspaces = bootstrapService.getWorkspaces();
+      console.log('[SimpleProjectListFetcher] 🔍 Available workspaces:', workspaces);
       
-      if (bootstrapData) {
-        console.log('[AtlasXray] ✅ Bootstrap data loaded');
-      } else {
-        console.warn('[AtlasXray] ⚠️ No bootstrap data available, using fallback');
+      if (!workspaces || workspaces.length === 0) {
+        console.warn('[SimpleProjectListFetcher] ⚠️ No workspaces available, skipping project fetch');
+        return;
       }
       
-      const workspaceId = bootstrapService.getCurrentWorkspaceId();
-      console.log('[AtlasXray] 🔍 Using workspace ID:', workspaceId);
-
-      // Import Apollo client dynamically
-      const { apolloClient } = await import('./apolloClient');
-      const { gql } = await import('@apollo/client');
-
-      // 🎯 EXTRACT TQL FROM URL: Use the exact same filters as the current page
-      const urlParams = new URLSearchParams(window.location.search);
-      const pageTql = urlParams.get('tql');
+      // Use the first available workspace for now
+      const workspaceUuid = workspaces[0].uuid;
+      console.log('[SimpleProjectListFetcher] 🏗️ Using workspace UUID:', workspaceUuid);
+      console.log('[SimpleProjectListFetcher] 🏗️ Workspace details:', workspaces[0]);
       
-      // Use page TQL if available, otherwise fallback to basic archived filter
-      const tql = pageTql || '(archived = false)';
+      // Log the query variables we're about to send
+      const queryVariables = {
+        first: 100,
+        after: null,
+        workspaceUuid: workspaceUuid,
+        tql: '(archived = false)',
+        isTableOrSavedView: true,
+        isTimelineOrSavedView: false,
+        includeContributors: false,
+        includeFollowerCount: false,
+        includeFollowing: false,
+        includeLastUpdated: false,
+        includeOwner: false,
+        includeRelatedProjects: true,
+        includeStatus: false,
+        includeTargetDate: false,
+        includeTeam: false,
+        includeGoals: false,
+        includeTags: false,
+        includeStartDate: false,
+        includedCustomFieldUuids: [],
+        skipTableTql: false
+      };
       
-      console.log(`[AtlasXray] 📥 Fetching projects with TQL: ${tql}`);
-      console.log(`[AtlasXray] 🔍 URL TQL parameter: ${pageTql || 'none'}`);
+      console.log('[SimpleProjectListFetcher] 📤 GraphQL query variables:', queryVariables);
       
-      // Import rate limiting utilities
-      const { withRateLimit } = await import('../utils/rateLimitManager');
+      // Parse the GraphQL query string into a proper document
+      const parsedQuery = gql`${DIRECTORY_VIEW_PROJECT_QUERY}`;
       
-      const { data } = await withRateLimit(async () => {
-        return apolloClient.query({
-          query: gql`${DIRECTORY_VIEW_PROJECT_QUERY}`,
-          variables: {
-            first: 100, // Request up to 100, but server may return fewer
-            workspaceUuid: workspaceId,
-            tql: tql, // Dynamic TQL from URL
-            // Required boolean flags
-            isTableOrSavedView: true,
-            isTimelineOrSavedView: false,
-            includeContributors: false,
-            includeFollowerCount: false,
-            includeFollowing: false,
-            includeLastUpdated: false,
-            includeOwner: false,
-            includeRelatedProjects: true,  // 🆕 ENABLED: Fetch project dependencies
-            includeStatus: false,
-            includeTargetDate: false,
-            includeTeam: false,
-            includeGoals: false,
-            includeTags: false,
-            includeStartDate: false,
-            includedCustomFieldUuids: [],
-            skipTableTql: false
-          },
-          fetchPolicy: 'network-only'
-        });
+      const response = await apolloClient.query({
+        query: parsedQuery,
+        variables: queryVariables,
+        fetchPolicy: 'cache-first'
       });
+      
+      console.log('[SimpleProjectListFetcher] 📥 GraphQL response received:', response);
 
-      if (data?.projectTql) {
-        const projectTql = data.projectTql as ProjectTqlResponse;
+      // Check if we have the expected response structure
+      if (!response.data || !response.data.projectTql || !response.data.projectTql.edges) {
+        console.warn('[SimpleProjectListFetcher] ⚠️ Unexpected response structure:', response.data);
+        return;
+      }
+
+      const projects = response.data.projectTql.edges.map((edge: any) => edge.node);
+      console.log(`[SimpleProjectListFetcher] 📦 Found ${projects.length} projects`);
+
+      // Store project views
+      for (const project of projects) {
+        await db.storeProjectView({
+          projectKey: project.key,
+          raw: project
+        });
+      }
+
+      // 🆕 NEW: Fetch and store dependencies using the new service
+      if (projects.length > 0) {
+        console.log('[SimpleProjectListFetcher] 🔗 Fetching dependencies for all projects...');
         
-        // Extract project keys from edges (these are the visible projects on current page)
-        const projects = projectTql.edges
-          .map(edge => edge.node)
-          .filter(project => project && project.key && !project.archived);
-
-        const projectKeys = projects.map(p => p.key);
-        
-        console.log(`[AtlasXray] ✅ Fetched ${projectKeys.length} visible projects from current page view`);
-        console.log(`[AtlasXray] 📊 Total available in workspace: ${projectTql.count}`);
-        console.log(`[AtlasXray] 📋 Project keys: ${projectKeys.join(', ')}`);
-
-        // Store visible project IDs in database (lightweight)
-        await db.setVisibleProjectIds(projectKeys);
-        
-        console.log(`[AtlasXray] ✅ Visible projects tracked: ${projectKeys.length} project IDs stored`);
-
-        // Update the total updates available count from server immediately
         try {
-          const { simpleTotalUpdatesCounter } = await import('./simpleTotalUpdatesCounter');
-          await simpleTotalUpdatesCounter.getTotalUpdatesAvailableCount();
-          console.log(`[AtlasXray] ✅ Updated total updates available count`);
-        } catch (error) {
-          console.warn('[AtlasXray] ⚠️ Failed to update total updates count:', error);
-        }
-        console.log(`[AtlasXray] 🚀 Now fetching project views and updates for timeline...`);
-
-        // 🎯 FETCH PROJECT VIEWS AND UPDATES IMMEDIATELY
-        // This ensures the timeline has all data when modal opens
-        try {
-                  // Check what projects we already have to avoid unnecessary updates
-        const existingProjects = await db.projectViews.toArray();
-        const existingProjectKeys = new Set(existingProjects.map(p => p.projectKey));
-        
-        // Store only new/updated project views
-        let newProjects = 0;
-        for (const project of projects) {
-          if (!existingProjectKeys.has(project.key)) {
-            await db.projectViews.put({
-              projectKey: project.key,
-              name: project.name,
-              archived: project.archived
-            });
-            newProjects++;
-            
-            // 🆕 NEW: Store dependencies if they exist
-            if (project.dependencies && project.dependencies.edges) {
-              const dependencies = project.dependencies.edges.map(edge => edge.node);
-              if (dependencies.length > 0) {
-                console.log(`[AtlasXray] 🔗 Found ${dependencies.length} dependencies for ${project.key}`);
-                await db.storeProjectDependencies(project.key, dependencies);
-              }
+          const projectKeys = projects.map((p: ProjectNode) => p.key);
+          const allDependencies = await fetchMultipleProjectDependencies(projectKeys);
+          
+          // Store dependencies in the database
+          for (const [sourceKey, dependencies] of allDependencies) {
+            if (dependencies.length > 0) {
+              await db.storeProjectDependencies(sourceKey, dependencies.map(dep => ({
+                id: dep.id,
+                outgoingProject: { 
+                  key: dep.targetProject.key, 
+                  name: dep.targetProject.name 
+                },
+                linkType: dep.linkType
+              })));
             }
           }
-        }
-        console.log(`[AtlasXray] ✅ Stored ${newProjects} new project views (${existingProjects.length} already existed)`);
-
-          // Then fetch updates for each project
-          const { simpleUpdateFetcher } = await import('./simpleUpdateFetcher');
-          for (const projectKey of projectKeys) {
-            await simpleUpdateFetcher.fetchAndStoreUpdates(projectKey);
-          }
-          console.log(`[AtlasXray] ✅ Project views and updates fetched successfully`);
+          
+          console.log(`[SimpleProjectListFetcher] ✅ Stored dependencies for ${allDependencies.size} projects`);
         } catch (error) {
-          console.error('[AtlasXray] ❌ Error fetching project views and updates:', error);
+          console.warn('[SimpleProjectListFetcher] ⚠️ Failed to fetch dependencies:', error);
         }
-
-        return projectKeys;
-      } else {
-        console.warn('[AtlasXray] ⚠️ No project data returned from GraphQL API');
-        return [];
       }
 
+      console.log('[SimpleProjectListFetcher] ✅ Project fetch on page load completed');
+      
     } catch (error) {
-      console.error('[AtlasXray] ❌ Error fetching projects on page load:', error);
-      
-      // Log additional details for debugging
-      if (error && typeof error === 'object') {
-        console.error('[AtlasXray] 🔍 Error details:', {
-          message: (error as any).message,
-          graphQLErrors: (error as any).graphQLErrors,
-          networkError: (error as any).networkError
-        });
-      }
-      
-      return [];
+      console.error('[SimpleProjectListFetcher] ❌ Failed to fetch projects on page load:', error);
+      throw error;
     }
   }
 }

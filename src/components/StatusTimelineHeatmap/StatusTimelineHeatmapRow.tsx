@@ -20,36 +20,49 @@ import type { StatusTimelineHeatmapRowProps } from "../../types";
  * Component to display project dependencies in the timeline row
  */
 function DependenciesDisplay({ projectKey }: { projectKey: string }) {
-  const dependencies = useLiveQuery(() => 
-    db.getProjectDependencies(projectKey)
-  );
-  
-  const dependents = useLiveQuery(() => 
-    db.getProjectsDependingOn(projectKey)
-  );
+  const dependencies = useLiveQuery(() => db.getProjectDependencies(projectKey));
+  const dependents = useLiveQuery(() => db.getProjectsDependingOn(projectKey));
 
-  if (!dependencies || !dependents) {
-    return null; // Don't show loading state in timeline
-  }
+  if (!dependencies || !dependents) return null;
 
   const hasDependencies = dependencies.length > 0;
   const hasDependents = dependents.length > 0;
 
-  if (!hasDependencies && !hasDependents) {
-    return null; // Don't show anything if no dependencies
-  }
+  if (!hasDependencies && !hasDependents) return null;
 
   return (
-    <div className="timeline-dependencies">
+    <div className="dependencies-display">
       {hasDependencies && (
-        <span className="dependency-indicator depends-on" title={`Depends on: ${dependencies.map(d => d.targetProjectKey).join(', ')}`}>
-          🔗 {dependencies.length}
-        </span>
+        <Tooltip
+          content={
+            <div>
+              <strong>{dependencies.length} dependencies:</strong>
+              <br />
+              {dependencies.map(d => `${d.targetProjectKey} (${d.linkType})`).join(', ')}
+            </div>
+          }
+          position="top"
+        >
+          <span className="dependency-indicator outgoing">
+            {dependencies.length}→
+          </span>
+        </Tooltip>
       )}
       {hasDependents && (
-        <span className="dependency-indicator required-by" title={`Required by: ${dependents.map(d => d.sourceProjectKey).join(', ')}`}>
-          📋 {dependents.length}
-        </span>
+        <Tooltip
+          content={
+            <div>
+              <strong>{dependents.length} dependents:</strong>
+              <br />
+              {dependents.map(d => `${d.sourceProjectKey} (${d.linkType})`).join(', ')}
+            </div>
+          }
+          position="top"
+        >
+          <span className="dependency-indicator incoming">
+            ←{dependents.length}
+          </span>
+        </Tooltip>
       )}
     </div>
   );
