@@ -3,6 +3,7 @@ import Select from "@atlaskit/select";
 import Button from "@atlaskit/button";
 import AtlassianIntelligenceIcon from '@atlaskit/icon/core/atlassian-intelligence';
 import StatusLegend from "../StatusLegend";
+import DependencyVisualizationModal from "../DependencyVisualizationModal";
 
 interface StatusTimelineHeaderProps {
   weekLimit: number;
@@ -20,6 +21,8 @@ export default function StatusTimelineHeader({
   showEmojis, 
   onToggleEmojis 
 }: StatusTimelineHeaderProps): React.JSX.Element {
+  const [showDependencyModal, setShowDependencyModal] = useState(false);
+  
   const weekOptions = [
     { label: "4 weeks", value: 4 },
     { label: "8 weeks", value: 8 },
@@ -35,6 +38,10 @@ export default function StatusTimelineHeader({
 
   const handleToggleEmojis = () => {
     onToggleEmojis(!showEmojis);
+  };
+
+  const handleShowDependencies = () => {
+    setShowDependencyModal(true);
   };
 
   return (
@@ -66,9 +73,20 @@ export default function StatusTimelineHeader({
                 onClick={handleToggleEmojis}
                 aria-label={`${showEmojis ? 'Hide' : 'Show'} update quality indicators`}
                 iconBefore={<AtlassianIntelligenceIcon label="AI Intelligence" />}
-
               >
                 {showEmojis ? 'Hide' : 'Show'}
+              </Button>
+            </div>
+            <div className="dependency-visualization-toggle">
+              <label htmlFor="dependency-toggle" className="toggle-label">Dependencies:</label>
+              <Button
+                id="dependency-toggle"
+                appearance="subtle"
+                onClick={handleShowDependencies}
+                aria-label="Show dependency visualization"
+                iconBefore={<span>🔗</span>}
+              >
+                Visualize
               </Button>
             </div>
           </div>
@@ -77,6 +95,12 @@ export default function StatusTimelineHeader({
       <div className="legend-section">
         <StatusLegend />
       </div>
+      
+      {/* Dependency Visualization Modal */}
+      <DependencyVisualizationModal
+        isOpen={showDependencyModal}
+        onClose={() => setShowDependencyModal(false)}
+      />
     </div>
   );
 }

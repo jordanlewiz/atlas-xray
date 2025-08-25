@@ -62,6 +62,22 @@
           // Atlaskit Button will handle its own styling
           // The button will show as subtle when off and primary when on
         }
+        
+        .dependency-visualization-toggle {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+
+          .toggle-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #5e6c84;
+            white-space: nowrap;
+          }
+
+          // Atlaskit Button will handle its own styling
+          // The button shows as subtle by default
+        }
       }
     }
   }
