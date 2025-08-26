@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { useLiveQuery } from 'dexie-react-hooks';
+import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
+import Button from '@atlaskit/button';
 import { db } from '../../services/DatabaseService';
-// TODO: Update to use new dependency service when implemented
 import './DependencyVisualizationModal.scss';
 
 interface ProjectNode extends d3.SimulationNodeDatum {
@@ -27,94 +28,74 @@ export default function DependencyVisualizationModal({ isOpen, onClose }: { isOp
   const svgRef = useRef<SVGSVGElement>(null);
   const [simulation, setSimulation] = useState<d3.Simulation<ProjectNode, DependencyLink> | null>(null);
   const [zoomLevel, setZoomLevel] = useState(1);
-  const [stats, setStats] = useState({ totalProjects: 0, totalDependencies: 0, uniqueLinkTypes: 0 });
 
-  // TODO: Implement dependency fetching with new service
+  // Load projects and dependencies using the available DatabaseService methods
   const projects = useLiveQuery(() => db.getProjectSummaries());
   const projectUpdates = useLiveQuery(() => db.getProjectUpdates());
+  const allDependencies = useLiveQuery(() => db.getAllProjectDependencies());
   
-  // TODO: Implement dependency fetching with new service
-  const [allDependencies, setAllDependencies] = useState<Map<string, any[]>>(new Map());
-  const [isLoading, setIsLoading] = useState(false);
+  // Reactive stats derived from live queries
+  const stats = useLiveQuery(() => {
+    if (!allDependencies || !projects) return { totalProjects: 0, totalDependencies: 0, uniqueLinkTypes: 0 };
+    
+    const projectKeys = new Set<string>();
+    const linkTypes = new Set<string>();
+    
+    allDependencies.forEach(dep => {
+      projectKeys.add(dep.sourceProjectKey);
+      projectKeys.add(dep.targetProjectKey);
+      linkTypes.add(dep.linkType);
+    });
+    
+    return {
+      totalProjects: projectKeys.size,
+      totalDependencies: allDependencies.length,
+      uniqueLinkTypes: linkTypes.size
+    };
+  }, [allDependencies, projects]);
 
-  // Helper function to get project status color
-  const getProjectStatusColor = (projectKey: string): string => {
-    if (!projectUpdates) return '#6c757d'; // Default gray
-    
-    const projectUpdate = projectUpdates
-      .filter(update => update.projectKey === projectKey)
-      .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime())[0];
-    
-    if (!projectUpdate) return '#6c757d';
-    
-    const status = projectUpdate.state?.toLowerCase() || 'unknown';
-    
-    // Map status to colors (matching the timeline colors)
-    switch (status) {
-      case 'on-track':
-      case 'on track':
-        return '#28a745'; // Green
-      case 'off-track':
-      case 'off track':
-        return '#dc3545'; // Red
-      case 'at-risk':
-      case 'at risk':
-        return '#ffc107'; // Yellow
-      case 'completed':
-        return '#17a2b8'; // Blue
-      default:
-        return '#6c757d'; // Gray
+  // Reactive D3 visualization data derived from live queries
+  const visualizationData = useLiveQuery(() => {
+    if (!svgRef.current || !projects || !allDependencies || allDependencies.length === 0) {
+      return null;
     }
-  };
 
-  // Helper function to get project status text
-  const getProjectStatusText = (projectKey: string): string => {
-    if (!projectUpdates) return 'Unknown';
-    
-    const projectUpdate = projectUpdates
-      .filter(update => update.projectKey === projectKey)
-      .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime())[0];
-    
-    return projectUpdate?.state || 'Unknown';
-  };
-
-  // Create D3 visualization
-  useEffect(() => {
-    if (!svgRef.current || !projects || allDependencies.size === 0) return;
-
-    const svg = d3.select(svgRef.current);
-    svg.selectAll('*').remove(); // Clear existing content
+    console.log('[DependencyVisualizationModal] 🚀 Creating D3 visualization with:', {
+      projectsCount: projects.length,
+      dependenciesCount: allDependencies.length
+    });
 
     // Prepare data for D3
     const projectKeys = new Set<string>();
     const links: DependencyLink[] = [];
     const linkTypes = new Set<string>();
 
-    // Collect all project keys and links
-    allDependencies.forEach((dependencies, sourceKey) => {
-      projectKeys.add(sourceKey);
+    // Collect all project keys and links from the actual dependency data
+    allDependencies.forEach(dep => {
+      projectKeys.add(dep.sourceProjectKey);
+      projectKeys.add(dep.targetProjectKey);
+      linkTypes.add(dep.linkType);
       
-      dependencies.forEach(dep => {
-        projectKeys.add(dep.targetProject.key);
-        linkTypes.add(dep.linkType);
-        
-        links.push({
-          id: dep.id,
-          source: sourceKey,
-          target: dep.targetProject.key,
-          linkType: dep.linkType,
-          color: getLinkTypeColor(dep.linkType)
-        });
+      links.push({
+        id: dep.id,
+        source: dep.sourceProjectKey,
+        target: dep.targetProjectKey,
+        linkType: dep.linkType,
+        color: getLinkTypeColor(dep.linkType)
       });
+    });
+
+    console.log('[DependencyVisualizationModal] 📊 Processed data:', {
+      uniqueProjects: projectKeys.size,
+      totalLinks: links.length,
+      linkTypes: Array.from(linkTypes)
     });
 
     // Create nodes
     const nodes: ProjectNode[] = Array.from(projectKeys).map(key => {
       const project = projects.find(p => p.projectKey === key);
-      const dependencies = allDependencies.get(key) || [];
-      const dependents = Array.from(allDependencies.values())
-        .flat()
-        .filter(dep => dep.targetProject.key === key);
+      const dependencies = allDependencies.filter(dep => dep.sourceProjectKey === key);
+      const dependents = allDependencies.filter(dep => dep.targetProjectKey === key);
 
       return {
         id: key,
@@ -127,13 +108,31 @@ export default function DependencyVisualizationModal({ isOpen, onClose }: { isOp
       };
     });
 
-    // Update stats
-    setStats({
-      totalProjects: nodes.length,
-      totalDependencies: links.length,
-      uniqueLinkTypes: linkTypes.size
-    });
+    return { nodes, links };
+  }, [projects, allDependencies, projectUpdates]);
 
+  // Reactive D3 visualization rendering
+  const svgElement = useLiveQuery(() => {
+    if (!svgRef.current || !visualizationData) return null;
+    
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove(); // Clear existing content
+    
+    if (!visualizationData) {
+      // Show message when no dependencies exist
+      svg.append('text')
+        .attr('x', '50%')
+        .attr('y', '50%')
+        .attr('text-anchor', 'middle')
+        .attr('dominant-baseline', 'middle')
+        .attr('font-size', '16px')
+        .attr('fill', '#6b778c')
+        .text('No project dependencies found');
+      return null;
+    }
+
+    const { nodes, links } = visualizationData;
+    
     // Set up D3 force simulation
     const sim = d3.forceSimulation<ProjectNode>(nodes)
       .force('link', d3.forceLink<ProjectNode, DependencyLink>(links).id(d => d.id).distance(100))
@@ -281,24 +280,6 @@ export default function DependencyVisualizationModal({ isOpen, onClose }: { isOp
         .attr('y', (d: ProjectNode) => d.y!);
     });
 
-    // Drag functions
-    function dragstarted(event: any, d: ProjectNode) {
-      if (!event.active) sim.alphaTarget(0.3).restart();
-      d.fx = d.x;
-      d.fy = d.y;
-    }
-
-    function dragged(event: any, d: ProjectNode) {
-      d.fx = event.x;
-      d.fy = event.y;
-    }
-
-    function dragended(event: any, d: ProjectNode) {
-      if (!event.active) sim.alphaTarget(0);
-      d.fx = null;
-      d.fy = null;
-    }
-
     // Set up zoom
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .on('zoom', (event) => {
@@ -309,11 +290,52 @@ export default function DependencyVisualizationModal({ isOpen, onClose }: { isOp
 
     svg.call(zoom);
 
-    // Cleanup
-    return () => {
-      sim.stop();
-    };
-  }, [projects, allDependencies, projectUpdates]);
+    console.log('[DependencyVisualizationModal] ✅ D3 visualization created successfully');
+    
+    return svg;
+  }, [visualizationData]);
+
+  // Helper function to get project status color
+  const getProjectStatusColor = (projectKey: string): string => {
+    if (!projectUpdates) return '#6c757d'; // Default gray
+    
+    const projectUpdate = projectUpdates
+      .filter(update => update.projectKey === projectKey)
+      .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime())[0];
+    
+    if (!projectUpdate) return '#6c757d';
+    
+    const status = projectUpdate.state?.toLowerCase() || 'unknown';
+    
+    // Map status to colors (matching the timeline colors)
+    switch (status) {
+      case 'on-track':
+      case 'on track':
+        return '#28a745'; // Green
+      case 'off-track':
+      case 'off track':
+        return '#dc3545'; // Red
+      case 'at-risk':
+      case 'at risk':
+        return '#ffc107'; // Yellow
+      case 'completed':
+      case 'done':
+        return '#17a2b8'; // Blue
+      default:
+        return '#6c757d'; // Gray
+    }
+  };
+
+  // Helper function to get project status text
+  const getProjectStatusText = (projectKey: string): string => {
+    if (!projectUpdates) return 'Unknown';
+    
+    const projectUpdate = projectUpdates
+      .filter(update => update.projectKey === projectKey)
+      .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime())[0];
+    
+    return projectUpdate?.state || 'Unknown';
+  };
 
   // Helper function to get link type colors
   const getLinkTypeColor = (linkType: string): string => {
@@ -331,6 +353,26 @@ export default function DependencyVisualizationModal({ isOpen, onClose }: { isOp
     }
   };
 
+  // Drag functions
+  function dragstarted(event: any, d: ProjectNode) {
+    if (!simulation) return;
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  }
+
+  function dragged(event: any, d: ProjectNode) {
+    d.fx = event.x;
+    d.fy = event.y;
+  }
+
+  function dragended(event: any, d: ProjectNode) {
+    if (!simulation) return;
+    if (!event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  }
+
   // Reset zoom and pan
   const resetView = () => {
     if (svgRef.current) {
@@ -343,99 +385,111 @@ export default function DependencyVisualizationModal({ isOpen, onClose }: { isOp
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="dependency-visualization-modal">
-      <div className="modal-header">
-        <h2>Project Dependencies Visualization</h2>
-        <button className="close-button" onClick={onClose}>×</button>
-      </div>
-      
-      <div className="modal-content">
-        <div className="controls">
-          <button onClick={resetView} className="reset-button">
-            Reset View
-          </button>
-          <div className="zoom-info">
-            Zoom: {Math.round(zoomLevel * 100)}%
-          </div>
-        </div>
+    <ModalTransition>
+      {isOpen && (
+        <Modal
+          onClose={onClose}
+          width="x-large"
+        >
+          <ModalHeader hasCloseButton>
+            <ModalTitle>Project Dependency Visualiser</ModalTitle>
+          </ModalHeader>
+          
+          <ModalBody>
+            <div className="dependency-visualization-content">
+              <div className="controls">
+                <button onClick={resetView} className="reset-button">
+                  Reset View
+                </button>
+                <div className="zoom-info">
+                  Zoom: {Math.round(zoomLevel * 100)}%
+                </div>
+              </div>
 
-        <div className="stats">
-          <div className="stat-item">
-            <span className="stat-label">Projects:</span>
-            <span className="stat-value">{stats.totalProjects}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Dependencies:</span>
-            <span className="stat-value">{stats.totalDependencies}</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-label">Link Types:</span>
-            <span className="stat-value">{stats.uniqueLinkTypes}</span>
-          </div>
-        </div>
+              <div className="stats">
+                <div className="stat-item">
+                  <span className="stat-label">Projects:</span>
+                  <span className="stat-value">{stats?.totalProjects || 0}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Dependencies:</span>
+                  <span className="stat-value">{stats?.totalDependencies || 0}</span>
+                </div>
+                <div className="stat-item">
+                  <span className="stat-label">Link Types:</span>
+                  <span className="stat-value">{stats?.uniqueLinkTypes || 0}</span>
+                </div>
+              </div>
 
-        {isLoading ? (
-          <div className="loading">Loading dependencies...</div>
-        ) : (
-          <div className="visualization-container">
-            <svg
-              ref={svgRef}
-              width="100%"
-              height="600"
-              className="dependency-svg"
-            />
-          </div>
-        )}
+              {!visualizationData ? (
+                <div className="loading">Loading dependencies...</div>
+              ) : (
+                <div className="visualization-container">
+                  <svg
+                    ref={svgRef}
+                    width="100%"
+                    height="600"
+                    className="dependency-svg"
+                  />
+                </div>
+              )}
 
-        <div className="legend">
-          <h3>Status Colors</h3>
-          <div className="legend-items">
-            <div className="legend-item">
-              <span className="legend-color" style={{ backgroundColor: '#28a745' }}></span>
-              <span>On Track</span>
-            </div>
-            <div className="legend-item">
-              <span className="legend-color" style={{ backgroundColor: '#dc3545' }}></span>
-              <span>Off Track</span>
-            </div>
-            <div className="legend-item">
-              <span className="legend-color" style={{ backgroundColor: '#ffc107' }}></span>
-              <span>At Risk</span>
-            </div>
-            <div className="legend-item">
-              <span className="legend-color" style={{ backgroundColor: '#17a2b8' }}></span>
-              <span>Completed</span>
-            </div>
-            <div className="legend-item">
-              <span className="legend-color" style={{ backgroundColor: '#6c757d' }}></span>
-              <span>Unknown</span>
-            </div>
-          </div>
+              <div className="legend">
+                <h3>Status Colors</h3>
+                <div className="legend-items">
+                  <div className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: '#28a745' }}></span>
+                    <span>On Track</span>
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: '#dc3545' }}></span>
+                    <span>Off Track</span>
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: '#ffc107' }}></span>
+                    <span>At Risk</span>
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: '#17a2b8' }}></span>
+                    <span>Completed</span>
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: '#6c757d' }}></span>
+                    <span>Unknown</span>
+                  </div>
+                </div>
 
-          <h3>Link Types</h3>
-          <div className="legend-items">
-            <div className="legend-item">
-              <span className="legend-color" style={{ backgroundColor: '#dc3545' }}></span>
-              <span>DEPENDS_ON</span>
+                <h3>Link Types</h3>
+                <div className="legend-items">
+                  <div className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: '#dc3545' }}></span>
+                    <span>DEPENDS_ON</span>
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: '#17a2b8' }}></span>
+                    <span>RELATED</span>
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: '#ffc107' }}></span>
+                    <span>BLOCKS</span>
+                  </div>
+                  <div className="legend-item">
+                    <span className="legend-color" style={{ backgroundColor: '#28a745' }}></span>
+                    <span>IMPLEMENTS</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="legend-item">
-              <span className="legend-color" style={{ backgroundColor: '#17a2b8' }}></span>
-              <span>RELATED</span>
-            </div>
-            <div className="legend-item">
-              <span className="legend-color" style={{ backgroundColor: '#ffc107' }}></span>
-              <span>BLOCKS</span>
-            </div>
-            <div className="legend-item">
-              <span className="legend-color" style={{ backgroundColor: '#28a745' }}></span>
-              <span>IMPLEMENTS</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+          </ModalBody>
+          
+          <ModalFooter>
+            <Button appearance="subtle" onClick={onClose}>
+              Close
+            </Button>
+          </ModalFooter>
+        </Modal>
+      )}
+    </ModalTransition>
   );
 }

@@ -89,15 +89,6 @@ function StatusTimelineHeatmapRow({
 
   const weekCells = getTimelineWeekCells(weekRanges, updates);
   
-  // Debug logging
-  console.log(`[StatusTimelineHeatmapRow] 🔍 ${project.projectKey} weekCells:`, {
-    projectKey: project.projectKey,
-    weekCellsCount: weekCells.length,
-    sampleCell: weekCells[0],
-    updatesCount: updates.length
-  });
-
-  
   // Get target date from the most recent update that has one
   const targetDateRaw = updates.find(u => u.targetDate)?.targetDate ||
                        updates.find(u => u.newDueDate)?.newDueDate ||
