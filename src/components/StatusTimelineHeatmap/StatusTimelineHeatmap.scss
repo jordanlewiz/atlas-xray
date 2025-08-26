@@ -42,7 +42,7 @@
   display: flex;
   width: 100%;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 15px;
 
   &.timeline-labels{
     height: 130px;
@@ -301,7 +301,7 @@
 .dependencies-display {
   display: inline-flex;
   gap: 2px;
-  margin-left: 0;
+  margin-left: 10px;
   align-items: center;
   
   .dependency-indicator {

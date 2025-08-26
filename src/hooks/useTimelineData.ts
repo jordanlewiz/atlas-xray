@@ -120,8 +120,16 @@ export function useTimeline(weekLimit: number = 12) {
       limitedWeekRanges = weekRanges.slice(-weekLimit);
     } else {
       // Show weeks from the last update week backwards, ensuring we show enough context
+      // BUT always include "This week" if it exists in the range
       const startIndex = Math.max(0, lastUpdateWeekIndex - weekLimit + 1);
       limitedWeekRanges = weekRanges.slice(startIndex, lastUpdateWeekIndex + 1);
+      
+      // Always include "This week" if it's not already in the limited range
+      const thisWeekIndex = weekRanges.findIndex(week => week.label === "This week");
+      if (thisWeekIndex !== -1 && !limitedWeekRanges.some(week => week.label === "This week")) {
+        // Add "This week" to the end of the limited range
+        limitedWeekRanges.push(weekRanges[thisWeekIndex]);
+      }
     }
 
 
