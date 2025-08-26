@@ -25,25 +25,9 @@ export function useTimeline(weekLimit: number = 12) {
     return db.projectUpdates.where('projectKey').anyOf(projectKeys).toArray();
   }, [projectList]) as ProjectUpdate[] | undefined;
 
-  // Debug logging to see what we're getting
-  console.log('[useTimeline] 🔍 Debug data:', {
-    projectListCount: projectList?.length || 0,
-    projectsCount: projects?.length || 0,
-    updatesCount: allUpdates?.length || 0,
-    projectList: projectList?.slice(0, 3), // First 3 from project list
-    projects: projects?.slice(0, 3), // First 3 projects (filtered)
-    updates: allUpdates?.slice(0, 3)  // First 3 updates (filtered)
-  });
-
   // Transform data into clean view models
   return useMemo(() => {
     if (!projects || !allUpdates) {
-      console.log('[useTimeline] ❌ Missing data:', { 
-        hasProjects: !!projects, 
-        hasUpdates: !!allUpdates,
-        projectsLength: projects?.length,
-        updatesLength: allUpdates?.length
-      });
       return {
         weekRanges: [],
         projectViewModels: [],
@@ -70,28 +54,15 @@ export function useTimeline(weekLimit: number = 12) {
       // Create a map of project keys to their position in projectList
       const projectOrder = new Map(projectList.map((item, index) => [item.projectKey, index]));
       
-      console.log('[useTimeline] 🔍 Sorting debug:', {
-        projectListOrder: projectList.map(item => item.projectKey),
-        projectsBeforeSort: projects.map(p => p.projectKey),
-        projectOrderMap: Object.fromEntries(projectOrder)
-      });
-      
       // Sort projects by their order in projectList
       sortedProjects = [...projects].sort((a, b) => {
         const orderA = projectOrder.get(a.projectKey) ?? Number.MAX_SAFE_INTEGER;
         const orderB = projectOrder.get(b.projectKey) ?? Number.MAX_SAFE_INTEGER;
         return orderA - orderB;
       });
-      
-      console.log('[useTimeline] ✅ Sorted projects by projectList order:', {
-        totalProjects: projects.length,
-        projectListOrder: projectList.map(item => item.projectKey),
-        projectsAfterSort: sortedProjects.map(p => p.projectKey)
-      });
     } else {
       // No projectList available, use projects as-is
       sortedProjects = projects;
-      console.log('[useTimeline] ⚠️ No projectList available, using projects as-is');
     }
     
     // Simple project view models - just basic info + references to data
@@ -105,32 +76,19 @@ export function useTimeline(weekLimit: number = 12) {
       };
     });
 
-    console.log('[useTimeline] ✅ Created project view models:', {
-      count: projectViewModels.length,
-      sample: projectViewModels.slice(0, 3)
-    });
-
     // Get week ranges for the timeline
     const allDates = getAllProjectDates(projectViewModels, updatesByProject);
     
     if (!allDates.minDate || !allDates.maxDate) {
-      console.warn('[AtlasXray] No valid dates found - timeline will be empty');
-          return {
-      weekRanges: [],
-      projectViewModels,
-      updatesByProject,
-      isLoading: false
-    };
+      return {
+        weekRanges: [],
+        projectViewModels,
+        updatesByProject,
+        isLoading: false
+      };
     }
     
     const weekRanges: WeekRange[] = getWeekRanges(allDates.minDate, allDates.maxDate);
-    
-    console.log('[useTimeline] 📅 Week ranges generated:', {
-      minDate: allDates.minDate,
-      maxDate: allDates.maxDate,
-      weekRangesCount: weekRanges.length,
-      sampleWeeks: weekRanges.slice(0, 3)
-    });
     
     // Instead of taking the last N weeks, take N weeks that include actual data
     // Find weeks that contain updates and ensure we show enough context
@@ -171,8 +129,6 @@ export function useTimeline(weekLimit: number = 12) {
         limitedWeekRanges.push(weekRanges[thisWeekIndex]);
       }
     }
-
-
 
     return {
       weekRanges: limitedWeekRanges,

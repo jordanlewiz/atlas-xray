@@ -38,12 +38,11 @@ export class BootstrapService {
    */
   public async loadBootstrapData(): Promise<BootstrapData | null> {
     if (this.isLoaded && this.bootstrapData) {
-      console.log('[AtlasXray] 📋 Using cached bootstrap data');
       return this.bootstrapData;
     }
 
     try {
-      console.log('[AtlasXray] 🚀 Loading bootstrap data from GraphQL API...');
+
 
       // Get current URL to extract context
       const url = window.location.href;
@@ -81,10 +80,7 @@ export class BootstrapService {
 
         this.isLoaded = true;
 
-        console.log('[AtlasXray] ✅ Bootstrap data loaded successfully');
-        console.log('[AtlasXray] 🏢 Org ID:', this.bootstrapData.orgId);
-        console.log('[AtlasXray] ☁️ Cloud IDs:', this.bootstrapData.cloudIds);
-        console.log('[AtlasXray] 🏗️ Workspaces:', this.bootstrapData.workspaces.length);
+
 
         return this.bootstrapData;
       } else {

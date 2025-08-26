@@ -14,43 +14,31 @@ export default function FloatingButton(): React.JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleOpenModal = async (): Promise<void> => {
-    console.log('[AtlasXray] 🚪 Floating button clicked - starting complete database reset and fetch');
-    
     try {
       setIsLoading(true);
       
       // Step 0: Complete database reset
-      console.log('[AtlasXray] 🗑️ Step 0: Clearing all existing data...');
       try {
         //await db.clearProjectList();
         await db.projectList.clear();
-        console.log('[AtlasXray] ✅ Step 0 complete: ProjectList table cleared');
       } catch (error) {
         console.error('[AtlasXray] ⚠️ Warning: Some tables could not be cleared:', error);
         // Continue anyway - we'll overwrite the data
       }
       
       // Step 1: Load bootstrap data
-      console.log('[AtlasXray] 📋 Step 1: Loading bootstrap data...');
       await bootstrapService.loadBootstrapData();
       
       // Step 2: Fetch project list
-      console.log('[AtlasXray] 📋 Step 2: Fetching project list...');
       const projectKeys = await fetchProjectsList.getProjectList();
-      console.log(`[AtlasXray] ✅ Step 2 complete: Found ${projectKeys.length} projects`);
       
       // Step 3: Fetch project summaries (includes dependencies)
-      console.log('[AtlasXray] 📋 Step 3: Fetching project summaries...');
       await fetchProjectsSummary.getProjectSummaries(projectKeys);
-      console.log('[AtlasXray] ✅ Step 3 complete: Project summaries fetched');
       
       // Step 4: Fetch project updates
-      console.log('[AtlasXray] 📋 Step 4: Fetching project updates...');
       await fetchProjectsUpdates.getProjectUpdates(projectKeys);
-      console.log('[AtlasXray] ✅ Step 4 complete: Project updates fetched');
       
       // Step 5: Open modal (heatmap will load automatically)
-      console.log('[AtlasXray] 🎉 All data fetched! Opening modal...');
       setModalOpen(true);
 
     } catch (error) {
