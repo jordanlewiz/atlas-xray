@@ -31,7 +31,8 @@ interface ProjectTqlResponse {
  * - Does NOT fetch dependencies
  * - Does NOT fetch project details
  * - Does NOT fetch project updates
- * - Only stores minimal project data (key, name, archived status)
+ * - Only stores minimal project list data (key, name, archived status)
+ * - Does NOT store project summaries (use FetchProjectsSummary for that)
  * - Uses DatabaseService as pure data repository
  * - Checks DB first before fetching
  * - Uses 24-hour freshness threshold
@@ -53,7 +54,7 @@ export class FetchProjectsList {
    */
   private async needsRefresh(): Promise<boolean> {
     try {
-      const projectCount = await db.getProjectSummaries().then(summaries => summaries.length);
+      const projectCount = await db.getProjectList().then(list => list.length);
       
       if (projectCount === 0) {
         console.log('[FetchProjectsList] 🔄 No projects in DB, needs refresh');
@@ -61,7 +62,7 @@ export class FetchProjectsList {
       }
 
       // Check if any project is older than 24 hours
-      const projects = await db.getProjectSummaries();
+      const projects = await db.getProjectList();
       const now = Date.now();
       const refreshThreshold = 24 * 60 * 60 * 1000; // 24 hours
       
@@ -97,7 +98,7 @@ export class FetchProjectsList {
         return await this.fetchFromAPI();
       } else {
         console.log('[FetchProjectsList] ✅ Using fresh project list from DB...');
-        const projects = await db.getProjectSummaries();
+        const projects = await db.getProjectList();
         return projects.map(p => p.projectKey);
       }
     } catch (error) {
@@ -188,18 +189,18 @@ export class FetchProjectsList {
       const projects = response.data.projectTql.edges.map((edge: any) => edge.node);
       console.log(`[FetchProjectsList] 📦 Found ${projects.length} projects from API`);
 
-      // Store minimal project data in DB
+      // Store minimal project list data in DB
       for (const project of projects) {
-        await db.storeProjectSummary({
+        await db.storeProjectList({
           projectKey: project.key,
           name: project.name,
           archived: project.archived,
           lastUpdated: new Date().toISOString(),
-          raw: project
+          createdAt: new Date().toISOString()
         });
       }
 
-      console.log(`[FetchProjectsList] ✅ Stored ${projects.length} project views in DB`);
+      console.log(`[FetchProjectsList] ✅ Stored ${projects.length} project list entries in DB`);
       
       // Return project keys
       return projects.map((p: ProjectNode) => p.key);

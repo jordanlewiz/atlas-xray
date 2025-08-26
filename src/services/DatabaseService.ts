@@ -15,6 +15,14 @@ import Dexie, { Table } from 'dexie';
 // INTERFACES & TYPES
 // ============================================================================
 
+export interface ProjectList {
+  projectKey: string; // Primary key
+  name?: string;
+  archived?: boolean;
+  lastUpdated?: string;
+  createdAt?: string;
+}
+
 export interface ProjectSummary {
   projectKey: string; // Primary key
   name?: string;
@@ -69,6 +77,7 @@ export interface ProjectDependency {
 
 export class DatabaseService extends Dexie {
   // Core tables
+  projectList!: Table<ProjectList>;
   projectSummaries!: Table<ProjectSummary>;
   projectUpdates!: Table<ProjectUpdate>;
   projectDependencies!: Table<ProjectDependency>;
@@ -78,6 +87,7 @@ export class DatabaseService extends Dexie {
     super(dbName);
     
     this.version(1).stores({
+      projectList: 'projectKey',
       projectSummaries: 'projectKey',
       projectUpdates: 'uuid, projectKey, creationDate, updateQuality, analyzed',
       projectDependencies: 'id, sourceProjectKey, targetProjectKey, createdAt',
@@ -85,7 +95,60 @@ export class DatabaseService extends Dexie {
   }
 
   // ============================================================================
-  // PROJECT VIEW OPERATIONS
+  // PROJECT LIST OPERATIONS
+  // ============================================================================
+
+  /**
+   * Store a project list entry
+   */
+  async storeProjectList(projectList: ProjectList): Promise<void> {
+    try {
+      await this.projectList.put(projectList);
+      console.log(`[DatabaseService] ✅ Stored project list entry for ${projectList.projectKey}`);
+    } catch (error) {
+      console.error(`[DatabaseService] ❌ Failed to store project list entry for ${projectList.projectKey}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get all project list entries
+   */
+  async getProjectList(): Promise<ProjectList[]> {
+    try {
+      return await this.projectList.toArray();
+    } catch (error) {
+      console.error('[DatabaseService] Failed to get project list:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Get project list entry by key
+   */
+  async getProjectListEntry(projectKey: string): Promise<ProjectList | undefined> {
+    try {
+      return await this.projectList.get(projectKey);
+    } catch (error) {
+      console.error(`[DatabaseService] Failed to get project list entry for ${projectKey}:`, error);
+      return undefined;
+    }
+  }
+
+  /**
+   * Count project list entries
+   */
+  async countProjectList(): Promise<number> {
+    try {
+      return await this.projectList.count();
+    } catch (error) {
+      console.error('[DatabaseService] Failed to count project list entries:', error);
+      return 0;
+    }
+  }
+
+  // ============================================================================
+  // PROJECT SUMMARY OPERATIONS
   // ============================================================================
 
   /**
@@ -304,6 +367,9 @@ export const db = databaseService;
 export const analysisDB = databaseService;
 
 // Core function exports for services
+export const storeProjectList = (projectList: ProjectList) => databaseService.storeProjectList(projectList);
+export const getProjectList = () => databaseService.getProjectList();
+export const countProjectList = () => databaseService.countProjectList();
 export const storeProjectSummary = (projectSummary: ProjectSummary) => databaseService.storeProjectSummary(projectSummary);
 export const storeProjectUpdate = (update: ProjectUpdate) => databaseService.storeProjectUpdate(update);
 export const getProjectSummary = (projectKey: string) => databaseService.getProjectSummary(projectKey);

@@ -29,6 +29,7 @@ interface ProjectSummary {
  * FetchProjectsSummary Service
  * 
  * SINGLE RESPONSIBILITY: Fetch and store project summaries and dependencies
+ * - COMPLETELY INDEPENDENT from FetchProjectsList
  * - Does NOT fetch project list (use FetchProjectsList for that)
  * - Does NOT fetch project updates (use FetchProjectsUpdates for that)
  * - Does NOT fetch full project details (use FetchProjectsFullDetails for that)
