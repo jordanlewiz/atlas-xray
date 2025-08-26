@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Tooltip from "@atlaskit/tooltip";
-import Popup from "@atlaskit/popup";
-import Button from "@atlaskit/button/new";
+
 import ProjectUpdateModal from "../ProjectUpdateModal";
 import QualityIndicator from "../QualityIndicator/QualityIndicator";
 import { buildProjectUrlFromKey } from "../../utils/timelineUtils";
@@ -9,7 +8,8 @@ import {
   getTimelineWeekCells,
   getTargetDateDisplay,
   getDueDateTooltip,
-  getDueDateDiff
+  getDueDateDiff,
+  parseFlexibleDateChrono
 } from "../../utils/timelineUtils";
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../services/DatabaseService';
@@ -110,7 +110,7 @@ function StatusTimelineHeatmapRow({
   updates,
   showEmojis
 }: StatusTimelineHeatmapRowProps): React.JSX.Element | null {
-  const [isOpen, setIsOpen] = useState(false);
+
   const [selectedUpdate, setSelectedUpdate] = useState(null);
   // Quality data is now stored directly in the update objects by ProjectPipeline
   // No need for external hooks or triggers
@@ -122,13 +122,15 @@ function StatusTimelineHeatmapRow({
 
   const weekCells = getTimelineWeekCells(weekRanges, updates);
   
-  // Get target date from the most recent update that has one
-  const targetDateRaw = updates.find(u => u.targetDate)?.targetDate ||
-                       updates.find(u => u.newDueDate)?.newDueDate ||
-                       null;
-  const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
+  // Get latest newDueDate from all updates
+  const latestDueDate = updates
+    .filter(u => u.newDueDate)
+    .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime())[0]?.newDueDate ||
+    null;
+  // For Target Date column, show the original text (e.g., "October-December 2025"), not parsed date
+  const targetDateDisplay = latestDueDate || null;
 
-  // Calculate days shift between first and latest project update newDueDate
+  // Calculate days shift between first update's oldDueDate and latest update's newDueDate
   const daysShift = useMemo(() => {
     if (!updates || updates.length === 0) return null;
 
@@ -137,35 +139,44 @@ function StatusTimelineHeatmapRow({
       new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()
     );
 
-    // Get first update's newDueDate
+    // Get first update's oldDueDate
     const firstUpdate = sortedUpdates[0];
-    const firstDueDate = firstUpdate?.newDueDate;
+    const firstOldDueDate = firstUpdate?.oldDueDate;
     
     // Get latest update's newDueDate
     const latestUpdate = sortedUpdates[sortedUpdates.length - 1];
-    const latestDueDate = latestUpdate?.newDueDate;
+    const latestNewDueDate = latestUpdate?.newDueDate;
 
-    // Check if first update has newDueDate set
-    if (!firstDueDate) {
-      console.warn(`[StatusTimelineHeatmapRow] First update for ${project.projectKey} doesn't have newDueDate set yet`);
+    // Check if first update has oldDueDate set
+    if (!firstOldDueDate) {
+      console.warn(`[StatusTimelineHeatmapRow] First update for ${project.projectKey} doesn't have oldDueDate set yet`);
       return null;
     }
 
-    if (!latestDueDate) {
+    if (!latestNewDueDate) {
       console.warn(`[StatusTimelineHeatmapRow] Latest update for ${project.projectKey} doesn't have newDueDate set yet`);
       return null;
     }
 
     try {
-      const first = new Date(firstDueDate);
-      const latest = new Date(latestDueDate);
+      // Parse dates using the same utilities that handle flexible date ranges
+      const currentYear = new Date().getFullYear();
       
-      if (isNaN(first.getTime()) || isNaN(latest.getTime())) return null;
+      // For first date, use the start of the range if it's a range
+      const first = parseFlexibleDateChrono(firstOldDueDate, currentYear, false);
+      
+      // For latest date, use the end of the range if it's a range (e.g., "Oct-Dec" → Dec 31)
+      const latest = parseFlexibleDateChrono(latestNewDueDate, currentYear, true);
+      
+      if (!first || !latest || isNaN(first.getTime()) || isNaN(latest.getTime())) {
+        console.warn(`[StatusTimelineHeatmapRow] Failed to parse dates for ${project.projectKey}:`, { firstOldDueDate, latestNewDueDate });
+        return null;
+      }
 
       const diffTime = latest.getTime() - first.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       
-      return diffDays;
+      return { days: diffDays, firstDate: firstOldDueDate, latestDate: latestNewDueDate };
     } catch (error) {
       console.error('[StatusTimelineHeatmapRow] Error calculating days shift:', error);
       return null;
@@ -274,29 +285,10 @@ function StatusTimelineHeatmapRow({
       })}
       
       <div className="timeline-target-date">     
-        {targetDateRaw ? (
-          <Popup
-            isOpen={isOpen}
-            onClose={() => setIsOpen(false)}
-            content={() => (
-              <div style={{ padding: '16px', maxWidth: '300px' }}>
-                <h3>Target Date</h3>
-                <p>{targetDateRaw}</p>
-              </div>
-            )}
-            trigger={(triggerProps) => (
-              <Button
-                {...triggerProps}
-                appearance="default"
-                spacing="compact"
-                onClick={() => setIsOpen(!isOpen)}
-              >
-                {targetDateDisplay}
-              </Button>
-            )}
-            placement="bottom-start"
-            zIndex={1000}
-          />
+        {targetDateDisplay ? (
+          <span style={{ color: '#333', fontSize: '13px', fontWeight: '500' }}>
+            {targetDateDisplay}
+          </span>
         ) : (
           <span style={{ color: '#6b7280', fontSize: '12px' }}>No target date</span>
         )}
@@ -305,9 +297,9 @@ function StatusTimelineHeatmapRow({
       {/* Days Shift Column */}
       <div className="timeline-days-shift">
         {daysShift !== null ? (
-          <Tooltip content={`${daysShift > 0 ? '+' : ''}${daysShift} days from first update's due date`} position="top">
-            <span className={`days-shift-value ${daysShift > 0 ? 'positive' : daysShift < 0 ? 'negative' : 'neutral'}`}>
-              {daysShift > 0 ? `+${daysShift}` : daysShift}
+          <Tooltip content={`${daysShift.days > 0 ? '+' : ''}${daysShift.days} days from ${daysShift.firstDate} to ${daysShift.latestDate}`} position="top">
+            <span className={`days-shift-value ${daysShift.days > 0 ? 'positive' : daysShift.days < 0 ? 'negative' : 'neutral'}`}>
+              {daysShift.days > 0 ? `+${daysShift.days}` : daysShift.days}
             </span>
           </Tooltip>
         ) : (

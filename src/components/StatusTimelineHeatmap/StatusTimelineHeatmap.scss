@@ -285,6 +285,8 @@
   align-items: center;
   justify-content: flex-end;
   white-space: nowrap;
+  
+
 }
 
 .timeline-days-shift {
@@ -330,6 +332,7 @@
     padding: 2px 4px;
     border-radius: 3px;
     color: white;
+    cursor: help !important;
     
     &.depends-on {
       background-color: #dc3545; // Red for "Depends On"

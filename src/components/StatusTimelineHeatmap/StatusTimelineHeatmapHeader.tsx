@@ -24,14 +24,14 @@ function StatusTimelineHeatmapHeader({ weekRanges }: StatusTimelineHeatmapHeader
         </div>
       ))}
       
-      {/* Target date column */}
+      {/* Latest due date column */}
       <div className="timeline-target-date">
-        <span>Target Date</span>
+        <span>Latest Due Date</span>
       </div>
       
-      {/* Days shift column */}
+      {/* Date range days column */}
       <div className="timeline-days-shift">
-        <span>Days Shift</span>
+        <span>Date Range Days</span>
       </div>
     </div>
   );

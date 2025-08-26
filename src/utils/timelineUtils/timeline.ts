@@ -156,9 +156,11 @@ export function daysBetweenFlexibleDates(dateStr1: string, dateStr2: string, yea
   
   if (!d1 || !d2) return null;
   
+  // Calculate exact difference in calendar days
   const diff = differenceInCalendarDays(d2, d1);
-  if (diff === 0) return 1;
-  return diff > 0 ? diff + 1 : diff - 1;
+  
+  // Return the exact difference without adding/subtracting 1
+  return diff;
 }
 
 // Timeline cell interface for rendering
