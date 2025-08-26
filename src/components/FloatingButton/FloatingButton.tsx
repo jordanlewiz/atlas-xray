@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProjectStatusHistoryModal from '../ProjectStatusHistoryModal';
 import { StatusTimelineHeatmap } from '../StatusTimelineHeatmap';
 import { fetchProjectsList } from '../../services/FetchProjectsList';
 import { bootstrapService } from '../../services/bootstrapService';
+import { FetchOrchestrator } from '../../services/FetchOrchestrator';
 import './FloatingButton.scss';
 import Tooltip from "@atlaskit/tooltip";
 
@@ -10,8 +11,20 @@ export default function FloatingButton(): React.JSX.Element {
   const [modalOpen, setModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Start the monitoring system once when component mounts
+  useEffect(() => {
+    console.log('[FloatingButton] 🚀 Starting automatic fetch system...');
+    FetchOrchestrator.startMonitoring();
+    
+    // Cleanup when component unmounts
+    return () => {
+      console.log('[FloatingButton] 🛑 Stopping automatic fetch system...');
+      FetchOrchestrator.stopMonitoring();
+    };
+  }, []);
+
   const handleOpenModal = async (): Promise<void> => {
-    console.log('[AtlasXray] 🚪 Floating button clicked - starting data fetch');
+    console.log('[AtlasXray] 🚪 Floating button clicked - fetching project list');
     
     try {
       setIsLoading(true);
@@ -19,11 +32,12 @@ export default function FloatingButton(): React.JSX.Element {
       // Load bootstrap data for workspace context
       await bootstrapService.loadBootstrapData();
       
-      // Fetch fresh project list (service handles all DB logic internally)
+      // Fetch fresh project list - the monitoring system will automatically
+      // trigger fetchProjectSummary and fetchProjectUpdates when this completes
       const projectKeys = await fetchProjectsList.getProjectList();
-      console.log(`[AtlasXray] ✅ Found ${projectKeys.length} projects`);
+      console.log(`[AtlasXray] ✅ Found ${projectKeys.length} projects - automatic fetching will continue in background`);
       
-      // Open modal
+      // Open modal immediately - data will populate as it's fetched
       setModalOpen(true);
 
     } catch (error) {

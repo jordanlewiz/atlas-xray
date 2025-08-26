@@ -60,15 +60,11 @@ export interface ProjectUpdate {
 }
 
 export interface ProjectDependency {
-  id: string;                    // Primary key - composite dependency ID from GraphQL
+  id: string;                    // Primary key - dependency ID from GraphQL
   sourceProjectKey: string;      // Project that has the dependency
   targetProjectKey: string;      // Project that is depended upon
-  sourceProjectName?: string;    // For display purposes
-  targetProjectName?: string;    // For display purposes
-  linkType: string;              // Add linkType field for D3 visualization
-  createdAt: string;            // When dependency was discovered
-  lastUpdated: string;          // When dependency was last verified
-  raw?: any;                    // Full GraphQL response for backward compatibility
+  linkType: string;              // Type of dependency relationship
+  raw?: any;                     // Full GraphQL response for debugging
 }
 
 // ============================================================================
@@ -86,11 +82,11 @@ export class DatabaseService extends Dexie {
     const dbName = 'AtlasXrayDB';
     super(dbName);
     
-    this.version(2).stores({
+    this.version(3).stores({
       projectList: 'projectKey',
       projectSummaries: 'projectKey',
       projectUpdates: 'uuid, projectKey, creationDate, updateQuality, analyzed',
-      projectDependencies: 'id, sourceProjectKey, targetProjectKey, createdAt',
+      projectDependencies: 'id, sourceProjectKey, targetProjectKey',
     });
   }
 
@@ -287,28 +283,15 @@ export class DatabaseService extends Dexie {
    */
   async storeProjectDependencies(
     sourceProjectKey: string, 
-    dependencies: Array<{
-      id: string;
-      outgoingProject: { key: string; name?: string };
-      linkType: string;
-    }>
+    dependencies: ProjectDependency[]
   ): Promise<void> {
     try {
       console.log(`[DatabaseService] 📦 Storing ${dependencies.length} dependencies for project ${sourceProjectKey}`);
       
-      const dependencyRecords: ProjectDependency[] = dependencies.map(dep => ({
-        id: dep.id,
-        sourceProjectKey,
-        targetProjectKey: dep.outgoingProject.key,
-        sourceProjectName: '', // Will be populated from project view
-        targetProjectName: dep.outgoingProject.name,
-        linkType: dep.linkType,
-        createdAt: new Date().toISOString(),
-        lastUpdated: new Date().toISOString(),
-        raw: dep
-      }));
+      // Add debugging to see what we're actually storing
+      console.log(`[DatabaseService] 🔍 Dependencies to store:`, dependencies);
       
-      await this.projectDependencies.bulkPut(dependencyRecords);
+      await this.projectDependencies.bulkPut(dependencies);
       console.log(`[DatabaseService] ✅ Stored ${dependencies.length} dependencies for project ${sourceProjectKey}`);
     } catch (error) {
       console.error(`[DatabaseService] ❌ Failed to store dependencies for project ${sourceProjectKey}:`, error);

@@ -72,19 +72,9 @@ export class FetchProjectsSummary {
           continue;
         }
 
-        // Check if dependencies are older than 24 hours
-        const now = Date.now();
-        const refreshThreshold = 24 * 60 * 60 * 1000; // 24 hours
-        
-        const hasStaleDependencies = dependencies.some(dep => {
-          if (!dep.lastUpdated) return true;
-          const lastUpdated = new Date(dep.lastUpdated).getTime();
-          return (now - lastUpdated) > refreshThreshold;
-        });
-
-        if (hasStaleDependencies) {
-          projectsNeedingRefresh.push(projectKey);
-        }
+        // Since we're not storing lastUpdated anymore, always consider dependencies fresh
+        // Dependencies are structural relationships that don't change frequently
+        console.log(`[FetchProjectsSummary] ℹ️ Dependencies for ${projectKey} are considered fresh (structural data)`);
       }
 
       if (projectsNeedingRefresh.length > 0) {
@@ -148,7 +138,11 @@ export class FetchProjectsSummary {
             query: gql`${PROJECT_VIEW_ASIDE_QUERY}`,
             variables: {
               key: projectKey,
-              workspaceUuid: workspaceUuid
+              workspaceUuid: workspaceUuid,
+              trackViewEvent: null,
+              areMilestonesEnabled: true,
+              cloudId: null,
+              isNavRefreshEnabled: true
             },
             fetchPolicy: 'cache-first'
           });
@@ -163,6 +157,8 @@ export class FetchProjectsSummary {
             console.warn(`[FetchProjectsSummary] ⚠️ No data for project ${projectKey}`);
             continue;
           }
+          
+
 
           // Update project summary with summary data
           await db.storeProjectSummary({
@@ -176,22 +172,54 @@ export class FetchProjectsSummary {
             raw: projectData
           });
 
-          // Store dependencies if they exist
+                    // Store dependencies if they exist
           if (projectData.dependencies?.edges && projectData.dependencies.edges.length > 0) {
-            const dependencies = projectData.dependencies.edges.map((edge: any) => ({
-              id: edge.node.id,
-              sourceProjectKey: projectKey,
-              targetProjectKey: edge.node.outgoingProject.key,
-              sourceProjectName: projectData.name,
-              targetProjectName: edge.node.outgoingProject.name,
-              linkType: edge.node.linkType,
-              createdAt: new Date().toISOString(),
-              lastUpdated: new Date().toISOString(),
-              raw: edge.node
-            }));
+            console.log(`[FetchProjectsSummary] 🔗 Processing ${projectData.dependencies.edges.length} dependencies for ${projectKey}`);
+            
 
-            await db.storeProjectDependencies(projectKey, dependencies);
-            console.log(`[FetchProjectsSummary] ✅ Stored ${dependencies.length} dependencies for ${projectKey}`);
+            
+            const dependencies: any[] = [];
+            
+            // Process each dependency edge with bulletproof error handling
+            for (const edge of projectData.dependencies.edges) {
+              try {
+                // Bulletproof null checking - if ANYTHING is missing, skip it
+                if (!edge || !edge.node || !edge.node.outgoingProject || !edge.node.outgoingProject.key || !edge.node.id) {
+                  console.warn(`[FetchProjectsSummary] ⚠️ Skipping malformed dependency edge for ${projectKey}:`, edge);
+                  continue;
+                }
+                
+                // Log what we're processing
+                console.log(`[FetchProjectsSummary] 🔍 Processing dependency edge:`, {
+                  edgeId: edge.node.id,
+                  outgoingProject: edge.node.outgoingProject,
+                  linkType: edge.node.linkType
+                });
+                
+                // Create dependency object
+                const dependency = {
+                  id: edge.node.id,
+                  sourceProjectKey: projectKey,
+                  targetProjectKey: edge.node.outgoingProject.key,
+                  linkType: edge.node.linkType || 'RELATED',
+                  raw: edge.node
+                };
+                
+                dependencies.push(dependency);
+                console.log(`[FetchProjectsSummary] ✅ Successfully processed dependency: ${projectKey} -> ${edge.node.outgoingProject.key}`);
+                
+              } catch (error) {
+                console.error(`[FetchProjectsSummary] ❌ Error processing dependency edge for ${projectKey}:`, error, edge);
+                continue; // Skip this edge and continue with the next one
+              }
+            }
+
+            if (dependencies.length > 0) {
+              await db.storeProjectDependencies(projectKey, dependencies);
+              console.log(`[FetchProjectsSummary] ✅ Stored ${dependencies.length} dependencies for ${projectKey}`);
+            } else {
+              console.log(`[FetchProjectsSummary] ℹ️ No valid dependencies found for ${projectKey} after filtering`);
+            }
           } else {
             console.log(`[FetchProjectsSummary] ℹ️ No dependencies for ${projectKey}`);
           }
