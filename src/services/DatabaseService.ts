@@ -100,7 +100,6 @@ export class DatabaseService extends Dexie {
   async storeProjectList(projectList: ProjectList): Promise<void> {
     try {
       await this.projectList.put(projectList);
-      console.log(`[DatabaseService] ✅ Stored project list entry for ${projectList.projectKey}`);
     } catch (error) {
       console.error(`[DatabaseService] ❌ Failed to store project list entry for ${projectList.projectKey}:`, error);
       throw error;
@@ -150,17 +149,12 @@ export class DatabaseService extends Dexie {
     try {
       // First check if the table exists and has data
       const count = await this.projectList.count();
-      console.log(`[DatabaseService] 🔍 Found ${count} existing project list entries to clear`);
       
       if (count > 0) {
         await this.projectList.clear();
-        console.log('[DatabaseService] ✅ Cleared all project list entries');
         
         // Verify the clear operation
         const newCount = await this.projectList.count();
-        console.log(`[DatabaseService] 🔍 Verification: ${newCount} entries remaining`);
-      } else {
-        console.log('[DatabaseService] ℹ️ No project list entries to clear');
       }
     } catch (error) {
       console.error('[DatabaseService] Failed to clear project list entries:', error);
@@ -178,7 +172,6 @@ export class DatabaseService extends Dexie {
   async storeProjectSummary(projectSummary: ProjectSummary): Promise<void> {
     try {
       await this.projectSummaries.put(projectSummary);
-      console.log(`[DatabaseService] ✅ Stored project summary for ${projectSummary.projectKey}`);
     } catch (error) {
       console.error(`[DatabaseService] ❌ Failed to store project summary for ${projectSummary.projectKey}:`, error);
       throw error;
@@ -231,7 +224,6 @@ export class DatabaseService extends Dexie {
   async storeProjectUpdate(update: ProjectUpdate): Promise<void> {
     try {
       await this.projectUpdates.put(update);
-      console.log(`[DatabaseService] ✅ Stored update ${update.uuid} for ${update.projectKey}`);
     } catch (error) {
       console.error(`[DatabaseService] ❌ Failed to store update ${update.uuid}:`, error);
       throw error;
@@ -286,13 +278,7 @@ export class DatabaseService extends Dexie {
     dependencies: ProjectDependency[]
   ): Promise<void> {
     try {
-      console.log(`[DatabaseService] 📦 Storing ${dependencies.length} dependencies for project ${sourceProjectKey}`);
-      
-      // Add debugging to see what we're actually storing
-      console.log(`[DatabaseService] 🔍 Dependencies to store:`, dependencies);
-      
       await this.projectDependencies.bulkPut(dependencies);
-      console.log(`[DatabaseService] ✅ Stored ${dependencies.length} dependencies for project ${sourceProjectKey}`);
     } catch (error) {
       console.error(`[DatabaseService] ❌ Failed to store dependencies for project ${sourceProjectKey}:`, error);
       throw error;
@@ -356,7 +342,7 @@ export class DatabaseService extends Dexie {
         .equals(projectKey)
         .delete();
       
-      console.log(`[DatabaseService] ✅ Cleared dependencies for ${projectKey}`);
+
     } catch (error) {
       console.error(`[DatabaseService] ❌ Failed to clear dependencies for ${projectKey}:`, error);
       throw error;
@@ -395,20 +381,13 @@ export const clearProjectDependencies = (projectKey: string) => databaseService.
 // Initialize database
 export async function initializeDatabase(): Promise<void> {
   try {
-    console.log('[DatabaseService] 🔧 Starting database initialization...');
-    
     // Check if we're in content script or background script
     const isContentScript = typeof window !== 'undefined' && (
       window.location.href.includes('http://') || 
       window.location.href.includes('https://') 
     ) && !window.location.href.includes('chrome-extension://') && !window.location.href.includes('moz-extension://');
     
-    console.log(`[DatabaseService] 📍 Context: ${isContentScript ? 'Content Script' : 'Background Script'}`);
-    
     await databaseService.open();
-    console.log('[DatabaseService] ✅ Database opened successfully');
-    
-    console.log('[DatabaseService] 📊 Database initialized successfully');
     
   } catch (error) {
     console.error('[DatabaseService] ❌ Failed to initialize database:', error);
