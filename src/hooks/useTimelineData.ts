@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, type ProjectView, type ProjectUpdate } from "../services/DatabaseService";
+import { db, type ProjectSummary, type ProjectUpdate } from "../services/DatabaseService";
 import { getWeekRanges, getAllProjectDates } from "../utils/timelineUtils";
 import type { 
   WeekRange, 
@@ -10,7 +10,7 @@ import type {
 
 export function useTimeline(weekLimit: number = 12) {
   // Fetch raw data from database
-  const projects = useLiveQuery(() => db.projectViews.toArray(), []) as ProjectView[] | undefined;
+  const projects = useLiveQuery(() => db.projectSummaries.toArray(), []) as ProjectSummary[] | undefined;
   const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []) as ProjectUpdate[] | undefined;
 
 
@@ -43,7 +43,7 @@ export function useTimeline(weekLimit: number = 12) {
 
 
     // Simple project view models - just basic info + references to data
-    const projectViewModels: ProjectViewModel[] = projects.map((project: ProjectView) => {
+    const projectViewModels: ProjectViewModel[] = projects.map((project: ProjectSummary) => {
       // Use the new direct field structure
       const projectName = project.name || "Unknown Project";
       return {

@@ -15,7 +15,7 @@ import Dexie, { Table } from 'dexie';
 // INTERFACES & TYPES
 // ============================================================================
 
-export interface ProjectView {
+export interface ProjectSummary {
   projectKey: string; // Primary key
   name?: string;
   status?: string;
@@ -69,7 +69,7 @@ export interface ProjectDependency {
 
 export class DatabaseService extends Dexie {
   // Core tables
-  projectViews!: Table<ProjectView>;
+  projectSummaries!: Table<ProjectSummary>;
   projectUpdates!: Table<ProjectUpdate>;
   projectDependencies!: Table<ProjectDependency>;
 
@@ -78,7 +78,7 @@ export class DatabaseService extends Dexie {
     super(dbName);
     
     this.version(1).stores({
-      projectViews: 'projectKey',
+      projectSummaries: 'projectKey',
       projectUpdates: 'uuid, projectKey, creationDate, updateQuality, analyzed',
       projectDependencies: 'id, sourceProjectKey, targetProjectKey, createdAt',
     });
@@ -89,14 +89,14 @@ export class DatabaseService extends Dexie {
   // ============================================================================
 
   /**
-   * Store a project view
+   * Store a project summary
    */
-  async storeProjectView(projectView: ProjectView): Promise<void> {
+  async storeProjectSummary(projectSummary: ProjectSummary): Promise<void> {
     try {
-      await this.projectViews.put(projectView);
-      console.log(`[DatabaseService] ✅ Stored project view for ${projectView.projectKey}`);
+      await this.projectSummaries.put(projectSummary);
+      console.log(`[DatabaseService] ✅ Stored project summary for ${projectSummary.projectKey}`);
     } catch (error) {
-      console.error(`[DatabaseService] ❌ Failed to store project view for ${projectView.projectKey}:`, error);
+      console.error(`[DatabaseService] ❌ Failed to store project summary for ${projectSummary.projectKey}:`, error);
       throw error;
     }
   }
@@ -104,11 +104,11 @@ export class DatabaseService extends Dexie {
   /**
    * Get all project views
    */
-  async getProjectViews(): Promise<ProjectView[]> {
+  async getProjectSummaries(): Promise<ProjectSummary[]> {
     try {
-      return await this.projectViews.toArray();
+      return await this.projectSummaries.toArray();
     } catch (error) {
-      console.error('[DatabaseService] Failed to get project views:', error);
+      console.error('[DatabaseService] Failed to get project summaries:', error);
       return [];
     }
   }
@@ -116,11 +116,11 @@ export class DatabaseService extends Dexie {
   /**
    * Get project view by key
    */
-  async getProjectView(projectKey: string): Promise<ProjectView | undefined> {
+  async getProjectSummary(projectKey: string): Promise<ProjectSummary | undefined> {
     try {
-      return await this.projectViews.get(projectKey);
+      return await this.projectSummaries.get(projectKey);
     } catch (error) {
-      console.error(`[DatabaseService] Failed to get project view for ${projectKey}:`, error);
+      console.error(`[DatabaseService] Failed to get project summary for ${projectKey}:`, error);
       return undefined;
     }
   }
@@ -128,11 +128,11 @@ export class DatabaseService extends Dexie {
   /**
    * Count project views
    */
-  async countProjectViews(): Promise<number> {
+  async countProjectSummaries(): Promise<number> {
     try {
-      return await this.projectViews.count();
+      return await this.projectSummaries.count();
     } catch (error) {
-      console.error('[DatabaseService] Failed to count project views:', error);
+      console.error('[DatabaseService] Failed to count project summaries:', error);
       return 0;
     }
   }
@@ -304,8 +304,11 @@ export const db = databaseService;
 export const analysisDB = databaseService;
 
 // Core function exports for services
-export const storeProjectView = (projectView: ProjectView) => databaseService.storeProjectView(projectView);
+export const storeProjectSummary = (projectSummary: ProjectSummary) => databaseService.storeProjectSummary(projectSummary);
 export const storeProjectUpdate = (update: ProjectUpdate) => databaseService.storeProjectUpdate(update);
+export const getProjectSummary = (projectKey: string) => databaseService.getProjectSummary(projectKey);
+export const getProjectSummaries = () => databaseService.getProjectSummaries();
+export const countProjectSummaries = () => databaseService.countProjectSummaries();
 
 // Dependency function exports for services
 export const storeProjectDependencies = (sourceProjectKey: string, dependencies: any[]) => databaseService.storeProjectDependencies(sourceProjectKey, dependencies);

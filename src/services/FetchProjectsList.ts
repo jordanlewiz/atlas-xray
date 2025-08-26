@@ -53,7 +53,7 @@ export class FetchProjectsList {
    */
   private async needsRefresh(): Promise<boolean> {
     try {
-      const projectCount = await db.getProjectViews().then(views => views.length);
+      const projectCount = await db.getProjectSummaries().then(summaries => summaries.length);
       
       if (projectCount === 0) {
         console.log('[FetchProjectsList] 🔄 No projects in DB, needs refresh');
@@ -61,7 +61,7 @@ export class FetchProjectsList {
       }
 
       // Check if any project is older than 24 hours
-      const projects = await db.getProjectViews();
+      const projects = await db.getProjectSummaries();
       const now = Date.now();
       const refreshThreshold = 24 * 60 * 60 * 1000; // 24 hours
       
@@ -97,7 +97,7 @@ export class FetchProjectsList {
         return await this.fetchFromAPI();
       } else {
         console.log('[FetchProjectsList] ✅ Using fresh project list from DB...');
-        const projects = await db.getProjectViews();
+        const projects = await db.getProjectSummaries();
         return projects.map(p => p.projectKey);
       }
     } catch (error) {
@@ -190,7 +190,7 @@ export class FetchProjectsList {
 
       // Store minimal project data in DB
       for (const project of projects) {
-        await db.storeProjectView({
+        await db.storeProjectSummary({
           projectKey: project.key,
           name: project.name,
           archived: project.archived,

@@ -67,21 +67,21 @@ export class FetchProjectsFullDetails {
 
       for (const projectKey of projectKeys) {
         // Check if project full details exist and are fresh
-        const projectView = await db.getProjectView(projectKey);
-        if (!projectView) {
+        const projectSummary = await db.getProjectSummary(projectKey);
+        if (!projectSummary) {
           projectsNeedingRefresh.push(projectKey);
           continue;
         }
 
         // Check if project details are older than 24 hours
-        if (!projectView.lastUpdated) {
+        if (!projectSummary.lastUpdated) {
           projectsNeedingRefresh.push(projectKey);
           continue;
         }
 
         const now = Date.now();
         const refreshThreshold = 24 * 60 * 60 * 1000; // 24 hours
-        const lastUpdated = new Date(projectView.lastUpdated).getTime();
+        const lastUpdated = new Date(projectSummary.lastUpdated).getTime();
         
         if ((now - lastUpdated) > refreshThreshold) {
           projectsNeedingRefresh.push(projectKey);
@@ -165,8 +165,8 @@ export class FetchProjectsFullDetails {
             continue;
           }
 
-          // Update project view with comprehensive data
-          await db.storeProjectView({
+          // Update project summary with comprehensive data
+          await db.storeProjectSummary({
             projectKey: projectData.key,
             name: projectData.name,
             status: projectData.status?.name,

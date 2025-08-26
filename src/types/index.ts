@@ -1,5 +1,5 @@
 // Database record types - with individual fields for easier access
-export interface ProjectView {
+export interface ProjectSummary {
   projectKey: string; // Primary key
   name?: string;
   status?: string;
@@ -70,7 +70,7 @@ export interface TimelineCell {
 export interface ProjectViewModel {
   projectKey: string;
   name: string;
-  rawProject: ProjectView;
+  rawProject: ProjectSummary;
 }
 
 // Context types

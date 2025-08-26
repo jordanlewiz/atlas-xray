@@ -58,8 +58,8 @@ export class FetchProjectsSummary {
 
       for (const projectKey of projectKeys) {
         // Check if project summary exists and is fresh
-        const projectView = await db.getProjectView(projectKey);
-        if (!projectView) {
+        const projectSummary = await db.getProjectSummary(projectKey);
+        if (!projectSummary) {
           projectsNeedingRefresh.push(projectKey);
           continue;
         }
@@ -163,8 +163,8 @@ export class FetchProjectsSummary {
             continue;
           }
 
-          // Update project view with summary data
-          await db.storeProjectView({
+          // Update project summary with summary data
+          await db.storeProjectSummary({
             projectKey: projectData.key,
             name: projectData.name,
             status: projectData.status?.name,

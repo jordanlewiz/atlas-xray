@@ -30,7 +30,7 @@ export default function DependencyVisualizationModal({ isOpen, onClose }: { isOp
   const [stats, setStats] = useState({ totalProjects: 0, totalDependencies: 0, uniqueLinkTypes: 0 });
 
   // TODO: Implement dependency fetching with new service
-  const projects = useLiveQuery(() => db.getProjectViews());
+  const projects = useLiveQuery(() => db.getProjectSummaries());
   const projectUpdates = useLiveQuery(() => db.getProjectUpdates());
   
   // TODO: Implement dependency fetching with new service
