@@ -194,55 +194,59 @@ function StatusTimelineHeatmapRow({
         return (
           <div key={i} className={cell.cellClass}>
             {cell.weekUpdates.map((u: any, idx: number) => {
+              // Check if this update has a missed update
+              const hasMissedUpdate = u.raw?.missedUpdate || u.missedUpdate;
               
               return (
                 <div 
                   key={idx} 
                   className={`timeline-cell-content ${u.oldDueDate ? 'has-old-due-date' : ''}`}
-                  onClick={() => setSelectedUpdate(u)}
-                  style={{ cursor: 'pointer' }}
+                  onClick={hasMissedUpdate ? undefined : () => setSelectedUpdate(u)}
+                  style={{ cursor: hasMissedUpdate ? 'default' : 'pointer' }}
                 >
               {/* Show update indicator for any cell with updates FIRST */}
-              <Tooltip content="Click to view update details" position="top">
-                {showEmojis && u.uuid ? (
-                  // Show quality indicator when toggle is on
-                  (() => {
-                    // Check if analysis is complete
-                    if (u.updateQuality !== undefined && u.qualityLevel) {
+              {!hasMissedUpdate && (
+                <Tooltip content="Click to view update details" position="top">
+                  {showEmojis && u.uuid ? (
+                    // Show quality indicator when toggle is on
+                    (() => {
+                      // Check if analysis is complete
+                      if (u.updateQuality !== undefined && u.qualityLevel) {
+                        return (
+                          <QualityIndicator
+                            score={u.updateQuality}
+                            level={u.qualityLevel}
+                            size="small"
+                            className="quality-indicator-timeline"
+                          />
+                        );
+                      }
+                      // Show pending analysis indicator when toggle is on but analysis not complete
                       return (
-                        <QualityIndicator
-                          score={u.updateQuality}
-                          level={u.qualityLevel}
-                          size="small"
-                          className="quality-indicator-timeline"
+                        <span 
+                          className="update-indicator pending-analysis" 
+                          data-testid="update-indicator-pending"
+                          title="Analysis in progress..."
+                          style={{
+                            backgroundColor: '#ffab00',
+                            animation: 'pulse 2s infinite'
+                          }}
                         />
                       );
-                    }
-                    // Show pending analysis indicator when toggle is on but analysis not complete
-                    return (
-                      <span 
-                        className="update-indicator pending-analysis" 
-                        data-testid="update-indicator-pending"
-                        title="Analysis in progress..."
-                        style={{
-                          backgroundColor: '#ffab00',
-                          animation: 'pulse 2s infinite'
-                        }}
-                      />
-                    );
-                  })()
-                ) : (
-                  // Show white bullet when toggle is off
-                  <span 
-                    className="update-indicator" 
-                    data-testid="update-indicator"
-                    title="Project update"
-                  />
-                )}
-              </Tooltip>
+                    })()
+                  ) : (
+                    // Show white bullet when toggle is off
+                    <span 
+                      className="update-indicator" 
+                      data-testid="update-indicator"
+                      title="Project update"
+                    />
+                  )}
+                </Tooltip>
+              )}
               
-              {/* Show date difference tooltip SECOND (after emoji) */}
-              {u.oldDueDate && u.newDueDate && (
+              {/* Show date difference tooltip SECOND (after emoji) - only for non-missed updates */}
+              {!hasMissedUpdate && u.oldDueDate && u.newDueDate && (
                 <Tooltip content={getDueDateTooltip(u)} position="top">
                   <span className="date-difference">
                     {(() => {

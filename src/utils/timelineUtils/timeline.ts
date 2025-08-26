@@ -95,12 +95,11 @@ export function getAllProjectDates(projects: ProjectViewModel[], updatesByProjec
   return { minDate, maxDate };
 }
 
-export function buildProjectUrlFromKey(projectKey: string): string | undefined {
-  // Get cloud ID and section ID from window (set by contentScript)
-  const cloudId = typeof window !== 'undefined' ? (window as any).atlasXrayCloudId : null;
-  const sectionId = typeof window !== 'undefined' ? (window as any).atlasXraySectionId : null;
-  if (!cloudId || !sectionId || !projectKey) return undefined;
-  return `https://home.atlassian.com/o/${cloudId}/s/${sectionId}/project/${projectKey}/updates`;
+export function buildProjectUrlFromKey(projectKey: string): string {
+  const { bootstrapService } = require('../../services/bootstrapService');
+  const cloudId = bootstrapService.getCloudIds()[0];
+  const orgId = bootstrapService.getOrgId();
+  return `https://home.atlassian.com/o/${orgId}/s/${cloudId}/project/${projectKey}`;
 }
 
 // Flexible date parser for ranges and month names using chrono-node
@@ -268,15 +267,22 @@ export function getTimelineWeekCells(weekRanges: WeekRange[], updates: ProjectUp
     // Generate cell class inline
     let stateClass = 'state-none';
     if (lastUpdate) {
-      if (lastUpdate.missedUpdate) stateClass = 'state-missed-update';
-      else if (lastUpdate.state && typeof lastUpdate.state === 'string') {
+      // Check missedUpdate from raw data first, then fallback to top level
+      const missedUpdate = lastUpdate.raw?.missedUpdate || lastUpdate.missedUpdate;
+      if (missedUpdate) {
+        stateClass = 'state-missed-update';
+      } else if (lastUpdate.state && typeof lastUpdate.state === 'string') {
         stateClass = `state-${lastUpdate.state.replace(/_/g, '-').toLowerCase()}`;
+      } else if (lastUpdate.raw?.state && typeof lastUpdate.raw.state === 'string') {
+        stateClass = `state-${lastUpdate.raw.state.replace(/_/g, '-').toLowerCase()}`;
       }
     }
     
     let oldStateClass = '';
     if (lastUpdate && lastUpdate.oldState && typeof lastUpdate.oldState === 'string') {
       oldStateClass = `old-state-${lastUpdate.oldState.replace(/_/g, '-').toLowerCase()}`;
+    } else if (lastUpdate && lastUpdate.raw?.oldState && typeof lastUpdate.raw.oldState === 'string') {
+      oldStateClass = `old-state-${lastUpdate.raw.oldState.replace(/_/g, '-').toLowerCase()}`;
     }
     
     const cellClass = [
