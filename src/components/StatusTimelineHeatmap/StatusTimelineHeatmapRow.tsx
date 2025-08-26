@@ -21,46 +21,79 @@ import type { StatusTimelineHeatmapRowProps } from "../../types";
  */
 function DependenciesDisplay({ projectKey }: { projectKey: string }) {
   const dependencies = useLiveQuery(() => db.getProjectDependencies(projectKey));
-  const dependents = useLiveQuery(() => db.getProjectsDependingOn(projectKey));
 
-  if (!dependencies || !dependents) return null;
+  if (!dependencies) return null;
 
-  const hasDependencies = dependencies.length > 0;
-  const hasDependents = dependents.length > 0;
+  // Categorize dependencies by relationship type from the dependencies array only
+  const dependsOnCount = dependencies.filter(d => d.linkType === 'DEPENDS_ON').length;
+  const relatedCount = dependencies.filter(d => d.linkType === 'RELATED').length;
+  const dependedByCount = dependencies.filter(d => d.linkType === 'DEPENDED_BY').length;
 
-  if (!hasDependencies && !hasDependents) return null;
+  const hasAnyDependencies = dependsOnCount > 0 || relatedCount > 0 || dependedByCount > 0;
+
+  if (!hasAnyDependencies) return null;
 
   return (
     <div className="dependencies-display">
-      {hasDependencies && (
+      {/* Depends On (outgoing dependencies) */}
+      {dependsOnCount > 0 && (
         <Tooltip
           content={
-            <div>
-              <strong>{dependencies.length} dependencies:</strong>
+            <div style={{ maxWidth: '300px', wordBreak: 'break-word' }}>
+              <strong>{dependsOnCount} Depends On:</strong>
               <br />
-              {dependencies.map(d => `${d.targetProjectKey} (${d.linkType})`).join(', ')}
+              {dependencies
+                .filter(d => d.linkType === 'DEPENDS_ON')
+                .map(d => d.targetProjectKey)
+                .join(', ')}
             </div>
           }
           position="top"
         >
-          <span className="dependency-indicator outgoing">
-            {dependencies.length}→
+          <span className="dependency-indicator depends-on">
+            {dependsOnCount}→
           </span>
         </Tooltip>
       )}
-      {hasDependents && (
+
+      {/* Related projects (related but no dependency) */}
+      {relatedCount > 0 && (
         <Tooltip
           content={
-            <div>
-              <strong>{dependents.length} dependents:</strong>
+            <div style={{ maxWidth: '300px', wordBreak: 'break-word' }}>
+              <strong>{relatedCount} Related (no dependency)</strong>
               <br />
-              {dependents.map(d => `${d.sourceProjectKey} (${d.linkType})`).join(', ')}
+              {dependencies
+                .filter(d => d.linkType === 'RELATED')
+                .map(d => d.targetProjectKey)
+                .join(', ')}
             </div>
           }
           position="top"
         >
-          <span className="dependency-indicator incoming">
-            ←{dependents.length}
+          <span className="dependency-indicator related">
+            {relatedCount}~
+          </span>
+        </Tooltip>
+      )}
+
+      {/* Depended By (incoming dependencies) */}
+      {dependedByCount > 0 && (
+        <Tooltip
+          content={
+            <div style={{ maxWidth: '300px', wordBreak: 'break-word' }}>
+              <strong>{dependedByCount} Depended By:</strong>
+              <br />
+              {dependencies
+                .filter(d => d.linkType === 'DEPENDED_BY')
+                .map(d => d.targetProjectKey)
+                .join(', ')}
+            </div>
+          }
+          position="top"
+        >
+          <span className="dependency-indicator depended-by">
+            ←{dependedByCount}
           </span>
         </Tooltip>
       )}
@@ -143,14 +176,16 @@ function StatusTimelineHeatmapRow({
             {project.name}
           </h3>
         </Tooltip>
-        <a
-          href={buildProjectUrlFromKey(project.projectKey)}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {project.projectKey}
-        </a>
-        <DependenciesDisplay projectKey={project.projectKey} />
+        <div className="project-info-group">
+          <a
+            href={buildProjectUrlFromKey(project.projectKey)}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            {project.projectKey}
+          </a>
+          <DependenciesDisplay projectKey={project.projectKey} />
+        </div>
       </div>
       
       {weekCells.map((cell: any, i: number) => {

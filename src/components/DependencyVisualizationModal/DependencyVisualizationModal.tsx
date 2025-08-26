@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import * as d3 from 'd3';
 import { useLiveQuery } from 'dexie-react-hooks';
 import Modal, { ModalTransition, ModalHeader, ModalTitle, ModalBody, ModalFooter } from '@atlaskit/modal-dialog';
@@ -56,7 +56,7 @@ export default function DependencyVisualizationModal({ isOpen, onClose }: { isOp
 
   // Reactive D3 visualization data derived from live queries
   const visualizationData = useLiveQuery(() => {
-    if (!svgRef.current || !projects || !allDependencies || allDependencies.length === 0) {
+    if (!projects || !allDependencies || allDependencies.length === 0) {
       return null;
     }
 
@@ -111,26 +111,15 @@ export default function DependencyVisualizationModal({ isOpen, onClose }: { isOp
     return { nodes, links };
   }, [projects, allDependencies, projectUpdates]);
 
-  // Reactive D3 visualization rendering
-  const svgElement = useLiveQuery(() => {
-    if (!svgRef.current || !visualizationData) return null;
+  // Use useEffect for D3 rendering since it needs DOM access
+  React.useEffect(() => {
+    if (!svgRef.current || !visualizationData) return;
+    
+    console.log('[DependencyVisualizationModal] 🎨 Rendering D3 visualization');
     
     const svg = d3.select(svgRef.current);
     svg.selectAll('*').remove(); // Clear existing content
     
-    if (!visualizationData) {
-      // Show message when no dependencies exist
-      svg.append('text')
-        .attr('x', '50%')
-        .attr('y', '50%')
-        .attr('text-anchor', 'middle')
-        .attr('dominant-baseline', 'middle')
-        .attr('font-size', '16px')
-        .attr('fill', '#6b778c')
-        .text('No project dependencies found');
-      return null;
-    }
-
     const { nodes, links } = visualizationData;
     
     // Set up D3 force simulation
@@ -292,7 +281,10 @@ export default function DependencyVisualizationModal({ isOpen, onClose }: { isOp
 
     console.log('[DependencyVisualizationModal] ✅ D3 visualization created successfully');
     
-    return svg;
+    // Cleanup
+    return () => {
+      sim.stop();
+    };
   }, [visualizationData]);
 
   // Helper function to get project status color
