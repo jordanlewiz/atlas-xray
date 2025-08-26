@@ -86,7 +86,7 @@ export class DatabaseService extends Dexie {
     const dbName = 'AtlasXrayDB';
     super(dbName);
     
-    this.version(1).stores({
+    this.version(2).stores({
       projectList: 'projectKey',
       projectSummaries: 'projectKey',
       projectUpdates: 'uuid, projectKey, creationDate, updateQuality, analyzed',
@@ -144,6 +144,31 @@ export class DatabaseService extends Dexie {
     } catch (error) {
       console.error('[DatabaseService] Failed to count project list entries:', error);
       return 0;
+    }
+  }
+
+  /**
+   * Clear all project list entries
+   */
+  async clearProjectList(): Promise<void> {
+    try {
+      // First check if the table exists and has data
+      const count = await this.projectList.count();
+      console.log(`[DatabaseService] 🔍 Found ${count} existing project list entries to clear`);
+      
+      if (count > 0) {
+        await this.projectList.clear();
+        console.log('[DatabaseService] ✅ Cleared all project list entries');
+        
+        // Verify the clear operation
+        const newCount = await this.projectList.count();
+        console.log(`[DatabaseService] 🔍 Verification: ${newCount} entries remaining`);
+      } else {
+        console.log('[DatabaseService] ℹ️ No project list entries to clear');
+      }
+    } catch (error) {
+      console.error('[DatabaseService] Failed to clear project list entries:', error);
+      throw error;
     }
   }
 
@@ -370,6 +395,7 @@ export const analysisDB = databaseService;
 export const storeProjectList = (projectList: ProjectList) => databaseService.storeProjectList(projectList);
 export const getProjectList = () => databaseService.getProjectList();
 export const countProjectList = () => databaseService.countProjectList();
+export const clearProjectList = () => databaseService.clearProjectList();
 export const storeProjectSummary = (projectSummary: ProjectSummary) => databaseService.storeProjectSummary(projectSummary);
 export const storeProjectUpdate = (update: ProjectUpdate) => databaseService.storeProjectUpdate(update);
 export const getProjectSummary = (projectKey: string) => databaseService.getProjectSummary(projectKey);

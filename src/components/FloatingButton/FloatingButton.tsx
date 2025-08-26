@@ -9,73 +9,38 @@ import Tooltip from "@atlaskit/tooltip";
 export default function FloatingButton(): React.JSX.Element {
   const [modalOpen, setModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [dataLoaded, setDataLoaded] = useState(false);
 
   const handleOpenModal = async (): Promise<void> => {
-    console.log('[AtlasXray] 🚪 Floating button clicked - starting clean service-based data flow');
+    console.log('[AtlasXray] 🚪 Floating button clicked - starting data fetch');
     
-    if (dataLoaded) {
-      // Data already loaded, just open modal
-      setModalOpen(true);
-      return;
-    }
-
     try {
       setIsLoading(true);
-      console.log('[AtlasXray] 🔄 Starting clean service-based data loading...');
-
-      // 0. Bootstrap - load workspace context first
-      console.log('[AtlasXray] 🚀 Step 0: Loading bootstrap data (workspace context)...');
+      
+      // Load bootstrap data for workspace context
       await bootstrapService.loadBootstrapData();
       
-      // Verify bootstrap data was loaded
-      const workspaces = bootstrapService.getWorkspaces();
-      if (!workspaces || workspaces.length === 0) {
-        throw new Error('Failed to load workspace context. Please refresh the page and try again.');
-      }
-      console.log(`[AtlasXray] ✅ Step 0 complete: Bootstrap data loaded (${workspaces.length} workspaces available)`);
-
-      // 1. FetchProjectsList - get basic project list
-      console.log('[AtlasXray] 📋 Step 1: Fetching project list...');
+      // Fetch fresh project list (service handles all DB logic internally)
       const projectKeys = await fetchProjectsList.getProjectList();
-      console.log(`[AtlasXray] ✅ Step 1 complete: Found ${projectKeys.length} projects`);
-
-      if (projectKeys.length === 0) {
-        throw new Error('No projects found. Please ensure you are on a valid Atlassian projects page.');
-      }
-
-
-      // All data loaded successfully
-      setDataLoaded(true);
-      console.log(`[AtlasXray] 🎉 All data loaded successfully! Found ${projectKeys.length} projects with complete information`);
+      console.log(`[AtlasXray] ✅ Found ${projectKeys.length} projects`);
       
       // Open modal
       setModalOpen(true);
 
     } catch (error) {
-      console.error('[AtlasXray] ❌ Failed to load data:', error);
-      alert(`Failed to load project data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('[AtlasXray] ❌ Failed to fetch projects:', error);
+      alert(`Failed to fetch projects: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Get display text - simplified for loading state
+  // Get display text
   const getDisplayText = (): React.ReactNode => {
     if (isLoading) {
       return (
         <div className="loading-text">
           <span className="spinner">⏳</span>
           <span>Loading...</span>
-        </div>
-      );
-    }
-
-    if (dataLoaded) {
-      return (
-        <div className="data-loaded-text">
-          <span>📊</span>
-          <span>View Status</span>
         </div>
       );
     }
@@ -89,15 +54,10 @@ export default function FloatingButton(): React.JSX.Element {
   };
 
   // Get tooltip content
-  const getTooltipContent = (): React.ReactNode => {
+  const getTooltipContent = (): string => {
     if (isLoading) {
       return 'Loading project data...';
     }
-
-    if (dataLoaded) {
-      return 'Click to view project status timeline';
-    }
-
     return 'Click to load and view project data';
   };
 

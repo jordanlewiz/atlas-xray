@@ -34,8 +34,8 @@ interface ProjectTqlResponse {
  * - Only stores minimal project list data (key, name, archived status)
  * - Does NOT store project summaries (use FetchProjectsSummary for that)
  * - Uses DatabaseService as pure data repository
- * - Checks DB first before fetching
- * - Uses 24-hour freshness threshold
+ * - ALWAYS fetches fresh data from API (no caching)
+ * - Clears existing data before storing new data
  */
 export class FetchProjectsList {
   private static instance: FetchProjectsList;
@@ -49,58 +49,17 @@ export class FetchProjectsList {
     return FetchProjectsList.instance;
   }
 
-  /**
-   * Check if projects need refresh (24-hour threshold)
-   */
-  private async needsRefresh(): Promise<boolean> {
-    try {
-      const projectCount = await db.getProjectList().then(list => list.length);
-      
-      if (projectCount === 0) {
-        console.log('[FetchProjectsList] 🔄 No projects in DB, needs refresh');
-        return true;
-      }
 
-      // Check if any project is older than 24 hours
-      const projects = await db.getProjectList();
-      const now = Date.now();
-      const refreshThreshold = 24 * 60 * 60 * 1000; // 24 hours
-      
-      const needsRefresh = projects.some(project => {
-        if (!project.lastUpdated) return true;
-        const lastUpdated = new Date(project.lastUpdated).getTime();
-        return (now - lastUpdated) > refreshThreshold;
-      });
-
-      if (needsRefresh) {
-        console.log('[FetchProjectsList] 🔄 Some projects are older than 24 hours, needs refresh');
-      } else {
-        console.log('[FetchProjectsList] ✅ All projects are fresh (less than 24 hours old)');
-      }
-
-      return needsRefresh;
-    } catch (error) {
-      console.error('[FetchProjectsList] ❌ Error checking refresh status:', error);
-      return true; // Refresh on error
-    }
-  }
 
   /**
-   * Get project list - either from DB (if fresh) or fetch from API
+   * Get project list - always fetch fresh data from API
+   * This ensures we get the latest project list every time
    */
   async getProjectList(): Promise<string[]> {
     try {
       console.log('[FetchProjectsList] 🔍 Getting project list...');
-
-      // Check if we need to refresh
-      if (await this.needsRefresh()) {
-        console.log('[FetchProjectsList] 🔄 Refreshing project list from API...');
-        return await this.fetchFromAPI();
-      } else {
-        console.log('[FetchProjectsList] ✅ Using fresh project list from DB...');
-        const projects = await db.getProjectList();
-        return projects.map(p => p.projectKey);
-      }
+      console.log('[FetchProjectsList] 🔄 Always fetching fresh project list from API...');
+      return await this.fetchFromAPI();
     } catch (error) {
       console.error('[FetchProjectsList] ❌ Error getting project list:', error);
       return [];
@@ -123,18 +82,27 @@ export class FetchProjectsList {
       const workspaceUuid = workspaces[0].uuid;
       console.log('[FetchProjectsList] 🏗️ Using workspace UUID:', workspaceUuid);
 
-      // Determine TQL filter based on page context
+      // Determine TQL filter based on page context and URL parameters
       const currentUrl = window.location.href;
       let tqlFilter = '(archived = false)'; // Default filter
 
-      if (currentUrl.includes('/browse/')) {
+      // First, check if there's a TQL parameter in the URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlTql = urlParams.get('tql');
+      
+      if (urlTql) {
+        // Use the TQL from URL parameters (this is the correct approach)
+        tqlFilter = decodeURIComponent(urlTql);
+        console.log(`[FetchProjectsList] 🎯 Using TQL from URL: ${tqlFilter}`);
+      } else if (currentUrl.includes('/browse/')) {
+        // Fallback: single project context
         const projectKeyMatch = currentUrl.match(/\/browse\/([A-Z]{2,}-\d+)/);
         if (projectKeyMatch) {
           tqlFilter = `(key = "${projectKeyMatch[1]}")`;
           console.log(`[FetchProjectsList] 🎯 Single project context: ${projectKeyMatch[1]}`);
         }
       } else if (currentUrl.includes('/projects')) {
-        console.log('[FetchProjectsList] 📋 Projects list context');
+        console.log('[FetchProjectsList] 📋 Projects list context - using default filter');
       } else {
         tqlFilter = ''; // No filter for other pages
         console.log('[FetchProjectsList] 🌐 Other page context - using permissive filter');
@@ -161,10 +129,12 @@ export class FetchProjectsList {
         includeTags: false,
         includeStartDate: false,
         includedCustomFieldUuids: [],
-        skipTableTql: tqlFilter === ''
+        skipTableTql: false // Never skip TQL - always use the filter
       };
 
       console.log('[FetchProjectsList] 📤 GraphQL query variables:', queryVariables);
+      console.log(`[FetchProjectsList] 🎯 TQL Filter: ${tqlFilter}`);
+      console.log(`[FetchProjectsList] 📊 Expected: Should return ~25 projects (filtered by label)`);
 
       // Execute GraphQL query
       const parsedQuery = gql`${DIRECTORY_VIEW_PROJECT_QUERY}`;
@@ -188,6 +158,16 @@ export class FetchProjectsList {
       // Extract project data
       const projects = response.data.projectTql.edges.map((edge: any) => edge.node);
       console.log(`[FetchProjectsList] 📦 Found ${projects.length} projects from API`);
+
+      // Clear existing project list data before storing new data
+      console.log('[FetchProjectsList] 🗑️ Clearing existing project list data...');
+      try {
+        await db.clearProjectList();
+        console.log('[FetchProjectsList] ✅ Cleared existing project list data');
+      } catch (error) {
+        console.error('[FetchProjectsList] ❌ Failed to clear project list data:', error);
+        // Continue anyway - we'll overwrite the data
+      }
 
       // Store minimal project list data in DB
       for (const project of projects) {
