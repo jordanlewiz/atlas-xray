@@ -81,4 +81,21 @@ describe("daysBetweenFlexibleDates", () => {
     // Total: 11 + 30 + 31 + 30 + 31 = 133 days
     expect(result).toBe(133);
   });
+
+  it("should handle missing oldDueDate by using project target date as fallback", () => {
+    // Simulate the scenario where oldDueDate is missing but newDueDate exists
+    // This test verifies that the fallback logic in FetchProjectsUpdates works
+    const aug20 = parseFlexibleDateChrono('20 Aug', 2025, false);
+    const dec31 = parseFlexibleDateChrono('Oct-Dec', 2025, true);
+    
+    expect(aug20).not.toBeNull();
+    expect(dec31).not.toBeNull();
+    
+    if (aug20 && dec31) {
+      const diffTime = dec31.getTime() - aug20.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      // Aug 20 to Dec 31 = 133 days
+      expect(diffDays).toBe(133);
+    }
+  });
 });

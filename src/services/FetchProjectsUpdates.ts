@@ -147,6 +147,26 @@ export class FetchProjectsUpdates {
           // Process and store updates
           const updates = projectData.updates.edges.map((edge: any) => {
             const update = edge.node;
+            
+            // Handle missing oldDueDate for the first update
+            let oldDueDate = update.oldDueDate?.tooltip;
+            let newDueDate = update.newDueDate?.tooltip;
+            
+            // If this is the first update and oldDueDate is missing, try to use project's target date as fallback
+            if (!oldDueDate && update.newDueDate?.tooltip) {
+              // For the first update, if we have a newDueDate but no oldDueDate,
+              // use the project's target date as a fallback to prevent "N/A" in Date Range Days
+              const projectTargetDate = projectData.targetDate;
+              if (projectTargetDate) {
+                oldDueDate = projectTargetDate;
+                console.log(`[FetchProjectsUpdates] 🔍 Using project target date as oldDueDate fallback for ${projectKey}: ${oldDueDate}`);
+              } else {
+                // If no project target date, use the newDueDate as fallback
+                oldDueDate = update.newDueDate.tooltip;
+                console.log(`[FetchProjectsUpdates] 🔍 Using newDueDate as oldDueDate fallback for ${projectKey}: ${oldDueDate}`);
+              }
+            }
+            
             return {
               uuid: update.id,
               projectKey: projectKey,
@@ -155,8 +175,8 @@ export class FetchProjectsUpdates {
               summary: update.summary,
               details: update.content,
               targetDate: update.targetDate,
-              newDueDate: update.newDueDate?.tooltip,  // Fixed: use newDueDate.tooltip from ProjectDateChanged
-              oldDueDate: update.oldDueDate?.tooltip,  // Fixed: use oldDueDate.tooltip from ProjectDateChanged
+              newDueDate: newDueDate,  // Use processed newDueDate
+              oldDueDate: oldDueDate,  // Use processed oldDueDate (may be inferred)
               oldState: update.oldState?.projectStateValue,  // Fixed: use oldState.projectStateValue instead of oldState
               missedUpdate: update.missedUpdate || false, // Use actual missedUpdate value from API
               analyzed: false, // Will be analyzed by AnalysisService later

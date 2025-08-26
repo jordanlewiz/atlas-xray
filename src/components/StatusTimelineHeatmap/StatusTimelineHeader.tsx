@@ -96,11 +96,13 @@ export default function StatusTimelineHeader({
         <StatusLegend />
       </div>
       
-      {/* Dependency Visualization Modal */}
-      <DependencyVisualizationModal
-        isOpen={showDependencyModal}
-        onClose={() => setShowDependencyModal(false)}
-      />
+      {/* Dependency Visualization Modal - only render when open */}
+      {showDependencyModal && (
+        <DependencyVisualizationModal
+          isOpen={showDependencyModal}
+          onClose={() => setShowDependencyModal(false)}
+        />
+      )}
     </div>
   );
 }
