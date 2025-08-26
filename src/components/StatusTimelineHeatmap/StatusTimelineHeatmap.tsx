@@ -18,21 +18,8 @@ function StatusTimelineHeatmap({ weekLimit: initialWeekLimit = 12, visibleProjec
   const [showEmojis, setShowEmojis] = useState(false); // Default to off (no quality indicators)
   const { projectViewModels, weekRanges, updatesByProject, isLoading } = useTimeline(weekLimit);
 
-  // Memoize filtered projects to prevent unnecessary recalculations
-  const filteredProjects = useMemo(() => {
-    // If visibleProjectKeys is not provided, show all projects
-    if (!visibleProjectKeys) {
-      return projectViewModels || [];
-    }
-    // If visibleProjectKeys is an empty array, show no projects
-    if (visibleProjectKeys.length === 0) {
-      return [];
-    }
-    // Filter projects based on visibleProjectKeys AND preserve the order
-    return visibleProjectKeys
-      .map(key => projectViewModels?.find(project => project.projectKey === key))
-      .filter((project): project is ProjectViewModel => project !== undefined);
-  }, [projectViewModels, visibleProjectKeys]);
+  // No need for additional filtering - useTimeline already handles projectList filtering
+  const projectsToShow = projectViewModels || [];
 
   const handleWeekLimitChange = (newWeekLimit: number) => {
     setWeekLimit(newWeekLimit);
@@ -46,7 +33,7 @@ function StatusTimelineHeatmap({ weekLimit: initialWeekLimit = 12, visibleProjec
     return <div>Loading timeline data...</div>;
   }
 
-  if (!filteredProjects || filteredProjects.length === 0) {
+  if (!projectsToShow || projectsToShow.length === 0) {
     return (
       <div className="project-timeline">
         <StatusTimelineHeader
@@ -71,7 +58,7 @@ function StatusTimelineHeatmap({ weekLimit: initialWeekLimit = 12, visibleProjec
         onToggleEmojis={handleToggleEmojis}
       />
       <StatusTimelineHeatmapHeader weekRanges={weekRanges} />
-      {filteredProjects.filter(Boolean).map((project, idx) => (
+      {projectsToShow.filter(Boolean).map((project, idx) => (
         <StatusTimelineHeatmapRow
           key={project.projectKey || idx}
           project={project}

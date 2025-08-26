@@ -7,16 +7,28 @@ import { fetchProjectsUpdates } from '../../services/FetchProjectsUpdates';
 import { bootstrapService } from '../../services/bootstrapService';
 import './FloatingButton.scss';
 import Tooltip from "@atlaskit/tooltip";
+import { db } from '../../services/DatabaseService';
 
 export default function FloatingButton(): React.JSX.Element {
   const [modalOpen, setModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleOpenModal = async (): Promise<void> => {
-    console.log('[AtlasXray] 🚪 Floating button clicked - starting sequential fetch');
+    console.log('[AtlasXray] 🚪 Floating button clicked - starting complete database reset and fetch');
     
     try {
       setIsLoading(true);
+      
+      // Step 0: Complete database reset
+      console.log('[AtlasXray] 🗑️ Step 0: Clearing all existing data...');
+      try {
+        //await db.clearProjectList();
+        await db.projectList.clear();
+        console.log('[AtlasXray] ✅ Step 0 complete: ProjectList table cleared');
+      } catch (error) {
+        console.error('[AtlasXray] ⚠️ Warning: Some tables could not be cleared:', error);
+        // Continue anyway - we'll overwrite the data
+      }
       
       // Step 1: Load bootstrap data
       console.log('[AtlasXray] 📋 Step 1: Loading bootstrap data...');

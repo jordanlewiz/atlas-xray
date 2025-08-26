@@ -9,16 +9,30 @@ import type {
 } from "../types";
 
 export function useTimeline(weekLimit: number = 12) {
-  // Fetch raw data from database
-  const projects = useLiveQuery(() => db.projectSummaries.toArray(), []) as ProjectSummary[] | undefined;
-  const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []) as ProjectUpdate[] | undefined;
+  // Fetch projectList first to determine which projects to load
+  const projectList = useLiveQuery(() => db.getProjectList(), []) as any[] | undefined;
+  
+  // Only fetch data for projects that exist in the current projectList
+  const projects = useLiveQuery(() => {
+    if (!projectList || projectList.length === 0) return [];
+    const projectKeys = projectList.map(item => item.projectKey);
+    return db.projectSummaries.where('projectKey').anyOf(projectKeys).toArray();
+  }, [projectList]) as ProjectSummary[] | undefined;
+  
+  const allUpdates = useLiveQuery(() => {
+    if (!projectList || projectList.length === 0) return [];
+    const projectKeys = projectList.map(item => item.projectKey);
+    return db.projectUpdates.where('projectKey').anyOf(projectKeys).toArray();
+  }, [projectList]) as ProjectUpdate[] | undefined;
 
   // Debug logging to see what we're getting
   console.log('[useTimeline] 🔍 Debug data:', {
+    projectListCount: projectList?.length || 0,
     projectsCount: projects?.length || 0,
     updatesCount: allUpdates?.length || 0,
-    projects: projects?.slice(0, 3), // First 3 projects
-    updates: allUpdates?.slice(0, 3)  // First 3 updates
+    projectList: projectList?.slice(0, 3), // First 3 from project list
+    projects: projects?.slice(0, 3), // First 3 projects (filtered)
+    updates: allUpdates?.slice(0, 3)  // First 3 updates (filtered)
   });
 
   // Transform data into clean view models
@@ -50,12 +64,38 @@ export function useTimeline(weekLimit: number = 12) {
       }
     });
     
-
-
-
-
+    // Sort projects to match the order from projectList
+    let sortedProjects: ProjectSummary[];
+    if (projectList && projectList.length > 0) {
+      // Create a map of project keys to their position in projectList
+      const projectOrder = new Map(projectList.map((item, index) => [item.projectKey, index]));
+      
+      console.log('[useTimeline] 🔍 Sorting debug:', {
+        projectListOrder: projectList.map(item => item.projectKey),
+        projectsBeforeSort: projects.map(p => p.projectKey),
+        projectOrderMap: Object.fromEntries(projectOrder)
+      });
+      
+      // Sort projects by their order in projectList
+      sortedProjects = [...projects].sort((a, b) => {
+        const orderA = projectOrder.get(a.projectKey) ?? Number.MAX_SAFE_INTEGER;
+        const orderB = projectOrder.get(b.projectKey) ?? Number.MAX_SAFE_INTEGER;
+        return orderA - orderB;
+      });
+      
+      console.log('[useTimeline] ✅ Sorted projects by projectList order:', {
+        totalProjects: projects.length,
+        projectListOrder: projectList.map(item => item.projectKey),
+        projectsAfterSort: sortedProjects.map(p => p.projectKey)
+      });
+    } else {
+      // No projectList available, use projects as-is
+      sortedProjects = projects;
+      console.log('[useTimeline] ⚠️ No projectList available, using projects as-is');
+    }
+    
     // Simple project view models - just basic info + references to data
-    const projectViewModels: ProjectViewModel[] = projects.map((project: ProjectSummary) => {
+    const projectViewModels: ProjectViewModel[] = sortedProjects.map((project: ProjectSummary) => {
       // Use the new direct field structure
       const projectName = project.name || "Unknown Project";
       return {
