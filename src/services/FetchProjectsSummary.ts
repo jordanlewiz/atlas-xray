@@ -51,42 +51,32 @@ export class FetchProjectsSummary {
   }
 
   /**
-   * Check if project summaries need refresh (24-hour threshold)
+   * Check if project summaries need refresh - only check if summary exists
    */
   private async needsRefresh(projectKeys: string[]): Promise<string[]> {
     try {
       const projectsNeedingRefresh: string[] = [];
 
       for (const projectKey of projectKeys) {
-        // Check if project summary exists and is fresh
+        // Check if project summary exists at all
         const projectSummary = await db.getProjectSummary(projectKey);
         if (!projectSummary) {
+          // Only fetch if we have NO summary for this project
           projectsNeedingRefresh.push(projectKey);
-          continue;
         }
-
-        // Check if dependencies exist and are fresh
-        const dependencies = await db.getProjectDependencies(projectKey);
-        if (dependencies.length === 0) {
-          projectsNeedingRefresh.push(projectKey);
-          continue;
-        }
-
-        // Since we're not storing lastUpdated anymore, always consider dependencies fresh
-        // Dependencies are structural relationships that don't change frequently
-        console.log(`[FetchProjectsSummary] ℹ️ Dependencies for ${projectKey} are considered fresh (structural data)`);
+        // If summary already exists, don't re-fetch it
       }
 
       if (projectsNeedingRefresh.length > 0) {
-        console.log(`[FetchProjectsSummary] 🔄 ${projectsNeedingRefresh.length} projects need refresh`);
+        console.log(`[FetchProjectsSummary] 🔄 ${projectsNeedingRefresh.length} projects need initial summary fetch`);
       } else {
-        console.log('[FetchProjectsSummary] ✅ All project summaries are fresh');
+        console.log('[FetchProjectsSummary] ✅ All projects already have summaries stored');
       }
 
       return projectsNeedingRefresh;
     } catch (error) {
       console.error('[FetchProjectsSummary] ❌ Error checking refresh status:', error);
-      return projectKeys; // Refresh all on error
+      return projectKeys; // Fetch all on error
     }
   }
 
@@ -161,6 +151,12 @@ export class FetchProjectsSummary {
 
 
           // Update project summary with summary data
+          console.log(`[FetchProjectsSummary] 📝 Storing summary for ${projectKey}:`, {
+            key: projectData.key,
+            name: projectData.name,
+            status: projectData.state?.value
+          });
+          
           await db.storeProjectSummary({
             projectKey: projectData.key,
             name: projectData.name,
@@ -171,6 +167,8 @@ export class FetchProjectsSummary {
             lastUpdated: new Date().toISOString(),
             raw: projectData
           });
+          
+          console.log(`[FetchProjectsSummary] ✅ Stored summary for ${projectKey}`);
 
                     // Store dependencies if they exist
           if (projectData.dependencies?.edges && projectData.dependencies.edges.length > 0) {

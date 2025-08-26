@@ -151,13 +151,13 @@ export class FetchProjectsUpdates {
               uuid: update.id,
               projectKey: projectKey,
               creationDate: update.creationDate,
-              state: update.state?.name,
+              state: update.newState?.value,  // Fixed: use newState.value instead of state.name
               summary: update.summary,
               details: update.content,
               targetDate: update.targetDate,
               newDueDate: update.newTargetDate,
               oldDueDate: update.oldTargetDate,
-              oldState: update.oldState,
+              oldState: update.oldState?.projectStateValue,  // Fixed: use oldState.projectStateValue instead of oldState
               missedUpdate: false, // Default value
               analyzed: false, // Will be analyzed by AnalysisService later
               raw: update

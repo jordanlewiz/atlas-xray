@@ -13,11 +13,23 @@ export function useTimeline(weekLimit: number = 12) {
   const projects = useLiveQuery(() => db.projectSummaries.toArray(), []) as ProjectSummary[] | undefined;
   const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []) as ProjectUpdate[] | undefined;
 
-
+  // Debug logging to see what we're getting
+  console.log('[useTimeline] 🔍 Debug data:', {
+    projectsCount: projects?.length || 0,
+    updatesCount: allUpdates?.length || 0,
+    projects: projects?.slice(0, 3), // First 3 projects
+    updates: allUpdates?.slice(0, 3)  // First 3 updates
+  });
 
   // Transform data into clean view models
   return useMemo(() => {
     if (!projects || !allUpdates) {
+      console.log('[useTimeline] ❌ Missing data:', { 
+        hasProjects: !!projects, 
+        hasUpdates: !!allUpdates,
+        projectsLength: projects?.length,
+        updatesLength: allUpdates?.length
+      });
       return {
         weekRanges: [],
         projectViewModels: [],
@@ -53,6 +65,11 @@ export function useTimeline(weekLimit: number = 12) {
       };
     });
 
+    console.log('[useTimeline] ✅ Created project view models:', {
+      count: projectViewModels.length,
+      sample: projectViewModels.slice(0, 3)
+    });
+
     // Get week ranges for the timeline
     const allDates = getAllProjectDates(projectViewModels, updatesByProject);
     
@@ -67,6 +84,13 @@ export function useTimeline(weekLimit: number = 12) {
     }
     
     const weekRanges: WeekRange[] = getWeekRanges(allDates.minDate, allDates.maxDate);
+    
+    console.log('[useTimeline] 📅 Week ranges generated:', {
+      minDate: allDates.minDate,
+      maxDate: allDates.maxDate,
+      weekRangesCount: weekRanges.length,
+      sampleWeeks: weekRanges.slice(0, 3)
+    });
     
     // Instead of taking the last N weeks, take N weeks that include actual data
     // Find weeks that contain updates and ensure we show enough context

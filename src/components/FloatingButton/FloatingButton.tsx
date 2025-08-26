@@ -90,14 +90,14 @@ export default function FloatingButton(): React.JSX.Element {
         </button>
       </Tooltip>
 
-      <ProjectStatusHistoryModal open={modalOpen} onClose={() => setModalOpen(false)}>
-        <div className="modal-content">
-          <StatusTimelineHeatmap
-            weekLimit={12}
-            visibleProjectKeys={[]} // Will be populated by useLiveQuery in the component
-          />
-        </div>
-      </ProjectStatusHistoryModal>
+              <ProjectStatusHistoryModal open={modalOpen} onClose={() => setModalOpen(false)}>
+          <div className="modal-content">
+            <StatusTimelineHeatmap
+              weekLimit={12}
+              // No visibleProjectKeys filter - show all projects
+            />
+          </div>
+        </ProjectStatusHistoryModal>
     </>
   );
 }
