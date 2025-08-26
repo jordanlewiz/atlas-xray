@@ -21,6 +21,28 @@
     white-space: pre-line;
     line-height: 1.4;
     text-align:left; 
+    
+    .loading-text {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      
+      .spinner {
+        animation: spin 1s linear infinite;
+      }
+    }
+    
+    .data-loaded-text {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .initial-text {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
   }
 
   &:hover {
@@ -37,6 +59,11 @@
   &:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(0, 82, 204, 0.3);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
   }
 
   .updates-count {
@@ -63,4 +90,9 @@
       background: rgba(255, 255, 255, 0.25);
     }
   }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }

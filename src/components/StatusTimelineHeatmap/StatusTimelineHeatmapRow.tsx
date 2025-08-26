@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Tooltip from "@atlaskit/tooltip";
 import Popup from "@atlaskit/popup";
 import Button from "@atlaskit/button/new";
@@ -97,6 +97,46 @@ function StatusTimelineHeatmapRow({
                        updates.find(u => u.newDueDate)?.newDueDate ||
                        null;
   const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
+
+  // Calculate days shift between original and most recent target date
+  const daysShift = useMemo(() => {
+    if (!updates || updates.length === 0) return null;
+
+    // Find the earliest target date (original)
+    const originalTargetDate = updates
+      .filter(u => u.oldDueDate || u.targetDate)
+      .sort((a, b) => {
+        const dateA = a.oldDueDate || a.targetDate || '';
+        const dateB = b.oldDueDate || b.targetDate || '';
+        return new Date(dateA).getTime() - new Date(dateB).getTime();
+      })[0]?.oldDueDate || updates[0]?.targetDate;
+
+    // Find the most recent target date
+    const recentTargetDate = updates
+      .filter(u => u.newDueDate || u.targetDate)
+      .sort((a, b) => {
+        const dateA = a.newDueDate || a.targetDate || '';
+        const dateB = b.newDueDate || b.targetDate || '';
+        return new Date(dateB).getTime() - new Date(dateA).getTime();
+      })[0]?.newDueDate || updates[0]?.targetDate;
+
+    if (!originalTargetDate || !recentTargetDate) return null;
+
+    try {
+      const original = new Date(originalTargetDate);
+      const recent = new Date(recentTargetDate);
+      
+      if (isNaN(original.getTime()) || isNaN(recent.getTime())) return null;
+
+      const diffTime = recent.getTime() - original.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      
+      return diffDays;
+    } catch (error) {
+      console.error('[StatusTimelineHeatmapRow] Error calculating days shift:', error);
+      return null;
+    }
+  }, [updates]);
 
   return (
     <div className="timeline-row" data-testid="project-row">
@@ -213,6 +253,19 @@ function StatusTimelineHeatmapRow({
           />
         ) : (
           <span style={{ color: '#6b7280', fontSize: '12px' }}>No target date</span>
+        )}
+      </div>
+      
+      {/* Days Shift Column */}
+      <div className="timeline-days-shift">
+        {daysShift !== null ? (
+          <Tooltip content={`${daysShift > 0 ? '+' : ''}${daysShift} days from original target date`} position="top">
+            <span className={`days-shift-value ${daysShift > 0 ? 'positive' : daysShift < 0 ? 'negative' : 'neutral'}`}>
+              {daysShift > 0 ? `+${daysShift}` : daysShift}
+            </span>
+          </Tooltip>
+        ) : (
+          <span style={{ color: '#6b7280', fontSize: '12px' }}>N/A</span>
         )}
       </div>
       

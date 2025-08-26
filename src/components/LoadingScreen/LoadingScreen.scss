@@ -1,0 +1,232 @@
+.loading-screen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  backdrop-filter: blur(4px);
+}
+
+.loading-screen-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.loading-screen-header {
+  text-align: center;
+  margin-bottom: 32px;
+
+  h2 {
+    margin: 0 0 8px 0;
+    font-size: 24px;
+    font-weight: 600;
+    color: #1f2937;
+  }
+
+  p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 16px;
+  }
+}
+
+.overall-progress-section {
+  margin-bottom: 32px;
+  padding: 20px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-weight: 500;
+    color: #374151;
+
+    .progress-percentage {
+      font-weight: 600;
+      color: #059669;
+      font-size: 18px;
+    }
+  }
+
+  .progress-bar-container {
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #059669, #10b981);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+  }
+}
+
+.loading-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loading-step {
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+
+  &.pending {
+    background-color: #f9fafb;
+    border-color: #d1d5db;
+  }
+
+  &.loading {
+    background-color: #eff6ff;
+    border-color: #3b82f6;
+  }
+
+  &.completed {
+    background-color: #f0fdf4;
+    border-color: #22c55e;
+  }
+
+  &.error {
+    background-color: #fef2f2;
+    border-color: #ef4444;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+
+    .step-icon {
+      .icon {
+        font-size: 20px;
+        
+        &.spinning {
+          animation: spin 1s linear infinite;
+        }
+      }
+    }
+
+    .step-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+
+      .step-label {
+        font-weight: 500;
+        color: #374151;
+        font-size: 16px;
+      }
+
+      .step-progress {
+        font-size: 14px;
+        color: #3b82f6;
+        font-weight: 500;
+      }
+
+      .step-error {
+        font-size: 14px;
+        color: #dc2626;
+        font-weight: 500;
+      }
+    }
+  }
+
+  .step-progress-bar {
+    height: 4px;
+    background-color: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+
+    .step-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3b82f6, #60a5fa);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.loading-screen-actions {
+  margin-top: 32px;
+  text-align: center;
+
+  .close-button {
+    background-color: #059669;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #047857;
+      transform: translateY(-1px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 640px) {
+  .loading-screen-modal {
+    padding: 24px;
+    margin: 16px;
+  }
+
+  .loading-screen-header h2 {
+    font-size: 20px;
+  }
+
+  .overall-progress-section {
+    padding: 16px;
+  }
+
+  .loading-step {
+    padding: 12px;
+  }
+}
+

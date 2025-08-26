@@ -392,6 +392,46 @@ class ProjectService {
 - **Handle media content properly** - images, files, and inline cards must render correctly
 - **Maintain styling consistency** - use Atlassian design system colors and spacing
 
+### **5.6 Project Discovery Rules** 🔥 **CRITICAL**
+
+#### **5.6.1 NO Page Scanning for Project Keys**
+- **NEVER scan DOM pages for project IDs/keys** - this violates privacy and is unreliable
+- **ALWAYS use simpleProjectListFetcher service** for project discovery
+- **Project keys must come from GraphQL APIs** - not from DOM content scraping
+- **DOM scanning is forbidden** - use proper Atlassian APIs for project data
+- **This rule is non-negotiable** - any attempt to scan pages will be reverted
+
+#### **5.6.2 Project Discovery Service Requirements**
+```typescript
+// ✅ CORRECT: Use simpleProjectListFetcher service
+const visibleProjectKeys = await simpleProjectListFetcher.getVisibleProjects();
+
+// ❌ FORBIDDEN: DOM scanning for project keys
+const getVisibleProjectKeysFromPage = async (): Promise<string[]> => {
+  // This is completely forbidden - never scan DOM for project data
+  const textElements = document.querySelectorAll('*');
+  // ... DOM scanning logic
+};
+```
+
+#### **5.6.3 Project Discovery Patterns**
+```typescript
+// ✅ CORRECT: Service-based project discovery
+class ProjectDiscoveryService {
+  async getVisibleProjects(): Promise<string[]> {
+    // Use GraphQL APIs, not DOM scanning
+    const projects = await this.fetchProjectsFromAPI();
+    return projects.map(p => p.key);
+  }
+}
+
+// ❌ WRONG: DOM-based project discovery
+const scanPageForProjects = () => {
+  // Never scan DOM for project data
+  return document.querySelectorAll('[data-project-key]');
+};
+```
+
 #### **5.4.2 ProseMirror Service Requirements**
 ```typescript
 // ✅ CORRECT: ProseMirror service with full Atlassian support
@@ -510,7 +550,6 @@ async getAvailableStrategies(): Promise<string[]> {
   
   return strategies;
 }
-```
 ```
 
 #### **5.3.3 AI Availability Check**
@@ -1200,3 +1239,321 @@ useEffect(() => {
   };
 }, []);
 ```
+
+## 🔄 **UPDATED DATA FLOW ARCHITECTURE** (December 2024)
+
+### **17.1 New Data Loading Flow**
+
+#### **17.1.1 User-Initiated Loading Pattern**
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   User Click    │    │   Loading       │    │   Data          │
+│   Floating      │───▶│   Screen        │───▶│   Services      │
+│   Button        │    │   (Progress)    │    │   (Sequential)  │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+                                │                       │
+                                ▼                       ▼
+                       ┌─────────────────┐    ┌─────────────────┐
+                       │   Timeline      │    │   Database      │
+                       │   Modal         │◀───│   (IndexedDB)   │
+                       └─────────────────┘    └─────────────────┘
+```
+
+#### **17.1.2 Sequential Loading Steps**
+1. **🚀 Initialization** (DirectoryViewProjectQuery.js)
+   - Load bootstrap data (workspace context)
+   - Extract visible project keys from DOM
+   - Progress: 0-100% with real-time updates
+
+2. **📊 Project Information** (projectViewAsideQuery.js)
+   - Fetch minimal project data for heatmap rendering
+   - Store essential fields only (name, status, archived, creation date)
+   - Progress: 0-100% with real-time updates
+
+3. **📅 Project Updates** (projectUpdateQuery.js)
+   - Fetch timeline data for project updates
+   - Store update records with dates, states, summaries
+   - Progress: 0-100% with real-time updates
+
+4. **🔗 Dependencies** (projectViewAsideQuery.js)
+   - Check and store project dependencies
+   - Update dependency graph for visualization
+   - Progress: 0-100% with real-time updates
+
+#### **17.1.3 Service Architecture**
+```typescript
+// NEW: Specialized services for each data type
+class ProjectBasicInfoService {
+  // Fetches minimal project info needed for heatmap
+  async fetchBasicProjectInfo(projectKeys: string[]): Promise<ProjectBasicInfo[]>
+  async needsRefresh(projectKey: string): Promise<boolean> // 24-hour freshness check
+}
+
+class ProjectUpdateService {
+  // Fetches project updates for timeline rendering
+  async fetchProjectUpdates(projectKeys: string[]): Promise<Map<string, ProjectUpdateInfo[]>>
+  async needsRefresh(projectKey: string): Promise<boolean> // 24-hour freshness check
+}
+
+class ProjectDependencyService {
+  // Manages project dependencies and relationships
+  async fetchDependencies(projectKeys: string[]): Promise<ProjectDependency[]>
+  async needsRefresh(projectKey: string): Promise<boolean> // 24-hour freshness check
+}
+```
+
+### **17.2 Loading Screen Implementation**
+
+#### **17.2.1 Progress Tracking**
+```typescript
+interface LoadingStep {
+  id: string;                                    // Step identifier
+  label: string;                                 // User-friendly description
+  status: 'pending' | 'loading' | 'completed' | 'error';
+  progress: number;                              // 0-100 progress percentage
+  errorMessage?: string;                         // Error details if failed
+}
+
+// Overall progress calculation
+const calculateOverallProgress = (): number => {
+  const totalSteps = loadingSteps.length;
+  const completedSteps = loadingSteps.filter(step => step.status === 'completed').length;
+  const loadingStep = loadingSteps.find(step => step.status === 'loading');
+  
+  if (loadingStep) {
+    return Math.round((completedSteps / totalSteps) * 100 + (loadingStep.progress / totalSteps));
+  }
+  
+  return Math.round((completedSteps / totalSteps) * 100);
+};
+```
+
+#### **17.2.2 Real-Time Progress Updates**
+```typescript
+// Simulate progress for each step with intervals
+const bootstrapInterval = setInterval(() => {
+  const currentStep = loadingSteps.find(step => step.id === 'bootstrap');
+  const newProgress = Math.min((currentStep?.progress || 0) + 10, 90);
+  updateLoadingStep('bootstrap', { progress: newProgress });
+}, 100);
+
+// Complete step when operation finishes
+await bootstrapService.loadBootstrapData();
+clearInterval(bootstrapInterval);
+updateLoadingStep('bootstrap', { status: 'completed', progress: 100 });
+```
+
+### **17.3 Enhanced Timeline Features**
+
+#### **17.3.1 Days Shift Column**
+```typescript
+// Calculate total days between original and most recent target dates
+const daysShift = useMemo(() => {
+  if (!updates || updates.length === 0) return null;
+
+  // Find earliest target date (original)
+  const originalTargetDate = updates
+    .filter(u => u.oldDueDate || u.targetDate)
+    .sort((a, b) => new Date(a.oldDueDate || a.targetDate || '').getTime() - 
+                    new Date(b.oldDueDate || b.targetDate || '').getTime())[0]
+    ?.oldDueDate || updates[0]?.targetDate;
+
+  // Find most recent target date
+  const recentTargetDate = updates
+    .filter(u => u.newDueDate || u.targetDate)
+    .sort((a, b) => new Date(b.newDueDate || b.targetDate || '').getTime() - 
+                    new Date(a.newDueDate || a.targetDate || '').getTime())[0]
+    ?.newDueDate || updates[0]?.targetDate;
+
+  if (!originalTargetDate || !recentTargetDate) return null;
+
+  const diffTime = new Date(recentTargetDate).getTime() - new Date(originalTargetDate).getTime();
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}, [updates]);
+```
+
+#### **17.3.2 Grid Layout with Days Shift**
+```scss
+.timeline-header {
+  display: grid;
+  grid-template-columns: 300px repeat(auto-fit, minmax(80px, 1fr)) 150px 120px;
+  // Project Info | Week Columns | Target Date | Days Shift
+}
+
+.timeline-row {
+  display: grid;
+  grid-template-columns: 300px repeat(auto-fit, minmax(80px, 1fr)) 150px 120px;
+  // Same grid structure for consistency
+}
+```
+
+### **17.4 Smart Caching Strategy**
+
+#### **17.4.1 Freshness Thresholds**
+```typescript
+// 24-hour freshness threshold for all data types
+const refreshThreshold = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+async needsRefresh(projectKey: string): Promise<boolean> {
+  try {
+    const existing = await db.getProjectView(projectKey);
+    if (!existing) return true;
+
+    const lastUpdated = new Date(existing.lastUpdated).getTime();
+    const now = Date.now();
+    
+    return (now - lastUpdated) > refreshThreshold;
+  } catch (error) {
+    return true; // Refresh on error
+  }
+}
+```
+
+#### **17.4.2 Conditional Data Fetching**
+```typescript
+// Only fetch data that needs refresh
+const projectsNeedingRefresh = [];
+const results = [];
+
+for (const projectKey of projectKeys) {
+  if (await this.needsRefresh(projectKey)) {
+    projectsNeedingRefresh.push(projectKey);
+  } else {
+    // Use existing data
+    const existing = await db.getProjectView(projectKey);
+    if (existing) results.push(existing);
+  }
+}
+
+// Fetch fresh data only for projects that need it
+if (projectsNeedingRefresh.length > 0) {
+  const freshData = await this.fetchFreshData(projectsNeedingRefresh);
+  results.push(...freshData);
+}
+```
+
+### **17.5 Error Handling & User Feedback**
+
+#### **17.5.1 Enhanced Error Messages**
+```typescript
+// Context-aware error messages based on current page
+if (visibleProjectKeys.length === 0) {
+  let errorMessage = 'No visible projects found on current page.';
+  
+  if (currentUrl.includes('atlassian.com')) {
+    if (currentUrl.includes('/projects')) {
+      errorMessage = 'No project keys found on this projects page. Please ensure you are viewing a list of projects with project keys (e.g., PROJ-123).';
+    } else if (currentUrl.includes('/browse/')) {
+      errorMessage = 'No project keys found on this project page. Please ensure you are viewing a project with a project key.';
+    } else {
+      errorMessage = 'No project keys found. Please navigate to a projects list page or individual project page.';
+    }
+  }
+  
+  throw new Error(errorMessage);
+}
+```
+
+#### **17.5.2 Loading Screen Error States**
+```typescript
+// Mark current loading step as error with detailed message
+const currentLoadingStep = loadingSteps.find(step => step.status === 'loading');
+if (currentLoadingStep) {
+  updateLoadingStep(currentLoadingStep.id, { 
+    status: 'error', 
+    errorMessage: error instanceof Error ? error.message : 'Unknown error occurred'
+  });
+}
+```
+
+### **17.6 Performance Optimizations**
+
+#### **17.6.1 DOM Scanning Efficiency**
+```typescript
+// Multiple strategies for project key extraction
+// Strategy 1: Text content scanning (comprehensive)
+// Strategy 2: Specific Atlassian elements (targeted)
+// Strategy 3: Project links and URLs (structured)
+// Strategy 4: Project table rows (organized)
+// Fallback: URL and page title extraction
+```
+
+#### **17.6.2 Batch Operations**
+```typescript
+// Fetch data for multiple projects in parallel where possible
+const projectInfoPromises = projectsNeedingRefresh.map(projectKey => 
+  this.fetchSingleProjectBasicInfo(projectKey)
+);
+
+const results = await Promise.allSettled(projectInfoPromises);
+// Handle successful and failed results appropriately
+```
+
+### **17.7 Migration from Old Architecture**
+
+#### **17.7.1 Replaced Components**
+- ❌ `simpleProjectListFetcher` → ✅ `ProjectBasicInfoService`
+- ❌ Automatic page load fetching → ✅ User-initiated loading
+- ❌ Single data fetch → ✅ Sequential, progress-tracked loading
+
+#### **17.7.2 Maintained Components**
+- ✅ `useLiveQuery` for reactive UI updates
+- ✅ `DatabaseService` for data persistence
+- ✅ `StatusTimelineHeatmap` for timeline display
+- ✅ GraphQL queries for data fetching
+
+#### **17.7.3 New Components**
+- 🆕 `LoadingScreen` for progress visualization
+- 🆕 `ProjectBasicInfoService` for minimal project data
+- 🆕 `ProjectUpdateService` for timeline data
+- 🆕 Enhanced timeline with days shift column
+
+---
+
+**This section documents the major architectural changes implemented in December 2024 to improve user experience, data loading efficiency, and timeline visualization capabilities.**
+
+## 5.7 DatabaseService as Pure Data Repository
+
+**PRINCIPLE**: DatabaseService serves as a pure data repository with no business logic.
+
+### **Responsibilities:**
+- **Data persistence and retrieval only** (CRUD operations)
+- **NO business logic** - services handle all business decisions
+- **NO API calls** - services handle all external communication
+- **NO data transformation** - services handle all data processing
+- **Single source of truth** for all project data across services
+
+### **Architecture Benefits:**
+- **Clean separation** between data access and business logic
+- **Services remain independent** in their business responsibilities
+- **Easy cross-service lookups** - any service can read data from any other service
+- **Consistent data schema** across all services
+- **No code duplication** in database setup and management
+
+### **Service Usage Pattern:**
+```typescript
+// Services use DatabaseService for data operations
+class FetchProjectsList {
+  async getProjectList(): Promise<string[]> {
+    // Business logic: check if refresh is needed
+    if (await this.needsRefresh()) {
+      return await this.fetchFromAPI();
+    }
+    
+    // Data access: delegate to DatabaseService
+    return await db.getProjectViews().then(views => views.map(v => v.projectKey));
+  }
+}
+```
+
+### **Data Flow:**
+1. **Services** contain business logic and API calls
+2. **DatabaseService** provides pure data persistence/retrieval
+3. **UI Components** read data directly from DatabaseService
+4. **Cross-service data access** is seamless and efficient
+
+### **Key Methods Available:**
+- `storeProjectView()` / `getProjectView()` / `getProjectViews()`
+- `storeProjectUpdate()` / `getProjectUpdates()` / `getProjectUpdatesByKey()`
+- `storeProjectDependencies()` / `getProjectDependencies()` / `getAllProjectDependencies()`
+- All methods are pure CRUD operations with no side effects

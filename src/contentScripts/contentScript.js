@@ -44,30 +44,8 @@ setTimeout(async () => {
   }
 }, 1000);
 
-// Initialize simple project fetching on page load
-console.log('[AtlasXray] 🚀 Initializing simple project fetcher...');
-
-// Start simple project fetching after a short delay to ensure page is loaded
-setTimeout(async () => {
-  try {
-    console.log('[AtlasXray] 📥 Starting simple project fetch on page load...');
-    
-    // First, ensure bootstrap service is loaded
-    const { bootstrapService } = await import('../services/bootstrapService.js');
-    await bootstrapService.loadBootstrapData();
-    
-    // Import and run the simple project list fetcher (only runs once per page load)
-    const { simpleProjectListFetcher } = await import('../services/simpleProjectListFetcher.js');
-    console.log('[AtlasXray] ✅ Simple project list fetcher imported');
-    
-    // Fetch projects on page load (no periodic fetching)
-    await simpleProjectListFetcher.fetchProjectsOnPageLoad();
-    
-  } catch (error) {
-    console.error('[AtlasXray] ❌ Failed to start simple project fetcher:', error);
-  }
-}, 2000); // Wait 2 seconds for page to fully load
-
+// ✅ NEW: Clean page load - nothing happens automatically
+console.log('[AtlasXray] 🚀 Extension loaded - waiting for user interaction');
 
 
 console.log('[AtlasXray] 🚀 Content script loaded and ready');

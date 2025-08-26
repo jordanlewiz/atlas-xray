@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../services/DatabaseService';
-import { fetchMultipleProjectDependencies, ProjectDependencyEdge, getUniqueLinkTypes, groupDependenciesByLinkType } from '../../services/projectDependencyFetcher';
+// TODO: Update to use new dependency service when implemented
 import './DependencyVisualizationModal.scss';
 
 interface ProjectNode extends d3.SimulationNodeDatum {
@@ -29,31 +29,13 @@ export default function DependencyVisualizationModal({ isOpen, onClose }: { isOp
   const [zoomLevel, setZoomLevel] = useState(1);
   const [stats, setStats] = useState({ totalProjects: 0, totalDependencies: 0, uniqueLinkTypes: 0 });
 
-  // Fetch data using the new projectDependencyFetcher
+  // TODO: Implement dependency fetching with new service
   const projects = useLiveQuery(() => db.getProjectViews());
   const projectUpdates = useLiveQuery(() => db.getProjectUpdates());
   
-  // State for dependencies fetched via the new service
-  const [allDependencies, setAllDependencies] = useState<Map<string, ProjectDependencyEdge[]>>(new Map());
+  // TODO: Implement dependency fetching with new service
+  const [allDependencies, setAllDependencies] = useState<Map<string, any[]>>(new Map());
   const [isLoading, setIsLoading] = useState(false);
-
-  // Fetch dependencies when projects change
-  useEffect(() => {
-    if (projects && projects.length > 0) {
-      setIsLoading(true);
-      const projectKeys = projects.map(p => p.projectKey);
-      
-      fetchMultipleProjectDependencies(projectKeys)
-        .then(dependencies => {
-          setAllDependencies(dependencies);
-          setIsLoading(false);
-        })
-        .catch(error => {
-          console.error('Failed to fetch dependencies:', error);
-          setIsLoading(false);
-        });
-    }
-  }, [projects]);
 
   // Helper function to get project status color
   const getProjectStatusColor = (projectKey: string): string => {
