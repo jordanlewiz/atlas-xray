@@ -1,1 +1,0 @@
-export { DatabaseChangeObserver } from './DatabaseChangeObserver';

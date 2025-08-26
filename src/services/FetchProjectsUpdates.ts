@@ -35,7 +35,7 @@ interface ProjectUpdatesResponse {
  * - Does NOT fetch full project details (use FetchProjectsFullDetails for that)
  * - Only handles project updates and timeline data
  * - Checks DB first before fetching
- * - Uses 24-hour freshness threshold
+ * - Only fetches if NO updates exist (doesn't re-fetch existing updates)
  */
 export class FetchProjectsUpdates {
   private static instance: FetchProjectsUpdates;
@@ -50,45 +50,32 @@ export class FetchProjectsUpdates {
   }
 
   /**
-   * Check if project updates need refresh (24-hour threshold)
+   * Check if project updates need refresh - only fetch if no updates exist
    */
   private async needsRefresh(projectKeys: string[]): Promise<string[]> {
     try {
       const projectsNeedingRefresh: string[] = [];
 
       for (const projectKey of projectKeys) {
-        // Check if project updates exist and are fresh
+        // Check if project updates exist at all
         const updates = await db.getProjectUpdatesByKey(projectKey);
         if (updates.length === 0) {
-          projectsNeedingRefresh.push(projectKey);
-          continue;
-        }
-
-        // Check if updates are older than 24 hours
-        const now = Date.now();
-        const refreshThreshold = 24 * 60 * 60 * 1000; // 24 hours
-        
-        const hasStaleUpdates = updates.some(update => {
-          if (!update.creationDate) return true;
-          const creationDate = new Date(update.creationDate).getTime();
-          return (now - creationDate) > refreshThreshold;
-        });
-
-        if (hasStaleUpdates) {
+          // Only fetch if we have NO updates for this project
           projectsNeedingRefresh.push(projectKey);
         }
+        // If updates already exist, don't re-fetch them
       }
 
       if (projectsNeedingRefresh.length > 0) {
-        console.log(`[FetchProjectsUpdates] 🔄 ${projectsNeedingRefresh.length} projects need update refresh`);
+        console.log(`[FetchProjectsUpdates] 🔄 ${projectsNeedingRefresh.length} projects need initial update fetch`);
       } else {
-        console.log('[FetchProjectsUpdates] ✅ All project updates are fresh');
+        console.log('[FetchProjectsUpdates] ✅ All projects already have updates stored');
       }
 
       return projectsNeedingRefresh;
     } catch (error) {
       console.error('[FetchProjectsUpdates] ❌ Error checking refresh status:', error);
-      return projectKeys; // Refresh all on error
+      return projectKeys; // Fetch all on error
     }
   }
 
@@ -140,7 +127,8 @@ export class FetchProjectsUpdates {
             query: gql`${PROJECT_UPDATES_QUERY}`,
             variables: {
               key: projectKey,
-              workspaceUuid: workspaceUuid
+              workspaceUuid: workspaceUuid,
+              isUpdatesTab: true  // Required Boolean! variable
             },
             fetchPolicy: 'cache-first'
           });

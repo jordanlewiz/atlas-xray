@@ -164,7 +164,7 @@ export class FetchProjectsSummary {
           await db.storeProjectSummary({
             projectKey: projectData.key,
             name: projectData.name,
-            status: projectData.status?.name,
+            status: projectData.state?.value,
             team: projectData.team?.name,
             owner: projectData.owner?.displayName,
             archived: projectData.archived,

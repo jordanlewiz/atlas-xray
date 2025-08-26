@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ProjectStatusHistoryModal from '../ProjectStatusHistoryModal';
 import { StatusTimelineHeatmap } from '../StatusTimelineHeatmap';
 import { fetchProjectsList } from '../../services/FetchProjectsList';
+import { fetchProjectsSummary } from '../../services/FetchProjectsSummary';
+import { fetchProjectsUpdates } from '../../services/FetchProjectsUpdates';
 import { bootstrapService } from '../../services/bootstrapService';
-import { FetchOrchestrator } from '../../services/FetchOrchestrator';
 import './FloatingButton.scss';
 import Tooltip from "@atlaskit/tooltip";
 
@@ -11,38 +12,38 @@ export default function FloatingButton(): React.JSX.Element {
   const [modalOpen, setModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Start the monitoring system once when component mounts
-  useEffect(() => {
-    console.log('[FloatingButton] 🚀 Starting automatic fetch system...');
-    FetchOrchestrator.startMonitoring();
-    
-    // Cleanup when component unmounts
-    return () => {
-      console.log('[FloatingButton] 🛑 Stopping automatic fetch system...');
-      FetchOrchestrator.stopMonitoring();
-    };
-  }, []);
-
   const handleOpenModal = async (): Promise<void> => {
-    console.log('[AtlasXray] 🚪 Floating button clicked - fetching project list');
+    console.log('[AtlasXray] 🚪 Floating button clicked - starting sequential fetch');
     
     try {
       setIsLoading(true);
       
-      // Load bootstrap data for workspace context
+      // Step 1: Load bootstrap data
+      console.log('[AtlasXray] 📋 Step 1: Loading bootstrap data...');
       await bootstrapService.loadBootstrapData();
       
-      // Fetch fresh project list - the monitoring system will automatically
-      // trigger fetchProjectSummary and fetchProjectUpdates when this completes
+      // Step 2: Fetch project list
+      console.log('[AtlasXray] 📋 Step 2: Fetching project list...');
       const projectKeys = await fetchProjectsList.getProjectList();
-      console.log(`[AtlasXray] ✅ Found ${projectKeys.length} projects - automatic fetching will continue in background`);
+      console.log(`[AtlasXray] ✅ Step 2 complete: Found ${projectKeys.length} projects`);
       
-      // Open modal immediately - data will populate as it's fetched
+      // Step 3: Fetch project summaries (includes dependencies)
+      console.log('[AtlasXray] 📋 Step 3: Fetching project summaries...');
+      await fetchProjectsSummary.getProjectSummaries(projectKeys);
+      console.log('[AtlasXray] ✅ Step 3 complete: Project summaries fetched');
+      
+      // Step 4: Fetch project updates
+      console.log('[AtlasXray] 📋 Step 4: Fetching project updates...');
+      await fetchProjectsUpdates.getProjectUpdates(projectKeys);
+      console.log('[AtlasXray] ✅ Step 4 complete: Project updates fetched');
+      
+      // Step 5: Open modal (heatmap will load automatically)
+      console.log('[AtlasXray] 🎉 All data fetched! Opening modal...');
       setModalOpen(true);
 
     } catch (error) {
-      console.error('[AtlasXray] ❌ Failed to fetch projects:', error);
-      alert(`Failed to fetch projects: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.error('[AtlasXray] ❌ Failed to fetch data:', error);
+      alert(`Failed to load project data: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
     }
