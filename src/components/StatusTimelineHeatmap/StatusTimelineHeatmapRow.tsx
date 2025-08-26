@@ -128,37 +128,41 @@ function StatusTimelineHeatmapRow({
                        null;
   const targetDateDisplay = getTargetDateDisplay(targetDateRaw);
 
-  // Calculate days shift between original and most recent target date
+  // Calculate days shift between first and latest project update newDueDate
   const daysShift = useMemo(() => {
     if (!updates || updates.length === 0) return null;
 
-    // Find the earliest target date (original)
-    const originalTargetDate = updates
-      .filter(u => u.oldDueDate || u.targetDate)
-      .sort((a, b) => {
-        const dateA = a.oldDueDate || a.targetDate || '';
-        const dateB = b.oldDueDate || b.targetDate || '';
-        return new Date(dateA).getTime() - new Date(dateB).getTime();
-      })[0]?.oldDueDate || updates[0]?.targetDate;
+    // Sort updates by creation date to get chronological order
+    const sortedUpdates = [...updates].sort((a, b) => 
+      new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()
+    );
 
-    // Find the most recent target date
-    const recentTargetDate = updates
-      .filter(u => u.newDueDate || u.targetDate)
-      .sort((a, b) => {
-        const dateA = a.newDueDate || a.targetDate || '';
-        const dateB = b.newDueDate || b.targetDate || '';
-        return new Date(dateB).getTime() - new Date(dateA).getTime();
-      })[0]?.newDueDate || updates[0]?.targetDate;
+    // Get first update's newDueDate
+    const firstUpdate = sortedUpdates[0];
+    const firstDueDate = firstUpdate?.newDueDate;
+    
+    // Get latest update's newDueDate
+    const latestUpdate = sortedUpdates[sortedUpdates.length - 1];
+    const latestDueDate = latestUpdate?.newDueDate;
 
-    if (!originalTargetDate || !recentTargetDate) return null;
+    // Check if first update has newDueDate set
+    if (!firstDueDate) {
+      console.warn(`[StatusTimelineHeatmapRow] First update for ${project.projectKey} doesn't have newDueDate set yet`);
+      return null;
+    }
+
+    if (!latestDueDate) {
+      console.warn(`[StatusTimelineHeatmapRow] Latest update for ${project.projectKey} doesn't have newDueDate set yet`);
+      return null;
+    }
 
     try {
-      const original = new Date(originalTargetDate);
-      const recent = new Date(recentTargetDate);
+      const first = new Date(firstDueDate);
+      const latest = new Date(latestDueDate);
       
-      if (isNaN(original.getTime()) || isNaN(recent.getTime())) return null;
+      if (isNaN(first.getTime()) || isNaN(latest.getTime())) return null;
 
-      const diffTime = recent.getTime() - original.getTime();
+      const diffTime = latest.getTime() - first.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       
       return diffDays;
@@ -166,7 +170,7 @@ function StatusTimelineHeatmapRow({
       console.error('[StatusTimelineHeatmapRow] Error calculating days shift:', error);
       return null;
     }
-  }, [updates]);
+  }, [updates, project.projectKey]);
 
   return (
     <div className="timeline-row" data-testid="project-row">
@@ -204,58 +208,64 @@ function StatusTimelineHeatmapRow({
                   onClick={hasMissedUpdate ? undefined : () => setSelectedUpdate(u)}
                   style={{ cursor: hasMissedUpdate ? 'default' : 'pointer' }}
                 >
-              {/* Show update indicator for any cell with updates FIRST */}
-              {!hasMissedUpdate && (
-                <Tooltip content="Click to view update details" position="top">
-                  {showEmojis && u.uuid ? (
-                    // Show quality indicator when toggle is on
-                    (() => {
-                      // Check if analysis is complete
-                      if (u.updateQuality !== undefined && u.qualityLevel) {
-                        return (
-                          <QualityIndicator
-                            score={u.updateQuality}
-                            level={u.qualityLevel}
-                            size="small"
-                            className="quality-indicator-timeline"
-                          />
-                        );
-                      }
-                      // Show pending analysis indicator when toggle is on but analysis not complete
-                      return (
-                        <span 
-                          className="update-indicator pending-analysis" 
-                          data-testid="update-indicator-pending"
-                          title="Analysis in progress..."
-                          style={{
-                            backgroundColor: '#ffab00',
-                            animation: 'pulse 2s infinite'
-                          }}
-                        />
-                      );
-                    })()
-                  ) : (
-                    // Show white bullet when toggle is off
-                    <span 
-                      className="update-indicator" 
-                      data-testid="update-indicator"
-                      title="Project update"
-                    />
-                  )}
-                </Tooltip>
-              )}
-              
-              {/* Show date difference tooltip SECOND (after emoji) - only for non-missed updates */}
-              {!hasMissedUpdate && u.oldDueDate && u.newDueDate && (
-                <Tooltip content={getDueDateTooltip(u)} position="top">
-                  <span className="date-difference">
-                    {(() => {
-                      const diff = getDueDateDiff(u);
-                      return diff !== null ? (diff > 0 ? `+${diff}` : `${diff}`) : '';
-                    })()}
-                  </span>
-                </Tooltip>
-              )}
+                             {/* Show date difference FIRST (replaces bullet when date changed) */}
+               {!hasMissedUpdate && u.oldDueDate && u.newDueDate ? (
+                 <Tooltip content={getDueDateTooltip(u)} position="top">
+                   <span className={`date-difference ${(() => {
+                     const diff = getDueDateDiff(u);
+                     if (diff === null) return '';
+                     if (diff > 0) return 'positive';
+                     if (diff < 0) return 'negative';
+                     return 'neutral';
+                   })()}`}>
+                     {(() => {
+                       const diff = getDueDateDiff(u);
+                       return diff !== null ? (diff > 0 ? `+${diff}` : `${diff}`) : '';
+                     })()}
+                   </span>
+                 </Tooltip>
+               ) : (
+                 /* Show normal update indicator (quality indicator or bullet) when no date change */
+                 !hasMissedUpdate && (
+                   <Tooltip content="Click to view update details" position="top">
+                     {showEmojis && u.uuid ? (
+                       // Show quality indicator when toggle is on
+                       (() => {
+                         // Check if analysis is complete
+                         if (u.updateQuality !== undefined && u.qualityLevel) {
+                           return (
+                             <QualityIndicator
+                               score={u.updateQuality}
+                               level={u.qualityLevel}
+                               size="small"
+                               className="quality-indicator-timeline"
+                             />
+                           );
+                         }
+                         // Show pending analysis indicator when toggle is on but analysis not complete
+                         return (
+                           <span 
+                             className="update-indicator pending-analysis" 
+                             data-testid="update-indicator-pending"
+                             title="Analysis in progress..."
+                             style={{
+                               backgroundColor: '#ffab00',
+                               animation: 'pulse 2s infinite'
+                             }}
+                           />
+                         );
+                       })()
+                     ) : (
+                       // Show white bullet when toggle is off
+                       <span 
+                         className="update-indicator" 
+                         data-testid="update-indicator"
+                         title="Project update"
+                       />
+                     )}
+                   </Tooltip>
+                 )
+               )}
             </div>
           );
         })}
@@ -295,7 +305,7 @@ function StatusTimelineHeatmapRow({
       {/* Days Shift Column */}
       <div className="timeline-days-shift">
         {daysShift !== null ? (
-          <Tooltip content={`${daysShift > 0 ? '+' : ''}${daysShift} days from original target date`} position="top">
+          <Tooltip content={`${daysShift > 0 ? '+' : ''}${daysShift} days from first update's due date`} position="top">
             <span className={`days-shift-value ${daysShift > 0 ? 'positive' : daysShift < 0 ? 'negative' : 'neutral'}`}>
               {daysShift > 0 ? `+${daysShift}` : daysShift}
             </span>

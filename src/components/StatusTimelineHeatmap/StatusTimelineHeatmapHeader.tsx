@@ -32,9 +32,6 @@ function StatusTimelineHeatmapHeader({ weekRanges }: StatusTimelineHeatmapHeader
       {/* Days shift column */}
       <div className="timeline-days-shift">
         <span>Days Shift</span>
-        <div className="header-tooltip">
-          <small>Total days between original and most recent target date</small>
-        </div>
       </div>
     </div>
   );

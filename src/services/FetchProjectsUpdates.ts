@@ -155,10 +155,10 @@ export class FetchProjectsUpdates {
               summary: update.summary,
               details: update.content,
               targetDate: update.targetDate,
-              newDueDate: update.newTargetDate,
-              oldDueDate: update.oldTargetDate,
+              newDueDate: update.newDueDate?.tooltip,  // Fixed: use newDueDate.tooltip from ProjectDateChanged
+              oldDueDate: update.oldDueDate?.tooltip,  // Fixed: use oldDueDate.tooltip from ProjectDateChanged
               oldState: update.oldState?.projectStateValue,  // Fixed: use oldState.projectStateValue instead of oldState
-              missedUpdate: false, // Default value
+              missedUpdate: update.missedUpdate || false, // Use actual missedUpdate value from API
               analyzed: false, // Will be analyzed by AnalysisService later
               raw: update
             };

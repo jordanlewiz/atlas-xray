@@ -348,6 +348,19 @@ export class DatabaseService extends Dexie {
       throw error;
     }
   }
+
+  /**
+   * Clear all project updates (for testing/fresh start)
+   */
+  async clearProjectUpdates(): Promise<void> {
+    try {
+      await this.projectUpdates.clear();
+      console.log('[DatabaseService] ✅ Cleared all project updates');
+    } catch (error) {
+      console.error('[DatabaseService] ❌ Failed to clear project updates:', error);
+      throw error;
+    }
+  }
 }
 
 // ============================================================================
@@ -367,6 +380,7 @@ export const countProjectList = () => databaseService.countProjectList();
 export const clearProjectList = () => databaseService.clearProjectList();
 export const storeProjectSummary = (projectSummary: ProjectSummary) => databaseService.storeProjectSummary(projectSummary);
 export const storeProjectUpdate = (update: ProjectUpdate) => databaseService.storeProjectUpdate(update);
+export const clearProjectUpdates = () => databaseService.clearProjectUpdates();
 export const getProjectSummary = (projectKey: string) => databaseService.getProjectSummary(projectKey);
 export const getProjectSummaries = () => databaseService.getProjectSummaries();
 export const countProjectSummaries = () => databaseService.countProjectSummaries();
