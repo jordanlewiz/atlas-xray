@@ -14,7 +14,12 @@ export const DateDifference = ({ oldDate, newDate, className }: DateDifferencePr
   if (!hasChange) return null;
   
   return (
-    <Tooltip content={`Due date changed by ${displayText} days`} position="top">
+    <Tooltip content={
+      <span>
+        Due date changed by {displayText} days<br />
+        From {oldDate} to {newDate}
+      </span>
+    } position="top">
       <span 
         className={`date-difference ${cssClass} ${className || ''}`}
         data-testid="date-difference"

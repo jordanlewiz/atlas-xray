@@ -284,11 +284,13 @@ function StatusTimelineHeatmapRow({
       {/* Days Shift Column */}
       <div className="timeline-days-shift">
         {daysShift !== null ? (
-          <Tooltip content={`${daysShift.days > 0 ? '+' : ''}${daysShift.days} days from ${daysShift.firstDate} to ${daysShift.latestDate}`} position="top">
-            <span className={`days-shift-value ${daysShift.days > 0 ? 'positive' : daysShift.days < 0 ? 'negative' : 'neutral'}`}>
-              {daysShift.days > 0 ? `+${daysShift.days}` : daysShift.days}
-            </span>
-          </Tooltip>
+          <div>
+            <DateDifference 
+              oldDate={daysShift.firstDate} 
+              newDate={daysShift.latestDate} 
+              className="days-shift-value" 
+            />
+          </div>
         ) : (
           <span style={{ color: '#6b7280', fontSize: '12px' }}>N/A</span>
         )}
