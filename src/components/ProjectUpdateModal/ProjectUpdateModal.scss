@@ -1,41 +1,31 @@
-.date-change-modal-content {
-  max-width: 1128px;
-  margin: 0 auto;
-  width: 100%;
-}
+.update-modal-body {
+  margin-bottom: 20px;
 
-.date-change-modal-body {
-  padding: 16px;
-}
+  .update-modal-project-key {
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    color: #6B778C;
+    border-bottom: 1px solid grey;
+    
+    small {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
 
-.project-name {
-  margin: 0 0 16px 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #172B4D;
-}
-
-.project-key {
-  margin: 16px 0;
-  color: #6B778C;
-  
-  small {
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+  .update-modal-creator-info {
+    margin: 8px 0 16px 0;
+    color: #6B778C;
+    
+    small {
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
   }
 }
 
-.creator-info {
-  margin: 8px 0 16px 0;
-  color: #6B778C;
-  
-  small {
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-}
 
 .change-section {
   margin: 8px 0;

@@ -83,20 +83,11 @@ export default function ProjectUpdateModal({
           <ModalBody>
             <Box style={{ maxWidth: '1128px', margin: '0 auto', width: '100%' }}>
               <Grid>
-                <div className="date-change-modal-body">
-                  <div className="project-key">
-                    <small>Project Key:</small> {project?.projectKey}
+                <div className="update-modal-body">
+                  <div className="update-modal-project-key">
+                    <small>Project Key: {project?.projectKey}</small>
                   </div>
 
-                  {/* Creator Information */}
-                  {selectedUpdate.creatorName && (
-                    <div className="creator-info">
-                      <small>Created by:</small> {selectedUpdate.creatorName}
-                    </div>
-                  )}
-
-                  {/* Dependencies Display */}
-                  {/* Dependencies Display */}
 
                   {/* Quality Analysis Section */}
                   {selectedUpdate.uuid && (() => {
@@ -180,7 +171,7 @@ export default function ProjectUpdateModal({
                     }
                   })()}
 
-                                    {selectedUpdate.oldTargetDate && (
+                  {selectedUpdate.oldTargetDate && (
                     <SectionMessage
                       appearance="error"
                       title="Date Change Detected"
@@ -219,6 +210,15 @@ export default function ProjectUpdateModal({
                     </SectionMessage>
                   )}
 
+
+                  {/* Creator Information */}
+                  {selectedUpdate.creatorName && (
+                    <div className="update-modal-creator-info">
+                      <small>Provided by:</small> {selectedUpdate.creatorName}
+                    </div>
+                  )}
+
+                  {/* Update Summary */}
                   {selectedUpdate.summary && (
                      <div className="summary-section">
                        <h3>Update Summary:</h3>
