@@ -125,10 +125,10 @@ function StatusTimelineHeatmapRow({
 
   const weekCells = getTimelineWeekCells(weekRanges, updates);
   
-  // Get latest dueDate from all updates
+  // Get latest newTargetDate from all updates
   const latestDueDate = updates
-    .filter(u => u.dueDate)
-    .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime())[0]?.dueDate ||
+    .filter(u => u.newTargetDate)
+    .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime())[0]?.newTargetDate ||
     null;
   // For Target Date column, show the original text (e.g., "October-December 2025"), not parsed date
   const targetDateDisplay = latestDueDate || null;
@@ -137,42 +137,42 @@ function StatusTimelineHeatmapRow({
   const daysShift = useMemo(() => {
     if (!updates || updates.length === 0) return null;
 
-    // Try to use the new dueDateParsed fields first for more accurate comparison
-    const updatesWithParsedDates = updates.filter(u => u.dueDateParsed);
+    // Try to use the new newTargetDateParsed fields first for more accurate comparison
+    const updatesWithParsedDates = updates.filter(u => u.newTargetDateParsed);
     
     if (updatesWithParsedDates.length >= 2) {
       const firstUpdate = updatesWithParsedDates[0];
       const latestUpdate = updatesWithParsedDates[updatesWithParsedDates.length - 1];
       
-      if (firstUpdate.dueDateParsed && latestUpdate.dueDateParsed) {
+      if (firstUpdate.newTargetDateParsed && latestUpdate.newTargetDateParsed) {
         const daysDiff = daysBetweenFlexibleDates(
-          firstUpdate.dueDateParsed, 
-          latestUpdate.dueDateParsed, 
+          firstUpdate.newTargetDateParsed, 
+          latestUpdate.newTargetDateParsed, 
           new Date().getFullYear()
         );
         
         return {
-          firstDate: firstUpdate.dueDateParsed,
-          latestDate: latestUpdate.dueDateParsed,
+          firstDate: firstUpdate.newTargetDateParsed,
+          latestDate: latestUpdate.newTargetDateParsed,
           daysDiff
         };
       }
     }
     
-    // Fallback: try to use dueDate fields if dueDateParsed is not available
-    const updatesWithDates = updates.filter(u => u.dueDate);
+    // Fallback: try to use newTargetDate fields if newTargetDateParsed is not available
+    const updatesWithDates = updates.filter(u => u.newTargetDate);
     
     if (updatesWithDates.length >= 2) {
       const firstUpdate = updatesWithDates[0];
       const latestUpdate = updatesWithDates[updatesWithDates.length - 1];
       
-      if (firstUpdate.dueDate && latestUpdate.dueDate) {
-        const daysDiff = daysBetweenFlexibleDates(firstUpdate.dueDate, latestUpdate.dueDate, new Date().getFullYear());
+      if (firstUpdate.newTargetDate && latestUpdate.newTargetDate) {
+        const daysDiff = daysBetweenFlexibleDates(firstUpdate.newTargetDate, latestUpdate.newTargetDate, new Date().getFullYear());
         
         if (daysDiff !== null) {
           return {
-            firstDate: firstUpdate.dueDate,
-            latestDate: latestUpdate.dueDate,
+            firstDate: firstUpdate.newTargetDate,
+            latestDate: latestUpdate.newTargetDate,
             daysDiff
           };
         }

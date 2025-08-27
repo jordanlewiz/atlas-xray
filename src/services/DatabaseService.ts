@@ -41,15 +41,16 @@ export interface ProjectUpdate {
   creationDate: string;
   state?: string;
   missedUpdate: boolean;
-  targetDate?: string;
   oldState?: string;
   summary?: string;
   details?: string;
   raw?: any; // Full GraphQL response for backward compatibility
   
-  // NEW: Date parsing fields for consistent date handling
-  dueDate?: string;           // Original date string (e.g., "October to December", "December")
-  dueDateParsed?: string;     // Normalized ISO date (e.g., "2025-12-31") for comparisons
+  // NEW: Clear target date fields for consistent date handling
+  newTargetDate?: string;                 // New target date (e.g., "October to December")
+  newTargetDateParsed?: string;           // Parsed ISO date (e.g., "2024-12-01")
+  oldTargetDate?: string;                 // Previous target date (e.g., "September")
+  oldTargetDateParsed?: string;           // Parsed ISO date (e.g., "2024-09-01")
   
   // Analysis fields - populated when update is analyzed
   updateQuality?: number;
@@ -87,7 +88,7 @@ export class DatabaseService extends Dexie {
     this.version(4).stores({
       projectList: 'projectKey',
       projectSummaries: 'projectKey',
-      projectUpdates: 'uuid, projectKey, creationDate, updateQuality, analyzed, dueDate, dueDateParsed',
+      projectUpdates: 'uuid, projectKey, creationDate, updateQuality, analyzed, newTargetDate, newTargetDateParsed, oldTargetDate, oldTargetDateParsed',
       projectDependencies: 'id, sourceProjectKey, targetProjectKey',
     });
   }

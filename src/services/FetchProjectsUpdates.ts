@@ -151,13 +151,13 @@ export class FetchProjectsUpdates {
             
             // Parse dates using DateParsingService
             const newDueDateParsed = dateParsingService.parseDate(update.newTargetDate?.tooltip);
-            const oldDueDateParsed = dateParsingService.parseDate(update.oldTargetDate?.tooltip);
+            const oldDueDateParsed = dateParsingService.parseDate(update.oldDueDate?.tooltip);
             
             if (newDueDateParsed.dueDate) {
-              console.log(`[FetchProjectsUpdates] Parsed newDueDate for ${projectKey}: ${newDueDateParsed.dueDate} -> ${newDueDateParsed.dueDateParsed}`);
+              console.log(`[FetchProjectsUpdates] Parsed newTargetDate for ${projectKey}: ${newDueDateParsed.dueDate} -> ${newDueDateParsed.dueDateParsed}`);
             }
             if (oldDueDateParsed.dueDate) {
-              console.log(`[FetchProjectsUpdates] Parsed oldDueDate for ${projectKey}: ${oldDueDateParsed.dueDate} -> ${oldDueDateParsed.dueDateParsed}`);
+              console.log(`[FetchProjectsUpdates] Parsed oldTargetDate for ${projectKey}: ${oldDueDateParsed.dueDate} -> ${oldDueDateParsed.dueDateParsed}`);
             }
             
             return {
@@ -167,14 +167,15 @@ export class FetchProjectsUpdates {
               state: update.newState?.value,  // Fixed: use newState.value instead of state.name
               summary: update.summary,
               details: update.content,
-              targetDate: update.targetDate,
               oldState: update.oldState?.projectStateValue,  // Fixed: use oldState.projectStateValue instead of oldState
               missedUpdate: update.missedUpdate || false, // Use actual missedUpdate value from API
               analyzed: false, // Will be analyzed by AnalysisService later
               
-              // NEW: Parsed date fields for consistent handling
-              dueDate: newDueDateParsed.dueDate || update.newTargetDate,           // Original date string
-              dueDateParsed: newDueDateParsed.dueDateParsed,                      // Normalized ISO date
+              // NEW: Clear target date fields for consistent handling
+              newTargetDate: newDueDateParsed.dueDate || update.newTargetDate?.tooltip,           // Original new target date
+              newTargetDateParsed: newDueDateParsed.dueDateParsed,                              // Parsed new target date
+              oldTargetDate: oldDueDateParsed.dueDate || update.oldDueDate?.tooltip,             // Original old target date
+              oldTargetDateParsed: oldDueDateParsed.dueDateParsed,                              // Parsed old target date
               
               raw: update
             };

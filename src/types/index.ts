@@ -12,20 +12,21 @@ export interface ProjectSummary {
 }
 
 export interface ProjectUpdate {
-  uuid: string; // Primary key from GraphQL (matches DatabaseService)
+  uuid: string;
   projectKey: string;
   creationDate: string;
   state?: string;
   missedUpdate: boolean;
-  targetDate?: string; // Maps to newTargetDate from GraphQL
   oldState?: string;
   summary?: string;
   details?: string; // JSON stringified notes array
   raw?: any; // Full GraphQL response (optional)
   
-  // NEW: Date parsing fields for consistent date handling
-  dueDate?: string;           // Original date string (e.g., "October to December", "December")
-  dueDateParsed?: string;     // Normalized ISO date (e.g., "2025-12-31") for comparisons
+  // NEW: Clear target date fields for consistent date handling
+  newTargetDate?: string;                 // New target date (e.g., "October to December")
+  newTargetDateParsed?: string;           // Parsed ISO date (e.g., "2024-12-01")
+  oldTargetDate?: string;                 // Previous target date (e.g., "September")
+  oldTargetDateParsed?: string;           // Parsed ISO date (e.g., "2024-09-01")
   
   // Quality analysis fields (populated by AnalysisService)
   analyzed?: boolean;
