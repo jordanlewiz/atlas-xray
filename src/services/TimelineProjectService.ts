@@ -127,7 +127,7 @@ export class TimelineProjectService {
               endSocket: 'left', // Connect to left side of target
               startPlug: 'disc', // Small disc at start
               endPlug: 'arrow2', // Arrow at end
-              path: 'grid',
+              path: 'magnet',
               dropShadow: false, // Add shadow for better visibility
               outline: true, // Add outline
               outlineColor: '#ffffff', // White outline
