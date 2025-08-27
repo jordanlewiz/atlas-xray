@@ -2,8 +2,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import Tooltip from "@atlaskit/tooltip";
 
 import ProjectUpdateModal from "../ProjectUpdateModal";
-import QualityIndicator from "../QualityIndicator/QualityIndicator";
 import { DateDifference } from "../DateDifference";
+import { UpdateCellContent } from "../UpdateCellContent";
 import { buildProjectUrlFromKey } from "../../utils/timelineUtils";
 import {
   getTimelineWeekCells,
@@ -13,6 +13,7 @@ import {
   normalizeDateForDisplay,
   daysBetweenFlexibleDates
 } from "../../utils/timelineUtils";
+import { analyzeUpdateCell } from "../../utils/updateCellUtils";
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../services/DatabaseService';
 // Quality analysis data is now stored directly in update objects by ProjectPipeline
@@ -177,24 +178,6 @@ function StatusTimelineHeatmapRow({
     }
   }, [updates, project.projectKey]);
 
-  // Debug logging for daysShift calculations
-  if (updates && updates.length > 0) {
-    const sortedUpdates = [...updates].sort((a, b) => 
-      new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()
-    );
-    const firstUpdate = sortedUpdates[0];
-    const latestUpdate = sortedUpdates[sortedUpdates.length - 1];
-    
-    console.log(`[DEBUG] ${project.projectKey} - daysShift result:`, {
-      daysShift: daysShift,
-      firstDueDate: firstUpdate?.oldDueDate || 'MISSING',
-      latestDueDate: latestUpdate?.newDueDate || 'MISSING',
-      totalUpdates: updates.length,
-      calculatedDays: daysShift?.days,
-      willShowDateDifference: daysShift !== null
-    });
-  }
-
   return (
     <div className="timeline-row" data-testid="project-row">
       <div className="timeline-y-label">
@@ -215,73 +198,23 @@ function StatusTimelineHeatmapRow({
         </div>
       </div>
       
-      {weekCells.map((cell: any, i: number) => {
-
-        
-        return (
-          <div key={i} className={cell.cellClass}>
-            {cell.weekUpdates.map((u: any, idx: number) => {
-              // Check if this update has a missed update
-              const hasMissedUpdate = u.raw?.missedUpdate || u.missedUpdate;
-              
-              return (
-                <div 
-                  key={idx} 
-                  className={`timeline-cell-content ${u.oldDueDate ? 'has-old-due-date' : ''}`}
-                  onClick={hasMissedUpdate ? undefined : () => setSelectedUpdate(u)}
-                  style={{ cursor: hasMissedUpdate ? 'default' : 'pointer' }}
-                >
-                             {/* Show date difference FIRST (replaces bullet when date changed) */}
-               {!hasMissedUpdate && u.oldDueDate && u.newDueDate ? (
-                 <DateDifference oldDate={u.oldDueDate} newDate={u.newDueDate} />
-               ) : (
-                 /* Show normal update indicator (quality indicator or bullet) when no date change */
-                 !hasMissedUpdate && (
-                   <Tooltip content="Click to view update details" position="top">
-                     {showEmojis && u.uuid ? (
-                       // Show quality indicator when toggle is on
-                       (() => {
-                         // Check if analysis is complete
-                         if (u.updateQuality !== undefined && u.qualityLevel) {
-                           return (
-                             <QualityIndicator
-                               score={u.updateQuality}
-                               level={u.qualityLevel}
-                               size="small"
-                               className="quality-indicator-timeline"
-                             />
-                           );
-                         }
-                         // Show pending analysis indicator when toggle is on but analysis not complete
-                         return (
-                           <span 
-                             className="update-indicator pending-analysis" 
-                             data-testid="update-indicator-pending"
-                             title="Analysis in progress..."
-                             style={{
-                               backgroundColor: '#ffab00',
-                               animation: 'pulse 2s infinite'
-                             }}
-                           />
-                         );
-                       })()
-                     ) : (
-                       // Show white bullet when toggle is off
-                       <span 
-                         className="update-indicator" 
-                         data-testid="update-indicator"
-                         title="Project update"
-                       />
-                     )}
-                   </Tooltip>
-                 )
-               )}
-            </div>
-          );
-        })}
+      {weekCells.map((cell: any, i: number) => (
+        <div key={i} className={cell.cellClass}>
+          {cell.weekUpdates.map((update: any, idx: number) => {
+            const analysis = analyzeUpdateCell(update);
+            
+            return (
+              <UpdateCellContent
+                key={idx}
+                analysis={analysis}
+                showEmojis={showEmojis}
+                update={update}
+                onUpdateClick={setSelectedUpdate}
+              />
+            );
+          })}
         </div>
-      );
-      })}
+      ))}
       
       <div className="timeline-target-date">     
         {targetDateDisplay ? (
