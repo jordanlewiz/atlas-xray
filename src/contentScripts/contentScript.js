@@ -62,30 +62,59 @@ function checkForTimelineView() {
   const existingButton = document.getElementById('atlas-xray-timeline-btn');
   if (existingButton) {
     existingButton.remove();
+    // Cleanup URL change listener when button is removed
+    (async () => {
+      try {
+        const { TimelineProjectService } = await import('../services/TimelineProjectService');
+        TimelineProjectService.cleanupUrlChangeListener();
+      } catch (error) {
+        console.warn('[AtlasXray] ⚠️ Could not cleanup URL change listener:', error);
+      }
+    })();
   }
   
-  // Add timeline button if we're on timeline view
-  if (hasTimelineView) {
-    const timelineButton = document.createElement('button');
-    timelineButton.id = 'atlas-xray-timeline-btn';
-    timelineButton.textContent = 'Show dependencies';
-    
-    // Add click handler
-    timelineButton.addEventListener('click', async () => {
-      try {
-        // Import and use the TimelineProjectService
-        const { TimelineProjectService } = await import('../services/TimelineProjectService');
-        
-        await TimelineProjectService.findAndProcessTimelineProjects();
-      } catch (error) {
-        console.error('[AtlasXray] ❌ Error using TimelineProjectService:', error);
-        alert('❌ Error processing timeline projects. Check console for details.');
-      }
-    });
-    
-    // Add to page
-    document.body.appendChild(timelineButton);
-  }
+          // Add timeline button if we're on timeline view
+    if (hasTimelineView) {
+      const timelineButton = document.createElement('button');
+      timelineButton.id = 'atlas-xray-timeline-btn';
+      timelineButton.textContent = 'Show dependencies';
+      
+      // Add click handler
+      timelineButton.addEventListener('click', async () => {
+        try {
+          // Import and use the TimelineProjectService
+          const { TimelineProjectService } = await import('../services/TimelineProjectService');
+          
+          await TimelineProjectService.toggleDependencies();
+          
+          // Update button text based on current state
+          const isVisible = TimelineProjectService.getDependenciesVisible();
+          timelineButton.textContent = isVisible ? 'Hide dependencies' : 'Show dependencies';
+        } catch (error) {
+          console.error('[AtlasXray] ❌ Error using TimelineProjectService:', error);
+          alert('❌ Error processing timeline projects. Check console for details.');
+        }
+      });
+      
+      // Listen for dependency state changes to update button text
+      window.addEventListener('atlas-xray-dependencies-changed', (event) => {
+        const { visible } = event.detail;
+        timelineButton.textContent = visible ? 'Hide dependencies' : 'Show dependencies';
+      });
+      
+      // Setup URL change listener to clear dependencies
+      (async () => {
+        try {
+          const { TimelineProjectService } = await import('../services/TimelineProjectService');
+          TimelineProjectService.setupUrlChangeListener();
+        } catch (error) {
+          console.warn('[AtlasXray] ⚠️ Could not setup URL change listener:', error);
+        }
+      })();
+      
+      // Add to page
+      document.body.appendChild(timelineButton);
+    }
 }
 
 // Check on initial load

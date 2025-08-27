@@ -7,11 +7,13 @@ export class TimelineProjectService {
   private static leaderLines: any[] = [];
   private static scrollContainer: HTMLElement | null = null;
   private static scrollListener: (() => void) | null = null;
+  private static dependenciesVisible: boolean = false;
+  private static urlChangeListener: (() => void) | null = null;
 
   /**
    * Clear all existing dependency lines
    */
-  private static clearAllLines(): void {
+  static clearAllLines(): void {
     try {
       this.leaderLines.forEach(line => {
         try {
@@ -29,6 +31,10 @@ export class TimelineProjectService {
         this.scrollContainer = null;
         this.scrollListener = null;
       }
+      
+      // Update state and notify button
+      this.dependenciesVisible = false;
+      this.notifyButtonStateChange();
     } catch (error) {
       console.error('[AtlasXray] ❌ Error clearing dependency lines:', error);
     }
@@ -279,6 +285,116 @@ export class TimelineProjectService {
     } catch (error) {
       console.error('[AtlasXray] ❌ Error looking up dependencies:', error);
       console.log(`❌ Error looking up dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Toggle dependency lines visibility
+   */
+  static async toggleDependencies(): Promise<void> {
+    if (this.dependenciesVisible) {
+      // Hide dependencies
+      this.clearAllLines();
+      this.dependenciesVisible = false;
+    } else {
+      // Show dependencies
+      await this.findAndProcessTimelineProjects();
+      this.dependenciesVisible = true;
+    }
+  }
+
+  /**
+   * Get current dependencies visibility state
+   */
+  static getDependenciesVisible(): boolean {
+    return this.dependenciesVisible;
+  }
+
+  /**
+   * Notify button state change by dispatching custom event
+   */
+  private static notifyButtonStateChange(): void {
+    // Dispatch custom event for button to listen to
+    window.dispatchEvent(new CustomEvent('atlas-xray-dependencies-changed', {
+      detail: { visible: this.dependenciesVisible }
+    }));
+  }
+
+  /**
+   * Setup URL change listener to clear dependencies
+   */
+  static setupUrlChangeListener(): void {
+    // Remove existing listener if any
+    if (this.urlChangeListener) {
+      window.removeEventListener('popstate', this.urlChangeListener);
+    }
+
+    // Create new listener
+    this.urlChangeListener = () => {
+      console.log('[AtlasXray] 🔄 URL change detected (popstate/hashchange), clearing dependencies');
+      this.clearAllLines();
+    };
+
+    // Add listener for browser back/forward
+    window.addEventListener('popstate', this.urlChangeListener);
+    
+    // Also listen for hash changes (common in SPAs)
+    window.addEventListener('hashchange', this.urlChangeListener);
+    
+    // Watch for navigation events in the DOM (Jira is a SPA)
+    const navigationObserver = new MutationObserver((mutations) => {
+      // Check if we're still on a timeline page
+      const currentUrl = window.location.href;
+      if (!currentUrl.includes('projects?view=timeline')) {
+        console.log('[AtlasXray] 🔄 Navigation away from timeline detected, clearing dependencies');
+        this.clearAllLines();
+      }
+    });
+    
+    // Observe the entire document for navigation changes
+    navigationObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+    
+    // Store observer for cleanup
+    (this as any).navigationObserver = navigationObserver;
+    
+    // Also set up a more aggressive URL change detection
+    let lastUrl = window.location.href;
+    const urlCheckInterval = setInterval(() => {
+      const currentUrl = window.location.href;
+      if (currentUrl !== lastUrl) {
+        console.log('[AtlasXray] 🔄 URL changed from', lastUrl, 'to', currentUrl, '- clearing dependencies');
+        lastUrl = currentUrl;
+        this.clearAllLines();
+      }
+    }, 500); // Check every 500ms
+    
+    // Store interval for cleanup
+    (this as any).urlCheckInterval = urlCheckInterval;
+  }
+
+  /**
+   * Cleanup URL change listener
+   */
+  static cleanupUrlChangeListener(): void {
+    if (this.urlChangeListener) {
+      window.removeEventListener('popstate', this.urlChangeListener);
+      window.removeEventListener('hashchange', this.urlChangeListener);
+      this.urlChangeListener = null;
+    }
+    
+    // Disconnect the navigation observer
+    if ((this as any).navigationObserver) {
+      (this as any).navigationObserver.disconnect();
+      (this as any).navigationObserver = null;
+    }
+    
+    // Clear the URL check interval
+    if ((this as any).urlCheckInterval) {
+      clearInterval((this as any).urlCheckInterval);
+      (this as any).urlCheckInterval = null;
     }
   }
 }

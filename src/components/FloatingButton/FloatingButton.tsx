@@ -38,7 +38,15 @@ export default function FloatingButton(): React.JSX.Element {
       // Step 4: Fetch project updates
       await fetchProjectsUpdates.getProjectUpdates(projectKeys);
       
-      // Step 5: Open modal (heatmap will load automatically)
+      // Step 5: Clear any existing dependency lines for clean state
+      try {
+        const { TimelineProjectService } = await import('../../services/TimelineProjectService');
+        TimelineProjectService.clearAllLines();
+      } catch (error) {
+        console.warn('[AtlasXray] ⚠️ Could not clear dependency lines:', error);
+      }
+      
+      // Step 6: Open modal (heatmap will load automatically)
       setModalOpen(true);
 
     } catch (error) {
