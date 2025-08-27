@@ -1,6 +1,7 @@
 import React from 'react';
 import Tooltip from '@atlaskit/tooltip';
 import { useDateDifference } from '../../hooks/useDateDifference';
+import { normalizeDateForDisplay } from '../../utils/timelineUtils';
 
 interface DateDifferenceProps {
   oldDate: string | null | undefined;
@@ -13,11 +14,14 @@ export const DateDifference = ({ oldDate, newDate, className }: DateDifferencePr
   
   if (!hasChange) return null;
   
+  const normalizedOldDate = normalizeDateForDisplay(oldDate);
+  const normalizedNewDate = normalizeDateForDisplay(newDate);
+  
   return (
     <Tooltip content={
       <span>
         Due date changed by {displayText} days<br />
-        From {oldDate} to {newDate}
+        From {normalizedOldDate} to {normalizedNewDate}
       </span>
     } position="top">
       <span 

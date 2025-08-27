@@ -9,7 +9,9 @@ import {
   getTimelineWeekCells,
   getTargetDateDisplay,
   getDueDateDiff,
-  parseFlexibleDateChrono
+  parseFlexibleDateChrono,
+  normalizeDateForDisplay,
+  daysBetweenFlexibleDates
 } from "../../utils/timelineUtils";
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../services/DatabaseService';
@@ -159,22 +161,14 @@ function StatusTimelineHeatmapRow({
     }
 
     try {
-      // Parse dates using the same utilities that handle flexible date ranges
+      // Use the same calculation method as DateDifference component
       const currentYear = new Date().getFullYear();
+      const diffDays = daysBetweenFlexibleDates(firstOldDueDate, latestNewDueDate, currentYear);
       
-      // For first date, use the start of the range if it's a range
-      const first = parseFlexibleDateChrono(firstOldDueDate, currentYear, false);
-      
-      // For latest date, use the end of the range if it's a range (e.g., "Oct-Dec" → Dec 31)
-      const latest = parseFlexibleDateChrono(latestNewDueDate, currentYear, true);
-      
-      if (!first || !latest || isNaN(first.getTime()) || isNaN(latest.getTime())) {
-        console.warn(`[StatusTimelineHeatmapRow] Failed to parse dates for ${project.projectKey}:`, { firstOldDueDate, latestNewDueDate });
+      if (diffDays === null) {
+        console.warn(`[StatusTimelineHeatmapRow] Failed to calculate date difference for ${project.projectKey}:`, { firstOldDueDate, latestNewDueDate });
         return null;
       }
-
-      const diffTime = latest.getTime() - first.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       
       return { days: diffDays, firstDate: firstOldDueDate, latestDate: latestNewDueDate };
     } catch (error) {
@@ -182,6 +176,24 @@ function StatusTimelineHeatmapRow({
       return null;
     }
   }, [updates, project.projectKey]);
+
+  // Debug logging for daysShift calculations
+  if (updates && updates.length > 0) {
+    const sortedUpdates = [...updates].sort((a, b) => 
+      new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()
+    );
+    const firstUpdate = sortedUpdates[0];
+    const latestUpdate = sortedUpdates[sortedUpdates.length - 1];
+    
+    console.log(`[DEBUG] ${project.projectKey} - daysShift result:`, {
+      daysShift: daysShift,
+      firstDueDate: firstUpdate?.oldDueDate || 'MISSING',
+      latestDueDate: latestUpdate?.newDueDate || 'MISSING',
+      totalUpdates: updates.length,
+      calculatedDays: daysShift?.days,
+      willShowDateDifference: daysShift !== null
+    });
+  }
 
   return (
     <div className="timeline-row" data-testid="project-row">
@@ -284,13 +296,11 @@ function StatusTimelineHeatmapRow({
       {/* Days Shift Column */}
       <div className="timeline-days-shift">
         {daysShift !== null ? (
-          <div>
-            <DateDifference 
-              oldDate={daysShift.firstDate} 
-              newDate={daysShift.latestDate} 
-              className="days-shift-value" 
-            />
-          </div>
+          <DateDifference 
+            oldDate={daysShift.firstDate} 
+            newDate={daysShift.latestDate} 
+            className="days-shift-value" 
+          />
         ) : (
           <span style={{ color: '#6b7280', fontSize: '12px' }}>N/A</span>
         )}

@@ -1,4 +1,4 @@
-import { daysBetweenFlexibleDates, parseFlexibleDateChrono } from './timeline';
+import { daysBetweenFlexibleDates, parseFlexibleDateChrono, normalizeDateForDisplay } from './timeline';
 
 describe("parseFlexibleDateChrono", () => {
   it("should parse 'Apr-Jun' in 2025 to Jun 30, 2025 (end of range)", () => {
@@ -31,6 +31,14 @@ describe("parseFlexibleDateChrono", () => {
     expect(result.getFullYear()).toBe(2025);
     expect(result.getMonth()).toBe(7); // August is 7 (0-based)
     expect(result.getDate()).toBe(20);
+  });
+
+  it("should parse ISO date '2025-08-15' correctly", () => {
+    const result = parseFlexibleDateChrono('2025-08-15', 2025);
+    expect(result).not.toBeNull();
+    expect(result.getFullYear()).toBe(2025);
+    expect(result.getMonth()).toBe(7); // August is 7 (0-based)
+    expect(result.getDate()).toBe(15);
   });
 
   it("should calculate correct days between '20 Aug' and 'Oct-Dec' in 2025", () => {

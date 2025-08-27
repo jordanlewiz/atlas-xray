@@ -106,6 +106,13 @@ export function buildProjectUrlFromKey(projectKey: string): string {
 export function parseFlexibleDateChrono(dateStr: string, year: number = new Date().getFullYear(), isEnd: boolean = false): Date | null {
   if (!dateStr || typeof dateStr !== 'string') return null;
   
+  // Check for ISO date format (YYYY-MM-DD) first, before treating as range
+  const isoDateMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoDateMatch) {
+    const [, yearStr, monthStr, dayStr] = isoDateMatch;
+    return new Date(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1, parseInt(dayStr, 10));
+  }
+  
   // If it's a range, always use the end of the range
   if (dateStr.includes('-')) {
     const [start, end] = dateStr.split('-').map(s => s.trim());
@@ -142,6 +149,27 @@ export function parseFlexibleDateChrono(dateStr: string, year: number = new Date
   }
   
   return null;
+}
+
+// Normalize dates to a consistent format for display
+export function normalizeDateForDisplay(dateStr: string | null | undefined): string {
+  if (!dateStr || typeof dateStr !== 'string') return '';
+  
+  const currentYear = new Date().getFullYear();
+  const parsed = parseFlexibleDateChrono(dateStr, currentYear, dateStr.includes('-') && !dateStr.match(/^\d{4}-\d{2}-\d{2}$/));
+  
+  if (!parsed || isNaN(parsed.getTime())) {
+    // If parsing fails, return the original string
+    return dateStr;
+  }
+  
+  // Format as "DD MMM YYYY" (e.g., "15 Aug 2025")
+  const day = parsed.getDate();
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = monthNames[parsed.getMonth()];
+  const year = parsed.getFullYear();
+  
+  return `${day} ${month} ${year}`;
 }
 
 export function daysBetweenFlexibleDates(dateStr1: string, dateStr2: string, year: number): number | null {
