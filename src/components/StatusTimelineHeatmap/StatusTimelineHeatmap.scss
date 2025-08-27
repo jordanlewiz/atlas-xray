@@ -42,7 +42,7 @@
   display: flex;
   width: 100%;
   align-items: center;
-  margin-bottom: 4px;
+  margin-bottom: 15px;
 
   &.timeline-labels{
     height: 130px;
@@ -91,13 +91,19 @@
     cursor: default;
   }
   a {
-    display: block;
+    display: inline-block;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    width: 100%;
     color: #aaa;
     font-size: 10px;
+  }
+  
+  .project-info-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: nowrap;
   }
   
   // NEW: Dependencies styling
@@ -223,9 +229,29 @@
     }
     
     .date-difference {
-      font-size: 10px;
-      font-weight: bold;
+      font-size: 11px;
+      font-weight: 700;
       color: #fff;
+      // background-color: rgba(0, 0, 0, 0.3);
+      padding: 2px 4px;
+      border-radius: 3px;
+      min-width: 20px;
+      text-align: center;
+      display: inline-block;
+      line-height: 1;
+      
+      /* Color coding for positive/negative values */
+      // &.positive {
+      //   background-color: rgba(220, 53, 69, 0.8); // Red for delays
+      // }
+      
+      // &.negative {
+      //   background-color: rgba(76, 175, 80, 0.8); // Green for ahead of schedule
+      // }
+      
+      // &.neutral {
+      //   background-color: rgba(108, 117, 125, 0.8); // Gray for no change
+      // }
     }
     
     // Update indicator styles are now defined at the top level
@@ -259,5 +285,84 @@
   align-items: center;
   justify-content: flex-end;
   white-space: nowrap;
+  
+
+}
+
+.timeline-days-shift {
+  min-width: 100px;
+  max-width: 120px;
+  margin-left: 12px;
+  text-align: center;
+  font-size: 13px;
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  
+  .days-shift-value {
+    font-weight: bold;
+    
+    &.positive {
+      color: #e53935; // red for positive (delayed)
+    }
+    
+    &.negative {
+      color: #4caf50; // green for negative (ahead of schedule)
+    }
+    
+    &.neutral {
+      color: #666; // neutral for no change
+    }
+  }
+}
+
+.dependencies-display {
+  display: inline-flex;
+  gap: 2px;
+  margin-left: 10px;
+  align-items: center;
+  
+  .dependency-indicator {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 4px;
+    border-radius: 3px;
+    color: white;
+    cursor: help !important;
+    
+    &.depends-on {
+      background-color: #dc3545; // Red for "Depends On"
+    }
+    
+    &.related {
+      background-color: #6f42c1; // Purple for "Related"
+    }
+    
+    &.depended-by {
+      background-color: #17a2b8; // Blue for "Depended By"
+    }
+  }
+}
+
+.header-tooltip {
+  margin-top: 4px;
+  font-size: 10px;
+  color: #666;
+  text-align: center;
+  max-width: 100px;
+}
+
+.quality-indicator-timeline {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  
+  // Ensure it fits well within the timeline cell
+  transform: scale(0.8);
+  transform-origin: center;
 }
 

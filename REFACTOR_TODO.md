@@ -36,37 +36,22 @@
 
 **✅ COMPLETED**: Successfully consolidated all analysis engines into unified `AnalysisService.ts` with full backward compatibility and comprehensive testing.
 
-### **1.2 Unify Database Systems** 🔥 **CRITICAL**
-- [x] **Merge duplicate databases**
-  - [x] Consolidate `src/utils/database.ts` (152 lines) and `src/utils/analysisDatabase.ts` (344 lines)
-  - [x] Create single `src/services/DatabaseService.ts`
-  - [x] Merge schemas without data loss
-  - [x] Update all database access patterns
-- [x] **Simplify database structure**
-  - [x] Remove `src/utils/dexie-global.js` (22 lines)
-  - [x] Consolidate table definitions
-  - [x] Ensure proper indexing strategy
-  - [x] Maintain data integrity rules
-- [x] **Update all database calls**
+### **1.2 Consolidate Database Services** 🔥 **CRITICAL**
+- [x] **Remove duplicate database systems**
+  - [x] Delete `src/services/legacyDatabaseService.ts` (156 lines - deprecated)
+  - [x] Delete `src/services/simpleProjectFetcher.ts` (95 lines - unused, consolidated)
+  - [x] Delete `src/services/legacyProjectFetcher.ts` (89 lines - deprecated)
+- [x] **Create unified database service**
+  - [x] Create `src/services/DatabaseService.ts`
+  - [x] Implement all database operations in single service
+  - [x] Support project views, updates, dependencies, and metadata
+  - [x] Maintain backward compatibility
+- [x] **Update all references**
+  - [x] Find and update imports across codebase
+  - [x] Update component calls to new service
+  - [x] Ensure no functionality is lost
 
-### **1.3 Performance & Rate Limiting Optimizations** 🔥 **HIGH PRIORITY**
-- [x] **Reduce directory fetch size**
-  - [x] Change `first: 500` to `first: 100` in `simpleProjectListFetcher.ts`
-  - [ ] Implement subsequent fetches for page navigation if detected
-  - [ ] Add pagination logic for large project lists
-- [x] **Fix FloatingButton tooltip consistency**
-  - [x] Ensure tooltip displays same information as floating button
-  - [x] Align tooltip format with new HTML display format
-  - [x] Test tooltip content matches button display exactly
-- [x] **Fix FloatingButton update counts**
-  - [x] Limit counts to updates that haven't been missed (`missedUpdate = false`)
-  - [x] Ensure consistency between button display and actual data
-  - [x] Update metrics calculation to filter out missed updates
-  - [x] Find and update all `db.*` references
-  - [x] Update all `analysisDB.*` references
-  - [x] Ensure consistent access patterns
-
-**Impact**: Eliminates duplicate database systems (500+ lines of redundant code)  
+**Impact**: Eliminates 3 duplicate database systems (500+ lines of redundant code)  
 **Risk**: HIGH - Data migration required  
 **Testing**: Full database operation testing required
 

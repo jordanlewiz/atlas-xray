@@ -16,6 +16,9 @@ import { createRoot } from "react-dom/client";
 import FloatingButton from "../components/FloatingButton/FloatingButton";
 import "../components/FloatingButton/FloatingButton.scss";
 
+// Import leader-line-new properly using require
+const LeaderLine = require('leader-line-new');
+
 // Custom styles will be merged with contentScript.css during build
 
 
@@ -44,71 +47,90 @@ setTimeout(async () => {
   }
 }, 1000);
 
-// Initialize simple project fetching on page load
-console.log('[AtlasXray] 🚀 Initializing simple project fetcher...');
+// ✅ NEW: Clean page load - nothing happens automatically
+console.log('[AtlasXray] 🚀 Extension loaded - waiting for user interaction');
 
-// Start simple project fetching after a short delay to ensure page is loaded
-setTimeout(async () => {
-  try {
-    console.log('[AtlasXray] 📥 Starting simple project fetch on page load...');
-    
-    // Import and run the simple project list fetcher (only runs once per page load)
-    const { simpleProjectListFetcher } = await import('../services/simpleProjectListFetcher.js');
-    console.log('[AtlasXray] ✅ Simple project list fetcher imported');
-    
-    // Fetch projects on page load (no periodic fetching)
-    await simpleProjectListFetcher.fetchProjectsOnPageLoad();
-    
-  } catch (error) {
-    console.error('[AtlasXray] ❌ Failed to start simple project fetcher:', error);
-  }
-}, 2000); // Wait 2 seconds for page to fully load
-
-// Add test functions to window for debugging
-if (typeof window !== 'undefined') {
-  window.testAtlasXray = async () => {
-    console.log('[AtlasXray] 🧪 Manual test triggered...');
-    try {
-      const response = await chrome.runtime.sendMessage({ type: 'PING' });
-      console.log('[AtlasXray] Test response:', response);
-      
-      // Test bootstrap service
-      try {
-        const { bootstrapService } = await import('../services/bootstrapService.js');
-        console.log('[AtlasXray] 🧪 Testing bootstrap service...');
-        const bootstrapData = await bootstrapService.loadBootstrapData();
-        console.log('[AtlasXray] ✅ Bootstrap test result:', bootstrapData);
-      } catch (error) {
-        console.error('[AtlasXray] ❌ Bootstrap test failed:', error);
-      }
-      
-      // Test simple project fetching
-      try {
-        const { simpleProjectListFetcher } = await import('../services/simpleProjectListFetcher.js');
-        console.log('[AtlasXray] 🧪 Testing simple project list fetch...');
-        const projects = await simpleProjectListFetcher.fetchProjectsOnPageLoad();
-        console.log('[AtlasXray] ✅ Simple fetch test result:', projects);
-      } catch (error) {
-        console.error('[AtlasXray] ❌ Simple fetch test failed:', error);
-      }
-      
-      // Test modal data fetching
-      try {
-        const { modalDataFetcher } = await import('../services/modalDataFetcher.js');
-        console.log('[AtlasXray] 🧪 Testing modal data fetch...');
-        const result = await modalDataFetcher.fetchProjectUpdatesForModal();
-        console.log('[AtlasXray] ✅ Modal data fetch test result:', result);
-      } catch (error) {
-        console.error('[AtlasXray] ❌ Modal data fetch test failed:', error);
-      }
-      
-    } catch (error) {
-      console.error('[AtlasXray] Test failed:', error);
-    }
-  };
-  
-  console.log('[AtlasXray] 🧪 Test function added to window.testAtlasXray()');
-}
 
 console.log('[AtlasXray] 🚀 Content script loaded and ready');
-console.log('[AtlasXray] 💡 Use window.testAtlasXray() in console to test the system');
+
+// Listen for URL changes to detect timeline view
+function checkForTimelineView() {
+  const currentUrl = window.location.href;
+  const hasTimelineView = currentUrl.includes('projects?view=timeline');
+  
+  // Remove existing timeline button if it exists
+  const existingButton = document.getElementById('atlas-xray-timeline-btn');
+  if (existingButton) {
+    existingButton.remove();
+    // Cleanup URL change listener when button is removed
+    (async () => {
+      try {
+        const { TimelineProjectService } = await import('../services/TimelineProjectService');
+        TimelineProjectService.cleanupUrlChangeListener();
+      } catch (error) {
+        console.warn('[AtlasXray] ⚠️ Could not cleanup URL change listener:', error);
+      }
+    })();
+  }
+  
+          // Add timeline button if we're on timeline view
+    if (hasTimelineView) {
+      const timelineButton = document.createElement('button');
+      timelineButton.id = 'atlas-xray-timeline-btn';
+      timelineButton.textContent = 'Show dependencies';
+      
+      // Add click handler
+      timelineButton.addEventListener('click', async () => {
+        try {
+          // Import and use the TimelineProjectService
+          const { TimelineProjectService } = await import('../services/TimelineProjectService');
+          
+          await TimelineProjectService.toggleDependencies();
+          
+          // Update button text based on current state
+          const isVisible = TimelineProjectService.getDependenciesVisible();
+          timelineButton.textContent = isVisible ? 'Hide dependencies' : 'Show dependencies';
+        } catch (error) {
+          console.error('[AtlasXray] ❌ Error using TimelineProjectService:', error);
+          alert('❌ Error processing timeline projects. Check console for details.');
+        }
+      });
+      
+      // Listen for dependency state changes to update button text
+      window.addEventListener('atlas-xray-dependencies-changed', (event) => {
+        const { visible } = event.detail;
+        timelineButton.textContent = visible ? 'Hide dependencies' : 'Show dependencies';
+      });
+      
+      // Setup URL change listener to clear dependencies
+      (async () => {
+        try {
+          const { TimelineProjectService } = await import('../services/TimelineProjectService');
+          TimelineProjectService.setupUrlChangeListener();
+        } catch (error) {
+          console.warn('[AtlasXray] ⚠️ Could not setup URL change listener:', error);
+        }
+      })();
+      
+      // Add to page
+      document.body.appendChild(timelineButton);
+    }
+}
+
+// Check on initial load
+checkForTimelineView();
+
+// Listen for URL changes (for SPAs)
+let lastUrl = window.location.href;
+const observer = new MutationObserver(() => {
+  if (window.location.href !== lastUrl) {
+    lastUrl = window.location.href;
+    checkForTimelineView();
+  }
+});
+
+// Start observing
+observer.observe(document.body, { childList: true, subtree: true });
+
+// Also listen for popstate events (browser back/forward)
+window.addEventListener('popstate', checkForTimelineView);

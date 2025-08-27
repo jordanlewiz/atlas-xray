@@ -13,6 +13,7 @@ module.exports = {
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '^@xenova/transformers$': '<rootDir>/src/utils/__mocks__/transformersMock.js',
+    '^d3$': '<rootDir>/src/utils/__mocks__/d3Mock.js',
   },
   // Reduce verbose test output
   verbose: false,

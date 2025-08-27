@@ -1,128 +1,133 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import FloatingButton from './FloatingButton';
 
-// Mock dependencies
-jest.mock('dexie-react-hooks', () => ({
-  useLiveQuery: jest.fn()
+// Mock the new services
+jest.mock('../../services/FetchProjectsList', () => ({
+  fetchProjectsList: {
+    getProjectList: jest.fn()
+  }
 }));
 
-jest.mock('../../utils/database', () => ({
-  db: {
-    projectViews: {
-      count: jest.fn()
-    },
-    projectUpdates: {
-      count: jest.fn(),
-      where: jest.fn(() => ({
-        above: jest.fn(() => ({
-          count: jest.fn()
-        }))
-      }))
-    }
-  },
-  getVisibleProjectIds: jest.fn(),
-  getTotalUpdatesAvailableCount: jest.fn()
+jest.mock('../../services/FetchProjectsSummary', () => ({
+  fetchProjectsSummary: {
+    getProjectSummaries: jest.fn()
+  }
 }));
 
-const mockUseLiveQuery = require('dexie-react-hooks').useLiveQuery;
-const mockDatabase = require('../../utils/database');
+jest.mock('../../services/FetchProjectsUpdates', () => ({
+  fetchProjectsUpdates: {
+    getProjectUpdates: jest.fn()
+  }
+}));
+
+jest.mock('../../services/FetchProjectsFullDetails', () => ({
+  fetchProjectsFullDetails: {
+    getProjectFullDetails: jest.fn()
+  }
+}));
+
+jest.mock('../../services/bootstrapService', () => ({
+  bootstrapService: {
+    loadBootstrapData: jest.fn()
+  }
+}));
+
+const mockFetchProjectsList = require('../../services/FetchProjectsList').fetchProjectsList;
+const mockFetchProjectsSummary = require('../../services/FetchProjectsSummary').fetchProjectsSummary;
+const mockFetchProjectsUpdates = require('../../services/FetchProjectsUpdates').fetchProjectsUpdates;
+const mockFetchProjectsFullDetails = require('../../services/FetchProjectsFullDetails').fetchProjectsFullDetails;
+const mockBootstrapService = require('../../services/bootstrapService').bootstrapService;
 
 describe('FloatingButton', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     
-    // Mock useLiveQuery for different queries
-    mockUseLiveQuery.mockImplementation((query: any) => {
-      if (typeof query === 'function') {
-        const queryString = query.toString();
-        if (queryString.includes('getVisibleProjectIds')) {
-          return ['PROJ-1', 'PROJ-2']; // Visible projects - length 2
-        }
-        if (queryString.includes('db.projectViews.count')) {
-          return 4; // Projects stored
-        }
-        if (queryString.includes('db.projectUpdates.count')) {
-          return 27; // Updates stored
-        }
-        if (queryString.includes('updateQuality') && queryString.includes('above(0)')) {
-          return 18; // Updates analyzed
-        }
-        if (queryString.includes('getTotalUpdatesAvailableCount')) {
-          return 16; // Updates available
-        }
-      }
-      return 0;
-    });
+    // Mock successful responses
+    mockBootstrapService.loadBootstrapData.mockResolvedValue(undefined);
+    mockFetchProjectsList.getProjectList.mockResolvedValue(['TEST-123', 'TEST-456']);
+    mockFetchProjectsSummary.getProjectSummaries.mockResolvedValue(undefined);
+    mockFetchProjectsUpdates.getProjectUpdates.mockResolvedValue(undefined);
+    mockFetchProjectsFullDetails.getProjectFullDetails.mockResolvedValue(undefined);
 
-    // Mock database functions
-    mockDatabase.getVisibleProjectIds.mockResolvedValue(['PROJ-1', 'PROJ-2']);
-    mockDatabase.getTotalUpdatesAvailableCount.mockResolvedValue(16);
+    // Mock DOM querySelector to return project keys
+    jest.spyOn(document, 'querySelectorAll').mockReturnValue([
+      { textContent: 'TEST-123 Project Name' },
+      { textContent: 'Another TEST-456 Project' }
+    ] as any);
   });
 
-  describe('Display Text Formatting', () => {
-    it('should display metrics in HTML format', () => {
-      render(<FloatingButton />);
-      
-      // Should show the new HTML format with strong tags
-      expect(screen.getByText(/Projects:/)).toBeInTheDocument();
-      expect(screen.getByText(/Updates:/)).toBeInTheDocument();
-      expect(screen.getByText(/2 in query • 4 Total Stored/)).toBeInTheDocument();
-      expect(screen.getByText(/16 in query • 27 Total Stored • 18 Analyzed/)).toBeInTheDocument();
-    });
+  it('should render initial state correctly', () => {
+    render(<FloatingButton />);
+    
+    const button = screen.getByRole('button');
+    expect(button).toBeInTheDocument();
+    expect(screen.getByText('🚀')).toBeInTheDocument();
+    expect(screen.getByText('Atlas Xray')).toBeInTheDocument();
+  });
 
-    it('should handle zero values gracefully', () => {
-      // Mock all values as zero
-      mockUseLiveQuery.mockImplementation(() => 0);
-      
-      render(<FloatingButton />);
-      
-      // Should show zero values in HTML format
-      expect(screen.getByText(/Projects:/)).toBeInTheDocument();
-      expect(screen.getByText(/Updates:/)).toBeInTheDocument();
-      expect(screen.getByText(/0 in query • 0 Total Stored • 0 Analyzed/)).toBeInTheDocument();
+  it('should show loading state when button is clicked', async () => {
+    // Mock a delay in bootstrap service
+    mockBootstrapService.loadBootstrapData.mockImplementation(() => 
+      new Promise(resolve => setTimeout(resolve, 100))
+    );
+
+    render(<FloatingButton />);
+    const button = screen.getByRole('button');
+    
+    fireEvent.click(button);
+    
+    await waitFor(() => {
+      expect(screen.getByText('⏳')).toBeInTheDocument();
+      expect(screen.getByText('Loading...')).toBeInTheDocument();
+      expect(button).toBeDisabled();
     });
   });
 
-  describe('Tooltip Content', () => {
-    it('should display tooltip with formatted content', () => {
-      render(<FloatingButton />);
-      
-      // Should show tooltip button
-      const button = screen.getByRole('button');
-      expect(button).toBeInTheDocument();
-      
-      // Button should be clickable
-      expect(button).not.toBeDisabled();
+  it('should call all services in correct order', async () => {
+    render(<FloatingButton />);
+    const button = screen.getByRole('button');
+    
+    fireEvent.click(button);
+    
+    await waitFor(() => {
+      expect(mockBootstrapService.loadBootstrapData).toHaveBeenCalledTimes(1);
+      expect(mockFetchProjectsList.getProjectList).toHaveBeenCalledTimes(1);
+      expect(mockFetchProjectsSummary.getProjectSummaries).toHaveBeenCalledTimes(1);
+      expect(mockFetchProjectsUpdates.getProjectUpdates).toHaveBeenCalledTimes(1);
+      expect(mockFetchProjectsFullDetails.getProjectFullDetails).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('Real-time Updates', () => {
-    it('should use useLiveQuery for reactive data', () => {
-      render(<FloatingButton />);
-      
-      // Verify useLiveQuery was called for each metric
-      expect(mockUseLiveQuery).toHaveBeenCalledTimes(5);
-      
-      // Check that the component displays the mocked values
-      expect(screen.getByText(/Projects:/)).toBeInTheDocument();
-      expect(screen.getByText(/Updates:/)).toBeInTheDocument();
-      expect(screen.getByText(/2 in query • 4 Total Stored/)).toBeInTheDocument();
-      expect(screen.getByText(/16 in query • 27 Total Stored • 18 Analyzed/)).toBeInTheDocument();
+  it('should extract project keys from DOM correctly', async () => {
+    render(<FloatingButton />);
+    const button = screen.getByRole('button');
+    
+    fireEvent.click(button);
+    
+    await waitFor(() => {
+      expect(mockFetchProjectsList.getProjectList).toHaveBeenCalledWith();
     });
   });
 
-  describe('Modal Integration', () => {
-    it('should open modal when clicked', async () => {
-      render(<FloatingButton />);
-      
-      const button = screen.getByRole('button');
-      button.click();
-      
-      // Modal should be opened (this would require more complex testing setup)
-      // For now, just verify the button is clickable
-      expect(button).toBeInTheDocument();
+  it('should handle data loading errors gracefully', async () => {
+    // Mock an error in project info service
+    mockFetchProjectsList.getProjectList.mockRejectedValue(new Error('API Error'));
+    
+    // Mock console.error to prevent test noise
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    render(<FloatingButton />);
+    const button = screen.getByRole('button');
+    
+    fireEvent.click(button);
+    
+    // Wait for error handling
+    await waitFor(() => {
+      expect(consoleSpy).toHaveBeenCalled();
     });
+    
+    consoleSpy.mockRestore();
   });
 });

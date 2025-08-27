@@ -1,139 +1,111 @@
-import React, { useState, useEffect } from 'react';
-import { useLiveQuery } from 'dexie-react-hooks';
+import React, { useState } from 'react';
 import ProjectStatusHistoryModal from '../ProjectStatusHistoryModal';
 import { StatusTimelineHeatmap } from '../StatusTimelineHeatmap';
-import { getVisibleProjectIds, getTotalUpdatesAvailableCount, db } from '../../services/DatabaseService';
-import { formatFloatingButtonMetrics, formatFloatingButtonTooltip, type FloatingButtonMetrics } from './metricsDisplay';
+import { fetchProjectsList } from '../../services/FetchProjectsList';
+import { fetchProjectsSummary } from '../../services/FetchProjectsSummary';
+import { fetchProjectsUpdates } from '../../services/FetchProjectsUpdates';
+import { bootstrapService } from '../../services/bootstrapService';
 import './FloatingButton.scss';
 import Tooltip from "@atlaskit/tooltip";
+import { db } from '../../services/DatabaseService';
 
 export default function FloatingButton(): React.JSX.Element {
   const [modalOpen, setModalOpen] = useState(false);
-  const [visibleProjectKeys, setVisibleProjectKeys] = useState<string[]>([]);
-
-  // 🚀 REAL-TIME COUNTS: Use LiveQuery for automatic updates
-  const projectsFound = useLiveQuery(() => getVisibleProjectIds());
-  const projectsStored = useLiveQuery(() => db.projectViews.count());
-  
-  // Get all updates and filter properly
-  const allUpdates = useLiveQuery(() => db.projectUpdates.toArray()) || [];
-  
-  // Filter out missed updates for consistency with server counts
-  const nonMissedUpdates = allUpdates.filter((update: any) => !update.missedUpdate);
-  const updatesStored = nonMissedUpdates.length;
-  
-  // Count analyzed updates (those that have been processed, regardless of score)
-  const updatesAnalyzed = nonMissedUpdates.filter((update: any) => update.analyzed).length;
-  
-  // Get the count of visible projects (not the full array)
-  const projectsVisible = projectsFound ? projectsFound.length : 0;
-  
-  // Calculate updates available (count from server stored in database)
-  const updatesAvailable = useLiveQuery(() => getTotalUpdatesAvailableCount()) || 0;
-
-  // Create metrics object for display utilities
-  const displayMetrics: FloatingButtonMetrics = {
-    projectsVisible,
-    projectsStored: projectsStored || 0,
-    updatesAvailable,
-    updatesStored: updatesStored || 0,
-    updatesAnalyzed: updatesAnalyzed || 0
-  };
-
-  // Initialize on mount
-  useEffect(() => {
-    const initialize = async () => {
-      try {
-        console.log('[AtlasXray] 🚀 Initializing floating button...');
-        
-        // Get initial visible projects
-        const initialProjects = await getVisibleProjectIds();
-        setVisibleProjectKeys(initialProjects);
-        console.log(`[AtlasXray] 📋 Initial visible projects: ${initialProjects.length}`);
-        
-      } catch (error) {
-        console.error('[AtlasXray] Failed to initialize:', error);
-      }
-    };
-    
-    initialize();
-  }, []);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleOpenModal = async (): Promise<void> => {
-    console.log('[AtlasXray] 🚪 Opening modal...');
-    setModalOpen(true);
-    
-    // Update visible project keys when modal opens
-    const updateVisibleProjects = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Step 0: Complete database reset
       try {
-        const currentProjects = await getVisibleProjectIds();
-        setVisibleProjectKeys(currentProjects);
-        console.log(`[AtlasXray] 📋 Updated visible projects: ${currentProjects.length}`);
+        //await db.clearProjectList();
+        await db.projectList.clear();
       } catch (error) {
-        console.error('[AtlasXray] Error updating visible projects:', error);
+        console.error('[AtlasXray] ⚠️ Warning: Some tables could not be cleared:', error);
+        // Continue anyway - we'll overwrite the data
       }
-    };
-    
-    await updateVisibleProjects();
-    
-    console.log(`[AtlasXray] 🚀 Modal opened - project data already fetched and ready for timeline`);
+      
+      // Step 1: Load bootstrap data
+      await bootstrapService.loadBootstrapData();
+      
+      // Step 2: Fetch project list
+      const projectKeys = await fetchProjectsList.getProjectList();
+      
+      // Step 3: Fetch project summaries (includes dependencies)
+      await fetchProjectsSummary.getProjectSummaries(projectKeys);
+      
+      // Step 4: Fetch project updates
+      await fetchProjectsUpdates.getProjectUpdates(projectKeys);
+      
+      // Step 5: Clear any existing dependency lines for clean state
+      try {
+        const { TimelineProjectService } = await import('../../services/TimelineProjectService');
+        TimelineProjectService.clearAllLines();
+      } catch (error) {
+        console.warn('[AtlasXray] ⚠️ Could not clear dependency lines:', error);
+      }
+      
+      // Step 6: Open modal (heatmap will load automatically)
+      setModalOpen(true);
+
+    } catch (error) {
+      console.error('[AtlasXray] ❌ Failed to fetch data:', error);
+      alert(`Failed to load project data: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Get display text using utility function - HTML formatted for better readability
+  // Get display text
   const getDisplayText = (): React.ReactNode => {
-    const htmlText = formatFloatingButtonMetrics(displayMetrics);
-    const lines = htmlText.split('\n');
-    
-    return (
-      <>
-        {lines.map((line: string, index: number) => (
-          <div key={index} dangerouslySetInnerHTML={{ __html: line }} />
-        ))}
-      </>
-    );
-  };
+    if (isLoading) {
+      return (
+        <div className="loading-text">
+          <span className="spinner">⏳</span>
+          <span>Loading...</span>
+        </div>
+      );
+    }
 
-  // Get tooltip content as a React component - consistent with display text
-  const getTooltipContent = (): React.ReactNode => {
-    const tooltipText = formatFloatingButtonTooltip(displayMetrics);
-    const lines = tooltipText.split('\n');
-    
     return (
-      <div>
-        {lines.map((line: string, index: number) => (
-          <div key={index}>
-            {line.includes('Atlas Xray Status') ? (
-              <strong>{line}</strong>
-            ) : (
-              line
-            )}
-          </div>
-        ))}
+      <div className="initial-text">
+        <span>🚀</span>
+        <span>Atlas Xray</span>
       </div>
     );
   };
 
-  // Use visible project keys from state
-  const actualProjectKeys = visibleProjectKeys;
+  // Get tooltip content
+  const getTooltipContent = (): string => {
+    if (isLoading) {
+      return 'Loading project data...';
+    }
+    return 'Click to load and view project data';
+  };
 
   return (
     <>
       <Tooltip content={getTooltipContent()} position="top">
-        <button className="atlas-xray-floating-btn" onClick={handleOpenModal}>
+        <button
+          className="atlas-xray-floating-btn"
+          onClick={handleOpenModal}
+          disabled={isLoading}
+        >
           <span className="atlas-xray-floating-btn-text">
             {getDisplayText()}
           </span>
         </button>
       </Tooltip>
 
-      <ProjectStatusHistoryModal open={modalOpen} onClose={() => setModalOpen(false)}>
-        {(weekLimit: number) => (
-          <StatusTimelineHeatmap
-            weekLimit={weekLimit}
-            visibleProjectKeys={actualProjectKeys}
-          />
-        )}
-      </ProjectStatusHistoryModal>
+              <ProjectStatusHistoryModal open={modalOpen} onClose={() => setModalOpen(false)}>
+          <div className="modal-content">
+            <StatusTimelineHeatmap
+              weekLimit={12}
+              // No visibleProjectKeys filter - show all projects
+            />
+          </div>
+        </ProjectStatusHistoryModal>
     </>
   );
-};
+}

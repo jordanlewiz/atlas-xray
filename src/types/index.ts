@@ -1,5 +1,5 @@
 // Database record types - with individual fields for easier access
-export interface ProjectView {
+export interface ProjectSummary {
   projectKey: string; // Primary key
   name?: string;
   status?: string;
@@ -12,18 +12,22 @@ export interface ProjectView {
 }
 
 export interface ProjectUpdate {
-  uuid: string; // Primary key from GraphQL (matches DatabaseService)
+  uuid: string;
   projectKey: string;
   creationDate: string;
   state?: string;
   missedUpdate: boolean;
-  targetDate?: string; // Maps to newTargetDate from GraphQL
-  newDueDate?: string;
-  oldDueDate?: string;
   oldState?: string;
   summary?: string;
   details?: string; // JSON stringified notes array
   raw?: any; // Full GraphQL response (optional)
+  
+  // NEW: Clear target date fields for consistent date handling
+  newTargetDate?: string;                 // New target date (e.g., "October to December")
+  newTargetDateParsed?: string;           // Parsed ISO date (e.g., "2024-12-01")
+  oldTargetDate?: string;                 // Previous target date (e.g., "September")
+  oldTargetDateParsed?: string;           // Parsed ISO date (e.g., "2024-09-01")
+  
   // Quality analysis fields (populated by AnalysisService)
   analyzed?: boolean;
   analysisDate?: string;
@@ -70,7 +74,7 @@ export interface TimelineCell {
 export interface ProjectViewModel {
   projectKey: string;
   name: string;
-  rawProject: ProjectView;
+  rawProject: ProjectSummary;
 }
 
 // Context types

@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import { useLiveQuery } from "dexie-react-hooks";
-import { db, type ProjectView, type ProjectUpdate } from "../services/DatabaseService";
+import { db, type ProjectSummary, type ProjectUpdate } from "../services/DatabaseService";
 import { getWeekRanges, getAllProjectDates } from "../utils/timelineUtils";
 import type { 
   WeekRange, 
@@ -9,11 +9,21 @@ import type {
 } from "../types";
 
 export function useTimeline(weekLimit: number = 12) {
-  // Fetch raw data from database
-  const projects = useLiveQuery(() => db.projectViews.toArray(), []) as ProjectView[] | undefined;
-  const allUpdates = useLiveQuery(() => db.projectUpdates.toArray(), []) as ProjectUpdate[] | undefined;
-
-
+  // Fetch projectList first to determine which projects to load
+  const projectList = useLiveQuery(() => db.getProjectList(), []) as any[] | undefined;
+  
+  // Only fetch data for projects that exist in the current projectList
+  const projects = useLiveQuery(() => {
+    if (!projectList || projectList.length === 0) return [];
+    const projectKeys = projectList.map(item => item.projectKey);
+    return db.projectSummaries.where('projectKey').anyOf(projectKeys).toArray();
+  }, [projectList]) as ProjectSummary[] | undefined;
+  
+  const allUpdates = useLiveQuery(() => {
+    if (!projectList || projectList.length === 0) return [];
+    const projectKeys = projectList.map(item => item.projectKey);
+    return db.projectUpdates.where('projectKey').anyOf(projectKeys).toArray();
+  }, [projectList]) as ProjectUpdate[] | undefined;
 
   // Transform data into clean view models
   return useMemo(() => {
@@ -38,12 +48,25 @@ export function useTimeline(weekLimit: number = 12) {
       }
     });
     
-
-
-
-
+    // Sort projects to match the order from projectList
+    let sortedProjects: ProjectSummary[];
+    if (projectList && projectList.length > 0) {
+      // Create a map of project keys to their position in projectList
+      const projectOrder = new Map(projectList.map((item, index) => [item.projectKey, index]));
+      
+      // Sort projects by their order in projectList
+      sortedProjects = [...projects].sort((a, b) => {
+        const orderA = projectOrder.get(a.projectKey) ?? Number.MAX_SAFE_INTEGER;
+        const orderB = projectOrder.get(b.projectKey) ?? Number.MAX_SAFE_INTEGER;
+        return orderA - orderB;
+      });
+    } else {
+      // No projectList available, use projects as-is
+      sortedProjects = projects;
+    }
+    
     // Simple project view models - just basic info + references to data
-    const projectViewModels: ProjectViewModel[] = projects.map((project: ProjectView) => {
+    const projectViewModels: ProjectViewModel[] = sortedProjects.map((project: ProjectSummary) => {
       // Use the new direct field structure
       const projectName = project.name || "Unknown Project";
       return {
@@ -57,13 +80,12 @@ export function useTimeline(weekLimit: number = 12) {
     const allDates = getAllProjectDates(projectViewModels, updatesByProject);
     
     if (!allDates.minDate || !allDates.maxDate) {
-      console.warn('[AtlasXray] No valid dates found - timeline will be empty');
-          return {
-      weekRanges: [],
-      projectViewModels,
-      updatesByProject,
-      isLoading: false
-    };
+      return {
+        weekRanges: [],
+        projectViewModels,
+        updatesByProject,
+        isLoading: false
+      };
     }
     
     const weekRanges: WeekRange[] = getWeekRanges(allDates.minDate, allDates.maxDate);
@@ -96,11 +118,17 @@ export function useTimeline(weekLimit: number = 12) {
       limitedWeekRanges = weekRanges.slice(-weekLimit);
     } else {
       // Show weeks from the last update week backwards, ensuring we show enough context
+      // BUT always include "This week" if it exists in the range
       const startIndex = Math.max(0, lastUpdateWeekIndex - weekLimit + 1);
       limitedWeekRanges = weekRanges.slice(startIndex, lastUpdateWeekIndex + 1);
+      
+      // Always include "This week" if it's not already in the limited range
+      const thisWeekIndex = weekRanges.findIndex(week => week.label === "This week");
+      if (thisWeekIndex !== -1 && !limitedWeekRanges.some(week => week.label === "This week")) {
+        // Add "This week" to the end of the limited range
+        limitedWeekRanges.push(weekRanges[thisWeekIndex]);
+      }
     }
-
-
 
     return {
       weekRanges: limitedWeekRanges,

@@ -95,17 +95,23 @@ export function getAllProjectDates(projects: ProjectViewModel[], updatesByProjec
   return { minDate, maxDate };
 }
 
-export function buildProjectUrlFromKey(projectKey: string): string | undefined {
-  // Get cloud ID and section ID from window (set by contentScript)
-  const cloudId = typeof window !== 'undefined' ? (window as any).atlasXrayCloudId : null;
-  const sectionId = typeof window !== 'undefined' ? (window as any).atlasXraySectionId : null;
-  if (!cloudId || !sectionId || !projectKey) return undefined;
-  return `https://home.atlassian.com/o/${cloudId}/s/${sectionId}/project/${projectKey}/updates`;
+export function buildProjectUrlFromKey(projectKey: string): string {
+  const { bootstrapService } = require('../../services/bootstrapService');
+  const cloudId = bootstrapService.getCloudIds()[0];
+  const orgId = bootstrapService.getOrgId();
+  return `https://home.atlassian.com/o/${orgId}/s/${cloudId}/project/${projectKey}`;
 }
 
 // Flexible date parser for ranges and month names using chrono-node
 export function parseFlexibleDateChrono(dateStr: string, year: number = new Date().getFullYear(), isEnd: boolean = false): Date | null {
   if (!dateStr || typeof dateStr !== 'string') return null;
+  
+  // Check for ISO date format (YYYY-MM-DD) first, before treating as range
+  const isoDateMatch = dateStr.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (isoDateMatch) {
+    const [, yearStr, monthStr, dayStr] = isoDateMatch;
+    return new Date(parseInt(yearStr, 10), parseInt(monthStr, 10) - 1, parseInt(dayStr, 10));
+  }
   
   // If it's a range, always use the end of the range
   if (dateStr.includes('-')) {
@@ -145,6 +151,27 @@ export function parseFlexibleDateChrono(dateStr: string, year: number = new Date
   return null;
 }
 
+// Normalize dates to a consistent format for display
+export function normalizeDateForDisplay(dateStr: string | null | undefined): string {
+  if (!dateStr || typeof dateStr !== 'string') return '';
+  
+  const currentYear = new Date().getFullYear();
+  const parsed = parseFlexibleDateChrono(dateStr, currentYear, dateStr.includes('-') && !dateStr.match(/^\d{4}-\d{2}-\d{2}$/));
+  
+  if (!parsed || isNaN(parsed.getTime())) {
+    // If parsing fails, return the original string
+    return dateStr;
+  }
+  
+  // Format as "DD MMM YYYY" (e.g., "15 Aug 2025")
+  const day = parsed.getDate();
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = monthNames[parsed.getMonth()];
+  const year = parsed.getFullYear();
+  
+  return `${day} ${month} ${year}`;
+}
+
 export function daysBetweenFlexibleDates(dateStr1: string, dateStr2: string, year: number): number | null {
   // Safety checks for input parameters
   if (!dateStr1 || !dateStr2 || typeof dateStr1 !== 'string' || typeof dateStr2 !== 'string') {
@@ -157,9 +184,11 @@ export function daysBetweenFlexibleDates(dateStr1: string, dateStr2: string, yea
   
   if (!d1 || !d2) return null;
   
+  // Calculate exact difference in calendar days
   const diff = differenceInCalendarDays(d2, d1);
-  if (diff === 0) return 1;
-  return diff > 0 ? diff + 1 : diff - 1;
+  
+  // Return the exact difference without adding/subtracting 1
+  return diff;
 }
 
 // Timeline cell interface for rendering
@@ -268,15 +297,22 @@ export function getTimelineWeekCells(weekRanges: WeekRange[], updates: ProjectUp
     // Generate cell class inline
     let stateClass = 'state-none';
     if (lastUpdate) {
-      if (lastUpdate.missedUpdate) stateClass = 'state-missed-update';
-      else if (lastUpdate.state && typeof lastUpdate.state === 'string') {
+      // Check missedUpdate from raw data first, then fallback to top level
+      const missedUpdate = lastUpdate.raw?.missedUpdate || lastUpdate.missedUpdate;
+      if (missedUpdate) {
+        stateClass = 'state-missed-update';
+      } else if (lastUpdate.state && typeof lastUpdate.state === 'string') {
         stateClass = `state-${lastUpdate.state.replace(/_/g, '-').toLowerCase()}`;
+      } else if (lastUpdate.raw?.state && typeof lastUpdate.raw.state === 'string') {
+        stateClass = `state-${lastUpdate.raw.state.replace(/_/g, '-').toLowerCase()}`;
       }
     }
     
     let oldStateClass = '';
     if (lastUpdate && lastUpdate.oldState && typeof lastUpdate.oldState === 'string') {
       oldStateClass = `old-state-${lastUpdate.oldState.replace(/_/g, '-').toLowerCase()}`;
+    } else if (lastUpdate && lastUpdate.raw?.oldState && typeof lastUpdate.raw.oldState === 'string') {
+      oldStateClass = `old-state-${lastUpdate.raw.oldState.replace(/_/g, '-').toLowerCase()}`;
     }
     
     const cellClass = [

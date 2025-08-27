@@ -1,20 +1,40 @@
 import React from "react";
 import Tooltip from "@atlaskit/tooltip";
-import type { ProjectTimelineHeaderProps } from "../../types";
+import type { WeekRange } from "../../types";
+
+interface StatusTimelineHeatmapHeaderProps {
+  weekRanges: WeekRange[];
+}
 
 /**
- * Renders the header row of the status timeline heatmap with week labels.
+ * Header row for the timeline heatmap showing week ranges
  */
-export default function StatusTimelineHeatmapHeader({ weekRanges }: StatusTimelineHeatmapHeaderProps): React.JSX.Element {
+function StatusTimelineHeatmapHeader({ weekRanges }: StatusTimelineHeatmapHeaderProps): React.JSX.Element {
   return (
     <div className="timeline-row timeline-labels">
-      <div className="timeline-y-label" /> {/* Empty cell for project names */}
-      {weekRanges.map((w, i) => (
-        <div key={i} className="timeline-x-label">
-          <Tooltip content={w.label}>{w.label}</Tooltip>
+      {/* Project info column */}
+      <div className="timeline-y-label">
+        <span>Project</span>
+      </div>
+      
+      {/* Week range columns */}
+      {weekRanges.map((week, index) => (
+        <div key={index} className="timeline-x-label">
+          <div>{week.label}</div>
         </div>
       ))}
-      <div className="timeline-target-date">Target Date</div> {/* Label for target date column */}
+      
+      {/* Latest due date column */}
+      <div className="timeline-target-date">
+        <span>Latest Due Date</span>
+      </div>
+      
+      {/* Date range days column */}
+      <div className="timeline-days-shift">
+        <span>Date Range Days</span>
+      </div>
     </div>
   );
 }
+
+export default StatusTimelineHeatmapHeader;

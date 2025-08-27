@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import Select from "@atlaskit/select";
 import Button from "@atlaskit/button";
 import AtlassianIntelligenceIcon from '@atlaskit/icon/core/atlassian-intelligence';
@@ -20,6 +20,7 @@ export default function StatusTimelineHeader({
   showEmojis, 
   onToggleEmojis 
 }: StatusTimelineHeaderProps): React.JSX.Element {
+  
   const weekOptions = [
     { label: "4 weeks", value: 4 },
     { label: "8 weeks", value: 8 },
@@ -66,11 +67,11 @@ export default function StatusTimelineHeader({
                 onClick={handleToggleEmojis}
                 aria-label={`${showEmojis ? 'Hide' : 'Show'} update quality indicators`}
                 iconBefore={<AtlassianIntelligenceIcon label="AI Intelligence" />}
-
               >
                 {showEmojis ? 'Hide' : 'Show'}
               </Button>
             </div>
+
           </div>
         </div>
       </div>

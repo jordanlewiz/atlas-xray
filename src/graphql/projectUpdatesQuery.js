@@ -7,6 +7,7 @@ export const PROJECT_UPDATES_QUERY = `
   ) {
     project: projectByKey(key: $key) {
       key @include(if: $isUpdatesTab)
+      targetDate @include(if: $isUpdatesTab)
       ...ProjectUpdates @include(if: $isUpdatesTab)
       id
     }
