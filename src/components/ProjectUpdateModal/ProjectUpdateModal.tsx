@@ -6,10 +6,12 @@ import {
   ModalTitle,
   ModalBody,
 } from "@atlaskit/modal-dialog";
+import Heading from '@atlaskit/heading';
 import SectionMessage from "@atlaskit/section-message";
 import Lozenge from "@atlaskit/lozenge";
-import { Grid, Box } from "@atlaskit/primitives";
+import { Grid, Box, Inline,Stack } from "@atlaskit/primitives";
 import { getDueDateDiff } from "../../utils/timelineUtils";
+import { formatDistance } from "date-fns";
 import type { ProjectUpdateModalProps } from "../../types";
 import { renderProseMirror } from '../../services/ProseMirrorService';
 import { ImageRenderer } from "../ImageRenderer";
@@ -81,148 +83,64 @@ export default function ProjectUpdateModal({
             <ModalTitle>{project?.name || 'Project Update Details'}</ModalTitle>
           </ModalHeader>
           <ModalBody>
-            <Box style={{ maxWidth: '1128px', margin: '0 auto', width: '100%' }}>
+            <Box style={{ maxWidth: '1128px', minWidth: '900px', margin: '0 auto', width: '100%' }}>
               <Grid>
-                <div className="update-modal-body">
+                <div className="update-modal-body">                  
+                  {/* Project Key */}
                   <div className="update-modal-project-key">
                     <small>Project Key: {project?.projectKey}</small>
                   </div>
 
-
-                  {/* Quality Analysis Section */}
-                  {selectedUpdate.uuid && (() => {
-                    // Get quality data directly from the update object (populated by AnalysisService)
-                    if (selectedUpdate.updateQuality && selectedUpdate.qualityLevel) {
-                      const quality = {
-                        overallScore: selectedUpdate.updateQuality,
-                        qualityLevel: selectedUpdate.qualityLevel,
-                        summary: selectedUpdate.qualitySummary || 'Quality analysis completed',
-                        analysis: [], // No detailed analysis in current interface
-                        missingInfo: selectedUpdate.qualityMissingInfo || []
-                      };
-                      return (
-                        <SectionMessage
-                          title="AI Quality Analysis"
-                        >
-                          <div className="quality-analysis-section">
-                            <div className="quality-header">
-                              <QualityIndicator
-                                score={quality.overallScore}
-                                level={quality.qualityLevel}
-                                size="large"
-                                showScore={true}
-                                className="quality-indicator-modal"
-                              />
-                              <span className="quality-summary">{quality.summary}</span>
-                            </div>
-                            
-                            {quality.analysis.length > 0 && (
-                              <div className="quality-details">
-                                <h4>Quality Criteria Analysis:</h4>
-                                {quality.analysis.map((criteria: any, idx: number) => (
-                                  <div key={idx} className="criteria-item">
-                                    <div className="criteria-header">
-                                      <span className="criteria-title">{criteria.title}</span>
-                                      <span className="criteria-score">
-                                        {criteria.score}/{criteria.maxScore}
-                                      </span>
-                                    </div>
-                                    {criteria.missingInfo.length > 0 && (
-                                      <div className="missing-info">
-                                        <strong>Missing Information:</strong>
-                                        <ul>
-                                          {criteria.missingInfo.map((info: string, infoIdx: number) => (
-                                            <li key={infoIdx}>{info}</li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-                                    {criteria.recommendations.length > 0 && (
-                                      <div className="recommendations">
-                                        <strong>Recommendations:</strong>
-                                        <ul>
-                                          {criteria.recommendations.map((rec: string, recIdx: number) => (
-                                            <li key={recIdx}>{rec}</li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
-                            )}
-                            
-                            {quality.missingInfo.length > 0 && (
-                              <div className="overall-missing">
-                                <strong>Overall Missing Information:</strong>
-                                <ul>
-                                  {quality.missingInfo.map((info: string, idx: number) => (
-                                    <li key={idx}>{info}</li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-                          </div>
-                        </SectionMessage>
-                      );
-                    } else {
-                      // No quality data available - don't show anything
-                      return null;
-                    }
-                  })()}
-
-                  {selectedUpdate.oldTargetDate && (
-                    <SectionMessage
-                      appearance="error"
-                      title="Date Change Detected"
-                    >
-                      <div className="change-section">
-                        <strong>Date Change:</strong>
+                  <div className="update-modal-section">
+                    {/* Creator Information */}
+                    {selectedUpdate.creatorName && (
+                      <Heading size="small">{selectedUpdate.creatorName}</Heading>
+                    )}
+                  
+                    {/* Update Time Added */}
+                    {selectedUpdate.creationDate && (
+                      <div className="update-modal-creation-date">
+                         {formatDistance(new Date(selectedUpdate.creationDate), new Date(), { addSuffix: true })}
                       </div>
-                      <div className="date-change-display">
-                        <span className="old-date">{selectedUpdate.oldTargetDate}</span>
-                        <span className="arrow">→</span>
-                        <span className="new-date">{selectedUpdate.newTargetDate}</span>
-                      </div>
-                      <div className="change-difference">
-                        <strong>Difference:</strong> {getDueDateDiff(selectedUpdate)} days
-                      </div>
-                    </SectionMessage>
-                  )}
+                    )}
+                  </div>
 
-                  {selectedUpdate.oldState && (
-                    <SectionMessage
-                      appearance="error"
-                      title="Status Change Detected"
-                    >
-                      <div className="change-section">
-                        <strong>Status Change:</strong>
-                      </div>
-                      <div className="status-change-display">
-                        <Lozenge appearance={getLozengeAppearance(selectedUpdate.oldState)}>
-                          {selectedUpdate.oldState}
-                        </Lozenge>
-                        <span className="arrow">→</span>
-                        <Lozenge appearance={getLozengeAppearance(selectedUpdate.state)}>
-                          {selectedUpdate.state}
-                        </Lozenge>
-                      </div>
-                    </SectionMessage>
-                  )}
+                  <Inline space="space.1000">                    
+                    {/* Date Change Detected */}
+                    {selectedUpdate.oldTargetDate && (
+                      <SectionMessage appearance="error" title="Date Change Detected">
+                        <div className="date-change-display">
+                          <span className="old-date">{selectedUpdate.oldTargetDate}</span>
+                          <span className="arrow">→</span>
+                          <span className="new-date">{selectedUpdate.newTargetDate}</span>
+                        </div>
+                        <div className="change-difference">
+                          <strong>Difference:</strong> {getDueDateDiff(selectedUpdate)} days
+                        </div>
+                      </SectionMessage>
+                    )}
 
-
-                  {/* Creator Information */}
-                  {selectedUpdate.creatorName && (
-                    <div className="update-modal-creator-info">
-                      <small>Provided by:</small> {selectedUpdate.creatorName}
-                    </div>
-                  )}
+                    {/* Status Change Detected */}
+                    {selectedUpdate.oldState && (
+                      <SectionMessage appearance="error" title="Status Change Detected">
+                        <div className="status-change-display">
+                          <Lozenge appearance={getLozengeAppearance(selectedUpdate.oldState)}>
+                            {selectedUpdate.oldState}
+                          </Lozenge>
+                          <span className="arrow">→</span>
+                          <Lozenge appearance={getLozengeAppearance(selectedUpdate.state)}>
+                            {selectedUpdate.state}
+                          </Lozenge>
+                        </div>
+                      </SectionMessage>
+                    )}
+                  </Inline>
 
                   {/* Update Summary */}
                   {selectedUpdate.summary && (
-                     <div className="summary-section">
-                       <h3>Update Summary:</h3>
-                       <div className="summary-content">
+                     <div className="update-modal-section">
+                       <Heading size="medium">Update Summary:</Heading>
+                       <div className="update-modal-section-content">
                          <div dangerouslySetInnerHTML={{ __html: renderProseMirror(selectedUpdate.summary) }} />
                          {/* Render stored images for media nodes */}
                          {(() => {
@@ -245,9 +163,10 @@ export default function ProjectUpdateModal({
                      </div>
                    )}
 
-                   {selectedUpdate.details && (
+                  {/* Update Details (if provided */}
+                  {selectedUpdate.details && (
                      <div className="details-section">
-                       <h3>Update Details:</h3>
+                       <Heading size="medium">Update Details:</Heading>
                        <div className="details-content">
                          {(() => {
                            try {
