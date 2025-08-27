@@ -68,8 +68,15 @@ function checkForTimelineView() {
     timelineButton.textContent = 'Show dependencies';
     
     // Add click handler
-    timelineButton.addEventListener('click', () => {
-      alert('🎯 Timeline view detected! This page contains projects?view=timeline');
+    timelineButton.addEventListener('click', async () => {
+      try {
+        // Import and use the TimelineProjectService
+        const { TimelineProjectService } = await import('../services/TimelineProjectService');
+        await TimelineProjectService.findAndProcessTimelineProjects();
+      } catch (error) {
+        console.error('[AtlasXray] ❌ Error using TimelineProjectService:', error);
+        alert('❌ Error processing timeline projects. Check console for details.');
+      }
     });
     
     // Add to page
