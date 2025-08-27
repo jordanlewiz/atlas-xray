@@ -49,3 +49,29 @@ console.log('[AtlasXray] 🚀 Extension loaded - waiting for user interaction');
 
 
 console.log('[AtlasXray] 🚀 Content script loaded and ready');
+
+// Listen for URL changes to detect timeline view
+function checkForTimelineView() {
+  const currentUrl = window.location.href;
+  if (currentUrl.includes('projects?view=timeline')) {
+    alert('🎯 Timeline view detected! This page contains projects?view=timeline');
+  }
+}
+
+// Check on initial load
+checkForTimelineView();
+
+// Listen for URL changes (for SPAs)
+let lastUrl = window.location.href;
+const observer = new MutationObserver(() => {
+  if (window.location.href !== lastUrl) {
+    lastUrl = window.location.href;
+    checkForTimelineView();
+  }
+});
+
+// Start observing
+observer.observe(document.body, { childList: true, subtree: true });
+
+// Also listen for popstate events (browser back/forward)
+window.addEventListener('popstate', checkForTimelineView);
