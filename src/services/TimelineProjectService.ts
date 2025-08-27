@@ -1,4 +1,5 @@
 import { extractProjectIdFromUrl } from '../utils/projectUtils';
+import { db } from './DatabaseService';
 
 export class TimelineProjectService {
   /**
@@ -72,9 +73,9 @@ export class TimelineProjectService {
       console.log(`[AtlasXray] ✅ Successfully processed ${processedCount} ProjectBar elements`);
       console.log(`[AtlasXray] 📊 Project IDs found: ${projectIds.join(', ')}`);
 
-      // Alert the array of project IDs found
+      // Step 3: Look up dependencies for each project ID
       if (projectIds.length > 0) {
-        alert(`🎯 Found ${projectIds.length} projects: ${projectIds.join(', ')}`);
+        await this.lookupAndDisplayDependencies(projectIds);
       } else {
         alert('❌ No projects found on this timeline page');
       }
@@ -85,6 +86,50 @@ export class TimelineProjectService {
       console.error('[AtlasXray] ❌ Error in findAndProcessTimelineProjects:', error);
       alert(`❌ Error processing timeline projects: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return [];
+    }
+  }
+
+  /**
+   * Look up dependencies for each project ID and display them
+   * @param projectIds Array of project IDs to look up dependencies for
+   */
+  private static async lookupAndDisplayDependencies(projectIds: string[]): Promise<void> {
+    try {
+      console.log('[AtlasXray] 🔍 Looking up dependencies for projects...');
+      
+      const dependencyResults: string[] = [];
+
+      // Look up dependencies for each project
+      for (const projectId of projectIds) {
+        try {
+          // Get dependencies where this project is the source (depends on others)
+          const dependencies = await db.getAllProjectDependencies();
+          
+          const dependsOn = dependencies
+            .filter(dep => dep.sourceProjectKey === projectId && dep.linkType === 'DEPENDS_ON')
+            .map(dep => dep.targetProjectKey);
+
+          if (dependsOn.length > 0) {
+            const dependencyText = `${projectId} depends on ${dependsOn.join(' ')}`;
+            dependencyResults.push(dependencyText);
+            console.log(`[AtlasXray] 🔗 ${dependencyText}`);
+          }
+        } catch (error) {
+          console.warn(`[AtlasXray] ⚠️ Could not look up dependencies for ${projectId}:`, error);
+        }
+      }
+
+      // Display results
+      if (dependencyResults.length > 0) {
+        const alertMessage = dependencyResults.join('\n');
+        alert(`🔗 Dependencies found:\n\n${alertMessage}`);
+      } else {
+        alert(`🎯 Found ${projectIds.length} projects but no dependencies found in database`);
+      }
+
+    } catch (error) {
+      console.error('[AtlasXray] ❌ Error looking up dependencies:', error);
+      alert(`❌ Error looking up dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 }
