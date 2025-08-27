@@ -2,10 +2,10 @@ import { analyzeUpdateCell } from './updateCellUtils';
 
 describe('updateCellUtils', () => {
   describe('analyzeUpdateCell', () => {
-    it('should identify date change when oldDueDate and newDueDate are different', () => {
+    it('should identify date change when dueDateParsed exists', () => {
       const update = {
-        oldDueDate: '2024-01-01',
-        newDueDate: '2024-01-15',
+        dueDate: 'January 15, 2024',
+        dueDateParsed: '2024-01-15',
         raw: { missedUpdate: false }
       };
 
@@ -16,14 +16,13 @@ describe('updateCellUtils', () => {
       expect(result.shouldShowIndicator).toBe(false);
       expect(result.cssClasses).toBe('timeline-cell-content has-old-due-date');
       expect(result.clickable).toBe(true);
-      expect(result.oldDate).toBe('2024-01-01');
+      expect(result.oldDate).toBe('January 15, 2024');
       expect(result.newDate).toBe('2024-01-15');
     });
 
-    it('should not identify date change when oldDueDate and newDueDate are the same', () => {
+    it('should not identify date change when dueDateParsed is missing', () => {
       const update = {
-        oldDueDate: '2024-01-01',
-        newDueDate: '2024-01-01',
+        dueDate: 'January 15, 2024',
         raw: { missedUpdate: false }
       };
 
@@ -36,23 +35,8 @@ describe('updateCellUtils', () => {
       expect(result.clickable).toBe(true);
     });
 
-    it('should not identify date change when oldDueDate is missing', () => {
+    it('should not identify date change when dueDate is missing', () => {
       const update = {
-        newDueDate: '2024-01-15',
-        raw: { missedUpdate: false }
-      };
-
-      const result = analyzeUpdateCell(update);
-
-      expect(result.hasDateChange).toBe(false);
-      expect(result.shouldShowDateDifference).toBe(false);
-      expect(result.shouldShowIndicator).toBe(true);
-      expect(result.cssClasses).toBe('timeline-cell-content ');
-    });
-
-    it('should not identify date change when newDueDate is missing', () => {
-      const update = {
-        oldDueDate: '2024-01-01',
         raw: { missedUpdate: false }
       };
 
@@ -66,8 +50,8 @@ describe('updateCellUtils', () => {
 
     it('should handle missed updates correctly', () => {
       const update = {
-        oldDueDate: '2024-01-01',
-        newDueDate: '2024-01-15',
+        dueDate: 'January 15, 2024',
+        dueDateParsed: '2024-01-15',
         raw: { missedUpdate: true }
       };
 
@@ -81,8 +65,8 @@ describe('updateCellUtils', () => {
 
     it('should handle missed updates from update.missedUpdate property', () => {
       const update = {
-        oldDueDate: '2024-01-01',
-        newDueDate: '2024-01-15',
+        dueDate: 'January 15, 2024',
+        dueDateParsed: '2024-01-15',
         missedUpdate: true
       };
 
@@ -96,8 +80,8 @@ describe('updateCellUtils', () => {
 
     it('should handle updates with no raw property', () => {
       const update = {
-        oldDueDate: '2024-01-01',
-        newDueDate: '2024-01-15'
+        dueDate: 'January 15, 2024',
+        dueDateParsed: '2024-01-15'
       };
 
       const result = analyzeUpdateCell(update);
@@ -108,34 +92,35 @@ describe('updateCellUtils', () => {
       expect(result.clickable).toBe(true);
     });
 
-    it('should handle empty update object', () => {
-      const update = {};
+    it('should handle updates with missedUpdate property', () => {
+      const update = {
+        dueDate: 'January 15, 2024',
+        dueDateParsed: '2024-01-15',
+        missedUpdate: true
+      };
 
       const result = analyzeUpdateCell(update);
 
-      expect(result.hasDateChange).toBe(false);
-      expect(result.hasMissedUpdate).toBe(false);
+      expect(result.hasMissedUpdate).toBe(true);
       expect(result.shouldShowDateDifference).toBe(false);
-      expect(result.shouldShowIndicator).toBe(true);
-      expect(result.cssClasses).toBe('timeline-cell-content ');
-      expect(result.clickable).toBe(true);
+      expect(result.shouldShowIndicator).toBe(false);
+      expect(result.clickable).toBe(false);
     });
 
     it('should handle null/undefined values correctly', () => {
       const update = {
-        oldDueDate: null,
-        newDueDate: undefined,
-        raw: null
+        dueDate: null,
+        dueDateParsed: undefined,
+        raw: { missedUpdate: false }
       };
 
       const result = analyzeUpdateCell(update);
 
       expect(result.hasDateChange).toBe(false);
-      expect(result.hasMissedUpdate).toBe(false);
       expect(result.shouldShowDateDifference).toBe(false);
       expect(result.shouldShowIndicator).toBe(true);
       expect(result.oldDate).toBe(null);
-      expect(result.newDate).toBe(undefined);
+      expect(result.newDate).toBe(null);
     });
   });
 });

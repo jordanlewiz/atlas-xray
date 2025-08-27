@@ -42,12 +42,14 @@ export interface ProjectUpdate {
   state?: string;
   missedUpdate: boolean;
   targetDate?: string;
-  newDueDate?: string;
-  oldDueDate?: string;
   oldState?: string;
   summary?: string;
   details?: string;
   raw?: any; // Full GraphQL response for backward compatibility
+  
+  // NEW: Date parsing fields for consistent date handling
+  dueDate?: string;           // Original date string (e.g., "October to December", "December")
+  dueDateParsed?: string;     // Normalized ISO date (e.g., "2025-12-31") for comparisons
   
   // Analysis fields - populated when update is analyzed
   updateQuality?: number;
@@ -82,10 +84,10 @@ export class DatabaseService extends Dexie {
     const dbName = 'AtlasXrayDB';
     super(dbName);
     
-    this.version(3).stores({
+    this.version(4).stores({
       projectList: 'projectKey',
       projectSummaries: 'projectKey',
-      projectUpdates: 'uuid, projectKey, creationDate, updateQuality, analyzed',
+      projectUpdates: 'uuid, projectKey, creationDate, updateQuality, analyzed, dueDate, dueDateParsed',
       projectDependencies: 'id, sourceProjectKey, targetProjectKey',
     });
   }

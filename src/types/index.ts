@@ -18,12 +18,15 @@ export interface ProjectUpdate {
   state?: string;
   missedUpdate: boolean;
   targetDate?: string; // Maps to newTargetDate from GraphQL
-  newDueDate?: string;
-  oldDueDate?: string;
   oldState?: string;
   summary?: string;
   details?: string; // JSON stringified notes array
   raw?: any; // Full GraphQL response (optional)
+  
+  // NEW: Date parsing fields for consistent date handling
+  dueDate?: string;           // Original date string (e.g., "October to December", "December")
+  dueDateParsed?: string;     // Normalized ISO date (e.g., "2025-12-31") for comparisons
+  
   // Quality analysis fields (populated by AnalysisService)
   analyzed?: boolean;
   analysisDate?: string;

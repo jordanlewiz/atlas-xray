@@ -125,58 +125,63 @@ function StatusTimelineHeatmapRow({
 
   const weekCells = getTimelineWeekCells(weekRanges, updates);
   
-  // Get latest newDueDate from all updates
+  // Get latest dueDate from all updates
   const latestDueDate = updates
-    .filter(u => u.newDueDate)
-    .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime())[0]?.newDueDate ||
+    .filter(u => u.dueDate)
+    .sort((a, b) => new Date(b.creationDate).getTime() - new Date(a.creationDate).getTime())[0]?.dueDate ||
     null;
   // For Target Date column, show the original text (e.g., "October-December 2025"), not parsed date
   const targetDateDisplay = latestDueDate || null;
 
-  // Calculate days shift between first update's oldDueDate and latest update's newDueDate
+  // Calculate days shift between first and latest due dates
   const daysShift = useMemo(() => {
     if (!updates || updates.length === 0) return null;
 
-    // Sort updates by creation date to get chronological order
-    const sortedUpdates = [...updates].sort((a, b) => 
-      new Date(a.creationDate).getTime() - new Date(b.creationDate).getTime()
-    );
-
-    // Get first update's oldDueDate
-    const firstUpdate = sortedUpdates[0];
-    const firstOldDueDate = firstUpdate?.oldDueDate;
+    // Try to use the new dueDateParsed fields first for more accurate comparison
+    const updatesWithParsedDates = updates.filter(u => u.dueDateParsed);
     
-    // Get latest update's newDueDate
-    const latestUpdate = sortedUpdates[sortedUpdates.length - 1];
-    const latestNewDueDate = latestUpdate?.newDueDate;
-
-    // Check if first update has oldDueDate set
-    if (!firstOldDueDate) {
-      console.warn(`[StatusTimelineHeatmapRow] First update for ${project.projectKey} doesn't have oldDueDate set yet`);
-      return null;
-    }
-
-    if (!latestNewDueDate) {
-      console.warn(`[StatusTimelineHeatmapRow] Latest update for ${project.projectKey} doesn't have newDueDate set yet`);
-      return null;
-    }
-
-    try {
-      // Use the same calculation method as DateDifference component
-      const currentYear = new Date().getFullYear();
-      const diffDays = daysBetweenFlexibleDates(firstOldDueDate, latestNewDueDate, currentYear);
+    if (updatesWithParsedDates.length >= 2) {
+      const firstUpdate = updatesWithParsedDates[0];
+      const latestUpdate = updatesWithParsedDates[updatesWithParsedDates.length - 1];
       
-      if (diffDays === null) {
-        console.warn(`[StatusTimelineHeatmapRow] Failed to calculate date difference for ${project.projectKey}:`, { firstOldDueDate, latestNewDueDate });
-        return null;
+      if (firstUpdate.dueDateParsed && latestUpdate.dueDateParsed) {
+        const daysDiff = daysBetweenFlexibleDates(
+          firstUpdate.dueDateParsed, 
+          latestUpdate.dueDateParsed, 
+          new Date().getFullYear()
+        );
+        
+        return {
+          firstDate: firstUpdate.dueDateParsed,
+          latestDate: latestUpdate.dueDateParsed,
+          daysDiff
+        };
       }
-      
-      return { days: diffDays, firstDate: firstOldDueDate, latestDate: latestNewDueDate };
-    } catch (error) {
-      console.error('[StatusTimelineHeatmapRow] Error calculating days shift:', error);
-      return null;
     }
-  }, [updates, project.projectKey]);
+    
+    // Fallback: try to use dueDate fields if dueDateParsed is not available
+    const updatesWithDates = updates.filter(u => u.dueDate);
+    
+    if (updatesWithDates.length >= 2) {
+      const firstUpdate = updatesWithDates[0];
+      const latestUpdate = updatesWithDates[updatesWithDates.length - 1];
+      
+      if (firstUpdate.dueDate && latestUpdate.dueDate) {
+        const daysDiff = daysBetweenFlexibleDates(firstUpdate.dueDate, latestUpdate.dueDate, new Date().getFullYear());
+        
+        if (daysDiff !== null) {
+          return {
+            firstDate: firstUpdate.dueDate,
+            latestDate: latestUpdate.dueDate,
+            daysDiff
+          };
+        }
+      }
+    }
+    
+    // If no dates available, return null
+    return null;
+  }, [updates]);
 
   return (
     <div className="timeline-row" data-testid="project-row">
