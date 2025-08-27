@@ -150,8 +150,9 @@ export class FetchProjectsUpdates {
             const update = edge.node;
             
             // Parse dates using DateParsingService
-            const newDueDateParsed = dateParsingService.parseDate(update.newTargetDate?.tooltip);
-            const oldDueDateParsed = dateParsingService.parseDate(update.oldDueDate?.tooltip);
+            // Note: newTargetDate is a direct string, newDueDate.tooltip has the formatted version
+            const newDueDateParsed = dateParsingService.parseDate(update.newTargetDate || update.newDueDate?.tooltip);
+            const oldDueDateParsed = dateParsingService.parseDate(update.oldTargetDate || update.oldDueDate?.tooltip);
             
             if (newDueDateParsed.dueDate) {
               console.log(`[FetchProjectsUpdates] Parsed newTargetDate for ${projectKey}: ${newDueDateParsed.dueDate} -> ${newDueDateParsed.dueDateParsed}`);
@@ -172,10 +173,10 @@ export class FetchProjectsUpdates {
               analyzed: false, // Will be analyzed by AnalysisService later
               
               // NEW: Clear target date fields for consistent handling
-              newTargetDate: newDueDateParsed.dueDate || update.newTargetDate?.tooltip,           // Original new target date
-              newTargetDateParsed: newDueDateParsed.dueDateParsed,                              // Parsed new target date
-              oldTargetDate: oldDueDateParsed.dueDate || update.oldDueDate?.tooltip,             // Original old target date
-              oldTargetDateParsed: oldDueDateParsed.dueDateParsed,                              // Parsed old target date
+              newTargetDate: update.newTargetDate || update.newDueDate?.tooltip,           // Use direct value or tooltip
+              newTargetDateParsed: newDueDateParsed.dueDateParsed,                      // Parsed new target date
+              oldTargetDate: update.oldTargetDate || update.oldDueDate?.tooltip,         // Use direct value or tooltip
+              oldTargetDateParsed: oldDueDateParsed.dueDateParsed,                      // Parsed old target date
               
               raw: update
             };
