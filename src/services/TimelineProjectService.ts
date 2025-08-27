@@ -1,7 +1,96 @@
 import { extractProjectIdFromUrl } from '../utils/projectUtils';
 import { db } from './DatabaseService';
+// Import LeaderLine from leader-line-new using require
+const LeaderLine = require('leader-line-new');
 
 export class TimelineProjectService {
+  private static leaderLines: any[] = [];
+
+  /**
+   * Clear all existing dependency lines
+   */
+  private static clearAllLines(): void {
+    try {
+      this.leaderLines.forEach(line => {
+        try {
+          line.remove();
+        } catch (error) {
+          console.warn('[AtlasXray] ⚠️ Error removing leader line:', error);
+        }
+      });
+      
+      this.leaderLines = [];
+      console.log('[AtlasXray] 🧹 Cleared all dependency lines');
+    } catch (error) {
+      console.error('[AtlasXray] ❌ Error clearing dependency lines:', error);
+    }
+  }
+
+  /**
+   * Draw dependency lines between projects
+   * @param dependencies Array of dependency objects with source and target project IDs
+   */
+  private static drawDependencyLines(dependencies: Array<{ source: string; targets: string[] }>): void {
+    try {
+      console.log('[AtlasXray] 🎨 Drawing dependency lines...');
+      
+      // Clear existing lines first
+      this.clearAllLines();
+      
+      let linesDrawn = 0;
+      
+      // Draw lines for each dependency
+      dependencies.forEach(dep => {
+        const sourceElement = document.getElementById(dep.source);
+        
+        if (!sourceElement) {
+          console.warn(`[AtlasXray] ⚠️ Could not find source element for ${dep.source}`);
+          return;
+        }
+        
+        // Draw lines to each target
+        dep.targets.forEach(targetId => {
+          const targetElement = document.getElementById(targetId);
+          
+          if (!targetElement) {
+            console.warn(`[AtlasXray] ⚠️ Could not find target element for ${targetId}`);
+            return;
+          }
+          
+          try {
+            // Create a new LeaderLine
+            const line = new LeaderLine(sourceElement, targetElement, {
+              color: '#dc3545', // Red color for dependencies
+              size: 3, // Line width
+              startSocket: 'left', // Connect to left side of source
+              endSocket: 'left', // Connect to left side of target
+              startPlug: 'disc', // Small disc at start
+              endPlug: 'arrow2', // Arrow at end
+              path: 'straight', // Straight line for clarity
+              dropShadow: true, // Add shadow for better visibility
+              outline: true, // Add outline
+              outlineColor: '#ffffff', // White outline
+              outlineSize: 1, // Outline width
+            });
+
+            // Store the line for later removal
+            this.leaderLines.push(line);
+            linesDrawn++;
+            
+            console.log(`[AtlasXray] ✅ Drew line from ${dep.source} to ${targetId}`);
+          } catch (error) {
+            console.warn(`[AtlasXray] ⚠️ Could not create line from ${dep.source} to ${targetId}:`, error);
+          }
+        });
+      });
+
+      console.log(`[AtlasXray] ✅ Successfully drew ${linesDrawn} dependency lines`);
+      
+    } catch (error) {
+      console.error('[AtlasXray] ❌ Error drawing dependency lines:', error);
+    }
+  }
+
   /**
    * Search for projects in the timeline and add IDs to their first inner divs
    * @returns Array of project IDs found and processed
@@ -77,14 +166,14 @@ export class TimelineProjectService {
       if (projectIds.length > 0) {
         await this.lookupAndDisplayDependencies(projectIds);
       } else {
-        alert('❌ No projects found on this timeline page');
+        console.log('❌ No projects found on this timeline page');
       }
 
       return projectIds;
 
     } catch (error) {
       console.error('[AtlasXray] ❌ Error in findAndProcessTimelineProjects:', error);
-      alert(`❌ Error processing timeline projects: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.log(`❌ Error processing timeline projects: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return [];
     }
   }
@@ -122,14 +211,30 @@ export class TimelineProjectService {
       // Display results
       if (dependencyResults.length > 0) {
         const alertMessage = dependencyResults.join('\n');
-        alert(`🔗 Dependencies found:\n\n${alertMessage}`);
+        console.log(`🔗 Dependencies found:\n\n${alertMessage}`);
+        
+        // Draw visual dependency lines
+        const dependenciesForDrawing = dependencyResults.map(result => {
+          const match = result.match(/^([A-Z0-9-]+) depends on (.+)$/);
+          if (match) {
+            return {
+              source: match[1],
+              targets: match[2].split(' ')
+            };
+          }
+          return null;
+        }).filter((dep): dep is { source: string; targets: string[] } => dep !== null);
+        
+        if (dependenciesForDrawing.length > 0) {
+          this.drawDependencyLines(dependenciesForDrawing);
+        }
       } else {
-        alert(`🎯 Found ${projectIds.length} projects but no dependencies found in database`);
+        console.log(`🎯 Found ${projectIds.length} projects but no dependencies found in database`);
       }
 
     } catch (error) {
       console.error('[AtlasXray] ❌ Error looking up dependencies:', error);
-      alert(`❌ Error looking up dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      console.log(`❌ Error looking up dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 }

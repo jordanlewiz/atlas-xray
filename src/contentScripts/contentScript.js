@@ -16,6 +16,9 @@ import { createRoot } from "react-dom/client";
 import FloatingButton from "../components/FloatingButton/FloatingButton";
 import "../components/FloatingButton/FloatingButton.scss";
 
+// Import leader-line-new properly using require
+const LeaderLine = require('leader-line-new');
+
 // Custom styles will be merged with contentScript.css during build
 
 
@@ -72,6 +75,7 @@ function checkForTimelineView() {
       try {
         // Import and use the TimelineProjectService
         const { TimelineProjectService } = await import('../services/TimelineProjectService');
+        
         await TimelineProjectService.findAndProcessTimelineProjects();
       } catch (error) {
         console.error('[AtlasXray] ❌ Error using TimelineProjectService:', error);
