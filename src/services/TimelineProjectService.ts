@@ -5,6 +5,8 @@ const LeaderLine = require('leader-line-new');
 
 export class TimelineProjectService {
   private static leaderLines: any[] = [];
+  private static scrollContainer: HTMLElement | null = null;
+  private static scrollListener: (() => void) | null = null;
 
   /**
    * Clear all existing dependency lines
@@ -20,6 +22,15 @@ export class TimelineProjectService {
       });
       
       this.leaderLines = [];
+      
+      // Clean up scroll listener
+      if (this.scrollContainer && this.scrollListener) {
+        this.scrollContainer.removeEventListener('scroll', this.scrollListener);
+        this.scrollContainer = null;
+        this.scrollListener = null;
+        console.log('[AtlasXray] 🗑️ Removed scroll listener');
+      }
+      
       console.log('[AtlasXray] 🧹 Cleared all dependency lines');
     } catch (error) {
       console.error('[AtlasXray] ❌ Error clearing dependency lines:', error);
@@ -36,6 +47,66 @@ export class TimelineProjectService {
       
       // Clear existing lines first
       this.clearAllLines();
+      
+      // Find the scrollable container for the timeline
+      this.scrollContainer = document.querySelector('[data-sentry-component="TimelineView"]') as HTMLElement;
+      if (!this.scrollContainer) {
+        this.scrollContainer = document.querySelector('body') as HTMLElement; // Fallback to body
+        console.warn('[AtlasXray] ⚠️ Could not find TimelineView container, falling back to body');
+      } else {
+        console.log('[AtlasXray] ✅ Found TimelineView scroll container:', this.scrollContainer);
+      }
+
+      // Create scroll listener to reposition lines
+      this.scrollListener = () => {
+        this.leaderLines.forEach(line => {
+          try {
+            line.position();
+          } catch (error) {
+            console.warn('[AtlasXray] ⚠️ Error repositioning line:', error);
+          }
+        });
+      };
+
+      // Add scroll listener
+      if (this.scrollContainer) {
+        this.scrollContainer.addEventListener('scroll', this.scrollListener);
+        console.log('[AtlasXray] ✅ Added scroll listener to:', this.scrollContainer);
+      }
+
+      // Also add window resize listener for responsive behavior
+      const resizeListener = () => {
+        this.leaderLines.forEach(line => {
+          try {
+            line.position();
+          } catch (error) {
+            console.warn('[AtlasXray] ⚠️ Error repositioning line on resize:', error);
+          }
+        });
+      };
+      
+      window.addEventListener('resize', resizeListener);
+      console.log('[AtlasXray] ✅ Added window resize listener');
+      
+      // Add MutationObserver to handle DOM changes
+      const observer = new MutationObserver(() => {
+        this.leaderLines.forEach(line => {
+          try {
+            line.position();
+          } catch (error) {
+            console.warn('[AtlasXray] ⚠️ Error repositioning line on DOM change:', error);
+          }
+        });
+      });
+      
+      // Observe the document body for changes
+      observer.observe(document.body, { 
+        childList: true, 
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['style', 'class']
+      });
+      console.log('[AtlasXray] ✅ Added MutationObserver for DOM changes');
       
       let linesDrawn = 0;
       
