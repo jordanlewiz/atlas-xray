@@ -175,17 +175,8 @@ export default function ProjectUpdateModal({
                         </SectionMessage>
                       );
                     } else {
-                      // Show message for updates without quality data
-                      return (
-                        <SectionMessage
-                          title="Quality Analysis in Progress"
-                        >
-                          <div className="quality-analysis-info">
-                            <p>This update is being automatically analyzed for quality in the background.</p>
-                            <p><em>Quality indicators will appear in the timeline once analysis is complete.</em></p>
-                          </div>
-                        </SectionMessage>
-                      );
+                      // No quality data available - don't show anything
+                      return null;
                     }
                   })()}
 
