@@ -221,7 +221,7 @@ function StatusTimelineHeatmapRow({
                 >
                              {/* Show date difference FIRST (replaces bullet when date changed) */}
                {!hasMissedUpdate && u.oldDueDate && u.newDueDate ? (
-                 <DateDifference update={u} />
+                 <DateDifference oldDate={u.oldDueDate} newDate={u.newDueDate} />
                ) : (
                  /* Show normal update indicator (quality indicator or bullet) when no date change */
                  !hasMissedUpdate && (

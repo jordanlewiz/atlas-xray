@@ -1,7 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { DateDifference } from './DateDifference';
-import type { ProjectUpdate } from '../../types';
 
 // Mock the useDateDifference hook
 jest.mock('../../hooks/useDateDifference');
@@ -10,8 +9,6 @@ import { useDateDifference } from '../../hooks/useDateDifference';
 const mockUseDateDifference = useDateDifference as jest.MockedFunction<typeof useDateDifference>;
 
 describe('DateDifference', () => {
-  const mockUpdate = {} as ProjectUpdate;
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -24,7 +21,7 @@ describe('DateDifference', () => {
       hasChange: true
     });
 
-    render(<DateDifference update={mockUpdate} />);
+    render(<DateDifference oldDate="2024-01-01" newDate="2024-01-06" />);
     
     const element = screen.getByTestId('date-difference');
     expect(element).toBeInTheDocument();
@@ -40,7 +37,7 @@ describe('DateDifference', () => {
       hasChange: true
     });
 
-    render(<DateDifference update={mockUpdate} />);
+    render(<DateDifference oldDate="2024-01-06" newDate="2024-01-03" />);
     
     const element = screen.getByTestId('date-difference');
     expect(element).toBeInTheDocument();
@@ -56,7 +53,7 @@ describe('DateDifference', () => {
       hasChange: false
     });
 
-    const { container } = render(<DateDifference update={mockUpdate} />);
+    const { container } = render(<DateDifference oldDate="2024-01-01" newDate="2024-01-01" />);
     
     expect(container.firstChild).toBeNull();
   });
@@ -69,7 +66,7 @@ describe('DateDifference', () => {
       hasChange: false
     });
 
-    const { container } = render(<DateDifference update={mockUpdate} />);
+    const { container } = render(<DateDifference oldDate={null} newDate="2024-01-01" />);
     
     expect(container.firstChild).toBeNull();
   });
@@ -82,7 +79,7 @@ describe('DateDifference', () => {
       hasChange: true
     });
 
-    render(<DateDifference update={mockUpdate} className="custom-class" />);
+    render(<DateDifference oldDate="2024-01-01" newDate="2024-01-06" className="custom-class" />);
     
     const element = screen.getByTestId('date-difference');
     expect(element).toHaveClass('date-difference', 'positive', 'custom-class');

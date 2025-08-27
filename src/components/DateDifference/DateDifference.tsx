@@ -1,15 +1,15 @@
 import React from 'react';
 import Tooltip from '@atlaskit/tooltip';
 import { useDateDifference } from '../../hooks/useDateDifference';
-import type { ProjectUpdate } from '../../types';
 
 interface DateDifferenceProps {
-  update: ProjectUpdate;
+  oldDate: string | null | undefined;
+  newDate: string | null | undefined;
   className?: string;
 }
 
-export const DateDifference = ({ update, className }: DateDifferenceProps) => {
-  const { displayText, cssClass, hasChange } = useDateDifference(update);
+export const DateDifference = ({ oldDate, newDate, className }: DateDifferenceProps) => {
+  const { displayText, cssClass, hasChange } = useDateDifference(oldDate, newDate);
   
   if (!hasChange) return null;
   

@@ -1,8 +1,7 @@
-import { getDueDateDiff } from '../utils/timelineUtils';
-import type { ProjectUpdate } from '../types';
+import { daysBetweenFlexibleDates } from '../utils/timelineUtils';
 
-export const useDateDifference = (update: ProjectUpdate) => {
-  const diff = getDueDateDiff(update);
+export const useDateDifference = (oldDate: string | null | undefined, newDate: string | null | undefined) => {
+  const diff = daysBetweenFlexibleDates(oldDate || '', newDate || '', new Date().getFullYear());
   
   return {
     value: diff,

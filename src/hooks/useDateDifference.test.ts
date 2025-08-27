@@ -1,27 +1,24 @@
 import { renderHook } from '@testing-library/react';
 import { useDateDifference } from './useDateDifference';
-import type { ProjectUpdate } from '../types';
 
-// Mock the getDueDateDiff function
+// Mock the daysBetweenFlexibleDates function
 jest.mock('../utils/timelineUtils', () => ({
-  getDueDateDiff: jest.fn()
+  daysBetweenFlexibleDates: jest.fn()
 }));
 
-import { getDueDateDiff } from '../utils/timelineUtils';
+import { daysBetweenFlexibleDates } from '../utils/timelineUtils';
 
-const mockGetDueDateDiff = getDueDateDiff as jest.MockedFunction<typeof getDueDateDiff>;
+const mockDaysBetweenFlexibleDates = daysBetweenFlexibleDates as jest.MockedFunction<typeof daysBetweenFlexibleDates>;
 
 describe('useDateDifference', () => {
-  const mockUpdate = {} as ProjectUpdate;
-
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
   it('should return positive values correctly', () => {
-    mockGetDueDateDiff.mockReturnValue(5);
+    mockDaysBetweenFlexibleDates.mockReturnValue(5);
     
-    const { result } = renderHook(() => useDateDifference(mockUpdate));
+    const { result } = renderHook(() => useDateDifference('2024-01-01', '2024-01-06'));
     
     expect(result.current.value).toBe(5);
     expect(result.current.displayText).toBe('+5');
@@ -30,9 +27,9 @@ describe('useDateDifference', () => {
   });
 
   it('should return negative values correctly', () => {
-    mockGetDueDateDiff.mockReturnValue(-3);
+    mockDaysBetweenFlexibleDates.mockReturnValue(-3);
     
-    const { result } = renderHook(() => useDateDifference(mockUpdate));
+    const { result } = renderHook(() => useDateDifference('2024-01-06', '2024-01-03'));
     
     expect(result.current.value).toBe(-3);
     expect(result.current.displayText).toBe('-3');
@@ -41,9 +38,9 @@ describe('useDateDifference', () => {
   });
 
   it('should return neutral values correctly', () => {
-    mockGetDueDateDiff.mockReturnValue(0);
+    mockDaysBetweenFlexibleDates.mockReturnValue(0);
     
-    const { result } = renderHook(() => useDateDifference(mockUpdate));
+    const { result } = renderHook(() => useDateDifference('2024-01-01', '2024-01-01'));
     
     expect(result.current.value).toBe(0);
     expect(result.current.displayText).toBe('0');
@@ -52,9 +49,20 @@ describe('useDateDifference', () => {
   });
 
   it('should handle null values correctly', () => {
-    mockGetDueDateDiff.mockReturnValue(null);
+    mockDaysBetweenFlexibleDates.mockReturnValue(null);
     
-    const { result } = renderHook(() => useDateDifference(mockUpdate));
+    const { result } = renderHook(() => useDateDifference(null, '2024-01-01'));
+    
+    expect(result.current.value).toBe(null);
+    expect(result.current.displayText).toBe('');
+    expect(result.current.cssClass).toBe('');
+    expect(result.current.hasChange).toBe(false);
+  });
+
+  it('should handle undefined values correctly', () => {
+    mockDaysBetweenFlexibleDates.mockReturnValue(null);
+    
+    const { result } = renderHook(() => useDateDifference(undefined, '2024-01-01'));
     
     expect(result.current.value).toBe(null);
     expect(result.current.displayText).toBe('');
