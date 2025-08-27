@@ -28,10 +28,7 @@ export class TimelineProjectService {
         this.scrollContainer.removeEventListener('scroll', this.scrollListener);
         this.scrollContainer = null;
         this.scrollListener = null;
-        console.log('[AtlasXray] 🗑️ Removed scroll listener');
       }
-      
-      console.log('[AtlasXray] 🧹 Cleared all dependency lines');
     } catch (error) {
       console.error('[AtlasXray] ❌ Error clearing dependency lines:', error);
     }
@@ -43,8 +40,6 @@ export class TimelineProjectService {
    */
   private static drawDependencyLines(dependencies: Array<{ source: string; targets: string[] }>): void {
     try {
-      console.log('[AtlasXray] 🎨 Drawing dependency lines...');
-      
       // Clear existing lines first
       this.clearAllLines();
       
@@ -53,8 +48,6 @@ export class TimelineProjectService {
       if (!this.scrollContainer) {
         this.scrollContainer = document.querySelector('body') as HTMLElement; // Fallback to body
         console.warn('[AtlasXray] ⚠️ Could not find TimelineView container, falling back to body');
-      } else {
-        console.log('[AtlasXray] ✅ Found TimelineView scroll container:', this.scrollContainer);
       }
 
       // Create scroll listener to reposition lines
@@ -71,7 +64,6 @@ export class TimelineProjectService {
       // Add scroll listener
       if (this.scrollContainer) {
         this.scrollContainer.addEventListener('scroll', this.scrollListener);
-        console.log('[AtlasXray] ✅ Added scroll listener to:', this.scrollContainer);
       }
 
       // Also add window resize listener for responsive behavior
@@ -86,7 +78,6 @@ export class TimelineProjectService {
       };
       
       window.addEventListener('resize', resizeListener);
-      console.log('[AtlasXray] ✅ Added window resize listener');
       
       // Add MutationObserver to handle DOM changes
       const observer = new MutationObserver(() => {
@@ -106,7 +97,6 @@ export class TimelineProjectService {
         attributes: true,
         attributeFilter: ['style', 'class']
       });
-      console.log('[AtlasXray] ✅ Added MutationObserver for DOM changes');
       
       let linesDrawn = 0;
       
@@ -137,8 +127,8 @@ export class TimelineProjectService {
               endSocket: 'left', // Connect to left side of target
               startPlug: 'disc', // Small disc at start
               endPlug: 'arrow2', // Arrow at end
-              path: 'straight', // Straight line for clarity
-              dropShadow: true, // Add shadow for better visibility
+              path: 'grid',
+              dropShadow: false, // Add shadow for better visibility
               outline: true, // Add outline
               outlineColor: '#ffffff', // White outline
               outlineSize: 1, // Outline width
@@ -148,14 +138,14 @@ export class TimelineProjectService {
             this.leaderLines.push(line);
             linesDrawn++;
             
-            console.log(`[AtlasXray] ✅ Drew line from ${dep.source} to ${targetId}`);
+
           } catch (error) {
             console.warn(`[AtlasXray] ⚠️ Could not create line from ${dep.source} to ${targetId}:`, error);
           }
         });
       });
 
-      console.log(`[AtlasXray] ✅ Successfully drew ${linesDrawn} dependency lines`);
+
       
     } catch (error) {
       console.error('[AtlasXray] ❌ Error drawing dependency lines:', error);
@@ -168,17 +158,12 @@ export class TimelineProjectService {
    */
   static async findAndProcessTimelineProjects(): Promise<string[]> {
     try {
-      console.log('[AtlasXray] 🔍 Searching for timeline projects...');
-      
       // Find all elements with data-sentry-component="ProjectBar"
       const projectBars = document.querySelectorAll('[data-sentry-component="ProjectBar"]');
       
       if (projectBars.length === 0) {
-        console.log('[AtlasXray] ℹ️ No ProjectBar elements found');
         return [];
       }
-
-      console.log(`[AtlasXray] 📊 Found ${projectBars.length} ProjectBar elements`);
       
       const projectIds: string[] = [];
       let processedCount = 0;
@@ -195,23 +180,18 @@ export class TimelineProjectService {
           }
 
           const href = linkElement.getAttribute('href')!;
-          console.log(`[AtlasXray] 🔗 Found href: ${href}`);
 
           // Extract project ID from URL using utility function
           const projectId = extractProjectIdFromUrl(href);
 
           if (!projectId) {
-            console.log(`[AtlasXray] ⚠️ Could not extract project ID from href: ${href}`);
             return;
           }
-
-          console.log(`[AtlasXray] 🔑 Extracted project ID "${projectId}"`);
 
           // Step 2: Add that ID to the ProjectBar's first inner div
           const firstInnerDiv = projectBar.querySelector('div');
           
           if (!firstInnerDiv) {
-            console.log(`[AtlasXray] ⚠️ ProjectBar ${index + 1} has no inner div elements`);
             return;
           }
 
@@ -222,22 +202,17 @@ export class TimelineProjectService {
           // Add to our results array
           projectIds.push(projectId);
           processedCount++;
-          
-          console.log(`[AtlasXray] ✅ Added ID "${projectId}" to ProjectBar ${index + 1}`);
 
         } catch (error) {
           console.error(`[AtlasXray] ❌ Error processing ProjectBar ${index + 1}:`, error);
         }
       });
 
-      console.log(`[AtlasXray] ✅ Successfully processed ${processedCount} ProjectBar elements`);
-      console.log(`[AtlasXray] 📊 Project IDs found: ${projectIds.join(', ')}`);
+
 
       // Step 3: Look up dependencies for each project ID
       if (projectIds.length > 0) {
         await this.lookupAndDisplayDependencies(projectIds);
-      } else {
-        console.log('❌ No projects found on this timeline page');
       }
 
       return projectIds;
@@ -255,8 +230,6 @@ export class TimelineProjectService {
    */
   private static async lookupAndDisplayDependencies(projectIds: string[]): Promise<void> {
     try {
-      console.log('[AtlasXray] 🔍 Looking up dependencies for projects...');
-      
       const dependencyResults: string[] = [];
 
       // Look up dependencies for each project
