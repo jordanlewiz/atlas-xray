@@ -88,6 +88,13 @@ export default function ProjectUpdateModal({
                     <small>Project Key:</small> {project?.projectKey}
                   </div>
 
+                  {/* Creator Information */}
+                  {selectedUpdate.creatorName && (
+                    <div className="creator-info">
+                      <small>Created by:</small> {selectedUpdate.creatorName}
+                    </div>
+                  )}
+
                   {/* Dependencies Display */}
                   {/* Dependencies Display */}
 
@@ -182,7 +189,7 @@ export default function ProjectUpdateModal({
                     }
                   })()}
 
-                                    {selectedUpdate.oldDueDate && (
+                                    {selectedUpdate.oldTargetDate && (
                     <SectionMessage
                       appearance="error"
                       title="Date Change Detected"
@@ -191,9 +198,9 @@ export default function ProjectUpdateModal({
                         <strong>Date Change:</strong>
                       </div>
                       <div className="date-change-display">
-                        <span className="old-date">{selectedUpdate.oldDueDate}</span>
+                        <span className="old-date">{selectedUpdate.oldTargetDate}</span>
                         <span className="arrow">→</span>
-                        <span className="new-date">{selectedUpdate.newDueDate}</span>
+                        <span className="new-date">{selectedUpdate.newTargetDate}</span>
                       </div>
                       <div className="change-difference">
                         <strong>Difference:</strong> {getDueDateDiff(selectedUpdate)} days

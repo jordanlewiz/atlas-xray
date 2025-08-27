@@ -161,6 +161,11 @@ export class FetchProjectsUpdates {
               console.log(`[FetchProjectsUpdates] Parsed oldTargetDate for ${projectKey}: ${oldDueDateParsed.dueDate} -> ${oldDueDateParsed.dueDateParsed}`);
             }
             
+            // Log creator name extraction
+            if (update.creator?.pii?.name) {
+              console.log(`[FetchProjectsUpdates] Extracted creator name for ${projectKey}: ${update.creator.pii.name}`);
+            }
+            
             return {
               uuid: update.id,
               projectKey: projectKey,
@@ -177,6 +182,9 @@ export class FetchProjectsUpdates {
               newTargetDateParsed: newDueDateParsed.dueDateParsed,                      // Parsed new target date
               oldTargetDate: update.oldTargetDate || update.oldDueDate?.tooltip,         // Use direct value or tooltip
               oldTargetDateParsed: oldDueDateParsed.dueDateParsed,                      // Parsed old target date
+              
+              // NEW: Creator information for easy access
+              creatorName: update.creator?.pii?.name,                                    // Creator's name (e.g., "Arnab Dey")
               
               raw: update
             };
