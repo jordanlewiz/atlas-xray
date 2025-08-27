@@ -3,11 +3,11 @@ import Tooltip from "@atlaskit/tooltip";
 
 import ProjectUpdateModal from "../ProjectUpdateModal";
 import QualityIndicator from "../QualityIndicator/QualityIndicator";
+import { DateDifference } from "../DateDifference";
 import { buildProjectUrlFromKey } from "../../utils/timelineUtils";
 import {
   getTimelineWeekCells,
   getTargetDateDisplay,
-  getDueDateTooltip,
   getDueDateDiff,
   parseFlexibleDateChrono
 } from "../../utils/timelineUtils";
@@ -221,20 +221,7 @@ function StatusTimelineHeatmapRow({
                 >
                              {/* Show date difference FIRST (replaces bullet when date changed) */}
                {!hasMissedUpdate && u.oldDueDate && u.newDueDate ? (
-                 <Tooltip content={getDueDateTooltip(u)} position="top">
-                   <span className={`date-difference ${(() => {
-                     const diff = getDueDateDiff(u);
-                     if (diff === null) return '';
-                     if (diff > 0) return 'positive';
-                     if (diff < 0) return 'negative';
-                     return 'neutral';
-                   })()}`}>
-                     {(() => {
-                       const diff = getDueDateDiff(u);
-                       return diff !== null ? (diff > 0 ? `+${diff}` : `${diff}`) : '';
-                     })()}
-                   </span>
-                 </Tooltip>
+                 <DateDifference update={u} />
                ) : (
                  /* Show normal update indicator (quality indicator or bullet) when no date change */
                  !hasMissedUpdate && (
