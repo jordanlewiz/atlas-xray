@@ -92,6 +92,48 @@
   }
 }
 
+// Timeline button specific styles
+.atlas-xray-timeline-btn {
+  bottom: 80px !important; // Position above the main button
+  background: #ff6b35 !important; // Different color to distinguish it
+  
+  &:hover {
+    background: #e55a2b !important; // Darker orange on hover
+  }
+  
+  &:focus {
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.3) !important; // Orange focus ring
+  }
+}
+
+// ContentScript timeline button styles
+#atlas-xray-timeline-btn {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  z-index: 10000;
+  background: #ff6b35;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.3);
+  }
+}
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }

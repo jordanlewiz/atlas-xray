@@ -53,8 +53,27 @@ console.log('[AtlasXray] 🚀 Content script loaded and ready');
 // Listen for URL changes to detect timeline view
 function checkForTimelineView() {
   const currentUrl = window.location.href;
-  if (currentUrl.includes('projects?view=timeline')) {
-    alert('🎯 Timeline view detected! This page contains projects?view=timeline');
+  const hasTimelineView = currentUrl.includes('projects?view=timeline');
+  
+  // Remove existing timeline button if it exists
+  const existingButton = document.getElementById('atlas-xray-timeline-btn');
+  if (existingButton) {
+    existingButton.remove();
+  }
+  
+  // Add timeline button if we're on timeline view
+  if (hasTimelineView) {
+    const timelineButton = document.createElement('button');
+    timelineButton.id = 'atlas-xray-timeline-btn';
+    timelineButton.textContent = 'Show dependencies';
+    
+    // Add click handler
+    timelineButton.addEventListener('click', () => {
+      alert('🎯 Timeline view detected! This page contains projects?view=timeline');
+    });
+    
+    // Add to page
+    document.body.appendChild(timelineButton);
   }
 }
 
