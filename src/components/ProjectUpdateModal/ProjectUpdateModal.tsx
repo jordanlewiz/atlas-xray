@@ -16,6 +16,7 @@ import type { ProjectUpdateModalProps } from "../../types";
 import { renderProseMirror } from '../../services/ProseMirrorService';
 import { ImageRenderer } from "../ImageRenderer";
 import QualityIndicator from "../QualityIndicator/QualityIndicator";
+import { DateDifference } from "../DateDifference/DateDifference";
 // Quality analysis data is now stored directly in update objects by ProjectPipeline
 
 /**
@@ -115,7 +116,13 @@ export default function ProjectUpdateModal({
                           <span className="new-date">{selectedUpdate.newTargetDate}</span>
                         </div>
                         <div className="change-difference">
-                          <strong>Difference:</strong> {getDueDateDiff(selectedUpdate)} days
+                          <strong>Difference:</strong> 
+                          <DateDifference 
+                            oldDate={selectedUpdate.oldTargetDate} 
+                            newDate={selectedUpdate.newTargetDate} 
+                            className="" 
+                          />
+                          days
                         </div>
                       </SectionMessage>
                     )}
