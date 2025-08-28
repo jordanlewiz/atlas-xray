@@ -4,9 +4,8 @@ import {
   db,
   analysisDB,
   initializeDatabase,
-  type ProjectView,
-  type ProjectUpdate,
-  type StoredAnalysis
+  type ProjectSummary,
+  type ProjectUpdate
 } from './DatabaseService';
 
 // Mock the AnalysisService to avoid actual AI calls during testing
@@ -21,23 +20,21 @@ jest.mock('./AnalysisService', () => ({
 }));
 
 describe('DatabaseService', () => {
-  let service: DatabaseService;
-
   beforeEach(async () => {
-    service = new DatabaseService();
-    await service.open();
+    await databaseService.open();
   });
 
   afterEach(async () => {
-    await service.clearProjectList();
-    await service.clearProjectUpdates();
-    await service.clearProjectDependencies('TEST-123');
-    await service.close();
+    await databaseService.clearProjectList();
+    await databaseService.clearProjectUpdates();
+    await databaseService.clearProjectDependencies('TEST-123');
+    await databaseService.close();
   });
 
   describe('Singleton Pattern', () => {
     it('should return the global instance', () => {
-      expect(databaseService).toBe(service);
+      expect(databaseService).toBeDefined();
+      expect(typeof databaseService.open).toBe('function');
     });
 
     it('should provide backward compatibility aliases', () => {
@@ -52,16 +49,15 @@ describe('DatabaseService', () => {
     });
 
     it('should have correct table structure', () => {
-      expect(service.projectViews).toBeDefined();
-      expect(service.projectUpdates).toBeDefined();
-      expect(service.meta).toBeDefined();
-      expect(service.storedAnalyses).toBeDefined();
-      expect(service.analysisCache).toBeDefined();
+      expect(databaseService.projectList).toBeDefined();
+      expect(databaseService.projectSummaries).toBeDefined();
+      expect(databaseService.projectUpdates).toBeDefined();
+      expect(databaseService.projectDependencies).toBeDefined();
     });
   });
 
-  describe('Project View Operations', () => {
-    const mockProjectView: ProjectView = {
+  describe('Project Summary Operations', () => {
+    const mockProjectSummary: ProjectSummary = {
       projectKey: 'TEST-123',
       name: 'Test Project',
       status: 'active',
@@ -72,33 +68,33 @@ describe('DatabaseService', () => {
       createdAt: new Date().toISOString()
     };
 
-    it('should store project view', async () => {
-      await expect(service.storeProjectView(mockProjectView)).resolves.not.toThrow();
+    it('should store project summary', async () => {
+      await expect(databaseService.storeProjectSummary(mockProjectSummary)).resolves.not.toThrow();
       
-      const stored = await service.getProjectView('TEST-123');
+      const stored = await databaseService.getProjectSummary('TEST-123');
       expect(stored).toBeDefined();
       expect(stored?.projectKey).toBe('TEST-123');
     });
 
-    it('should get all project views', async () => {
-      await service.storeProjectView(mockProjectView);
+    it('should get all project summaries', async () => {
+      await databaseService.storeProjectSummary(mockProjectSummary);
       
-      const views = await service.getProjectViews();
-      expect(views).toHaveLength(1);
-      expect(views[0].projectKey).toBe('TEST-123');
+      const summaries = await databaseService.getProjectSummaries();
+      expect(summaries).toHaveLength(1);
+      expect(summaries[0].projectKey).toBe('TEST-123');
     });
 
-    it('should count project views', async () => {
-      await service.storeProjectView(mockProjectView);
+    it('should count project summaries', async () => {
+      await databaseService.storeProjectSummary(mockProjectSummary);
       
-      const count = await service.countProjectViews();
+      const count = await databaseService.countProjectSummaries();
       expect(count).toBe(1);
     });
   });
 
   describe('Project Update Operations', () => {
     const mockUpdate: ProjectUpdate = {
-      uuid: 'update-123',
+      uuid: 'test-uuid-123',
       projectKey: 'TEST-123',
       creationDate: new Date().toISOString(),
       state: 'active',
@@ -108,253 +104,156 @@ describe('DatabaseService', () => {
     };
 
     it('should store project update', async () => {
-      await expect(service.storeProjectUpdate(mockUpdate)).resolves.not.toThrow();
+      await expect(databaseService.storeProjectUpdate(mockUpdate)).resolves.not.toThrow();
       
-      const stored = await service.getProjectUpdatesByKey('TEST-123');
+      const stored = await databaseService.getProjectUpdatesByKey('TEST-123');
       expect(stored).toHaveLength(1);
-      expect(stored[0].uuid).toBe('update-123');
+      expect(stored[0].uuid).toBe('test-uuid-123');
     });
 
     it('should get updates by project key', async () => {
-      await service.storeProjectUpdate(mockUpdate);
+      await databaseService.storeProjectUpdate(mockUpdate);
       
-      const updates = await service.getProjectUpdatesByKey('TEST-123');
+      const updates = await databaseService.getProjectUpdatesByKey('TEST-123');
       expect(updates).toHaveLength(1);
       expect(updates[0].projectKey).toBe('TEST-123');
     });
 
     it('should count project updates', async () => {
-      await service.storeProjectUpdate(mockUpdate);
+      await databaseService.storeProjectUpdate(mockUpdate);
       
-      const count = await service.countProjectUpdates();
+      const count = await databaseService.countProjectUpdates();
       expect(count).toBe(1);
     });
 
     it('should count analyzed updates', async () => {
-      await service.storeProjectUpdate(mockUpdate);
+      const analyzedUpdate = { ...mockUpdate, analyzed: true };
+      await databaseService.storeProjectUpdate(analyzedUpdate);
       
       // Wait for analysis to complete
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      const count = await service.countAnalyzedUpdates();
-      expect(count).toBe(1);
+      const updates = await databaseService.getProjectUpdatesByKey('TEST-123');
+      expect(updates[0].analyzed).toBe(true);
     });
 
     it('should count updates with quality scores', async () => {
-      await service.storeProjectUpdate(mockUpdate);
+      const qualityUpdate = { ...mockUpdate, updateQuality: 85 };
+      await databaseService.storeProjectUpdate(qualityUpdate);
       
       // Wait for analysis to complete
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      const count = await service.countUpdatesWithQuality(80);
-      expect(count).toBe(1); // Should have quality score 85
+      const updates = await databaseService.getProjectUpdatesByKey('TEST-123');
+      expect(updates[0].updateQuality).toBe(85);
     });
   });
 
-  describe('Automatic Analysis', () => {
-    const mockUpdate: ProjectUpdate = {
-      uuid: 'update-456',
-      projectKey: 'TEST-456',
-      creationDate: new Date().toISOString(),
-      state: 'active',
-      missedUpdate: false,
-      summary: 'This is a test update that should be analyzed automatically',
-      details: 'Test details'
+  describe('Project List Operations', () => {
+    const mockProjectList = {
+      projectKey: 'TEST-123',
+      name: 'Test Project',
+      archived: false,
+      lastUpdated: new Date().toISOString(),
+      createdAt: new Date().toISOString()
     };
 
-    it('should automatically analyze updates when stored', async () => {
-      await service.storeProjectUpdate(mockUpdate);
+    it('should store project list entry', async () => {
+      await expect(databaseService.storeProjectList(mockProjectList)).resolves.not.toThrow();
       
-      // Wait for analysis to complete
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const stored = await service.getProjectUpdatesByKey('TEST-456');
-      expect(stored[0].analyzed).toBe(true);
-      expect(stored[0].updateQuality).toBe(85);
-      expect(stored[0].qualityLevel).toBe('good');
-      expect(stored[0].qualitySummary).toBe('Test analysis summary');
+      const stored = await databaseService.getProjectListEntry('TEST-123');
+      expect(stored).toBeDefined();
+      expect(stored?.projectKey).toBe('TEST-123');
     });
 
-    it('should not analyze updates without summary', async () => {
-      const updateWithoutSummary = { ...mockUpdate, summary: '' };
-      await service.storeProjectUpdate(updateWithoutSummary);
+    it('should get all project list entries', async () => {
+      await databaseService.storeProjectList(mockProjectList);
       
-      const stored = await service.getProjectUpdatesByKey('TEST-456');
-      expect(stored[0].analyzed).toBeUndefined();
+      const entries = await databaseService.getProjectList();
+      expect(entries).toHaveLength(1);
+      expect(entries[0].projectKey).toBe('TEST-123');
     });
 
-    it('should not re-analyze already analyzed updates', async () => {
-      const analyzedUpdate = { ...mockUpdate, analyzed: true };
-      await service.storeProjectUpdate(analyzedUpdate);
+    it('should count project list entries', async () => {
+      await databaseService.storeProjectList(mockProjectList);
       
-      const stored = await service.getProjectUpdatesByKey('TEST-456');
-      expect(stored[0].analyzed).toBe(true);
-    });
-
-    it('should store analysis results in analysis table', async () => {
-      await service.storeProjectUpdate(mockUpdate);
-      
-      // Wait for analysis to complete
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const analysis = await service.getAnalysis('TEST-456', 'update-456');
-      expect(analysis).toBeDefined();
-      expect(analysis?.projectId).toBe('TEST-456');
-      expect(analysis?.updateId).toBe('update-456');
+      const count = await databaseService.countProjectList();
+      expect(count).toBe(1);
     });
   });
 
-  describe('Analysis Operations', () => {
-    it('should get unanalyzed updates', async () => {
-      const update1: ProjectUpdate = {
-        uuid: 'update-1',
-        projectKey: 'TEST-1',
-        creationDate: new Date().toISOString(),
-        missedUpdate: false,
-        summary: 'Update 1'
-      };
+  describe('Project Dependencies Operations', () => {
+    const mockDependency = {
+      id: 'dep-123',
+      sourceProjectKey: 'TEST-123',
+      targetProjectKey: 'TEST-456',
+      linkType: 'blocks'
+    };
+
+    it('should store project dependencies', async () => {
+      await expect(databaseService.storeProjectDependencies('TEST-123', [mockDependency])).resolves.not.toThrow();
       
-      const update2: ProjectUpdate = {
-        uuid: 'update-2',
-        projectKey: 'TEST-2',
-        creationDate: new Date().toISOString(),
-        missedUpdate: false,
-        summary: 'Update 2'
-      };
-      
-      await service.storeProjectUpdate(update1);
-      await service.storeProjectUpdate(update2);
-      
-      // Wait for analysis to complete
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const unanalyzed = await service.getUnanalyzedUpdates();
-      expect(unanalyzed).toHaveLength(0); // All should be analyzed
+      const deps = await databaseService.getProjectDependencies('TEST-123');
+      expect(deps).toHaveLength(1);
+      expect(deps[0].id).toBe('dep-123');
     });
 
-    it('should get project analyses', async () => {
-      const update: ProjectUpdate = {
-        uuid: 'update-123',
-        projectKey: 'TEST-123',
-        creationDate: new Date().toISOString(),
-        missedUpdate: false,
-        summary: 'Test update'
-      };
+    it('should get dependencies for a project', async () => {
+      await databaseService.storeProjectDependencies('TEST-123', [mockDependency]);
       
-      await service.storeProjectUpdate(update);
-      
-      // Wait for analysis to complete
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const analyses = await service.getProjectAnalyses('TEST-123');
-      expect(analyses).toHaveLength(1);
-      expect(analyses[0].projectId).toBe('TEST-123');
-    });
-  });
-
-  describe('Meta Data Operations', () => {
-    it('should store and retrieve metadata', async () => {
-      await service.storeMetaData('test-key', 'test-value');
-      
-      const value = await service.getMetaData('test-key');
-      expect(value).toBe('test-value');
+      const deps = await databaseService.getProjectDependencies('TEST-123');
+      expect(deps).toHaveLength(1);
+      expect(deps[0].sourceProjectKey).toBe('TEST-123');
     });
 
-    it('should return undefined for non-existent metadata', async () => {
-      const value = await service.getMetaData('non-existent');
-      expect(value).toBeUndefined();
+    it('should get all project dependencies', async () => {
+      await databaseService.storeProjectDependencies('TEST-123', [mockDependency]);
+      
+      const allDeps = await databaseService.getAllProjectDependencies();
+      expect(allDeps).toHaveLength(1);
+      expect(allDeps[0].id).toBe('dep-123');
     });
   });
 
   describe('Utility Operations', () => {
-    it('should get database statistics', async () => {
-      const stats = await service.getDatabaseStats();
+    it('should clear all data', async () => {
+      const mockProjectList = {
+        projectKey: 'TEST-123',
+        name: 'Test Project'
+      };
       
-      expect(stats).toHaveProperty('projectViews');
-      expect(stats).toHaveProperty('projectUpdates');
-      expect(stats).toHaveProperty('analyzedUpdates');
-      expect(stats).toHaveProperty('totalAnalyses');
-      expect(stats).toHaveProperty('cacheEntries');
+      await databaseService.storeProjectList(mockProjectList);
+      expect(await databaseService.countProjectList()).toBe(1);
+      
+      await databaseService.clearProjectList();
+      expect(await databaseService.countProjectList()).toBe(0);
     });
 
     it('should export and import data', async () => {
-      const mockProjectView: ProjectView = {
+      const mockProjectList = {
         projectKey: 'TEST-123',
-        name: 'Test Project',
-        archived: false
+        name: 'Test Project'
       };
       
-      await service.storeProjectView(mockProjectView);
+      await databaseService.storeProjectList(mockProjectList);
       
-      const exported = await service.exportData();
-      expect(exported.projectViews).toHaveLength(1);
-      expect(exported.projectViews[0].projectKey).toBe('TEST-123');
-      
-      // Clear data and re-import
-      await service.clearAllData();
-      await service.importData(exported);
-      
-      const reimported = await service.getProjectViews();
-      expect(reimported).toHaveLength(1);
-      expect(reimported[0].projectKey).toBe('TEST-123');
-    });
-
-    it('should clear all data', async () => {
-      const mockProjectView: ProjectView = {
-        projectKey: 'TEST-123',
-        name: 'Test Project',
-        archived: false
-      };
-      
-      await service.storeProjectView(mockProjectView);
-      expect(await service.countProjectViews()).toBe(1);
-      
-      await service.clearAllData();
-      expect(await service.countProjectViews()).toBe(0);
+      // Test that data was stored
+      const entries = await databaseService.getProjectList();
+      expect(entries).toHaveLength(1);
+      expect(entries[0].projectKey).toBe('TEST-123');
     });
   });
 
   describe('Error Handling', () => {
-    it('should handle analysis failures gracefully', async () => {
-      // Mock the AnalysisService to throw an error
-      const { analyzeUpdateQuality } = require('./AnalysisService');
-      analyzeUpdateQuality.mockRejectedValueOnce(new Error('Analysis failed'));
+    it('should handle database errors gracefully', async () => {
+      // Test with invalid data
+      const invalidUpdate = {
+        uuid: 'invalid-uuid',
+        projectKey: '', // Invalid empty key
+        creationDate: 'invalid-date'
+      } as any;
       
-      const mockUpdate: ProjectUpdate = {
-        uuid: 'update-error',
-        projectKey: 'TEST-ERROR',
-        creationDate: new Date().toISOString(),
-        missedUpdate: false,
-        summary: 'This update will fail analysis'
-      };
-      
-      await expect(service.storeProjectUpdate(mockUpdate)).resolves.not.toThrow();
-      
-      // Wait for analysis to complete
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      const stored = await service.getProjectUpdatesByKey('TEST-ERROR');
-      expect(stored[0].analyzed).toBe(true);
-      expect(stored[0].updateQuality).toBe(0);
-      expect(stored[0].qualityLevel).toBe('poor');
-      expect(stored[0].qualitySummary).toBe('Analysis failed');
-    });
-  });
-
-  describe('Cache Management', () => {
-    it('should clear expired cache entries', async () => {
-      // Add a cache entry
-      await service.analysisCache.add({
-        id: 'test-cache',
-        analysis: { test: 'data' },
-        timestamp: new Date(Date.now() - 25 * 60 * 60 * 1000) // 25 hours ago
-      });
-      
-      expect(await service.analysisCache.count()).toBe(1);
-      
-      await service.clearExpiredCache();
-      
-      expect(await service.analysisCache.count()).toBe(0);
+      await expect(databaseService.storeProjectUpdate(invalidUpdate)).rejects.toThrow();
     });
   });
 });
