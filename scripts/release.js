@@ -105,15 +105,11 @@ async function main() {
   log('\n🧪 Running tests...', 'cyan');
   exec('npm test');
   
-  // Step 3: Build the extension
-  log('\n🔨 Building extension...', 'cyan');
-  exec('npm run build');
-  
-  // Step 4: Version bump
+  // Step 3: Version bump FIRST
   log('\n⬆️  Bumping version...', 'cyan');
   exec(`npm version ${releaseType} --no-git-tag-version`);
   
-  // Step 4.5: Update manifest.json version
+  // Step 3.5: Update manifest.json version
   log('\n📋 Updating manifest.json version...', 'cyan');
   const manifestPath = path.join(__dirname, '../manifest.json');
   let manifestContent = fs.readFileSync(manifestPath, 'utf8');
@@ -124,16 +120,24 @@ async function main() {
   fs.writeFileSync(manifestPath, manifestContent);
   log(`✅ Updated manifest.json to version ${nextVersion}`, 'green');
   
-  // Step 5: Create git tag
+  // Step 4: Build the extension WITH NEW VERSION
+  log('\n🔨 Building extension...', 'cyan');
+  exec('npm run build');
+  
+  // Step 5: Verify version consistency
+  log('\n🔍 Verifying version consistency...', 'cyan');
+  exec('npm run check:versions');
+  
+  // Step 6: Create git tag
   log('\n🏷️  Creating git tag...', 'cyan');
   exec(`git tag v${nextVersion}`);
   
-  // Step 6: Commit version bump
+  // Step 7: Commit version bump
   log('\n💾 Committing version bump...', 'cyan');
   exec('git add package.json package-lock.json manifest.json');
   exec(`git commit -m "chore: bump version to ${nextVersion}"`);
   
-  // Step 6.5: Create and commit release notes
+  // Step 7.5: Create and commit release notes
   log('\n📝 Creating release notes...', 'cyan');
   const releaseNotes = createReleaseNotes(nextVersion, releaseType);
   const releaseFile = `RELEASE_v${nextVersion}.md`;
@@ -143,12 +147,12 @@ async function main() {
   exec(`git add ${releaseFile}`);
   exec(`git commit -m "docs: add release notes for v${nextVersion}"`);
   
-  // Step 7: Push changes and tags
+  // Step 8: Push changes and tags
   log('\n📤 Pushing to GitHub...', 'cyan');
   exec('git push');
   exec('git push --tags');
   
-  // Step 8: Release notes already created and committed in Step 6.5
+  // Step 9: Release notes already created and committed in Step 7.5
   
   log('\n✅ Release process completed!', 'green');
   log(`🎉 Version ${nextVersion} has been released!`, 'green');
