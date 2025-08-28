@@ -23,13 +23,6 @@ jobs:
         run: npm run build
       - name: Copy manifest and assets
         run: npm run build:manifest
-      - name: Update manifest version
-        run: |
-          # Get the version from package.json (set by npm version)
-          VERSION=$(node -p "require('./package.json').version")
-          # Update manifest.json version
-          sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" manifest.json
-          echo "Updated manifest.json to version $VERSION"
       - name: Check version consistency
         run: npm run check:versions
       - name: Get version
