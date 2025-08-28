@@ -59,7 +59,7 @@ export default function StatusTimelineHeader({
                 isSearchable={false}
               />
             </div>
-            <div className="ai-display-toggle">
+            {/* <div className="ai-display-toggle">
               <label htmlFor="emoji-toggle" className="toggle-label">Update Quality:</label>
               <Button
                 id="emoji-toggle"
@@ -70,7 +70,7 @@ export default function StatusTimelineHeader({
               >
                 {showEmojis ? 'Hide' : 'Show'}
               </Button>
-            </div>
+            </div> */}
 
           </div>
         </div>

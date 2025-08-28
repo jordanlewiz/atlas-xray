@@ -19,14 +19,13 @@ export interface ProjectUpdate {
   missedUpdate: boolean;
   oldState?: string;
   summary?: string;
-  details?: string; // JSON stringified notes array
-  raw?: any; // Full GraphQL response (optional)
-  
-  // NEW: Clear target date fields for consistent date handling
+  details?: string;                       // JSON stringified notes array
   newTargetDate?: string;                 // New target date (e.g., "October to December")
   newTargetDateParsed?: string;           // Parsed ISO date (e.g., "2024-12-01")
   oldTargetDate?: string;                 // Previous target date (e.g., "September")
   oldTargetDateParsed?: string;           // Parsed ISO date (e.g., "2024-09-01")
+  creatorName?: string;                   // Creator's name (e.g., "Jane Smith")
+  raw?: any;                              // Full GraphQL response (optional)
   
   // Quality analysis fields (populated by AnalysisService)
   analyzed?: boolean;

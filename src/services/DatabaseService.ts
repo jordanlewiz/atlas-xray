@@ -52,6 +52,9 @@ export interface ProjectUpdate {
   oldTargetDate?: string;                 // Previous target date (e.g., "September")
   oldTargetDateParsed?: string;           // Parsed ISO date (e.g., "2024-09-01")
   
+  // NEW: Creator information for easy access
+  creatorName?: string;                   // Creator's name (e.g., "Arnab Dey")
+  
   // Analysis fields - populated when update is analyzed
   updateQuality?: number;
   qualityLevel?: 'excellent' | 'good' | 'fair' | 'poor';
@@ -88,7 +91,7 @@ export class DatabaseService extends Dexie {
     this.version(4).stores({
       projectList: 'projectKey',
       projectSummaries: 'projectKey',
-      projectUpdates: 'uuid, projectKey, creationDate, updateQuality, analyzed, newTargetDate, newTargetDateParsed, oldTargetDate, oldTargetDateParsed',
+      projectUpdates: 'uuid, projectKey, creationDate, updateQuality, analyzed, newTargetDate, newTargetDateParsed, oldTargetDate, oldTargetDateParsed, creatorName',
       projectDependencies: 'id, sourceProjectKey, targetProjectKey',
     });
   }
