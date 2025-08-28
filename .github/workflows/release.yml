@@ -67,7 +67,7 @@ jobs:
             ## 📦 Installation Instructions
             
             ### For Chrome/Edge Users:
-            1. **Download** the `atlas-xray-v${{ steps.version.outputs.version }}.zip` file above
+            1. **Download** the `atlas-xray-v${{ steps.version.outputs.version }}.zip` file below
             2. **Extract** the zip file to a folder on your computer
             3. **Open Chrome** and go to `chrome://extensions/`
             4. **Enable** "Developer mode" (toggle in top right)
