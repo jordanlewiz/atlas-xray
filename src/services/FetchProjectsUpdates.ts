@@ -161,9 +161,11 @@ export class FetchProjectsUpdates {
               console.log(`[FetchProjectsUpdates] Parsed oldTargetDate for ${projectKey}: ${oldDueDateParsed.dueDate} -> ${oldDueDateParsed.dueDateParsed}`);
             }
             
-            // Log creator name extraction
+            // Log creator extraction (non-PII)
             if (update.creator?.pii?.name) {
-              console.log(`[FetchProjectsUpdates] Extracted creator name for ${projectKey}: ${update.creator.pii.name}`);
+              console.log(`[FetchProjectsUpdates] ✅ Creator extracted for ${projectKey} (PII data available)`);
+            } else {
+              console.log(`[FetchProjectsUpdates] ⚠️ No creator data for ${projectKey}`);
             }
             
             return {

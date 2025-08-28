@@ -170,7 +170,7 @@ export default function ProjectUpdateModal({
                      </div>
                    )}
 
-                  {/* Update Details (if provided */}
+                  {/* Update Details (if provided) */}
                   {selectedUpdate.details && (
                      <div className="details-section">
                        <Heading size="medium">Update Details:</Heading>
