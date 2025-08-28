@@ -40,14 +40,13 @@ export class RateLimitManager {
     const config = { ...this.config, ...customConfig };
     
     try {
-      return await operation();
+      const result = await operation();
+      this.retryCount = 0; // Reset retry count after successful operation
+      return result;
     } catch (error) {
       if (this.isRateLimitError(error) && this.retryCount < config.maxRetries) {
         const delay = this.calculateDelay(config);
         this.retryCount++;
-        
-        console.log(`[RateLimit] Retry ${this.retryCount}/${config.maxRetries} after ${delay}ms delay`);
-        console.log(`[RateLimit] Error: ${(error as any).message || 'Unknown error'}`);
         
         if (!config.testMode) {
           await this.delay(delay);
