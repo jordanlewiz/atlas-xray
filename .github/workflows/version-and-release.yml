@@ -1,0 +1,214 @@
+name: Version and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version-type:
+        description: 'Version bump type'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+
+jobs:
+  version-and-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Get current version
+        id: current-version
+        run: echo "current=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
+
+      - name: Calculate next version
+        id: next-version
+        run: |
+          CURRENT="${{ steps.current-version.outputs.current }}"
+          VERSION_TYPE="${{ github.event.inputs.version-type }}"
+          
+          # Parse current version
+          IFS='.' read -r major minor patch <<< "$CURRENT"
+          
+          case "$VERSION_TYPE" in
+            "patch")
+              NEW_PATCH=$((patch + 1))
+              NEXT_VERSION="$major.$minor.$NEW_PATCH"
+              ;;
+            "minor")
+              NEW_MINOR=$((minor + 1))
+              NEXT_VERSION="$major.$NEW_MINOR.0"
+              ;;
+            "major")
+              NEW_MAJOR=$((major + 1))
+              NEXT_VERSION="$NEW_MAJOR.0.0"
+              ;;
+            *)
+              echo "Invalid version type: $VERSION_TYPE"
+              exit 1
+              ;;
+          esac
+          
+          echo "next=$NEXT_VERSION" >> $GITHUB_OUTPUT
+          echo "version-type=$VERSION_TYPE" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT"
+          echo "Next version: $NEXT_VERSION"
+          echo "Version type: $VERSION_TYPE"
+
+      - name: Update package.json version
+        run: |
+          npm version ${{ steps.next-version.outputs.next }} --no-git-tag-version
+          echo "Updated package.json to version ${{ steps.next-version.outputs.next }}"
+
+      - name: Update manifest.json version
+        run: |
+          sed -i "s/\"version\": \".*\"/\"version\": \"${{ steps.next-version.outputs.next }}\"/" manifest.json
+          echo "Updated manifest.json to version ${{ steps.next-version.outputs.next }}"
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Verify version consistency
+        run: npm run check:versions
+
+      - name: Run tests
+        run: npm test
+
+      - name: Create git tag
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git tag v${{ steps.next-version.outputs.next }}
+
+      - name: Commit version changes
+        run: |
+          git add package.json package-lock.json manifest.json
+          git commit -m "chore: bump version to ${{ steps.next-version.outputs.next }} [skip ci]"
+
+      - name: Create release notes
+        run: |
+          cat > RELEASE_v${{ steps.next-version.outputs.next }}.md << EOF
+          # 🚀 Atlas Xray Chrome Extension v${{ steps.next-version.outputs.next }}
+          
+          ## 📋 What's New in This Release
+          
+          ### ✨ Features
+          - Enhanced program management view for Atlassian Projects
+          - Improved timeline visualization and project tracking
+          - Better data synchronization with Atlassian services
+          
+          ### 🐛 Bug Fixes
+          - Various stability improvements and performance optimizations
+          - Enhanced error handling and user feedback
+          
+          ### 🔧 Technical Improvements
+          - Automated build and release process via GitHub Actions
+          - Optimized extension size and loading performance
+          - Enhanced security and permission handling
+          
+          ## 📦 Installation Instructions
+          
+          ### For Chrome/Edge Users:
+          1. **Download** the \`atlas-xray-v${{ steps.next-version.outputs.next }}.zip\` file below
+          2. **Extract** the zip file to a folder on your computer
+          3. **Open Chrome** and go to \`chrome://extensions/\`
+          4. **Enable** "Developer mode" (toggle in top right)
+          5. **Click** "Load unpacked" button
+          6. **Select** the extracted folder containing the extension
+          7. **Pin** the extension to your toolbar for easy access
+          
+          ## 🔍 What This Extension Does
+          
+          Atlas Xray enhances your Atlassian Projects experience by adding:
+          - **Program Management View**: Better oversight of multiple projects
+          - **Timeline Visualization**: Clear project timelines and dependencies
+          - **Enhanced Navigation**: Improved project discovery and management
+          - **Data Insights**: Better project analytics and reporting
+          
+          ## 🌐 Supported Sites
+          
+          - ✅ \`https://home.atlassian.com/*\` - Atlassian home and project pages
+          - 🔄 More Atlassian services coming soon!
+          
+          ## 📱 Permissions Required
+          
+          This extension requests the following permissions:
+          - **Storage**: Save your preferences and settings
+          - **Notifications**: Alert you about important project updates
+          - **Alarms**: Schedule periodic data refreshes
+          
+          ## 🚨 Troubleshooting
+          
+          **Extension not working?**
+          - Make sure you're on a supported Atlassian site
+          - Check that the extension is enabled in \`chrome://extensions/\`
+          - Try refreshing the page after enabling the extension
+          
+          **Need help?**
+          - Check the [GitHub repository](https://github.com/jordanlewiz/atlas-xray) for issues
+          - Report bugs or request features via GitHub Issues
+          
+          ---
+          
+          ### 📊 Build Information
+          - **Version**: ${{ steps.next-version.outputs.next }}
+          - **Built on**: ${{ github.event.head_commit.timestamp }}
+          - **Commit**: \`${{ github.sha }}\`
+          - **Workflow**: ${{ github.workflow }}
+          - **Release**: v${{ steps.next-version.outputs.next }}
+          
+          ---
+          
+          **Made by Jordan Lewis**
+          EOF
+
+      - name: Commit release notes
+        run: |
+          git add RELEASE_v${{ steps.next-version.outputs.next }}.md
+          git commit -m "docs: add release notes for v${{ steps.next-version.outputs.next }} [skip ci]"
+
+      - name: Push changes and tag
+        run: |
+          git push origin main
+          git push origin v${{ steps.next-version.outputs.next }}
+
+      - name: Create release zip
+        run: |
+          zip -r "atlas-xray-v${{ steps.next-version.outputs.next }}.zip" dist
+          echo "Created atlas-xray-v${{ steps.next-version.outputs.next }}.zip"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: atlas-xray-v${{ steps.next-version.outputs.next }}.zip
+          tag_name: v${{ steps.next-version.outputs.next }}
+          name: 🚀 Atlas Xray v${{ steps.next-version.outputs.next }} - Atlassian Project Management Extension
+          body_path: RELEASE_v${{ steps.next-version.outputs.next }}.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Success message
+        run: |
+          echo "🎉 Successfully released version ${{ steps.next-version.outputs.next }}!"
+          echo "📦 Extension built and uploaded to GitHub Release"
+          echo "🏷️ Git tag v${{ steps.next-version.outputs.next }} created"
+          echo "📝 Release notes added to repository"

@@ -33,52 +33,6 @@ function exec(command, options = {}) {
   }
 }
 
-function getCurrentVersion() {
-  const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-  return packageJson.version;
-}
-
-function getNextVersion(type) {
-  const currentVersion = getCurrentVersion();
-  const [major, minor, patch] = currentVersion.split('.').map(Number);
-  
-  switch (type) {
-    case 'major':
-      return `${major + 1}.0.0`;
-    case 'minor':
-      return `${major}.${minor + 1}.0`;
-    case 'patch':
-      return `${major}.${minor}.${patch + 1}`;
-    default:
-      return currentVersion;
-  }
-}
-
-function createReleaseNotes(version, type) {
-  const date = new Date().toISOString().split('T')[0];
-  const nextVersion = getNextVersion(type);
-  
-  return `## Release ${version} (${date})
-
-### What's New
-- 🚀 Automated release process
-- 🔧 GitHub Actions workflow integration
-- 📦 Chrome extension build automation
-
-### Changes
-- Version bump from ${version} to ${nextVersion}
-- Automated build and release process
-
-### Installation
-Download the \`chrome-extension.zip\` file from this release and load it as an unpacked extension in Chrome.
-
-### Build Info
-- Built with GitHub Actions
-- TypeScript compilation
-- esbuild bundling
-- Automated testing`;
-}
-
 async function main() {
   const args = process.argv.slice(2);
   const releaseType = args[0];
@@ -89,79 +43,84 @@ async function main() {
     process.exit(1);
   }
   
-  const currentVersion = getCurrentVersion();
-  const nextVersion = getNextVersion(releaseType);
-  
-  log(`🚀 Starting release process...`, 'cyan');
-  log(`📦 Current version: ${currentVersion}`, 'blue');
-  log(`🎯 Target version: ${nextVersion}`, 'green');
+  log(`🚀 Starting GitHub Actions-based release process...`, 'cyan');
   log(`📝 Release type: ${releaseType}`, 'yellow');
+  log(`🌐 This will trigger the GitHub Actions workflow`, 'blue');
   
-  // Step 1: Check git status
+  // Check if GitHub CLI is installed
+  try {
+    exec('gh --version', { stdio: 'pipe' });
+  } catch (error) {
+    log('❌ GitHub CLI (gh) is not installed or not accessible', 'red');
+    log('📋 Please install GitHub CLI first:', 'yellow');
+    log('   macOS: brew install gh', 'blue');
+    log('   Windows: winget install GitHub.cli', 'blue');
+    log('   Linux: See https://github.com/cli/cli#installation', 'blue');
+    process.exit(1);
+  }
+  
+  // Check if user is authenticated with GitHub
+  try {
+    exec('gh auth status', { stdio: 'pipe' });
+  } catch (error) {
+    log('❌ Not authenticated with GitHub CLI', 'red');
+    log('📋 Please run: gh auth login', 'yellow');
+    process.exit(1);
+  }
+  
+  // Check git status
   log('\n📋 Checking git status...', 'cyan');
   exec('git status --porcelain');
   
-  // Step 2: Run tests
-  log('\n🧪 Running tests...', 'cyan');
-  exec('npm test');
+  // Check if we're on main branch
+  const currentBranch = exec('git branch --show-current', { stdio: 'pipe' }).trim();
+  if (currentBranch !== 'main') {
+    log(`❌ You must be on the main branch to release. Current branch: ${currentBranch}`, 'red');
+    log('📋 Please checkout main: git checkout main', 'yellow');
+    process.exit(1);
+  }
   
-  // Step 3: Version bump FIRST
-  log('\n⬆️  Bumping version...', 'cyan');
-  exec(`npm version ${releaseType} --no-git-tag-version`);
+  // Check if main is up to date
+  log('\n📋 Checking if main is up to date...', 'cyan');
+  exec('git fetch origin');
+  const localCommit = exec('git rev-parse HEAD', { stdio: 'pipe' }).trim();
+  const remoteCommit = exec('git rev-parse origin/main', { stdio: 'pipe' }).trim();
   
-  // Step 3.5: Update manifest.json version
-  log('\n📋 Updating manifest.json version...', 'cyan');
-  const manifestPath = path.join(__dirname, '../manifest.json');
-  let manifestContent = fs.readFileSync(manifestPath, 'utf8');
-  manifestContent = manifestContent.replace(
-    /"version": "[^"]*"/,
-    `"version": "${nextVersion}"`
-  );
-  fs.writeFileSync(manifestPath, manifestContent);
-  log(`✅ Updated manifest.json to version ${nextVersion}`, 'green');
+  if (localCommit !== remoteCommit) {
+    log('❌ Local main is not up to date with remote', 'red');
+    log('📋 Please pull latest changes: git pull origin main', 'yellow');
+    process.exit(1);
+  }
   
-  // Step 4: Build the extension WITH NEW VERSION
-  log('\n🔨 Building extension...', 'cyan');
-  exec('npm run build');
+  // Trigger GitHub Actions workflow
+  log('\n🚀 Triggering GitHub Actions workflow...', 'cyan');
+  log(`📝 This will create a ${releaseType} release`, 'yellow');
   
-  // Step 5: Verify version consistency
-  log('\n🔍 Verifying version consistency...', 'cyan');
-  exec('npm run check:versions');
+  try {
+    exec(`gh workflow run version-and-release.yml --field version-type=${releaseType}`);
+    log('✅ GitHub Actions workflow triggered successfully!', 'green');
+  } catch (error) {
+    log('❌ Failed to trigger workflow', 'red');
+    log('📋 Please check the error above and try again', 'yellow');
+    process.exit(1);
+  }
   
-  // Step 6: Create git tag
-  log('\n🏷️  Creating git tag...', 'cyan');
-  exec(`git tag v${nextVersion}`);
-  
-  // Step 7: Commit version bump
-  log('\n💾 Committing version bump...', 'cyan');
-  exec('git add package.json package-lock.json manifest.json');
-  exec(`git commit -m "chore: bump version to ${nextVersion}"`);
-  
-  // Step 7.5: Create and commit release notes
-  log('\n📝 Creating release notes...', 'cyan');
-  const releaseNotes = createReleaseNotes(nextVersion, releaseType);
-  const releaseFile = `RELEASE_v${nextVersion}.md`;
-  fs.writeFileSync(releaseFile, releaseNotes);
-  
-  log('\n💾 Committing release notes...', 'cyan');
-  exec(`git add ${releaseFile}`);
-  exec(`git commit -m "docs: add release notes for v${nextVersion}"`);
-  
-  // Step 8: Push changes and tags
-  log('\n📤 Pushing to GitHub...', 'cyan');
-  exec('git push');
-  exec('git push --tags');
-  
-  // Step 9: Release notes already created and committed in Step 7.5
-  
-  log('\n✅ Release process completed!', 'green');
-  log(`🎉 Version ${nextVersion} has been released!`, 'green');
   log('\n📋 Next steps:', 'cyan');
-  log('1. GitHub Actions will automatically build the extension', 'blue');
-  log('2. The workflow will create a release with chrome-extension.zip', 'blue');
-  log('3. You can find the release notes in:', 'blue');
-  log(`   ${releaseFile}`, 'yellow');
-  log('\n🔗 Check your GitHub Actions tab to monitor the build progress!', 'cyan');
+  log('1. Go to your GitHub repository → Actions tab', 'blue');
+  log('2. Look for the "Version and Release" workflow', 'blue');
+  log('3. Monitor the progress of the release', 'blue');
+  log('4. The workflow will automatically:', 'blue');
+  log('   • Bump version numbers', 'blue');
+  log('   • Build the extension', 'blue');
+  log('   • Run tests', 'blue');
+  log('   • Create git tag', 'blue');
+  log('   • Create GitHub release', 'blue');
+  log('   • Push changes back to main', 'blue');
+  
+  log('\n🔗 GitHub Actions URL:', 'cyan');
+  log(`   https://github.com/jordanlewiz/atlas-xray/actions`, 'blue');
+  
+  log('\n🎉 Release process initiated! Check GitHub Actions for progress.', 'green');
 }
 
 main().catch(error => {
