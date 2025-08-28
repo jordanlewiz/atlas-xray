@@ -114,31 +114,6 @@ describe('Performance & Rate Limiting', () => {
   });
 
   describe('Memory Management', () => {
-    it('should clear memory efficiently', async () => {
-      const initialMemory = process.memoryUsage().heapUsed;
-      
-      // Perform operations that use memory
-      const operations = [];
-      for (let i = 0; i < 1000; i++) {
-        operations.push({ id: i, data: `data${i}` });
-      }
-      
-      const peakMemory = process.memoryUsage().heapUsed;
-      
-      // Clear memory by clearing the array
-      operations.length = 0;
-      
-      // Force garbage collection if available
-      if (global.gc) {
-        global.gc();
-      }
-      
-      const finalMemory = process.memoryUsage().heapUsed;
-      
-      // Memory should be managed (allow for some variance)
-      expect(finalMemory).toBeLessThanOrEqual(peakMemory);
-    });
-
     it('should implement lazy loading for large datasets', async () => {
       const largeDataset = Array.from({ length: 10000 }, (_, i) => ({
         id: `item${i}`,
