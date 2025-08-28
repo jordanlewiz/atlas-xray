@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Atlas Xray",
-  "version": "0.1.4",
+  "version": "0.1.6",
   "description": "Chrome Plugin to add program management view to Atlassian Projects",
   "icons": {
     "16": "dist/icons/icon-16.png",
