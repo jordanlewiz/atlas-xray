@@ -315,10 +315,10 @@ export class DatabaseService extends Dexie {
         .where('targetProjectKey')
         .equals(projectKey)
         .toArray();
-      } catch (error) {
-        console.error(`[DatabaseService] Failed to get projects depending on ${projectKey}:`, error);
-        return [];
-      }
+    } catch (error) {
+      console.error(`[DatabaseService] Failed to get projects depending on ${projectKey}:`, error);
+      return [];
+    }
   }
 
   /**
