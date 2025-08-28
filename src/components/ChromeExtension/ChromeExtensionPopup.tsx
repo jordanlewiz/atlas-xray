@@ -24,7 +24,7 @@
  */
 
 import React, { useState, useEffect, useRef } from "react";
-import { getLatestVersionInfo } from '../../services/VersionService';
+import { checkForUpdatesOnPopupOpen } from '../../services/VersionService';
 import "./ChromeExtensionPopup.scss";
 
 // Chrome extension types
@@ -44,8 +44,12 @@ const Popup: React.FC = () => {
   const currentVersion = chrome.runtime.getManifest().version;
   
   useEffect(() => {
-    // Check for updates when popup opens
-    checkForUpdates();
+    // Check for updates when popup opens (with immediate notification if available)
+    checkForUpdatesOnPopupOpen().then(result => {
+      setVersionInfo(result);
+    }).catch(error => {
+      console.warn('[AtlasXray] Popup update check failed:', error);
+    });
     
     // Get current tab's URL - simple approach
     const getCurrentTab = () => {
@@ -68,7 +72,7 @@ const Popup: React.FC = () => {
   const checkForUpdates = async (): Promise<void> => {
     try {
       setIsCheckingVersion(true);
-      const result = await getLatestVersionInfo();
+      const result = await checkForUpdatesOnPopupOpen();
       setVersionInfo(result);
     } catch (error) {
       console.warn('[AtlasXray] Version check failed:', error);

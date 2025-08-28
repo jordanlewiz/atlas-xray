@@ -30,6 +30,7 @@ export class VersionService {
   private readonly GITHUB_API_URL = 'https://api.github.com/repos/jordanlewiz/atlas-xray/releases/latest';
   private readonly CHECK_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours
   private readonly STORAGE_KEY = 'lastVersionCheck';
+  private readonly UPDATE_NOTIFICATION_KEY = 'updateNotificationShown';
   
   // Static map to store notification ID to release URL mapping
   private readonly notificationReleaseUrls = new Map<string, string>();
@@ -107,17 +108,19 @@ export class VersionService {
   }
 
   /**
-   * Check if a new version is available (with rate limiting)
+   * Check if a new version is available (with optional rate limiting bypass)
    */
-  async checkForUpdates(): Promise<VersionInfo> {
+  async checkForUpdates(forceCheck: boolean = false): Promise<VersionInfo> {
     try {
-      // Check if we should perform the check (avoid checking too frequently)
-      const lastCheck = await this.getLastCheckTime();
-      const now = Date.now();
-      
-      if (now - lastCheck < this.CHECK_INTERVAL) {
-        // Rate limited - don't make API call
-        return { hasUpdate: false };
+      // Skip rate limiting if this is a forced check (plugin load, popup open)
+      if (!forceCheck) {
+        const lastCheck = await this.getLastCheckTime();
+        const now = Date.now();
+        
+        if (now - lastCheck < this.CHECK_INTERVAL) {
+          // Rate limited - don't make API call
+          return { hasUpdate: false };
+        }
       }
 
       // Fetch latest release from GitHub
@@ -130,8 +133,8 @@ export class VersionService {
       const latestVersion = release.tag_name.replace(/^v/, '');
       const currentVersion = chrome.runtime.getManifest().version;
 
-      // Update last check time
-      await this.setLastCheckTime(now);
+      // Update last check time (even for force checks to avoid spam)
+      await this.setLastCheckTime(Date.now());
 
       // Compare versions
       if (this.isNewerVersion(latestVersion, currentVersion)) {
@@ -148,6 +151,27 @@ export class VersionService {
       };
     } catch (error) {
       console.warn('[AtlasXray] Version check failed:', error);
+      return { hasUpdate: false };
+    }
+  }
+
+  /**
+   * Check for updates specifically when popup opens (always fresh check)
+   */
+  async checkForUpdatesOnPopupOpen(): Promise<VersionInfo> {
+    try {
+      console.log('[AtlasXray] Checking for updates on popup open...');
+      const result = await this.checkForUpdates(true); // Force check
+      
+      // If update available and we haven't shown notification recently, show it
+      if (result.hasUpdate && !(await this.hasShownUpdateNotificationRecently())) {
+        await this.showUpdateNotification(result.latestVersion!, result.releaseUrl!);
+        await this.markUpdateNotificationShown();
+      }
+      
+      return result;
+    } catch (error) {
+      console.warn('[AtlasXray] Popup update check failed:', error);
       return { hasUpdate: false };
     }
   }
@@ -194,6 +218,33 @@ export class VersionService {
   }
 
   /**
+   * Check if we've shown an update notification recently (within 1 hour)
+   */
+  private async hasShownUpdateNotificationRecently(): Promise<boolean> {
+    try {
+      const result = await chrome.storage.local.get(this.UPDATE_NOTIFICATION_KEY);
+      const lastShown = result[this.UPDATE_NOTIFICATION_KEY] || 0;
+      const now = Date.now();
+      const oneHour = 60 * 60 * 1000;
+      
+      return (now - lastShown) < oneHour;
+    } catch {
+      return false;
+    }
+  }
+
+  /**
+   * Mark that we've shown an update notification
+   */
+  private async markUpdateNotificationShown(): Promise<void> {
+    try {
+      await chrome.storage.local.set({ [this.UPDATE_NOTIFICATION_KEY]: Date.now() });
+    } catch (error) {
+      console.warn('[AtlasXray] Failed to mark notification shown:', error);
+    }
+  }
+
+  /**
    * Register notification click listener (called only once)
    */
   private registerNotificationListener(): void {
@@ -235,13 +286,18 @@ export class VersionService {
       await chrome.notifications.create(notificationId, {
         type: 'basic',
         iconUrl: chrome.runtime.getURL('icons/icon-48.png'),
-        title: 'Atlas Xray Update Available',
-        message: `A new version (${latestVersion}) is available! Click to download.`,
-        priority: 1
+        title: '🚀 Atlas Xray Update Available!',
+        message: `Version ${latestVersion} is ready to download. Click to get the latest features and improvements!`,
+        priority: 2, // Higher priority for update notifications
+        requireInteraction: true // Don't auto-dismiss
       });
 
-      // Auto-clear notification after 10 seconds using chrome.alarms
-      chrome.alarms.create(`atlas-xray-clear-${notificationId}`, { when: Date.now() + 10000 });
+      // Auto-clear notification after 30 seconds (longer for updates)
+      chrome.alarms.create(`atlas-xray-clear-${notificationId}`, { 
+        when: Date.now() + 30000 
+      });
+
+      console.log(`[AtlasXray] ✅ Update notification shown for version ${latestVersion}`);
 
     } catch (error) {
       console.warn('[AtlasXray] Failed to show update notification:', error);
@@ -257,8 +313,9 @@ export class VersionService {
 export const versionService = VersionService.getInstance();
 
 // Export individual functions for backward compatibility
-export const checkForUpdates = () => versionService.checkForUpdates();
+export const checkForUpdates = (forceCheck?: boolean) => versionService.checkForUpdates(forceCheck);
 export const getLatestVersionInfo = () => versionService.getLatestVersionInfo();
+export const checkForUpdatesOnPopupOpen = () => versionService.checkForUpdatesOnPopupOpen();
 export const showUpdateNotification = (version: string, releaseUrl: string) => 
   versionService.showUpdateNotification(version, releaseUrl);
 export const cleanupNotification = (notificationId: string) => 

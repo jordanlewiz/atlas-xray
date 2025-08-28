@@ -487,7 +487,16 @@ async function storeAnalysisResult(updateId, result) {
 // Check for updates when extension starts
 chrome.runtime.onStartup.addListener(async () => {
   console.log('[AtlasXray] Extension started, checking for updates...');
-  await checkForUpdates();
+  // Force immediate check, bypass rate limiting
+  const result = await checkForUpdates(true);
+  
+  // If update available, show notification immediately
+  if (result.hasUpdate) {
+    console.log('[AtlasXray] 🚀 Update available on startup, showing notification...');
+    await showUpdateNotification(result.latestVersion, result.releaseUrl);
+  } else {
+    console.log('[AtlasXray] ✅ No updates available on startup');
+  }
 });
 
 // Check for updates when extension is installed/updated
@@ -500,18 +509,30 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     console.log('[AtlasXray] Extension updated to version:', chrome.runtime.getManifest().version);
   }
   
-  // Check for updates after a short delay using chrome.alarms
-  chrome.alarms.create('delayed-version-check', { when: Date.now() + 5000 });
+  // Force immediate version check (bypass rate limiting)
+  console.log('[AtlasXray] 🔍 Checking for updates on install/update...');
+  const result = await checkForUpdates(true);
+  
+  // If update available, show notification immediately
+  if (result.hasUpdate) {
+    console.log('[AtlasXray] 🚀 Update available after install/update, showing notification...');
+    await showUpdateNotification(result.latestVersion, result.releaseUrl);
+  } else {
+    console.log('[AtlasXray] ✅ No updates available after install/update');
+  }
 });
 
 // Check for updates periodically (every 24 hours)
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === 'version-check') {
     console.log('[AtlasXray] Periodic version check triggered');
-    await checkForUpdates();
-  } else if (alarm.name === 'delayed-version-check') {
-    console.log('[AtlasXray] Delayed version check triggered');
-    await checkForUpdates();
+    const result = await checkForUpdates(false); // Regular rate-limited check
+    
+    // If update available, show notification
+    if (result.hasUpdate) {
+      console.log('[AtlasXray] 🚀 Update available on periodic check, showing notification...');
+      await showUpdateNotification(result.latestVersion, result.releaseUrl);
+    }
   } else if (alarm.name.startsWith('atlas-xray-clear-')) {
     // Clear notification when alarm fires
     const notificationId = alarm.name.replace('atlas-xray-clear-', '');
