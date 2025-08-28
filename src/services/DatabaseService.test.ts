@@ -29,7 +29,9 @@ describe('DatabaseService', () => {
   });
 
   afterEach(async () => {
-    await service.clearAllData();
+    await service.clearProjectList();
+    await service.clearProjectUpdates();
+    await service.clearProjectDependencies('TEST-123');
     await service.close();
   });
 

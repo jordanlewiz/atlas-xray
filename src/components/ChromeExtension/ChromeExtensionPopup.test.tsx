@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, waitFor, act } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import Popup from './ChromeExtensionPopup';
+import { getLatestVersionInfo } from '../../services/VersionService';
 
 // Mock chrome global
 const mockTabsQuery = jest.fn();
@@ -14,16 +15,10 @@ const mockTabsQuery = jest.fn();
   }
 };
 
-// Mock VersionChecker
-jest.mock('../../utils/versionChecker', () => ({
-  VersionChecker: {
-    getLatestVersionInfo: jest.fn(),
-    isLocalDevVersion: () => true,
-    getVersionType: () => 'Local Development Build'
-  }
+// Mock VersionService
+jest.mock('../../services/VersionService', () => ({
+  getLatestVersionInfo: jest.fn()
 }));
-
-// VersionChecker is now inline in the component
 
 describe('Popup', () => {
   beforeEach(() => {
@@ -43,7 +38,7 @@ describe('Popup', () => {
         callback([{ url: 'https://home.atlassian.com/' }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -61,7 +56,7 @@ describe('Popup', () => {
         callback([{ url: 'https://github.com/' }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -79,7 +74,7 @@ describe('Popup', () => {
         callback([{ url: 'https://atlassian.design/' }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -97,7 +92,7 @@ describe('Popup', () => {
         callback([{ url: 'https://www.atlassian.com/' }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -115,7 +110,7 @@ describe('Popup', () => {
         callback([{ url: 'http://atlassian.net' }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -133,7 +128,7 @@ describe('Popup', () => {
         callback([{ url: 'https://mycompany.jira.com/browse/PROJ-123' }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -151,7 +146,7 @@ describe('Popup', () => {
         callback([{ url: 'https://mycompany.confluence.com/wiki/spaces/PROJ' }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -169,7 +164,7 @@ describe('Popup', () => {
         // Simulate chrome.tabs.query not calling callback (error case)
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -186,7 +181,7 @@ describe('Popup', () => {
         callback([]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -203,7 +198,7 @@ describe('Popup', () => {
         callback([{ url: undefined }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -222,7 +217,7 @@ describe('Popup', () => {
         // The timeout should fire after 3 seconds and set currentTabUrl to 'about:blank'
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -250,7 +245,7 @@ describe('Popup', () => {
         callback([{ url: 'https://github.com' }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -284,7 +279,7 @@ describe('Popup', () => {
         callback([{ url: 'https://test.atlassian.com' }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -301,7 +296,7 @@ describe('Popup', () => {
         callback([{ url: 'https://test.atlassian.com' }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: true,
         latestVersion: 'v1.1.0',
         releaseUrl: 'https://github.com/jordanlewiz/atlas-xray/releases/tag/v1.1.0'
@@ -320,7 +315,7 @@ describe('Popup', () => {
         callback([{ url: 'https://test.atlassian.com' }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockResolvedValue({
+      getLatestVersionInfo.mockResolvedValue({
         hasUpdate: false,
         latestVersion: 'v1.0.0'
       });
@@ -337,7 +332,7 @@ describe('Popup', () => {
         callback([{ url: 'https://test.atlassian.com' }]);
       });
 
-      (VersionChecker.getLatestVersionInfo as jest.Mock).mockRejectedValue(new Error('Network error'));
+      getLatestVersionInfo.mockRejectedValue(new Error('Network error'));
 
       render(<Popup />);
 

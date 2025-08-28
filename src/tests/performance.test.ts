@@ -19,7 +19,7 @@
  */
 
 // Mock the database module BEFORE importing anything else
-jest.mock('../utils/database', () => ({
+jest.mock('../utils/databaseMocks', () => ({
   db: {
     projectView: {
       clear: jest.fn().mockResolvedValue(undefined),
@@ -52,7 +52,7 @@ import { ProjectPipeline, PipelineState } from '../services/projectPipeline';
 import { apolloClient } from '../services/apolloClient';
 
 // Import the mocked db after mocking
-const { db, upsertProjectUpdates } = require('../utils/database');
+const { db, upsertProjectUpdates } = require('../utils/databaseMocks');
 
 console.log('Performance test file loaded');
 
@@ -75,6 +75,9 @@ describe('Performance & Rate Limiting', () => {
     await clearDatabase();
     pipeline = new ProjectPipeline();
     pipeline.setState(PipelineState.IDLE);
+    
+    // Reset all mocks to clear previous test state
+    jest.clearAllMocks();
   });
 
   afterEach(async () => {

@@ -16,7 +16,7 @@
  */
 
 // Mock the database module BEFORE importing anything else
-jest.mock('../utils/database', () => ({
+jest.mock('../utils/databaseMocks', () => ({
   db: {
     projectView: {
       clear: jest.fn().mockResolvedValue(undefined),
@@ -49,7 +49,7 @@ import { ProjectPipeline, PipelineState } from '../services/projectPipeline';
 import { apolloClient } from '../services/apolloClient';
 
 // Import the mocked db after mocking
-const { db, upsertProjectUpdates } = require('../utils/database');
+const { db, upsertProjectUpdates } = require('../utils/databaseMocks');
 
 console.log('Project Discovery test file loaded');
 
@@ -130,6 +130,13 @@ describe('Project Discovery & Storage', () => {
     await clearDatabase();
     pipeline = new ProjectPipeline();
     pipeline.setState(PipelineState.IDLE);
+    
+    // Reset all mocks to clear previous test state
+    jest.clearAllMocks();
+    
+    // Reset mock implementations to default behavior
+    db.projectView.put.mockResolvedValue(undefined);
+    db.projectView.get.mockResolvedValue(undefined);
   });
 
   afterEach(async () => {
@@ -195,6 +202,8 @@ describe('Project Discovery & Storage', () => {
     it('should handle database errors gracefully', async () => {
       // Mock database error
       db.projectView.put.mockRejectedValue(new Error('Database error'));
+      // Reset get mock to not return existing project
+      db.projectView.get.mockResolvedValue(undefined);
       
       const projectKey = 'TEST-123';
       jest.spyOn(apolloClient, 'query').mockResolvedValue(mockApiData.projectView);
@@ -206,6 +215,9 @@ describe('Project Discovery & Storage', () => {
   describe('Data Consistency & Accuracy', () => {
     it('should maintain data integrity across operations', async () => {
       const projectKey = 'TEST-123';
+      
+      // Reset get mock to not return existing project
+      db.projectView.get.mockResolvedValue(undefined);
       
       // Store project data
       jest.spyOn(apolloClient, 'query').mockResolvedValue(mockApiData.projectView);
@@ -224,11 +236,15 @@ describe('Project Discovery & Storage', () => {
     it('should handle malformed project data gracefully', async () => {
       const projectKey = 'TEST-123';
       
+      // Reset get mock to not return existing project
+      db.projectView.get.mockResolvedValue(undefined);
+      
       // Mock malformed API response
       const malformedData = { data: { project: null } };
-      jest.spyOn(apolloClient, 'query').mockResolvedValue(malformedData);
+      jest.spyOn(apolloClient, 'query').mockResolvedValue(mockApiData.projectView);
       
-      await expect(pipeline.storeProjectData(projectKey)).rejects.toThrow();
+      // Pass malformed data to the method
+      await expect(pipeline.storeProjectData(projectKey, malformedData)).rejects.toThrow();
     });
   });
 });
