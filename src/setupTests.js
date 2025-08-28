@@ -1,5 +1,101 @@
 import '@testing-library/jest-dom';
 
+// Mock IndexedDB for tests
+const indexedDB = {
+  open: jest.fn(),
+  deleteDatabase: jest.fn(),
+  databases: jest.fn()
+};
+
+Object.defineProperty(window, 'indexedDB', {
+  writable: true,
+  value: indexedDB
+});
+
+// Mock Dexie for tests
+jest.mock('dexie', () => {
+  const mockDexie = jest.fn().mockImplementation(() => ({
+    version: jest.fn().mockReturnThis(),
+    stores: jest.fn().mockReturnThis(),
+    open: jest.fn().mockResolvedValue(undefined),
+    close: jest.fn().mockResolvedValue(undefined),
+    projectList: {
+      clear: jest.fn().mockResolvedValue(undefined),
+      toArray: jest.fn().mockResolvedValue([]),
+      count: jest.fn().mockResolvedValue(0),
+      add: jest.fn().mockResolvedValue(undefined),
+      get: jest.fn().mockResolvedValue(undefined),
+      put: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined)
+    },
+    projectSummaries: {
+      clear: jest.fn().mockResolvedValue(undefined),
+      toArray: jest.fn().mockResolvedValue([]),
+      count: jest.fn().mockResolvedValue(0),
+      add: jest.fn().mockResolvedValue(undefined),
+      get: jest.fn().mockResolvedValue(undefined),
+      put: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined)
+    },
+    projectUpdates: {
+      clear: jest.fn().mockResolvedValue(undefined),
+      toArray: jest.fn().mockResolvedValue([]),
+      count: jest.fn().mockResolvedValue(0),
+      add: jest.fn().mockResolvedValue(undefined),
+      get: jest.fn().mockResolvedValue(undefined),
+      put: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined),
+      where: jest.fn().mockReturnThis(),
+      equals: jest.fn().mockReturnThis(),
+      above: jest.fn().mockReturnThis(),
+      below: jest.fn().mockReturnThis(),
+      between: jest.fn().mockReturnThis(),
+      filter: jest.fn().mockReturnThis()
+    },
+    projectDependencies: {
+      clear: jest.fn().mockResolvedValue(undefined),
+      toArray: jest.fn().mockResolvedValue([]),
+      count: jest.fn().mockResolvedValue(0),
+      add: jest.fn().mockResolvedValue(undefined),
+      get: jest.fn().mockResolvedValue(undefined),
+      put: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined)
+    },
+    meta: {
+      clear: jest.fn().mockResolvedValue(undefined),
+      toArray: jest.fn().mockResolvedValue([]),
+      count: jest.fn().mockResolvedValue(0),
+      add: jest.fn().mockResolvedValue(undefined),
+      get: jest.fn().mockResolvedValue(undefined),
+      put: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined)
+    },
+    storedAnalyses: {
+      clear: jest.fn().mockResolvedValue(undefined),
+      toArray: jest.fn().mockResolvedValue([]),
+      count: jest.fn().mockResolvedValue(0),
+      add: jest.fn().mockResolvedValue(undefined),
+      get: jest.fn().mockResolvedValue(undefined),
+      put: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined)
+    },
+    analysisCache: {
+      clear: jest.fn().mockResolvedValue(undefined),
+      toArray: jest.fn().mockResolvedValue([]),
+      count: jest.fn().mockResolvedValue(0),
+      add: jest.fn().mockResolvedValue(undefined),
+      get: jest.fn().mockResolvedValue(undefined),
+      put: jest.fn().mockResolvedValue(undefined),
+      delete: jest.fn().mockResolvedValue(undefined)
+    }
+  }));
+  
+  mockDexie.Table = jest.fn();
+  return mockDexie;
+});
+
+
+
 // Suppress specific console warnings during tests
 const originalWarn = console.warn;
 const originalError = console.error;

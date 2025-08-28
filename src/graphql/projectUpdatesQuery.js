@@ -7,7 +7,6 @@ export const PROJECT_UPDATES_QUERY = `
   ) {
     project: projectByKey(key: $key) {
       key @include(if: $isUpdatesTab)
-      targetDate @include(if: $isUpdatesTab)
       ...ProjectUpdates @include(if: $isUpdatesTab)
       id
     }
@@ -200,6 +199,7 @@ export const PROJECT_UPDATES_QUERY = `
 
   fragment MissedProjectUpdateCard on ProjectUpdate {
     id
+    ari
     uuid
     project {
       ari
@@ -344,6 +344,7 @@ export const PROJECT_UPDATES_QUERY = `
 
   fragment ProjectUpdateCardInternal on ProjectUpdate {
     id
+    ari
     project {
       uuid
       ari

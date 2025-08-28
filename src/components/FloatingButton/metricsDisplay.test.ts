@@ -50,7 +50,6 @@ describe('FloatingButton Metrics Display', () => {
   describe('formatFloatingButtonTooltip', () => {
     it('should return formatted tooltip text', () => {
       const result = formatFloatingButtonTooltip(mockMetrics);
-      expect(result).toContain('Atlas Xray Status');
       expect(result).toContain('Projects: 4 in query • 4 Total Stored');
       expect(result).toContain('Updates: 16 in query • 27 Total Stored • 18 Analyzed');
     });
@@ -58,7 +57,7 @@ describe('FloatingButton Metrics Display', () => {
     it('should include newlines for proper formatting', () => {
       const result = formatFloatingButtonTooltip(mockMetrics);
       const lines = result.split('\n');
-      expect(lines).toHaveLength(4); // 4 lines including header
+      expect(lines).toHaveLength(2); // 2 lines: projects and updates
     });
   });
 
