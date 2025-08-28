@@ -19,8 +19,6 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install dependencies
         run: npm ci
-      - name: Check version consistency
-        run: npm run check:versions
       - name: Build
         run: npm run build
       - name: Copy manifest and assets
@@ -32,6 +30,8 @@ jobs:
           # Update manifest.json version
           sed -i "s/\"version\": \".*\"/\"version\": \"$VERSION\"/" manifest.json
           echo "Updated manifest.json to version $VERSION"
+      - name: Check version consistency
+        run: npm run check:versions
       - name: Get version
         id: version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
