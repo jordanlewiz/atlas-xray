@@ -41,7 +41,10 @@ describe('Performance & Rate Limiting', () => {
       
       // Mock API response
       jest.spyOn(apolloClient, 'query').mockResolvedValue({
-        data: { project: { updates: { edges: [] } } }
+        data: { project: { updates: { edges: [] } } },
+        loading: false,
+        networkStatus: 7,
+        error: undefined
       });
       
       const startTime = Date.now();
@@ -65,7 +68,10 @@ describe('Performance & Rate Limiting', () => {
       
       // Mock API responses
       jest.spyOn(apolloClient, 'query').mockResolvedValue({
-        data: { project: { updates: { edges: [] } } }
+        data: { project: { updates: { edges: [] } } },
+        loading: false,
+        networkStatus: 7,
+        error: undefined
       });
       
       const startTime = Date.now();
@@ -176,17 +182,20 @@ describe('Performance & Rate Limiting', () => {
       
       // First call - should hit API
       jest.spyOn(apolloClient, 'query').mockResolvedValue({
-        data: { project: { key: projectKey, name: 'Test Project' } }
+        data: { project: { key: projectKey, name: 'Test Project' } },
+        loading: false,
+        networkStatus: 7,
+        error: undefined
       });
       
       const firstCall = await apolloClient.query({
-        query: { definitions: [], kind: 'Document' },
+        query: { definitions: [], kind: 'Document' as any },
         variables: { key: projectKey }
       });
       
       // Second call - should hit cache (simulated by mock)
       const secondCall = await apolloClient.query({
-        query: { definitions: [], kind: 'Document' },
+        query: { definitions: [], kind: 'Document' as any },
         variables: { key: projectKey }
       });
       
@@ -202,11 +211,14 @@ describe('Performance & Rate Limiting', () => {
       
       // Initial data
       jest.spyOn(apolloClient, 'query').mockResolvedValue({
-        data: { project: { key: projectKey, name: 'Test Project' } }
+        data: { project: { key: projectKey, name: 'Test Project' } },
+        loading: false,
+        networkStatus: 7,
+        error: undefined
       });
       
       await apolloClient.query({
-        query: { definitions: [], kind: 'Document' },
+        query: { definitions: [], kind: 'Document' as any },
         variables: { key: projectKey }
       });
       
@@ -215,11 +227,14 @@ describe('Performance & Rate Limiting', () => {
       
       // Next call should hit API again
       jest.spyOn(apolloClient, 'query').mockResolvedValue({
-        data: { project: { key: projectKey, name: 'Test Project Updated' } }
+        data: { project: { key: projectKey, name: 'Test Project Updated' } },
+        loading: false,
+        networkStatus: 7,
+        error: undefined
       });
       
       await apolloClient.query({
-        query: { definitions: [], kind: 'Document' },
+        query: { definitions: [], kind: 'Document' as any },
         variables: { key: projectKey }
       });
       
