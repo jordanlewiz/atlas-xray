@@ -12,6 +12,7 @@ export interface RateLimitConfig {
   maxRetries: number;       // Maximum retry attempts (default: 3)
   maxDelay: number;         // Maximum delay cap in milliseconds (default: 10000)
   jitter: boolean;          // Add random jitter to prevent thundering herd (default: true)
+  testMode: boolean;        // If true, skips actual delays for testing
 }
 
 export class RateLimitManager {
@@ -24,6 +25,7 @@ export class RateLimitManager {
       maxRetries: 3,
       maxDelay: 10000,
       jitter: true,
+      testMode: false,
       ...config
     };
   }
@@ -36,7 +38,6 @@ export class RateLimitManager {
     customConfig?: Partial<RateLimitConfig>
   ): Promise<T> {
     const config = { ...this.config, ...customConfig };
-    this.retryCount = 0;
     
     try {
       return await operation();
@@ -46,13 +47,15 @@ export class RateLimitManager {
         this.retryCount++;
         
         console.log(`[RateLimit] Retry ${this.retryCount}/${config.maxRetries} after ${delay}ms delay`);
-        console.log(`[RateLimit] Error: ${error.message || 'Unknown error'}`);
+        console.log(`[RateLimit] Error: ${(error as any).message || 'Unknown error'}`);
         
-        await this.delay(delay);
+        if (!config.testMode) {
+          await this.delay(delay);
+        }
         return this.executeWithBackoff(operation, customConfig);
       }
       
-      // Reset retry count for non-rate-limit errors
+      // Reset retry count for non-rate-limit errors or when max retries exceeded
       this.retryCount = 0;
       throw error;
     }

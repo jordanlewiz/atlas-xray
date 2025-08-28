@@ -33,8 +33,8 @@ describe('RateLimitManager', () => {
       const operation = jest.fn().mockRejectedValue(error429);
       
       await expect(rateLimiter.executeWithBackoff(operation)).rejects.toThrow('Too Many Requests');
-      expect(operation).toHaveBeenCalledTimes(2); // Initial + 1 retry
-      expect(rateLimiter.getRetryCount()).toBe(1);
+      expect(operation).toHaveBeenCalledTimes(4); // Initial + 3 retries (maxRetries = 3)
+      expect(rateLimiter.getRetryCount()).toBe(3);
     });
     
     it('should detect GraphQL rate limit errors', async () => {
@@ -45,8 +45,8 @@ describe('RateLimitManager', () => {
       const operation = jest.fn().mockRejectedValue(graphQLError);
       
       await expect(rateLimiter.executeWithBackoff(operation)).rejects.toThrow('Rate limit exceeded');
-      expect(operation).toHaveBeenCalledTimes(2);
-      expect(rateLimiter.getRetryCount()).toBe(1);
+      expect(operation).toHaveBeenCalledTimes(4); // Initial + 3 retries
+      expect(rateLimiter.getRetryCount()).toBe(3);
     });
     
     it('should detect rate limit errors in error messages', async () => {
@@ -61,7 +61,7 @@ describe('RateLimitManager', () => {
         const operation = jest.fn().mockRejectedValue(new Error(message));
         
         await expect(rateLimiter.executeWithBackoff(operation)).rejects.toThrow(message);
-        expect(operation).toHaveBeenCalledTimes(2);
+        expect(operation).toHaveBeenCalledTimes(4); // Initial + 3 retries
         
         // Reset for next test
         rateLimiter.reset();
@@ -77,9 +77,8 @@ describe('RateLimitManager', () => {
       const operation = jest.fn().mockRejectedValue(networkError);
       
       await expect(rateLimiter.executeWithBackoff(operation)).rejects.toThrow('Network error');
-      expect(operation).toHaveBeenCalledTimes(2);
-      expect(operation).toHaveBeenCalledTimes(2);
-      expect(rateLimiter.getRetryCount()).toBe(1);
+      expect(operation).toHaveBeenCalledTimes(4); // Initial + 3 retries
+      expect(rateLimiter.getRetryCount()).toBe(3);
     });
   });
   
