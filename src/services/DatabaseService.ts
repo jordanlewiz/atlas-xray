@@ -91,9 +91,10 @@ export class DatabaseService extends Dexie {
     
     super(dbName);
     
-    // Always start with version 1 - no migrations needed
-    // Note: This approach ensures fresh DB on each install but limits schema evolution
-    // Future consideration: Could use extension version + schema version for more flexibility
+    // Always start with version 1 - no migrations needed.
+    // RATIONALE: The database name includes the extension version, so a fresh DB is created for each extension install.
+    // This means schema migrations are not required, and the schema version is always set to 1.
+    // If schema evolution becomes necessary in the future, consider using a composite versioning scheme (e.g., extensionVersion.schemaVersion).
     this.version(1).stores({
       projectList: 'projectKey',
       projectSummaries: 'projectKey',
