@@ -92,6 +92,8 @@ export class DatabaseService extends Dexie {
     super(dbName);
     
     // Always start with version 1 - no migrations needed
+    // Note: This approach ensures fresh DB on each install but limits schema evolution
+    // Future consideration: Could use extension version + schema version for more flexibility
     this.version(1).stores({
       projectList: 'projectKey',
       projectSummaries: 'projectKey',
@@ -109,9 +111,13 @@ export class DatabaseService extends Dexie {
   private static getExtensionVersion(): string {
     try {
       // Try to get version from Chrome extension manifest
-      if (typeof (globalThis as any).chrome !== 'undefined' && 
-          (globalThis as any).chrome?.runtime?.getManifest) {
-        const manifest = (globalThis as any).chrome.runtime.getManifest();
+      const chrome = (globalThis as any).chrome;
+      if (
+        chrome &&
+        chrome.runtime &&
+        typeof chrome.runtime.getManifest === 'function'
+      ) {
+        const manifest = chrome.runtime.getManifest();
         return manifest.version || 'unknown';
       }
       
@@ -428,6 +434,7 @@ export class DatabaseService extends Dexie {
 
   /**
    * Clean up old databases (keep only current version)
+   * Uses concurrent deletion for better performance
    */
   static async cleanupOldDatabases(): Promise<void> {
     try {
@@ -435,22 +442,35 @@ export class DatabaseService extends Dexie {
       const currentDbName = `AtlasXrayDB_${currentVersion}`;
       const allDatabases = await DatabaseService.listAllDatabases();
       
-      let cleanedCount = 0;
-      for (const dbName of allDatabases) {
-        if (dbName !== currentDbName) {
-          try {
-            await Dexie.delete(dbName);
-            console.log(`[DatabaseService] 🧹 Cleaned up old database: ${dbName}`);
-            cleanedCount++;
-          } catch (error) {
-            console.warn(`[DatabaseService] Failed to clean up database ${dbName}:`, error);
-          }
-        }
-      }
+      // Filter out current database and create concurrent deletion promises
+      const deletionPromises = allDatabases
+        .filter(dbName => dbName !== currentDbName)
+        .map(dbName =>
+          Dexie.delete(dbName)
+            .then(() => {
+              console.log(`[DatabaseService] 🧹 Cleaned up old database: ${dbName}`);
+              return { dbName, status: 'fulfilled' as const };
+            })
+            .catch(error => {
+              console.warn(`[DatabaseService] Failed to clean up database ${dbName}:`, error);
+              return { dbName, status: 'rejected' as const, reason: error };
+            })
+        );
+      
+      // Execute all deletions concurrently
+      const results = await Promise.allSettled(deletionPromises);
+      
+      // Count successful deletions
+      const cleanedCount = results.filter(r => r.status === 'fulfilled').length;
+      const failedCount = results.filter(r => r.status === 'rejected').length;
       
       if (cleanedCount > 0) {
         console.log(`[DatabaseService] 🧹 Cleaned up ${cleanedCount} old database(s)`);
-      } else {
+      }
+      if (failedCount > 0) {
+        console.warn(`[DatabaseService] ⚠️ Failed to clean up ${failedCount} database(s)`);
+      }
+      if (cleanedCount === 0 && failedCount === 0) {
         console.log(`[DatabaseService] ✨ No old databases to clean up`);
       }
     } catch (error) {
