@@ -1,0 +1,41 @@
+---
+description: Database architecture, versioning strategy, and management patterns for the Atlas Xray extension
+---
+
+# Database Architecture & Management
+
+## Core Principles
+- **Fresh Start Strategy**: Each extension version gets a new database (no migrations)
+- **Version Isolation**: Database names include extension version (e.g., `AtlasXrayDB_0.1.11`)
+- **No Data Persistence**: Users start fresh with each update for optimal performance
+
+## Database Structure
+The main database service is located in [src/services/DatabaseService.ts](mdc:src/services/DatabaseService.ts) and includes:
+
+### Tables
+- `projectList`: Basic project identification (indexed by `projectKey`)
+- `projectSummaries`: Rich project data including dependencies
+- `projectUpdates`: Status changes with AI analysis results
+- `projectDependencies`: Relationship mapping between projects
+
+### Key Methods
+- `initializeDatabase(cleanupOldDatabases: boolean)`: Initialize with optional cleanup
+- `cleanupOldDatabases()`: Remove databases from older extension versions
+- `listAllDatabases()`: List all AtlasXray databases for cleanup
+
+## Versioning Strategy
+- **Schema Version**: Always starts at 1 (no internal versioning)
+- **Extension Version**: Changes with each release
+- **Result**: New database created for each extension update
+
+## Best Practices
+- Use concurrent operations (`Promise.allSettled()`) for database cleanup
+- Implement proper type guards instead of unsafe casting
+- Always handle database errors gracefully with user-friendly messages
+- Log database operations for debugging and monitoring
+
+## Trade-offs
+- ✅ **Simple**: No complex migration logic
+- ✅ **Performance**: Clean databases for optimal speed
+- ❌ **Data Loss**: Users lose data on each update
+- ❌ **Limited Evolution**: Can't change schema within same version

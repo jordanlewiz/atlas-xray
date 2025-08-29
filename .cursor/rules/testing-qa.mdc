@@ -1,0 +1,44 @@
+---
+description: Testing strategies, quality assurance practices, and test maintenance guidelines
+---
+
+# Testing & Quality Assurance
+
+## Testing Framework
+- **Jest**: Primary testing framework with jsdom environment
+- **Test Files**: Located in [src/tests/](mdc:src/tests/) and alongside source files
+- **Coverage**: Comprehensive testing of services, components, and utilities
+
+## Test Categories
+### Unit Tests
+- **Services**: Database operations, API calls, business logic
+- **Components**: React component rendering and interactions
+- **Utilities**: Helper functions and data processing
+
+### Integration Tests
+- **Database Operations**: End-to-end database workflows
+- **Service Integration**: Service-to-service communication
+- **API Integration**: GraphQL queries and responses
+
+### Mocking Strategy
+- **Database Mocks**: [src/setupTests.js](mdc:src/setupTests.js) provides comprehensive database mocking
+- **Chrome APIs**: Mocked Chrome extension APIs for testing environment
+- **External Services**: Mocked GraphQL and other external dependencies
+
+## Test Best Practices
+- **Isolation**: Each test should be independent and not affect others
+- **Mocking**: Use mocks for external dependencies and browser APIs
+- **Error Handling**: Test both success and failure scenarios
+- **Performance**: Use concurrent operations where possible (e.g., `Promise.allSettled`)
+
+## Quality Assurance
+- **Type Safety**: TypeScript for compile-time error checking
+- **Linting**: ESLint for code quality and consistency
+- **Version Consistency**: Automated checking of version numbers across files
+- **Build Verification**: Automated build testing before releases
+
+## Test Maintenance
+- **Regular Updates**: Keep tests in sync with code changes
+- **Mock Updates**: Update mocks when external dependencies change
+- **Performance Monitoring**: Monitor test execution time and optimize slow tests
+- **Coverage Analysis**: Regular coverage reporting and gap identification

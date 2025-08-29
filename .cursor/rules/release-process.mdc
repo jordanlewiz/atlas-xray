@@ -1,0 +1,50 @@
+---
+description: Release process, version management, and deployment automation guidelines
+---
+
+# Release Process & Version Management
+
+## Version Strategy
+- **Semantic Versioning**: Major.Minor.Patch (e.g., 0.1.11)
+- **Database Versioning**: Extension version appended to database names
+- **Fresh Start**: Each version gets a new database (no migrations)
+
+## Release Workflow
+### Pre-Release
+1. **Version Check**: Ensure consistency across package.json, manifest.json, and dist files
+2. **Test Suite**: Run complete test suite (`npm test`)
+3. **Build Verification**: Verify successful build (`npm run build:check`)
+
+### Release Commands
+- **Patch Release**: `npm run release:patch` (bug fixes)
+- **Minor Release**: `npm run release:minor` (new features)
+- **Major Release**: `npm run release:major` (breaking changes)
+- **Custom Version**: `npm run release:custom` (specific version)
+
+### GitHub Actions Integration
+- **Automated Builds**: CI/CD pipeline for consistent releases
+- **Version Consistency**: Automated version checking and validation
+- **Database Cleanup**: Background script triggers old database cleanup
+
+## Version Management
+### Consistency Checking
+- **Scripts**: [scripts/checkVersionConsistency.js](mdc:scripts/checkVersionConsistency.js)
+- **Files**: package.json, manifest.json, dist/manifest.json
+- **Validation**: All versions must match before release
+
+### Database Lifecycle
+1. **Install/Update**: New database created with version suffix
+2. **Background Cleanup**: Old databases automatically removed
+3. **User Experience**: Fresh start with each update
+
+## Best Practices
+- **Always test before release**: Run full test suite and build verification
+- **Version consistency**: Never release with mismatched versions
+- **Database cleanup**: Ensure old databases are properly removed
+- **User communication**: Clear release notes and update information
+
+## Troubleshooting
+- **Version Mismatches**: Use `npm run check:versions` to identify issues
+- **Build Failures**: Check for compilation errors and missing dependencies
+- **Database Issues**: Verify database initialization and cleanup processes
+- **GitHub Actions**: Monitor workflow execution and error logs
