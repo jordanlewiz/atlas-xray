@@ -1,0 +1,38 @@
+---
+description: Chrome extension development patterns, best practices, and architecture guidelines
+---
+
+# Chrome Extension Development Patterns
+
+## Project Structure
+- **Background Scripts**: [src/background/](mdc:src/background/) for persistent background processes
+- **Content Scripts**: [src/contentScripts/](mdc:src/contentScripts/) for page injection
+- **Components**: [src/components/](mdc:src/components/) for React UI components
+- **Services**: [src/services/](mdc:src/services/) for business logic and data management
+
+## Key Technologies
+- **React**: UI components with TypeScript
+- **IndexedDB**: Client-side data storage via Dexie.js
+- **Chrome APIs**: Runtime, storage, notifications, alarms
+- **GraphQL**: Apollo Client for data fetching
+
+## Manifest Management
+- **Version Consistency**: All version numbers must match across package.json, manifest.json, and dist files
+- **Build Process**: Automated manifest generation with [scripts/buildManifest.js](mdc:scripts/buildManifest.js)
+- **Path Correction**: Automatic path correction for Chrome extension installation
+
+## Content Script Integration
+- **React Rendering**: Use `createRoot` and `React.createElement` for rendering React components
+- **DOM Injection**: Create containers and render components into existing pages
+- **Event Handling**: Proper cleanup of event listeners and observers
+
+## Background Script Patterns
+- **Database Cleanup**: Automatic cleanup of old databases on extension startup
+- **Service Initialization**: Proper initialization order for database and other services
+- **Error Handling**: Comprehensive error handling with logging
+
+## Build & Release Process
+- **Version Management**: Automated version bumping and consistency checking
+- **GitHub Actions**: CI/CD pipeline for automated releases
+- **Database Versioning**: Fresh database per extension version
+- **CSS Compilation**: Sass compilation and merging for content scripts

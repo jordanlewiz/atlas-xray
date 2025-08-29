@@ -1,0 +1,41 @@
+---
+description: URL pattern detection strategies and button visibility management for Chrome extension components
+---
+
+# URL Pattern Detection & Button Management
+
+## Architecture Overview
+The extension uses different URL detection strategies for different components:
+
+### FloatingButton Component
+- **Location**: [src/components/FloatingButton/FloatingButton.tsx](mdc:src/components/FloatingButton/FloatingButton.tsx)
+- **Pattern**: `'projects?view=list'` (specific to list view)
+- **Purpose**: Shows project analysis modal on project list pages
+
+### DependencyButton Component
+- **Location**: [src/components/DependencyButton/DependencyButton.tsx](mdc:src/components/DependencyButton/DependencyButton.tsx)
+- **Pattern**: `'projects?view=timeline'` (specific to timeline view)
+- **Purpose**: Shows/hides project dependency visualization
+
+## URL Detection Methods
+### Current Implementation
+- **FloatingButton**: Uses inline `useUrlPattern` hook with specific pattern
+- **DependencyButton**: Uses shared `useUrlPattern` hook with different pattern
+- **ContentScript**: Handles button rendering and lifecycle management
+
+### URL Change Detection
+- **Event Listeners**: `popstate`, `hashchange` for SPA navigation
+- **Pattern Matching**: Simple `includes()` checks for URL patterns
+- **State Management**: React state for button visibility
+
+## Best Practices
+- Use specific URL patterns (e.g., `'projects?view=list'` not just `'projects?'`)
+- Implement proper cleanup of event listeners in React components
+- Log URL pattern matches for debugging
+- Handle URL changes gracefully with proper state updates
+
+## Component Lifecycle
+1. **Mount**: Check initial URL and set visibility
+2. **URL Changes**: Update visibility based on new URL
+3. **Unmount**: Clean up event listeners
+4. **Error Handling**: Graceful fallbacks for invalid URLs

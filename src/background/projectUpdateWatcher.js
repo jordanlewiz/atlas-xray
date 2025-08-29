@@ -56,7 +56,8 @@ async function initializeWatcher() {
     }
     
     // Initialize database (this will trigger background analysis of unanalyzed updates)
-    await initializeDatabase();
+    // Enable cleanup of old databases in background script
+    await initializeDatabase(true);
     
     // Start watching for updates
     startWatching();

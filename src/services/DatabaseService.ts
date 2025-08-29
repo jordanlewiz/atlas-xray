@@ -85,15 +85,49 @@ export class DatabaseService extends Dexie {
   projectDependencies!: Table<ProjectDependency>;
 
   constructor() {
-    const dbName = 'AtlasXrayDB';
+    // Use extension version for database naming - fresh DB every install
+    const extensionVersion = DatabaseService.getExtensionVersion();
+    const dbName = `AtlasXrayDB_${extensionVersion}`;
+    
     super(dbName);
     
-    this.version(4).stores({
+    // Always start with version 1 - no migrations needed.
+    // RATIONALE: The database name includes the extension version, so a fresh DB is created for each extension install.
+    // This means schema migrations are not required, and the schema version is always set to 1.
+    // If schema evolution becomes necessary in the future, consider using a composite versioning scheme (e.g., extensionVersion.schemaVersion).
+    this.version(1).stores({
       projectList: 'projectKey',
       projectSummaries: 'projectKey',
       projectUpdates: 'uuid, projectKey, creationDate, updateQuality, analyzed, newTargetDate, newTargetDateParsed, oldTargetDate, oldTargetDateParsed, creatorName',
       projectDependencies: 'id, sourceProjectKey, targetProjectKey',
     });
+    
+    console.log(`[DatabaseService] 🗄️ Using database: ${dbName} (Extension: ${extensionVersion})`);
+  }
+
+  /**
+   * Get the current extension version from manifest
+   * Falls back to 'dev' if not available (for development/testing)
+   */
+  private static getExtensionVersion(): string {
+    try {
+      // Try to get version from Chrome extension manifest
+      const chrome = (globalThis as any).chrome;
+      if (
+        chrome &&
+        chrome.runtime &&
+        typeof chrome.runtime.getManifest === 'function'
+      ) {
+        const manifest = chrome.runtime.getManifest();
+        return manifest.version || 'unknown';
+      }
+      
+      // Fallback for non-Chrome environments (testing, development)
+      return 'dev';
+    } catch (error) {
+      console.warn('[DatabaseService] Could not get extension version, using "dev":', error);
+      return 'dev';
+    }
   }
 
   // ============================================================================
@@ -367,6 +401,83 @@ export class DatabaseService extends Dexie {
       throw error;
     }
   }
+
+  // ============================================================================
+  // DATABASE MANAGEMENT UTILITIES
+  // ============================================================================
+
+  /**
+   * Get the current database name
+   */
+  getDatabaseName(): string {
+    return this.name;
+  }
+
+  /**
+   * Get the current extension version used for this database
+   */
+  getExtensionVersion(): string {
+    return DatabaseService.getExtensionVersion();
+  }
+
+  /**
+   * List all AtlasXray databases (for cleanup purposes)
+   */
+  static async listAllDatabases(): Promise<string[]> {
+    try {
+      const allDatabases = await Dexie.getDatabaseNames();
+      return allDatabases.filter(name => name.startsWith('AtlasXrayDB_'));
+    } catch (error) {
+      console.error('[DatabaseService] Failed to list databases:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Clean up old databases (keep only current version)
+   * Uses concurrent deletion for better performance
+   */
+  static async cleanupOldDatabases(): Promise<void> {
+    try {
+      const currentVersion = DatabaseService.getExtensionVersion();
+      const currentDbName = `AtlasXrayDB_${currentVersion}`;
+      const allDatabases = await DatabaseService.listAllDatabases();
+      
+      // Filter out current database and create concurrent deletion promises
+      const deletionPromises = allDatabases
+        .filter(dbName => dbName !== currentDbName)
+        .map(dbName =>
+          Dexie.delete(dbName)
+            .then(() => {
+              console.log(`[DatabaseService] 🧹 Cleaned up old database: ${dbName}`);
+              return { dbName, status: 'fulfilled' as const };
+            })
+            .catch(error => {
+              console.warn(`[DatabaseService] Failed to clean up database ${dbName}:`, error);
+              return { dbName, status: 'rejected' as const, reason: error };
+            })
+        );
+      
+      // Execute all deletions concurrently
+      const results = await Promise.allSettled(deletionPromises);
+      
+      // Count successful deletions
+      const cleanedCount = results.filter(r => r.status === 'fulfilled').length;
+      const failedCount = results.filter(r => r.status === 'rejected').length;
+      
+      if (cleanedCount > 0) {
+        console.log(`[DatabaseService] 🧹 Cleaned up ${cleanedCount} old database(s)`);
+      }
+      if (failedCount > 0) {
+        console.warn(`[DatabaseService] ⚠️ Failed to clean up ${failedCount} database(s)`);
+      }
+      if (cleanedCount === 0 && failedCount === 0) {
+        console.log(`[DatabaseService] ✨ No old databases to clean up`);
+      }
+    } catch (error) {
+      console.error('[DatabaseService] Failed to clean up old databases:', error);
+    }
+  }
 }
 
 // ============================================================================
@@ -399,7 +510,7 @@ export const getAllProjectDependencies = () => databaseService.getAllProjectDepe
 export const clearProjectDependencies = (projectKey: string) => databaseService.clearProjectDependencies(projectKey);
 
 // Initialize database
-export async function initializeDatabase(): Promise<void> {
+export async function initializeDatabase(cleanupOldDatabases: boolean = false): Promise<void> {
   try {
     // Check if we're in content script or background script
     const isContentScript = typeof window !== 'undefined' && (
@@ -408,6 +519,11 @@ export async function initializeDatabase(): Promise<void> {
     ) && !window.location.href.includes('chrome-extension://') && !window.location.href.includes('moz-extension://');
     
     await databaseService.open();
+    
+    // Optionally clean up old databases (useful for background script)
+    if (cleanupOldDatabases) {
+      await DatabaseService.cleanupOldDatabases();
+    }
     
   } catch (error) {
     console.error('[DatabaseService] ❌ Failed to initialize database:', error);
