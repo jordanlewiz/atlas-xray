@@ -11,6 +11,7 @@ export enum PageType {
 
 export class PageTypeDetector {
   private static currentPageType: PageType | null = null;
+  private static floatingButtonContainer: HTMLElement | null = null;
   
   private static patterns = [
     { type: PageType.PROJECT_TIMELINE, regex: /\/projects\?.*view=timeline/ },
@@ -68,20 +69,27 @@ export class PageTypeDetector {
     window.addEventListener('popstate', checkAndLoadButtons);
     window.addEventListener('hashchange', checkAndLoadButtons);
     
-    // SPA navigation detection
+    // SPA navigation detection with debouncing
     let lastUrl = window.location.href;
-    new MutationObserver(() => {
+    let debounceTimeout: number | undefined;
+    
+    const debouncedUrlCheck = () => {
       if (window.location.href !== lastUrl) {
         lastUrl = window.location.href;
         console.log(`[PageTypeDetector] 🔄 SPA navigation detected - URL changed to: ${window.location.href}`);
         checkAndLoadButtons();
       }
+    };
+    
+    new MutationObserver(() => {
+      clearTimeout(debounceTimeout);
+      debounceTimeout = window.setTimeout(debouncedUrlCheck, 200); // 200ms debounce
     }).observe(document.body, { childList: true, subtree: true });
     
     console.log('[PageTypeDetector] 🚀 Page type monitoring started successfully');
   }
 
-  private static cleanupButtons(): void {
+  private static async cleanupButtons(): Promise<void> {
     // Remove floating button
     const floatingBtn = document.getElementById('atlas-xray-floating-btn');
     if (floatingBtn) {
@@ -94,34 +102,39 @@ export class PageTypeDetector {
     if (dependencyBtn) {
       dependencyBtn.remove();
       
-      // Cleanup TimelineProjectService
-      (async () => {
-        try {
-          const { TimelineProjectService } = await import('./TimelineProjectService');
-          TimelineProjectService.cleanupUrlChangeListener();
-          TimelineProjectService.clearAllLines();
-        } catch (error) {
-          console.warn('[PageTypeDetector] ⚠️ Could not cleanup TimelineProjectService:', error);
-        }
-      })();
+      // Cleanup TimelineProjectService - now properly awaited
+      try {
+        const { TimelineProjectService } = await import('./TimelineProjectService');
+        TimelineProjectService.cleanupUrlChangeListener();
+        TimelineProjectService.clearAllLines();
+      } catch (error) {
+        console.warn('[PageTypeDetector] ⚠️ Could not cleanup TimelineProjectService:', error);
+      }
       
       console.log('[PageTypeDetector] 🧹 Cleaned up DependencyButton');
     }
   }
 
-  private static mountFloatingButton(): void {
+  private static async mountFloatingButton(): Promise<void> {
     if (!document.getElementById('atlas-xray-floating-btn')) {
-      (async () => {
+      try {
         const React = await import('react');
         const { createRoot } = await import('react-dom/client');
         const FloatingButton = (await import('../components/FloatingButton/FloatingButton')).default;
         await import('../components/FloatingButton/FloatingButton.scss');
         
         const container = document.createElement('div');
+        container.id = 'atlas-xray-floating-btn-container';
         document.body.appendChild(container);
+        
+        // Store container reference for cleanup
+        this.floatingButtonContainer = container;
+        
         createRoot(container).render(React.createElement(FloatingButton));
         console.log('[PageTypeDetector] ✅ FloatingButton mounted successfully');
-      })();
+      } catch (error) {
+        console.error('[PageTypeDetector] ❌ Failed to mount FloatingButton:', error);
+      }
     } else {
       console.log('[PageTypeDetector] ℹ️ FloatingButton already exists, skipping mount');
     }
