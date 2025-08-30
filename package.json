@@ -41,6 +41,7 @@
     "@xenova/transformers": "^2.15.0",
     "chrono-node": "^2.8.4",
     "date-fns": "^4.1.0",
+    "detect-url-change": "^1.0.2",
     "dexie": "^4.0.11",
     "dexie-react-hooks": "^1.1.7",
     "graphql": "^16.11.0",

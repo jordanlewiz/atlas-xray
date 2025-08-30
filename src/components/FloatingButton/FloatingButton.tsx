@@ -88,6 +88,7 @@ export default function FloatingButton(): React.JSX.Element {
     <>
       <Tooltip content={getTooltipContent()} position="top">
         <button
+          id="atlas-xray-floating-btn"
           className="atlas-xray-floating-btn"
           onClick={handleOpenModal}
           disabled={isLoading}

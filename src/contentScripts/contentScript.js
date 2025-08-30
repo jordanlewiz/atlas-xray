@@ -2,29 +2,32 @@
  * Atlas Xray Chrome Extension - Content Script
  * 
  * This content script is injected into Atlassian project pages to:
- * 1. Inject a floating button UI component for user interaction
- * 2. Scan the page for project data and download it to IndexedDB
- * 3. Monitor DOM changes to continuously capture new project data
- * 4. Trigger AI analysis for all project updates
- * 
- * The script runs on pages matching the host_permissions in manifest.json
- * and provides the core functionality for data extraction and UI injection.
+ * 1. Detect page types and show appropriate UI elements
+ * 2. Monitor URL changes for SPA navigation
+ * 3. Provide page type information to the user
  */
-
-import React from "react";
-import { createRoot } from "react-dom/client";
-import FloatingButton from "../components/FloatingButton/FloatingButton";
-import "../components/FloatingButton/FloatingButton.scss";
 
 // Import leader-line-new properly using require
 const LeaderLine = require('leader-line-new');
 
 // Custom styles will be merged with contentScript.css during build
 
+console.log('[AtlasXray] 🚀 Content script loaded and ready');
 
-const container = document.createElement("div");
-document.body.appendChild(container);
-createRoot(container).render(<FloatingButton />);
+// Initialize simplified page type detection
+(async () => {
+  try {
+    // Import the simplified PageTypeDetector service
+    const { PageTypeDetector } = await import('../services/PageTypeDetector');
+    
+    // Start monitoring URL changes and detecting page types
+    PageTypeDetector.startMonitoring();
+    
+    console.log('[AtlasXray] ✅ Simplified page type detection initialized successfully');
+  } catch (error) {
+    console.error('[AtlasXray] ❌ Failed to initialize page type detection:', error);
+  }
+})();
 
 // Test communication with background script
 setTimeout(async () => {
@@ -34,8 +37,6 @@ setTimeout(async () => {
       const response = await chrome.runtime.sendMessage({ type: 'PING' });
       if (response && response.success) {
         console.log('[AtlasXray] ✅ Background script communication working:', response);
-    
-        
       } else {
         console.error('[AtlasXray] ❌ Background script communication failed:', response);
       }
@@ -47,90 +48,5 @@ setTimeout(async () => {
   }
 }, 1000);
 
-// ✅ NEW: Clean page load - nothing happens automatically
-console.log('[AtlasXray] 🚀 Extension loaded - waiting for user interaction');
-
-
-console.log('[AtlasXray] 🚀 Content script loaded and ready');
-
-// Listen for URL changes to detect timeline view
-function checkForTimelineView() {
-  const currentUrl = window.location.href;
-  const hasTimelineView = currentUrl.includes('projects?view=timeline');
-  
-  // Remove existing timeline button if it exists
-  const existingButton = document.getElementById('atlas-xray-timeline-btn');
-  if (existingButton) {
-    existingButton.remove();
-    // Cleanup URL change listener when button is removed
-    (async () => {
-      try {
-        const { TimelineProjectService } = await import('../services/TimelineProjectService');
-        TimelineProjectService.cleanupUrlChangeListener();
-      } catch (error) {
-        console.warn('[AtlasXray] ⚠️ Could not cleanup URL change listener:', error);
-      }
-    })();
-  }
-  
-          // Add timeline button if we're on timeline view
-    if (hasTimelineView) {
-      const timelineButton = document.createElement('button');
-      timelineButton.id = 'atlas-xray-timeline-btn';
-      timelineButton.textContent = 'Show dependencies';
-      
-      // Add click handler
-      timelineButton.addEventListener('click', async () => {
-        try {
-          // Import and use the TimelineProjectService
-          const { TimelineProjectService } = await import('../services/TimelineProjectService');
-          
-          await TimelineProjectService.toggleDependencies();
-          
-          // Update button text based on current state
-          const isVisible = TimelineProjectService.getDependenciesVisible();
-          timelineButton.textContent = isVisible ? 'Hide dependencies' : 'Show dependencies';
-        } catch (error) {
-          console.error('[AtlasXray] ❌ Error using TimelineProjectService:', error);
-          alert('❌ Error processing timeline projects. Check console for details.');
-        }
-      });
-      
-      // Listen for dependency state changes to update button text
-      window.addEventListener('atlas-xray-dependencies-changed', (event) => {
-        const { visible } = event.detail;
-        timelineButton.textContent = visible ? 'Hide dependencies' : 'Show dependencies';
-      });
-      
-      // Setup URL change listener to clear dependencies
-      (async () => {
-        try {
-          const { TimelineProjectService } = await import('../services/TimelineProjectService');
-          TimelineProjectService.setupUrlChangeListener();
-        } catch (error) {
-          console.warn('[AtlasXray] ⚠️ Could not setup URL change listener:', error);
-        }
-      })();
-      
-      // Add to page
-      document.body.appendChild(timelineButton);
-    }
-}
-
-// Check on initial load
-checkForTimelineView();
-
-// Listen for URL changes (for SPAs)
-let lastUrl = window.location.href;
-const observer = new MutationObserver(() => {
-  if (window.location.href !== lastUrl) {
-    lastUrl = window.location.href;
-    checkForTimelineView();
-  }
-});
-
-// Start observing
-observer.observe(document.body, { childList: true, subtree: true });
-
-// Also listen for popstate events (browser back/forward)
-window.addEventListener('popstate', checkForTimelineView);
+// ✅ NEW: Clean page load - simplified page type detection starts automatically
+console.log('[AtlasXray] 🚀 Extension loaded - simplified page type detection active');
