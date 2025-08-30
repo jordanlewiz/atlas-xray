@@ -1,0 +1,241 @@
+---
+alwaysApply: true
+---
+
+# Logging Best Practices
+
+## Overview
+This rule establishes logging standards and patterns for the Atlas Xray Chrome extension, ensuring consistent, performant, and maintainable logging across all services and components.
+
+## Core Principles
+
+### 1. Use the Debug Package
+Always use the [debug](https://www.npmjs.com/package/debug) package for conditional logging instead of custom console.log implementations.
+
+```typescript
+import debug from 'debug';
+
+export class MyService {
+  // Create debug instances for different log levels
+  private static readonly log = debug('atlas-xray:MyService');
+  private static readonly logInfo = debug('atlas-xray:MyService:info');
+  private static readonly logSuccess = debug('atlas-xray:MyService:success');
+  private static readonly logWarn = debug('atlas-xray:MyService:warn');
+  private static readonly logError = debug('atlas-xray:MyService:error');
+}
+```
+
+### 2. Namespace Convention
+Follow the hierarchical namespace pattern: `atlas-xray:ServiceName:Level`
+
+- **Base**: `atlas-xray:ServiceName` - General debug logs
+- **Info**: `atlas-xray:ServiceName:info` - Information and status updates
+- **Success**: `atlas-xray:ServiceName:success` - Successful operations
+- **Warning**: `atlas-xray:ServiceName:warn` - Warning messages
+- **Error**: `atlas-xray:ServiceName:error` - Error conditions
+
+### 3. Log Level Usage
+
+#### General Debug (`log`)
+- Page type changes
+- URL navigation events
+- Button mounting/unmounting decisions
+- Service state changes
+
+#### Information (`logInfo`)
+- Current state information
+- Skipped operations (already exists, etc.)
+- General operational details
+
+#### Success (`logSuccess`)
+- Successful component mounting
+- Cleanup operations completed
+- Service initialization success
+- Button management completion
+
+#### Warnings (`logWarn`)
+- Non-critical failures
+- Fallback operations
+- Service cleanup issues
+- Expected but suboptimal conditions
+
+#### Errors (`logError`)
+- Critical failures
+- Service mounting errors
+- Unexpected exceptions
+- Operations that prevent normal functionality
+
+## Implementation Examples
+
+### Service Class Template
+```typescript
+import debug from 'debug';
+
+export class ExampleService {
+  // Debug instances
+  private static readonly log = debug('atlas-xray:ExampleService');
+  private static readonly logInfo = debug('atlas-xray:ExampleService:info');
+  private static readonly logSuccess = debug('atlas-xray:ExampleService:success');
+  private static readonly logWarn = debug('atlas-xray:ExampleService:warn');
+  private static readonly logError = debug('atlas-xray:ExampleService:error');
+
+  static async performOperation(): Promise<void> {
+    try {
+      this.log('Starting operation...');
+      
+      // ... operation logic ...
+      
+      this.logSuccess('Operation completed successfully');
+    } catch (error) {
+      this.logError('Operation failed:', error);
+      throw error;
+    }
+  }
+}
+```
+
+### Component Logging
+```typescript
+import debug from 'debug';
+
+const log = debug('atlas-xray:ComponentName');
+
+function MyComponent() {
+  useEffect(() => {
+    log('Component mounted');
+    
+    return () => {
+      log('Component unmounting');
+    };
+  }, []);
+  
+  // ... component logic ...
+}
+```
+
+## Environment Control
+
+### Development (Full Logging)
+```bash
+DEBUG=atlas-xray:* npm run build
+```
+
+### Production (No Debug Logs)
+```bash
+DEBUG= npm run build
+```
+
+### Selective Logging
+```bash
+# Only errors and warnings
+DEBUG=atlas-xray:*:error,atlas-xray:*:warn npm run build
+
+# Specific service only
+DEBUG=atlas-xray:PageTypeDetector* npm run build
+
+# Exclude specific levels
+DEBUG=*,-atlas-xray:*:info npm run build
+```
+
+## Performance Benefits
+
+### Zero Overhead When Disabled
+- No function calls when `DEBUG` is not set
+- No string concatenation overhead
+- No conditional checks at runtime
+- Production builds are completely clean
+
+### Conditional Execution
+```typescript
+// This only executes when debug is enabled
+this.log('Complex operation result:', expensiveCalculation());
+
+// Avoid this pattern - always executes
+if (debug.enabled) {
+  console.log('Complex operation result:', expensiveCalculation());
+}
+```
+
+## Best Practices
+
+### 1. Always Use Structured Logging
+```typescript
+// ✅ Good - structured with context
+this.log('Button mounted for page type:', pageType, 'at URL:', url);
+
+// ❌ Bad - unstructured
+console.log('Button mounted');
+```
+
+### 2. Include Relevant Context
+```typescript
+// ✅ Good - includes relevant data
+this.logInfo('Skipping mount - button already exists for:', pageType);
+
+// ❌ Bad - lacks context
+this.logInfo('Skipping mount');
+```
+
+### 3. Use Appropriate Log Levels
+```typescript
+// ✅ Good - error for failures
+this.logError('Failed to mount button:', error);
+
+// ❌ Bad - info for errors
+this.logInfo('Failed to mount button:', error);
+```
+
+### 4. Avoid Sensitive Information
+```typescript
+// ✅ Good - no sensitive data
+this.log('User action performed on project:', projectId);
+
+// ❌ Bad - includes sensitive data
+this.log('User action performed by:', user.email, 'on project:', projectId);
+```
+
+## Migration Guide
+
+### From Console.log
+```typescript
+// Before
+console.log('[Service] Operation started');
+
+// After
+this.log('Operation started');
+```
+
+### From Custom Debug Flags
+```typescript
+// Before
+if (DEBUG) {
+  console.log('Debug info');
+}
+
+// After
+this.log('Debug info');
+```
+
+### From Multiple Console Methods
+```typescript
+// Before
+console.log('Info message');
+console.warn('Warning message');
+console.error('Error message');
+
+// After
+this.logInfo('Info message');
+this.logWarn('Warning message');
+this.logError('Error message');
+```
+
+## File References
+
+- [PageTypeDetector.ts](mdc:src/services/PageTypeDetector.ts) - Example implementation
+- [package.json](mdc:package.json) - Debug package dependency
+- [tsconfig.json](mdc:tsconfig.json) - TypeScript configuration
+
+## Related Rules
+
+- [Chrome Extension General](mdc:chrome-extension-general) - Extension-specific patterns
+- [Chrome Extension Patterns](mdc:chrome-extension-patterns) - Architecture guidelines
