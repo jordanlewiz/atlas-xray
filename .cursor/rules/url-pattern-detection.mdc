@@ -92,7 +92,3 @@ if (this.currentPageType !== newPageType) {
 - **Simplified**: ContentScript now just initializes PageTypeDetector
 - **Maintained**: All existing button functionality and behavior
 - **Improved**: Better performance and user experience with smart lifecycle management
-- **Removed**: Individual component URL pattern hooks
-- **Replaced**: Manual button creation with automatic mounting
-- **Simplified**: ContentScript now just initializes PageTypeDetector
-- **Maintained**: All existing button functionality and behavior

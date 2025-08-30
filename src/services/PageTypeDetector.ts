@@ -12,6 +12,7 @@ export enum PageType {
 export class PageTypeDetector {
   private static currentPageType: PageType | null = null;
   private static floatingButtonContainer: HTMLElement | null = null;
+  private static floatingButtonRoot: any = null;
   
   private static patterns = [
     { type: PageType.PROJECT_TIMELINE, regex: /\/projects\?.*view=timeline/ },
@@ -81,10 +82,22 @@ export class PageTypeDetector {
       }
     };
     
+    // Limit MutationObserver scope to reduce performance impact
+    const container = 
+      document.getElementById('main-content') ||
+      document.querySelector('.app-root') ||
+      document.body;
+    
+    // If a specific container is found, observe it with subtree: true; otherwise, observe body with subtree: false
     new MutationObserver(() => {
       clearTimeout(debounceTimeout);
       debounceTimeout = window.setTimeout(debouncedUrlCheck, 200); // 200ms debounce
-    }).observe(document.body, { childList: true, subtree: true });
+    }).observe(
+      container,
+      container === document.body
+        ? { childList: true, subtree: false }
+        : { childList: true, subtree: true }
+    );
     
     console.log('[PageTypeDetector] 🚀 Page type monitoring started successfully');
   }
@@ -93,6 +106,13 @@ export class PageTypeDetector {
     // Remove floating button
     const floatingBtn = document.getElementById('atlas-xray-floating-btn');
     if (floatingBtn) {
+      // Properly unmount React component first
+      if (this.floatingButtonRoot) {
+        this.floatingButtonRoot.unmount();
+        this.floatingButtonRoot = null;
+        console.log('[PageTypeDetector] 🧹 Unmounted React FloatingButton');
+      }
+      
       floatingBtn.remove();
       console.log('[PageTypeDetector] 🧹 Cleaned up FloatingButton');
     }
@@ -130,7 +150,9 @@ export class PageTypeDetector {
         // Store container reference for cleanup
         this.floatingButtonContainer = container;
         
-        createRoot(container).render(React.createElement(FloatingButton));
+        // Create and store React root for proper cleanup
+        this.floatingButtonRoot = createRoot(container);
+        this.floatingButtonRoot.render(React.createElement(FloatingButton));
         console.log('[PageTypeDetector] ✅ FloatingButton mounted successfully');
       } catch (error) {
         console.error('[PageTypeDetector] ❌ Failed to mount FloatingButton:', error);
