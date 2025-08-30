@@ -10,6 +10,8 @@ export enum PageType {
 }
 
 export class PageTypeDetector {
+  private static currentPageType: PageType | null = null;
+  
   private static patterns = [
     { type: PageType.PROJECT_TIMELINE, regex: /\/projects\?.*view=timeline/ },
     { type: PageType.PROJECT_LIST, regex: /\/projects\?/ },
@@ -29,27 +31,37 @@ export class PageTypeDetector {
 
   static startMonitoring(): void {
     const checkAndLoadButtons = () => {
-      const pageType = this.detectPageType();
+      const newPageType = this.detectPageType();
       
-      console.log(`[PageTypeDetector] �� Detected page type: ${pageType}`);
+      console.log(`[PageTypeDetector] Detected page type: ${newPageType}`);
       console.log(`[PageTypeDetector] 📍 Current URL: ${window.location.href}`);
       
-      // Always clean up existing buttons first
-      this.cleanupButtons();
-      
-      // Then mount appropriate buttons for current page type
-      if (pageType === PageType.PROJECT_TIMELINE) {
-        console.log(`[PageTypeDetector] 🚀 Mounting buttons for ${pageType}: FloatingButton + DependencyButton`);
-        this.mountFloatingButton();
-        this.mountDependencyButton();
-      } else if (pageType === PageType.PROJECT_LIST) {
-        console.log(`[PageTypeDetector] 🚀 Mounting buttons for ${pageType}: FloatingButton only`);
-        this.mountFloatingButton();
+      // Only cleanup and remount if page type actually changed
+      if (this.currentPageType !== newPageType) {
+        console.log(`[PageTypeDetector] 🔄 Page type changed from ${this.currentPageType} to ${newPageType}`);
+        
+        // Clean up existing buttons
+        this.cleanupButtons();
+        
+        // Update current page type
+        this.currentPageType = newPageType;
+        
+        // Mount appropriate buttons for new page type
+        if (newPageType === PageType.PROJECT_TIMELINE) {
+          console.log(`[PageTypeDetector] 🚀 Mounting buttons for ${newPageType}: FloatingButton + DependencyButton`);
+          this.mountFloatingButton();
+          this.mountDependencyButton();
+        } else if (newPageType === PageType.PROJECT_LIST) {
+          console.log(`[PageTypeDetector] 🚀 Mounting buttons for ${newPageType}: FloatingButton only`);
+          this.mountFloatingButton();
+        } else {
+          console.log(`[PageTypeDetector] 🚫 No buttons mounted for ${newPageType} - clean state`);
+        }
+        
+        console.log(`[PageTypeDetector] ✨ Button management complete for ${newPageType}`);
       } else {
-        console.log(`[PageTypeDetector] 🚫 No buttons mounted for ${pageType} - clean state`);
+        console.log(`[PageTypeDetector] ℹ️ Same page type (${newPageType}), no button changes needed`);
       }
-      
-      console.log(`[PageTypeDetector] ✨ Button management complete for ${pageType}`);
     };
     
     checkAndLoadButtons(); // Initial check
