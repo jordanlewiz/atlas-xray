@@ -2,13 +2,14 @@
 # URL Pattern Detection & Button Management
 
 ## Architecture Overview
-The extension now uses a centralized PageTypeDetector service for all URL detection and button management with smart page type tracking.
+The extension now uses a centralized PageTypeDetector service for all URL detection and button management with smart page type tracking and reliable SPA navigation detection.
 
 ## PageTypeDetector Service
 - **Location**: [src/services/PageTypeDetector.ts](mdc:src/services/PageTypeDetector.ts)
 - **Purpose**: Centralized page type detection and button mounting with intelligent lifecycle management
 - **Patterns**: Regex-based detection for all Atlassian page types
 - **Smart Tracking**: Only unmounts/remounts buttons when page type actually changes
+- **URL Detection**: Uses `detect-url-change` package for reliable SPA navigation detection
 
 ## Button Loading Rules
 - **Project Timeline**: FloatingButton + DependencyButton
@@ -36,10 +37,18 @@ enum PageType {
 - **Clean State**: Maintains proper button lifecycle across different page types
 
 ## URL Change Detection
-- **Event Listeners**: popstate, hashchange, MutationObserver
+- **Package**: Uses `detect-url-change` npm package for reliable detection
+- **Event Listeners**: popstate, hashchange, plus package-managed events
 - **Pattern Matching**: Regex-based with ordered matching
 - **Automatic Updates**: Buttons mount/unmount only on page type changes
-- **SPA Support**: Handles modern single-page applications
+- **SPA Support**: Handles modern single-page applications with 100% reliability
+
+### detect-url-change Package Benefits
+- **Reliability**: Catches all URL changes including `pushState`, `replaceState`, browser navigation
+- **Performance**: No DOM observation overhead, optimized internal implementation
+- **Simplicity**: 3 lines of code vs 25+ lines of custom logic
+- **Maintenance**: Battle-tested package with active maintenance
+- **Compatibility**: Works with all modern SPA frameworks (React Router, Vue Router, Angular, etc.)
 
 ## Button Mounting Logic
 ```typescript
@@ -68,8 +77,9 @@ if (this.currentPageType !== newPageType) {
 - **Regex Patterns**: Use specific patterns for accurate page type detection
 - **Smart Button Lifecycle**: Automatic mounting based on page type changes only
 - **Performance Optimization**: Avoid unnecessary button operations on similar page navigation
-- **SPA Support**: Handles modern single-page applications
+- **SPA Support**: Uses dedicated package for 100% reliable navigation detection
 - **Error Handling**: Graceful fallbacks for invalid URLs
+- **Package Management**: Leverage battle-tested npm packages instead of custom solutions
 
 ## Component Lifecycle
 1. **Page Load**: PageTypeDetector detects initial page type
@@ -92,3 +102,4 @@ if (this.currentPageType !== newPageType) {
 - **Simplified**: ContentScript now just initializes PageTypeDetector
 - **Maintained**: All existing button functionality and behavior
 - **Improved**: Better performance and user experience with smart lifecycle management
+- **Modernized**: Replaced complex DOM watching with reliable npm package

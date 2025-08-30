@@ -1,3 +1,5 @@
+import detectUrlChange from 'detect-url-change';
+
 export enum PageType {
   PROJECT_LIST = 'Project List',
   PROJECT_TIMELINE = 'Project Timeline', 
@@ -70,34 +72,11 @@ export class PageTypeDetector {
     window.addEventListener('popstate', checkAndLoadButtons);
     window.addEventListener('hashchange', checkAndLoadButtons);
     
-    // SPA navigation detection with debouncing
-    let lastUrl = window.location.href;
-    let debounceTimeout: number | undefined;
-    
-    const debouncedUrlCheck = () => {
-      if (window.location.href !== lastUrl) {
-        lastUrl = window.location.href;
-        console.log(`[PageTypeDetector] 🔄 SPA navigation detected - URL changed to: ${window.location.href}`);
-        checkAndLoadButtons();
-      }
-    };
-    
-    // Limit MutationObserver scope to reduce performance impact
-    const container = 
-      document.getElementById('main-content') ||
-      document.querySelector('.app-root') ||
-      document.body;
-    
-    // If a specific container is found, observe it with subtree: true; otherwise, observe body with subtree: false
-    new MutationObserver(() => {
-      clearTimeout(debounceTimeout);
-      debounceTimeout = window.setTimeout(debouncedUrlCheck, 200); // 200ms debounce
-    }).observe(
-      container,
-      container === document.body
-        ? { childList: true, subtree: false }
-        : { childList: true, subtree: true }
-    );
+    // Simple, reliable SPA navigation detection using detect-url-change package
+    detectUrlChange.on('change', (newUrl) => {
+      console.log(`[PageTypeDetector] 🔄 URL changed to: ${newUrl}`);
+      checkAndLoadButtons();
+    });
     
     console.log('[PageTypeDetector] 🚀 Page type monitoring started successfully');
   }
