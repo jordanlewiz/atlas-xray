@@ -1,41 +1,76 @@
 ---
+alwaysApply: false
 description: URL pattern detection strategies and button visibility management for Chrome extension components
 ---
 
 # URL Pattern Detection & Button Management
 
 ## Architecture Overview
-The extension uses different URL detection strategies for different components:
+The extension now uses a centralized PageTypeDetector service for all URL detection and button management.
 
-### FloatingButton Component
-- **Location**: [src/components/FloatingButton/FloatingButton.tsx](mdc:src/components/FloatingButton/FloatingButton.tsx)
-- **Pattern**: `'projects?view=list'` (specific to list view)
-- **Purpose**: Shows project analysis modal on project list pages
+## PageTypeDetector Service
+- **Location**: [src/services/PageTypeDetector.ts](mdc:src/services/PageTypeDetector.ts)
+- **Purpose**: Centralized page type detection and button mounting
+- **Patterns**: Regex-based detection for all Atlassian page types
 
-### DependencyButton Component
-- **Location**: [src/components/DependencyButton/DependencyButton.tsx](mdc:src/components/DependencyButton/DependencyButton.tsx)
-- **Pattern**: `'projects?view=timeline'` (specific to timeline view)
-- **Purpose**: Shows/hides project dependency visualization
+## Button Loading Rules
+- **Project Timeline**: FloatingButton + DependencyButton
+- **Project List**: FloatingButton only
+- **Other Pages**: No buttons
 
-## URL Detection Methods
-### Current Implementation
-- **FloatingButton**: Uses inline `useUrlPattern` hook with specific pattern
-- **DependencyButton**: Uses shared `useUrlPattern` hook with different pattern
-- **ContentScript**: Handles button rendering and lifecycle management
+## Page Types Supported
+```typescript
+enum PageType {
+  PROJECT_LIST = 'Project List',        // /projects?
+  PROJECT_TIMELINE = 'Project Timeline', // /projects?.*view=timeline
+  PROJECT_VIEW = 'Project View',        // /project/[id]/updates
+  TAGS = 'Tags',                        // /tags?
+  GOAL_LIST = 'Goal List',              // /goals?
+  GOAL_TIMELINE = 'Goal Timeline',      // /goals?.*view=timeline
+  GOAL_VIEW = 'Goal View',              // /goal/[id]
+  UNKNOWN = 'Unknown'
+}
+```
 
-### URL Change Detection
-- **Event Listeners**: `popstate`, `hashchange` for SPA navigation
-- **Pattern Matching**: Simple `includes()` checks for URL patterns
-- **State Management**: React state for button visibility
+## URL Change Detection
+- **Event Listeners**: popstate, hashchange, MutationObserver
+- **Pattern Matching**: Regex-based with ordered matching
+- **Automatic Updates**: Buttons mount/unmount on page type changes
+
+## Button Mounting Logic
+```typescript
+// One if statement per page type
+if (pageType === PageType.PROJECT_TIMELINE) {
+  this.mountFloatingButton();
+  this.mountDependencyButton();
+}
+
+if (pageType === PageType.PROJECT_LIST) {
+  this.mountFloatingButton();
+}
+```
 
 ## Best Practices
-- Use specific URL patterns (e.g., `'projects?view=list'` not just `'projects?'`)
-- Implement proper cleanup of event listeners in React components
-- Log URL pattern matches for debugging
-- Handle URL changes gracefully with proper state updates
+- **Centralized Logic**: All URL detection in PageTypeDetector service
+- **Regex Patterns**: Use specific patterns for accurate page type detection
+- **Button Lifecycle**: Automatic mounting based on page type
+- **SPA Support**: Handles modern single-page applications
+- **Error Handling**: Graceful fallbacks for invalid URLs
 
 ## Component Lifecycle
-1. **Mount**: Check initial URL and set visibility
-2. **URL Changes**: Update visibility based on new URL
-3. **Unmount**: Clean up event listeners
-4. **Error Handling**: Graceful fallbacks for invalid URLs
+1. **Page Load**: PageTypeDetector detects initial page type
+2. **Button Mounting**: Appropriate buttons are mounted automatically
+3. **URL Changes**: Page type is re-evaluated and buttons updated
+4. **Cleanup**: Old buttons are removed when navigating away
+
+## Adding New Page Types
+1. **Add to PageType enum**
+2. **Add regex pattern** to patterns array
+3. **Add button mounting logic** in checkAndLoadButtons method
+4. **Buttons mount automatically** on matching pages
+
+## Migration from Old System
+- **Removed**: Individual component URL pattern hooks
+- **Replaced**: Manual button creation with automatic mounting
+- **Simplified**: ContentScript now just initializes PageTypeDetector
+- **Maintained**: All existing button functionality and behavior
