@@ -1,17 +1,14 @@
----
-alwaysApply: false
-description: URL pattern detection strategies and button visibility management for Chrome extension components
----
 
 # URL Pattern Detection & Button Management
 
 ## Architecture Overview
-The extension now uses a centralized PageTypeDetector service for all URL detection and button management.
+The extension now uses a centralized PageTypeDetector service for all URL detection and button management with smart page type tracking.
 
 ## PageTypeDetector Service
 - **Location**: [src/services/PageTypeDetector.ts](mdc:src/services/PageTypeDetector.ts)
-- **Purpose**: Centralized page type detection and button mounting
+- **Purpose**: Centralized page type detection and button mounting with intelligent lifecycle management
 - **Patterns**: Regex-based detection for all Atlassian page types
+- **Smart Tracking**: Only unmounts/remounts buttons when page type actually changes
 
 ## Button Loading Rules
 - **Project Timeline**: FloatingButton + DependencyButton
@@ -32,44 +29,69 @@ enum PageType {
 }
 ```
 
+## Smart Page Type Tracking
+- **currentPageType**: Static property tracks the last known page type
+- **Change Detection**: Only triggers button changes when page type differs
+- **Performance**: Avoids unnecessary DOM manipulation on similar page navigation
+- **Clean State**: Maintains proper button lifecycle across different page types
+
 ## URL Change Detection
 - **Event Listeners**: popstate, hashchange, MutationObserver
 - **Pattern Matching**: Regex-based with ordered matching
-- **Automatic Updates**: Buttons mount/unmount on page type changes
+- **Automatic Updates**: Buttons mount/unmount only on page type changes
+- **SPA Support**: Handles modern single-page applications
 
 ## Button Mounting Logic
 ```typescript
-// One if statement per page type
-if (pageType === PageType.PROJECT_TIMELINE) {
-  this.mountFloatingButton();
-  this.mountDependencyButton();
-}
-
-if (pageType === PageType.PROJECT_LIST) {
-  this.mountFloatingButton();
+// Only cleanup and remount if page type actually changed
+if (this.currentPageType !== newPageType) {
+  // Clean up existing buttons
+  this.cleanupButtons();
+  
+  // Update current page type
+  this.currentPageType = newPageType;
+  
+  // Mount appropriate buttons for new page type
+  if (newPageType === PageType.PROJECT_TIMELINE) {
+    this.mountFloatingButton();
+    this.mountDependencyButton();
+  } else if (newPageType === PageType.PROJECT_LIST) {
+    this.mountFloatingButton();
+  }
+} else {
+  // Same page type, no button changes needed
 }
 ```
 
 ## Best Practices
 - **Centralized Logic**: All URL detection in PageTypeDetector service
 - **Regex Patterns**: Use specific patterns for accurate page type detection
-- **Button Lifecycle**: Automatic mounting based on page type
+- **Smart Button Lifecycle**: Automatic mounting based on page type changes only
+- **Performance Optimization**: Avoid unnecessary button operations on similar page navigation
 - **SPA Support**: Handles modern single-page applications
 - **Error Handling**: Graceful fallbacks for invalid URLs
 
 ## Component Lifecycle
 1. **Page Load**: PageTypeDetector detects initial page type
 2. **Button Mounting**: Appropriate buttons are mounted automatically
-3. **URL Changes**: Page type is re-evaluated and buttons updated
-4. **Cleanup**: Old buttons are removed when navigating away
+3. **URL Changes**: Page type is re-evaluated and buttons updated only when necessary
+4. **Smart Cleanup**: Buttons are only removed when navigating to different page types
+5. **State Persistence**: Buttons remain mounted when navigating between similar pages
 
 ## Adding New Page Types
 1. **Add to PageType enum**
 2. **Add regex pattern** to patterns array
 3. **Add button mounting logic** in checkAndLoadButtons method
 4. **Buttons mount automatically** on matching pages
+5. **Smart tracking** ensures minimal button operations
 
 ## Migration from Old System
+- **Removed**: Individual component URL pattern hooks
+- **Replaced**: Manual button creation with automatic mounting
+- **Enhanced**: Added smart page type tracking to avoid unnecessary operations
+- **Simplified**: ContentScript now just initializes PageTypeDetector
+- **Maintained**: All existing button functionality and behavior
+- **Improved**: Better performance and user experience with smart lifecycle management
 - **Removed**: Individual component URL pattern hooks
 - **Replaced**: Manual button creation with automatic mounting
 - **Simplified**: ContentScript now just initializes PageTypeDetector
