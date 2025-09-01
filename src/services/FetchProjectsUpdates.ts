@@ -4,6 +4,10 @@ import { db } from './DatabaseService';
 import { bootstrapService } from './bootstrapService';
 import { gql } from '@apollo/client';
 import { dateParsingService } from './DateParsingService';
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[FetchProjectsUpdates]');
 
 interface ProjectUpdate {
   id: string;
@@ -68,14 +72,14 @@ export class FetchProjectsUpdates {
       }
 
       if (projectsNeedingRefresh.length > 0) {
-        console.log(`[FetchProjectsUpdates] 🔄 ${projectsNeedingRefresh.length} projects need initial update fetch`);
+        log.info(`🔄 ${projectsNeedingRefresh.length} projects need initial update fetch`);
       } else {
-        console.log('[FetchProjectsUpdates] ✅ All projects already have updates stored');
+        log.info('✅ All projects already have updates stored');
       }
 
       return projectsNeedingRefresh;
     } catch (error) {
-      console.error('[FetchProjectsUpdates] ❌ Error checking refresh status:', error);
+      log.error('❌ Error checking refresh status:', String(error));
       return projectKeys; // Fetch all on error
     }
   }
@@ -85,21 +89,21 @@ export class FetchProjectsUpdates {
    */
   async getProjectUpdates(projectKeys: string[]): Promise<void> {
     try {
-      console.log(`[FetchProjectsUpdates] 🔍 Getting updates for ${projectKeys.length} projects...`);
+      log.info(`🔍 Getting updates for ${projectKeys.length} projects...`);
 
       // Check which projects need refresh
       const projectsNeedingRefresh = await this.needsRefresh(projectKeys);
       
       if (projectsNeedingRefresh.length === 0) {
-        console.log('[FetchProjectsUpdates] ✅ All project updates are fresh, using DB data');
+        log.info('✅ All project updates are fresh, using DB data');
         return;
       }
 
-      console.log(`[FetchProjectsUpdates] 🔄 Fetching updates for ${projectsNeedingRefresh.length} projects from API...`);
+      log.info(`🔄 Fetching updates for ${projectsNeedingRefresh.length} projects from API...`);
       await this.fetchFromAPI(projectsNeedingRefresh);
 
     } catch (error) {
-      console.error('[FetchProjectsUpdates] ❌ Error getting project updates:', error);
+      log.error('❌ Error getting project updates:', String(error));
       throw error;
     }
   }
@@ -109,7 +113,7 @@ export class FetchProjectsUpdates {
    */
   private async fetchFromAPI(projectKeys: string[]): Promise<void> {
     try {
-      console.log(`[FetchProjectsUpdates] 🚀 Fetching updates for ${projectKeys.length} projects...`);
+      log.info(`🚀 Fetching updates for ${projectKeys.length} projects...`);
 
       // Get workspace context
       const workspaces = bootstrapService.getWorkspaces();
@@ -122,7 +126,7 @@ export class FetchProjectsUpdates {
       // Fetch updates for each project individually
       for (const projectKey of projectKeys) {
         try {
-          console.log(`[FetchProjectsUpdates] 📥 Fetching updates for ${projectKey}...`);
+          log.debug(`📥 Fetching updates for ${projectKey}...`);
           
           const response = await apolloClient.query({
             query: gql`${PROJECT_UPDATES_QUERY}`,
@@ -135,13 +139,13 @@ export class FetchProjectsUpdates {
           });
 
           if (response.errors && response.errors.length > 0) {
-            console.error(`[FetchProjectsUpdates] ❌ GraphQL errors for ${projectKey}:`, response.errors);
+            log.error(`❌ GraphQL errors for ${projectKey}:`, JSON.stringify(response.errors));
             continue;
           }
 
           const projectData = response.data?.project;
           if (!projectData?.updates?.edges) {
-            console.warn(`[FetchProjectsUpdates] ⚠️ No updates for project ${projectKey}`);
+            log.warn(`⚠️ No updates for project ${projectKey}`);
             continue;
           }
 
@@ -155,17 +159,17 @@ export class FetchProjectsUpdates {
             const oldDueDateParsed = dateParsingService.parseDate(update.oldTargetDate || update.oldDueDate?.tooltip);
             
             if (newDueDateParsed.dueDate) {
-              console.log(`[FetchProjectsUpdates] Parsed newTargetDate for ${projectKey}: ${newDueDateParsed.dueDate} -> ${newDueDateParsed.dueDateParsed}`);
+              log.debug(`Parsed newTargetDate for ${projectKey}: ${newDueDateParsed.dueDate} -> ${newDueDateParsed.dueDateParsed}`);
             }
             if (oldDueDateParsed.dueDate) {
-              console.log(`[FetchProjectsUpdates] Parsed oldTargetDate for ${projectKey}: ${oldDueDateParsed.dueDate} -> ${oldDueDateParsed.dueDateParsed}`);
+              log.debug(`Parsed oldTargetDate for ${projectKey}: ${oldDueDateParsed.dueDate} -> ${oldDueDateParsed.dueDateParsed}`);
             }
             
             // Log creator extraction (non-PII)
             if (update.creator?.pii?.name) {
-              console.log(`[FetchProjectsUpdates] ✅ Creator extracted for ${projectKey} (PII data available)`);
+              log.debug(`✅ Creator extracted for ${projectKey} (PII data available)`);
             } else {
-              console.log(`[FetchProjectsUpdates] ⚠️ No creator data for ${projectKey}`);
+              log.warn(`⚠️ No creator data for ${projectKey}`);
             }
             
             return {
@@ -197,18 +201,18 @@ export class FetchProjectsUpdates {
             await db.storeProjectUpdate(update);
           }
 
-          console.log(`[FetchProjectsUpdates] ✅ Stored ${updates.length} updates for ${projectKey}`);
+          log.info(`✅ Stored ${updates.length} updates for ${projectKey}`);
 
         } catch (error) {
-          console.error(`[FetchProjectsUpdates] ❌ Error fetching updates for ${projectKey}:`, error);
+          log.error(`❌ Error fetching updates for ${projectKey}:`, String(error));
           // Continue with other projects
         }
       }
 
-      console.log(`[FetchProjectsUpdates] ✅ Completed fetching updates for ${projectKeys.length} projects`);
+      log.info(`✅ Completed fetching updates for ${projectKeys.length} projects`);
 
     } catch (error) {
-      console.error('[FetchProjectsUpdates] ❌ Error fetching from API:', error);
+      log.error('❌ Error fetching from API:', String(error));
       throw error;
     }
   }
