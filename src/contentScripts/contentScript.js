@@ -73,34 +73,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }).catch(error => {
           console.error('[AtlasXray] ❌ Failed to import logger utility:', error);
         });
-        
-        // Test PageTypeDetector logging
-        log.debug('🧪 Testing PageTypeDetector logging...');
-        import('../services/PageTypeDetector').then(({ PageTypeDetector }) => {
-          try {
-            log.debug('🧪 PageTypeDetector imported successfully');
-            log.debug('🔍 PageTypeDetector.log object:', PageTypeDetector.log);
-            
-            // Test direct logger calls
-            log.debug('🧪 About to call PageTypeDetector.log.debug...');
-            log.debug('[PageTypeDetector]', '🧪 PageTypeDetector direct debug test');
-            log.debug('🧪 About to call PageTypeDetector.log.info...');
-            log.info('[PageTypeDetector]', '🧪 PageTypeDetector direct info test');
-            log.debug('🧪 About to call PageTypeDetector.log.warn...');
-            log.warn('[PageTypeDetector]', '🧪 PageTypeDetector direct warn test');
-            log.debug('🧪 About to call PageTypeDetector.log.error...');
-            log.error('[PageTypeDetector]', '🧪 PageTypeDetector direct error test');
-            
-            // Test actual PageTypeDetector methods
-            log.debug('🧪 About to call PageTypeDetector.detectPageType()...');
-            const currentPageType = PageTypeDetector.detectPageType();
-            log.info('✅ PageTypeDetector test completed - Current page type:', currentPageType);
-          } catch (error) {
-            log.error('❌ PageTypeDetector test failed:', error);
-          }
-        }).catch(error => {
-          log.error('❌ Failed to import PageTypeDetector:', error);
-        });
       } else {
         // Disable debug logs
         import('../utils/logger').then(({ forceDebugLogging }) => {
