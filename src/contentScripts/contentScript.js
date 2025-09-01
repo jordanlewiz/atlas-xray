@@ -48,5 +48,43 @@ setTimeout(async () => {
   }
 }, 1000);
 
+// Listen for debug toggle messages from popup
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'TOGGLE_DEBUG') {
+    try {
+      if (message.enabled) {
+        // Enable debug logs
+        localStorage.debug = 'atlas-xray:*';
+        console.log('[AtlasXray] 🔍 Debug logs enabled - localStorage.debug =', localStorage.debug);
+        
+        // Test if debug is working by importing and testing the logger
+        import('../utils/logger').then(({ createLogger }) => {
+          // Force debug package to re-read localStorage
+          const debug = require('debug');
+          // Force debug to re-read localStorage (remove the incorrect line)
+          
+          const testLogger = createLogger('TestLogger');
+          testLogger.debug('🧪 Test debug message - this should appear if debug is working');
+          testLogger.info('🧪 Test info message - this should appear if debug is working');
+          
+          // Also test PageTypeDetector logs
+          import('../services/PageTypeDetector').then(({ PageTypeDetector }) => {
+            PageTypeDetector.log.debug('🧪 PageTypeDetector test debug message');
+            PageTypeDetector.log.info('🧪 PageTypeDetector test info message');
+          });
+        });
+      } else {
+        // Disable debug logs
+        localStorage.debug = '';
+        console.log('[AtlasXray] 🔍 Debug logs disabled - localStorage.debug =', localStorage.debug);
+      }
+      sendResponse({ success: true });
+    } catch (error) {
+      console.error('[AtlasXray] ❌ Failed to toggle debug logs:', error);
+      sendResponse({ success: false, error: error.message });
+    }
+  }
+});
+
 // ✅ NEW: Clean page load - simplified page type detection starts automatically
 console.log('[AtlasXray] 🚀 Extension loaded - simplified page type detection active');

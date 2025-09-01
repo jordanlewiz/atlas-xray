@@ -40,6 +40,7 @@ const Popup: React.FC = () => {
   const [versionInfo, setVersionInfo] = useState<VersionInfo | null>(null);
   const [isCheckingVersion, setIsCheckingVersion] = useState(false);
   const [currentTabUrl, setCurrentTabUrl] = useState<string>("");
+  const [debugEnabled, setDebugEnabled] = useState<boolean>(false);
   
   const currentVersion = chrome.runtime.getManifest().version;
   
@@ -62,7 +63,21 @@ const Popup: React.FC = () => {
       }
     };
 
+    // Load debug setting from storage
+    const loadDebugSetting = () => {
+      try {
+        if (chrome.storage && chrome.storage.local) {
+          chrome.storage.local.get(['debugEnabled'], (result: any) => {
+            setDebugEnabled(result.debugEnabled || false);
+          });
+        }
+      } catch (error) {
+        console.warn('[AtlasXray] Failed to load debug setting:', error);
+      }
+    };
+
     getCurrentTab();
+    loadDebugSetting();
   }, []);
 
   const checkForUpdates = async (): Promise<void> => {
@@ -80,6 +95,36 @@ const Popup: React.FC = () => {
   const openReleasePage = (): void => {
     if (versionInfo?.releaseUrl) {
       chrome.tabs.create({ url: versionInfo.releaseUrl });
+    }
+  };
+
+  const toggleDebug = (): void => {
+    const newState = !debugEnabled;
+    setDebugEnabled(newState);
+    
+    // Save to storage
+    try {
+      if (chrome.storage && chrome.storage.local) {
+        chrome.storage.local.set({ debugEnabled: newState });
+      }
+    } catch (error) {
+      console.warn('[AtlasXray] Failed to save debug setting:', error);
+    }
+    
+    // Send message to content script
+    try {
+      if (chrome.tabs && chrome.tabs.query) {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs: any[]) => {
+          if (tabs && tabs[0]?.id) {
+            chrome.tabs.sendMessage(tabs[0].id, {
+              type: 'TOGGLE_DEBUG',
+              enabled: newState
+            });
+          }
+        });
+      }
+    } catch (error) {
+      console.warn('[AtlasXray] Failed to send debug toggle message:', error);
     }
   };
 
@@ -198,8 +243,24 @@ const Popup: React.FC = () => {
             </div>
           </div>
 
-
-
+      {/* Debug Toggle */}
+      <div className="chrome-extension-popup__debug-section">
+        <div className="chrome-extension-popup__debug-title">
+          Debug Logs
+        </div>
+        <button 
+          onClick={toggleDebug}
+          className={`chrome-extension-popup__debug-button ${debugEnabled ? 'enabled' : 'disabled'}`}
+        >
+          {debugEnabled ? '🔍 Debug ON' : '🔍 Debug OFF'}
+        </button>
+        <div className="chrome-extension-popup__debug-help">
+          {debugEnabled 
+            ? 'Debug logs are enabled. Check browser console for detailed information.'
+            : 'Enable debug logs to help troubleshoot issues.'
+          }
+        </div>
+      </div>
 
     </div>
   );

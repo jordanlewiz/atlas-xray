@@ -16,12 +16,8 @@ Always use the [debug](https://www.npmjs.com/package/debug) package for conditio
 import debug from 'debug';
 
 export class MyService {
-  // Create debug instances for different log levels
-  private static readonly log = debug('atlas-xray:MyService');
-  private static readonly logInfo = debug('atlas-xray:MyService:info');
-  private static readonly logSuccess = debug('atlas-xray:MyService:success');
-  private static readonly logWarn = debug('atlas-xray:MyService:warn');
-  private static readonly logError = debug('atlas-xray:MyService:error');
+  // Create logger instance for this service
+  private static readonly log = createLogger('MyService');
 }
 ```
 
@@ -30,7 +26,7 @@ Follow the hierarchical namespace pattern: `atlas-xray:ServiceName:Level`
 
 - **Base**: `atlas-xray:ServiceName` - General debug logs
 - **Info**: `atlas-xray:ServiceName:info` - Information and status updates
-- **Success**: `atlas-xray:ServiceName:success` - Successful operations
+- **Info**: `atlas-xray:ServiceName` - Information and successful operations
 - **Warning**: `atlas-xray:ServiceName:warn` - Warning messages
 - **Error**: `atlas-xray:ServiceName:error` - Error conditions
 
@@ -47,7 +43,7 @@ Follow the hierarchical namespace pattern: `atlas-xray:ServiceName:Level`
 - Skipped operations (already exists, etc.)
 - General operational details
 
-#### Success (`logSuccess`)
+#### Information (`logInfo`)
 - Successful component mounting
 - Cleanup operations completed
 - Service initialization success
@@ -72,12 +68,8 @@ Follow the hierarchical namespace pattern: `atlas-xray:ServiceName:Level`
 import debug from 'debug';
 
 export class ExampleService {
-  // Debug instances
-  private static readonly log = debug('atlas-xray:ExampleService');
-  private static readonly logInfo = debug('atlas-xray:ExampleService:info');
-  private static readonly logSuccess = debug('atlas-xray:ExampleService:success');
-  private static readonly logWarn = debug('atlas-xray:ExampleService:warn');
-  private static readonly logError = debug('atlas-xray:ExampleService:error');
+  // Logger instance
+  private static readonly log = createLogger('ExampleService');
 
   static async performOperation(): Promise<void> {
     try {
@@ -85,9 +77,9 @@ export class ExampleService {
       
       // ... operation logic ...
       
-      this.logSuccess('Operation completed successfully');
+              this.log.info('Operation completed successfully');
     } catch (error) {
-      this.logError('Operation failed:', error);
+              this.log.error('Operation failed', error);
       throw error;
     }
   }

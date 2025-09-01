@@ -16,6 +16,8 @@ export class PageTypeDetector {
   // Create logger instance for this service
   private static readonly log = createLogger('PageTypeDetector');
   
+
+  
   private static currentPageType: PageType | null = null;
   private static floatingButtonContainer: HTMLElement | null = null;
   private static floatingButtonRoot: any = null;
@@ -66,7 +68,7 @@ export class PageTypeDetector {
           this.log.debug(`🚫 No buttons mounted for ${newPageType} - clean state`);
         }
         
-        this.log.success(`✨ Button management complete for ${newPageType}`);
+        this.log.info(`✨ Button management complete for ${newPageType}`);
       } else {
         this.log.info(`ℹ️ Same page type (${newPageType}), no button changes needed`);
       }
@@ -82,7 +84,7 @@ export class PageTypeDetector {
       checkAndLoadButtons();
     });
     
-    this.log.success('🚀 Page type monitoring started successfully');
+    this.log.info('🚀 Page type monitoring started successfully');
   }
 
   private static async cleanupButtons(): Promise<void> {
@@ -93,11 +95,11 @@ export class PageTypeDetector {
       if (this.floatingButtonRoot) {
         this.floatingButtonRoot.unmount();
         this.floatingButtonRoot = null;
-        this.log.success('🧹 Unmounted React FloatingButton');
+        this.log.info('🧹 Unmounted React FloatingButton');
       }
       
       floatingBtn.remove();
-      this.log.success('🧹 Cleaned up FloatingButton');
+      this.log.info('🧹 Cleaned up FloatingButton');
     }
 
     // Remove dependency button and cleanup service
@@ -111,10 +113,10 @@ export class PageTypeDetector {
         TimelineProjectService.cleanupUrlChangeListener();
         TimelineProjectService.clearAllLines();
       } catch (error) {
-        this.log.warn('⚠️ Could not cleanup TimelineProjectService:', error);
+        this.log.warn('⚠️ Could not cleanup TimelineProjectService', error);
       }
       
-      this.log.success('🧹 Cleaned up DependencyButton');
+              this.log.info('🧹 Cleaned up DependencyButton');
     }
   }
 
@@ -136,9 +138,9 @@ export class PageTypeDetector {
         // Create and store React root for proper cleanup
         this.floatingButtonRoot = createRoot(container);
         this.floatingButtonRoot.render(React.createElement(FloatingButton));
-        this.log.success('✅ FloatingButton mounted successfully');
+        this.log.info('✅ FloatingButton mounted successfully');
       } catch (error) {
-        this.log.error('❌ Failed to mount FloatingButton:', error);
+        this.log.error('❌ Failed to mount FloatingButton', error);
       }
     } else {
       this.log.info('ℹ️ FloatingButton already exists, skipping mount');
@@ -156,7 +158,7 @@ export class PageTypeDetector {
         btn.textContent = TimelineProjectService.getDependenciesVisible() ? 'Hide dependencies' : 'Show dependencies';
       });
       document.body.appendChild(btn);
-      this.log.success('✅ DependencyButton mounted successfully');
+      this.log.info('✅ DependencyButton mounted successfully');
     } else {
       this.log.info('ℹ️ DependencyButton already exists, skipping mount');
     }

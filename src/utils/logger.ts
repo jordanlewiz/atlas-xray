@@ -1,11 +1,10 @@
 import debug from 'debug';
 
 export interface Logger {
-  debug: debug.Debugger;
-  info: debug.Debugger;
-  success: debug.Debugger;
-  warn: debug.Debugger;
-  error: debug.Debugger;
+  debug: (message: string, ...args: any[]) => void;
+  info: (message: string, ...args: any[]) => void;
+  warn: (message: string, ...args: any[]) => void;
+  error: (message: string, ...args: any[]) => void;
 }
 
 /**
@@ -15,12 +14,24 @@ export interface Logger {
  */
 export function createLogger(serviceName: string): Logger {
   const namespace = `atlas-xray:${serviceName}`;
+  const debugInstance = debug(namespace);
   
   return {
-    debug: debug(namespace),
-    info: debug(`${namespace}:info`),
-    success: debug(`${namespace}:success`),
-    warn: debug(`${namespace}:warn`),
-    error: debug(`${namespace}:error`)
+    debug: (message: string, ...args: any[]) => {
+      // Let debug package handle the conditional logging
+      debugInstance(message, ...args);
+    },
+    info: (message: string, ...args: any[]) => {
+      // Let debug package handle the conditional logging
+      debugInstance(`ℹ️ ${message}`, ...args);
+    },
+    warn: (message: string, ...args: any[]) => {
+      // Always show warnings - they're important
+      console.warn(`[${namespace}] ⚠️ ${message}`, ...args);
+    },
+    error: (message: string, ...args: any[]) => {
+      // Always show errors - they're critical
+      console.error(`[${namespace}] ❌ ${message}`, ...args);
+    }
   };
 }
