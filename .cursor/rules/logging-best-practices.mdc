@@ -1,19 +1,16 @@
----
-alwaysApply: true
----
 
 # Logging Best Practices
 
 ## Overview
-This rule establishes logging standards and patterns for the Atlas Xray Chrome extension, ensuring consistent, performant, and maintainable logging across all services and components.
+This rule establishes logging standards and patterns for the Atlas Xray Chrome extension, ensuring consistent, performant, and maintainable logging across all services and components using the **Loglevel** package.
 
 ## Core Principles
 
-### 1. Use the Debug Package
-Always use the [debug](https://www.npmjs.com/package/debug) package for conditional logging instead of custom console.log implementations.
+### 1. Use the Loglevel Package
+Always use the [loglevel](https://www.npmjs.com/package/loglevel) package for conditional logging instead of custom console.log implementations.
 
 ```typescript
-import debug from 'debug';
+import { createLogger } from '../utils/logger';
 
 export class MyService {
   // Create logger instance for this service
@@ -21,51 +18,56 @@ export class MyService {
 }
 ```
 
-### 2. Namespace Convention
-Follow the hierarchical namespace pattern: `atlas-xray:ServiceName:Level`
+### 2. Logger Factory Function
+Use the centralized `createLogger` function from [src/utils/logger.ts](mdc:src/utils/logger.ts) for consistent logging across all services.
 
-- **Base**: `atlas-xray:ServiceName` - General debug logs
-- **Info**: `atlas-xray:ServiceName:info` - Information and status updates
-- **Info**: `atlas-xray:ServiceName` - Information and successful operations
-- **Warning**: `atlas-xray:ServiceName:warn` - Warning messages
-- **Error**: `atlas-xray:ServiceName:error` - Error conditions
+```typescript
+import { createLogger, setGlobalLogLevel } from '../utils/logger';
+
+// Create service-specific logger
+const log = createLogger('MyService');
+
+// Set global log level (when needed)
+setGlobalLogLevel('debug'); // 'trace', 'debug', 'info', 'warn', 'error', 'silent'
+```
 
 ### 3. Log Level Usage
 
-#### General Debug (`log`)
+#### Debug (`log.debug`)
 - Page type changes
 - URL navigation events
 - Button mounting/unmounting decisions
 - Service state changes
+- Pattern matching details
+- Method entry/exit points
 
-#### Information (`logInfo`)
+#### Information (`log.info`)
 - Current state information
-- Skipped operations (already exists, etc.)
-- General operational details
-
-#### Information (`logInfo`)
-- Successful component mounting
-- Cleanup operations completed
+- Successful operations
+- Component mounting/unmounting
 - Service initialization success
 - Button management completion
+- URL changes
 
-#### Warnings (`logWarn`)
+#### Warnings (`log.warn`)
 - Non-critical failures
 - Fallback operations
 - Service cleanup issues
 - Expected but suboptimal conditions
+- Missing patterns or configurations
 
-#### Errors (`logError`)
+#### Errors (`log.error`)
 - Critical failures
 - Service mounting errors
 - Unexpected exceptions
 - Operations that prevent normal functionality
+- Import failures
 
 ## Implementation Examples
 
 ### Service Class Template
 ```typescript
-import debug from 'debug';
+import { createLogger } from '../utils/logger';
 
 export class ExampleService {
   // Logger instance
@@ -73,13 +75,13 @@ export class ExampleService {
 
   static async performOperation(): Promise<void> {
     try {
-      this.log('Starting operation...');
+      this.log.debug('Starting operation...');
       
       // ... operation logic ...
       
-              this.log.info('Operation completed successfully');
+      this.log.info('Operation completed successfully');
     } catch (error) {
-              this.log.error('Operation failed', error);
+      this.log.error('Operation failed', error);
       throw error;
     }
   }
@@ -88,16 +90,16 @@ export class ExampleService {
 
 ### Component Logging
 ```typescript
-import debug from 'debug';
+import { createLogger } from '../utils/logger';
 
-const log = debug('atlas-xray:ComponentName');
+const log = createLogger('ComponentName');
 
 function MyComponent() {
   useEffect(() => {
-    log('Component mounted');
+    log.info('Component mounted');
     
     return () => {
-      log('Component unmounting');
+      log.info('Component unmounting');
     };
   }, []);
   
@@ -107,53 +109,49 @@ function MyComponent() {
 
 ## Environment Control
 
-### Development (Full Logging)
-```bash
-DEBUG=atlas-xray:* npm run build
+### Runtime Log Level Control
+The Loglevel package provides immediate runtime control over log levels:
+
+```typescript
+import { setGlobalLogLevel, getGlobalLogLevel } from '../utils/logger';
+
+// Enable all logs
+setGlobalLogLevel('debug');
+
+// Only show warnings and errors
+setGlobalLogLevel('warn');
+
+// Disable all logs
+setGlobalLogLevel('silent');
+
+// Check current level
+console.log('Current log level:', getGlobalLogLevel());
 ```
 
-### Production (No Debug Logs)
-```bash
-DEBUG= npm run build
-```
-
-### Selective Logging
-```bash
-# Only errors and warnings
-DEBUG=atlas-xray:*:error,atlas-xray:*:warn npm run build
-
-# Specific service only
-DEBUG=atlas-xray:PageTypeDetector* npm run build
-
-# Exclude specific levels
-DEBUG=*,-atlas-xray:*:info npm run build
-```
+### Chrome Extension Popup Control
+Users can toggle debug logging through the extension popup:
+- **Debug ON**: Sets log level to 'debug' - shows all logs
+- **Debug OFF**: Sets log level to 'warn' - shows only warnings and errors
 
 ## Performance Benefits
 
 ### Zero Overhead When Disabled
-- No function calls when `DEBUG` is not set
+- No function calls when log level is set to 'silent'
 - No string concatenation overhead
 - No conditional checks at runtime
 - Production builds are completely clean
 
-### Conditional Execution
-```typescript
-// This only executes when debug is enabled
-this.log('Complex operation result:', expensiveCalculation());
-
-// Avoid this pattern - always executes
-if (debug.enabled) {
-  console.log('Complex operation result:', expensiveCalculation());
-}
-```
+### Immediate Response
+- Log level changes take effect immediately
+- No caching issues (unlike the old debug package)
+- Dynamic control without restarting
 
 ## Best Practices
 
 ### 1. Always Use Structured Logging
 ```typescript
 // ✅ Good - structured with context
-this.log('Button mounted for page type:', pageType, 'at URL:', url);
+this.log.info('Button mounted for page type:', pageType, 'at URL:', url);
 
 // ❌ Bad - unstructured
 console.log('Button mounted');
@@ -162,28 +160,43 @@ console.log('Button mounted');
 ### 2. Include Relevant Context
 ```typescript
 // ✅ Good - includes relevant data
-this.logInfo('Skipping mount - button already exists for:', pageType);
+this.log.info('Skipping mount - button already exists for:', pageType);
 
 // ❌ Bad - lacks context
-this.logInfo('Skipping mount');
+this.log.info('Skipping mount');
 ```
 
 ### 3. Use Appropriate Log Levels
 ```typescript
-// ✅ Good - error for failures
-this.logError('Failed to mount button:', error);
+// ✅ Good - debug for detailed flow
+this.log.debug('Testing pattern:', type, 'regex:', regex);
 
-// ❌ Bad - info for errors
-this.logInfo('Failed to mount button:', error);
+// ✅ Good - info for successful operations
+this.log.info('Pattern matched:', type);
+
+// ✅ Good - warn for non-critical issues
+this.log.warn('No pattern matched, returning UNKNOWN');
+
+// ✅ Good - error for failures
+this.log.error('Failed to mount button:', error);
 ```
 
 ### 4. Avoid Sensitive Information
 ```typescript
 // ✅ Good - no sensitive data
-this.log('User action performed on project:', projectId);
+this.log.info('User action performed on project:', projectId);
 
 // ❌ Bad - includes sensitive data
-this.log('User action performed by:', user.email, 'on project:', projectId);
+this.log.info('User action performed by:', user.email, 'on project:', projectId);
+```
+
+### 5. Use Emojis for Visual Clarity
+```typescript
+// ✅ Good - visual indicators
+this.log.info('🚀 Page type monitoring started');
+this.log.debug('🔄 URL changed to:', newUrl);
+this.log.warn('⚠️ Could not cleanup service');
+this.log.error('❌ Failed to mount component');
 ```
 
 ## Migration Guide
@@ -194,18 +207,20 @@ this.log('User action performed by:', user.email, 'on project:', projectId);
 console.log('[Service] Operation started');
 
 // After
-this.log('Operation started');
+this.log.info('Operation started');
 ```
 
-### From Custom Debug Flags
+### From Debug Package
 ```typescript
 // Before
-if (DEBUG) {
-  console.log('Debug info');
-}
+import debug from 'debug';
+const log = debug('atlas-xray:ServiceName');
+log('Debug message');
 
 // After
-this.log('Debug info');
+import { createLogger } from '../utils/logger';
+const log = createLogger('ServiceName');
+log.debug('Debug message');
 ```
 
 ### From Multiple Console Methods
@@ -216,18 +231,23 @@ console.warn('Warning message');
 console.error('Error message');
 
 // After
-this.logInfo('Info message');
-this.logWarn('Warning message');
-this.logError('Error message');
+this.log.info('Info message');
+this.log.warn('Warning message');
+this.log.error('Error message');
 ```
 
 ## File References
 
-- [PageTypeDetector.ts](mdc:src/services/PageTypeDetector.ts) - Example implementation
-- [package.json](mdc:package.json) - Debug package dependency
-- [tsconfig.json](mdc:tsconfig.json) - TypeScript configuration
+- [src/utils/logger.ts](mdc:src/utils/logger.ts) - Centralized logger utility
+- [src/services/PageTypeDetector.ts](mdc:src/services/PageTypeDetector.ts) - Example implementation
+- [src/contentScripts/contentScript.js](mdc:src/contentScripts/contentScript.js) - Debug toggle integration
+- [src/components/ChromeExtension/ChromeExtensionPopup.tsx](mdc:src/components/ChromeExtension/ChromeExtensionPopup.tsx) - Debug toggle UI
+- [package.json](mdc:package.json) - Loglevel package dependency
 
 ## Related Rules
+
+- [Chrome Extension General](mdc:chrome-extension-general) - Extension-specific patterns
+- [Chrome Extension Patterns](mdc:chrome-extension-patterns) - Architecture guidelines
 
 - [Chrome Extension General](mdc:chrome-extension-general) - Extension-specific patterns
 - [Chrome Extension Patterns](mdc:chrome-extension-patterns) - Architecture guidelines
