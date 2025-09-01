@@ -62,6 +62,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const debug = require('debug');
         const testDebug = debug('atlas-xray:TestLogger');
         testDebug('🧪 Test debug message - this should appear if debug is working');
+        
+        // Test the logger utility
+        console.log('[AtlasXray] 🧪 Testing logger utility...');
+        import('../utils/logger').then(({ createLogger }) => {
+          try {
+            const testLogger = createLogger('TestLogger');
+            testLogger.debug('🧪 Logger utility debug message');
+            testLogger.info('🧪 Logger utility info message');
+            testLogger.warn('🧪 Logger utility warning message');
+            testLogger.error('🧪 Logger utility error message');
+            console.log('[AtlasXray] ✅ Logger utility test completed');
+          } catch (error) {
+            console.error('[AtlasXray] ❌ Logger utility test failed:', error);
+          }
+        }).catch(error => {
+          console.error('[AtlasXray] ❌ Failed to import logger utility:', error);
+        });
       } else {
         // Disable debug logs
         localStorage.debug = '';
