@@ -53,36 +53,60 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'TOGGLE_DEBUG') {
     try {
       if (message.enabled) {
-        // Enable debug logs
-        localStorage.debug = 'atlas-xray:*';
-        console.log('[AtlasXray] 🔍 Debug logs enabled - localStorage.debug =', localStorage.debug);
+        // Enable debug logs using new Loglevel logger
+        console.log('[AtlasXray] 🔍 Debug logs enabled');
         
-        // Test if debug is working by creating a new debug instance
-        console.log('[AtlasXray] 🧪 Testing debug logs...');
-        const debug = require('debug');
-        const testDebug = debug('atlas-xray:TestLogger');
-        testDebug('🧪 Test debug message - this should appear if debug is working');
-        
-        // Test the logger utility
-        console.log('[AtlasXray] 🧪 Testing logger utility...');
-        import('../utils/logger').then(({ createLogger }) => {
+        // Enable debug logging using new Loglevel logger
+        import('../utils/logger').then(({ setGlobalLogLevel }) => {
           try {
-            const testLogger = createLogger('TestLogger');
-            testLogger.debug('🧪 Logger utility debug message');
-            testLogger.info('🧪 Logger utility info message');
-            testLogger.warn('🧪 Logger utility warning message');
-            testLogger.error('🧪 Logger utility error message');
-            console.log('[AtlasXray] ✅ Logger utility test completed');
+            setGlobalLogLevel('debug');
+            console.log('[AtlasXray] ✅ Debug logs enabled - Loglevel logger active');
           } catch (error) {
-            console.error('[AtlasXray] ❌ Logger utility test failed:', error);
+            console.error('[AtlasXray] ❌ Failed to enable debug logs:', error);
           }
         }).catch(error => {
           console.error('[AtlasXray] ❌ Failed to import logger utility:', error);
         });
+        
+        // Test PageTypeDetector logging
+        console.log('[AtlasXray] 🧪 Testing PageTypeDetector logging...');
+        import('../services/PageTypeDetector').then(({ PageTypeDetector }) => {
+          try {
+            console.log('[AtlasXray] 🧪 PageTypeDetector imported successfully');
+            console.log('[AtlasXray] 🧪 PageTypeDetector.log object:', PageTypeDetector.log);
+            
+            // Test direct logger calls
+            console.log('[AtlasXray] 🧪 About to call PageTypeDetector.log.debug...');
+            PageTypeDetector.log.debug('🧪 PageTypeDetector direct debug test');
+            console.log('[AtlasXray] 🧪 About to call PageTypeDetector.log.info...');
+            PageTypeDetector.log.info('🧪 PageTypeDetector direct info test');
+            console.log('[AtlasXray] 🧪 About to call PageTypeDetector.log.warn...');
+            PageTypeDetector.log.warn('🧪 PageTypeDetector direct warn test');
+            console.log('[AtlasXray] 🧪 About to call PageTypeDetector.log.error...');
+            PageTypeDetector.log.error('🧪 PageTypeDetector direct error test');
+            
+            // Test actual PageTypeDetector methods
+            console.log('[AtlasXray] 🧪 About to call PageTypeDetector.detectPageType()...');
+            const currentPageType = PageTypeDetector.detectPageType();
+            console.log('[AtlasXray] ✅ PageTypeDetector test completed - Current page type:', currentPageType);
+          } catch (error) {
+            console.error('[AtlasXray] ❌ PageTypeDetector test failed:', error);
+          }
+        }).catch(error => {
+          console.error('[AtlasXray] ❌ Failed to import PageTypeDetector:', error);
+        });
       } else {
         // Disable debug logs
-        localStorage.debug = '';
-        console.log('[AtlasXray] 🔍 Debug logs disabled - localStorage.debug =', localStorage.debug);
+        import('../utils/logger').then(({ setGlobalLogLevel }) => {
+          try {
+            setGlobalLogLevel('warn'); // Only show warnings and errors
+            console.log('[AtlasXray] ✅ Debug logs disabled - Loglevel logger set to warn level');
+          } catch (error) {
+            console.error('[AtlasXray] ❌ Failed to disable debug logs:', error);
+          }
+        }).catch(error => {
+          console.error('[AtlasXray] ❌ Failed to import logger utility:', error);
+        });
       }
       sendResponse({ success: true });
     } catch (error) {

@@ -33,21 +33,34 @@ export class PageTypeDetector {
   ];
 
   static detectPageType(url: string = window.location.href): PageType {
+    this.log.debug('detectPageType() called with URL:', url);
+    
+
+    
     for (const { type, regex } of this.patterns) {
-      if (regex.test(url)) return type;
+      this.log.debug('Testing pattern:', type, 'regex:', regex);
+              if (regex.test(url)) {
+          this.log.info('Pattern matched:', type);
+          return type;
+        }
     }
+    
+    this.log.warn('No pattern matched, returning UNKNOWN');
     return PageType.UNKNOWN;
   }
 
   static startMonitoring(): void {
+    this.log.info('🚀 Page type monitoring started');
+    
     const checkAndLoadButtons = () => {
+      this.log.debug('checkAndLoadButtons() called');
       const newPageType = this.detectPageType();
-      
       this.log.debug(`Detected page type: ${newPageType}`);
       this.log.info(`📍 Current URL: ${window.location.href}`);
       
       // Only cleanup and remount if page type actually changed
       if (this.currentPageType !== newPageType) {
+
         this.log.debug(`🔄 Page type changed from ${this.currentPageType} to ${newPageType}`);
         
         // Clean up existing buttons
