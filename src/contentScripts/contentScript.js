@@ -57,22 +57,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         localStorage.debug = 'atlas-xray:*';
         console.log('[AtlasXray] 🔍 Debug logs enabled - localStorage.debug =', localStorage.debug);
         
-        // Test if debug is working by importing and testing the logger
-        import('../utils/logger').then(({ createLogger }) => {
-          // Force debug package to re-read localStorage
-          const debug = require('debug');
-          // Force debug to re-read localStorage (remove the incorrect line)
-          
-          const testLogger = createLogger('TestLogger');
-          testLogger.debug('🧪 Test debug message - this should appear if debug is working');
-          testLogger.info('🧪 Test info message - this should appear if debug is working');
-          
-          // Also test PageTypeDetector logs
-          import('../services/PageTypeDetector').then(({ PageTypeDetector }) => {
-            PageTypeDetector.log.debug('🧪 PageTypeDetector test debug message');
-            PageTypeDetector.log.info('🧪 PageTypeDetector test info message');
-          });
-        });
+        // Force debug package to re-read localStorage by clearing its cache
+        const debug = require('debug');
+        debug.enabled = debug.load();
+        
+        // Test if debug is working
+        console.log('[AtlasXray] 🧪 Testing debug logs...');
+        const testDebug = debug('atlas-xray:TestLogger');
+        testDebug('🧪 Test debug message - this should appear if debug is working');
       } else {
         // Disable debug logs
         localStorage.debug = '';
