@@ -187,7 +187,7 @@ export default function ProjectUpdateModal({
                                ));
                              }
                            } catch (e) {
-                             console.error('Error parsing details:', e);
+                             log.error('Error parsing details:', String(e));
                            }
                            return <div className="no-details">No detailed update provided</div>;
                          })()}

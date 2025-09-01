@@ -8,6 +8,10 @@ import { bootstrapService } from '../../services/bootstrapService';
 import './FloatingButton.scss';
 import Tooltip from "@atlaskit/tooltip";
 import { db } from '../../services/DatabaseService';
+import { log, setFilePrefix } from '../../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[FloatingButton]');
 
 export default function FloatingButton(): React.JSX.Element {
   const [modalOpen, setModalOpen] = useState(false);
@@ -22,7 +26,7 @@ export default function FloatingButton(): React.JSX.Element {
         //await db.clearProjectList();
         await db.projectList.clear();
       } catch (error) {
-        console.error('[AtlasXray] ⚠️ Warning: Some tables could not be cleared:', error);
+        log.error('Warning: Some tables could not be cleared:', String(error));
         // Continue anyway - we'll overwrite the data
       }
       
@@ -43,14 +47,14 @@ export default function FloatingButton(): React.JSX.Element {
         const { TimelineProjectService } = await import('../../services/TimelineProjectService');
         TimelineProjectService.clearAllLines();
       } catch (error) {
-        console.warn('[AtlasXray] ⚠️ Could not clear dependency lines:', error);
+        log.warn('Could not clear dependency lines:', String(error));
       }
       
       // Step 6: Open modal (heatmap will load automatically)
       setModalOpen(true);
 
     } catch (error) {
-      console.error('[AtlasXray] ❌ Failed to fetch data:', error);
+      log.error('Failed to fetch data:', String(error));
       alert(`Failed to load project data: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsLoading(false);
@@ -99,14 +103,14 @@ export default function FloatingButton(): React.JSX.Element {
         </button>
       </Tooltip>
 
-              <ProjectStatusHistoryModal open={modalOpen} onClose={() => setModalOpen(false)}>
-          <div className="modal-content">
-            <StatusTimelineHeatmap
-              weekLimit={12}
-              // No visibleProjectKeys filter - show all projects
-            />
-          </div>
-        </ProjectStatusHistoryModal>
+      <ProjectStatusHistoryModal open={modalOpen} onClose={() => setModalOpen(false)}>
+        <div className="modal-content">
+          <StatusTimelineHeatmap
+            weekLimit={12}
+            // No visibleProjectKeys filter - show all projects
+          />
+        </div>
+      </ProjectStatusHistoryModal>
     </>
   );
 }

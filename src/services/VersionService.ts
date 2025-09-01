@@ -4,6 +4,11 @@
  * Follows architecture principles: singleton pattern, clear responsibilities
  */
 
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[VersionService]');
+
 // Chrome extension types
 declare const chrome: any;
 
@@ -101,7 +106,7 @@ export class VersionService {
         latestVersion: release.tag_name 
       };
     } catch (error) {
-      console.warn('[AtlasXray] Version info fetch failed:', error);
+      log.warn('Version info fetch failed:', String(error));
       return { hasUpdate: false };
     }
   }
@@ -147,7 +152,7 @@ export class VersionService {
         latestVersion: release.tag_name 
       };
     } catch (error) {
-      console.warn('[AtlasXray] Version check failed:', error);
+      log.warn('Version check failed:', String(error));
       return { hasUpdate: false };
     }
   }
@@ -189,7 +194,7 @@ export class VersionService {
     try {
       await chrome.storage.local.set({ [this.STORAGE_KEY]: timestamp });
     } catch (error) {
-      console.warn('[AtlasXray] Failed to save check time:', error);
+      log.warn('Failed to save check time:', String(error));
     }
   }
 
@@ -244,11 +249,11 @@ export class VersionService {
       chrome.alarms.create(`atlas-xray-clear-${notificationId}`, { when: Date.now() + 10000 });
 
     } catch (error) {
-      console.warn('[AtlasXray] Failed to show update notification:', error);
+      log.warn('Failed to show update notification:', String(error));
       
       // Fallback: open update page directly if notification fails
       chrome.tabs.create({ url: releaseUrl });
-      console.warn(`[AtlasXray] A new version (${latestVersion}) is available. Opening update page: ${releaseUrl}`);
+      log.warn(`A new version (${latestVersion}) is available. Opening update page: ${releaseUrl}`);
     }
   }
 }

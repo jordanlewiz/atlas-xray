@@ -9,6 +9,9 @@ This rule establishes logging standards and patterns for the Atlas Xray Chrome e
 ### 1. Use the Unified Logger Utility
 Always use the single `log` utility from [src/utils/logger.ts](mdc:src/utils/logger.ts) for all logging purposes. This utility wraps browser console methods and respects the debug toggle.
 
+**Exception: Service Worker Scripts**
+Service worker scripts (`src/background/*.js`) should use `console.log` directly instead of the logger utility, as they log to a different console context and the logger utility is designed for content scripts and popup contexts.
+
 ```typescript
 import { log, setFilePrefix } from '../utils/logger';
 
@@ -105,6 +108,10 @@ export class ExampleService {
     try {
       log.debug('Starting operation...'); // Uses [ExampleService] prefix
       
+      // Example of logging with objects and data
+      const operationData = { id: 123, type: 'process' };
+      log.debug('Processing data:', JSON.stringify(operationData));
+      
       // ... operation logic ...
       
       log.info('Operation completed successfully'); // Uses [ExampleService] prefix
@@ -118,6 +125,12 @@ export class ExampleService {
     try {
       // Override prefix for special context
       log.info('[SpecialContext]', 'Special operation started');
+      
+      // Example of logging GraphQL errors or API responses
+      const apiResponse = { data: null, errors: [{ message: 'Invalid input' }] };
+      if (apiResponse.errors) {
+        log.error('[SpecialContext]', 'API errors:', JSON.stringify(apiResponse.errors));
+      }
       
       // ... special logic ...
       
@@ -238,14 +251,80 @@ log.warn('No pattern matched, returning UNKNOWN');
 log.error('Failed to mount button:', String(error));
 ```
 
-### 5. Use Emojis for Visual Clarity
+### 5. Properly Format Objects and Non-String Values
+**Always convert objects, arrays, and non-string values to strings** before passing to the logger.
+
 ```typescript
-// ✅ Good - visual indicators with automatic file prefix
-log.info('🚀 Page type monitoring started');
-log.debug('🔄 URL changed to:', newUrl);
-log.warn('⚠️ Could not cleanup service');
-log.error('❌ Failed to mount component');
+// ✅ Good - objects converted to JSON strings
+log.debug('Processing data:', JSON.stringify({ key: 'value', count: 42 }));
+log.error('GraphQL errors:', JSON.stringify(response.errors));
+
+// ✅ Good - non-string values converted to strings
+log.debug('Count:', String(items.length));
+log.info('URL:', String(window.location.href));
+log.warn('Status:', String(response.status));
+
+// ✅ Good - error objects properly converted
+log.error('Operation failed:', String(error));
+log.warn('Warning with error:', String(error), 'context:', JSON.stringify(context));
+
+// ❌ Bad - passing objects directly
+log.debug('Processing data:', { key: 'value', count: 42 });
+log.error('GraphQL errors:', response.errors);
+log.debug('Count:', items.length);
+
+// ❌ Bad - passing error objects directly
+log.error('Operation failed:', error);
 ```
+
+**Why This Matters:**
+- **Consistency**: All logger arguments are properly formatted strings
+- **Debugging**: Objects are serialized and readable in console output
+- **Type Safety**: Matches the logger interface expectations
+- **Maintainability**: Clear and predictable logging behavior
+
+### 6. Let the Logger Handle Visual Indicators
+**The logger automatically adds appropriate icons based on log level. Do not add emojis manually in log messages.**
+
+```typescript
+// ✅ Good - let the logger handle the visual indicators
+log.info('Page type monitoring started');        // Shows: [Service] ℹ️ Page type monitoring started
+log.debug('URL changed to:', newUrl);            // Shows: [Service] 🔍 URL changed to: http://...
+log.warn('Could not cleanup service');           // Shows: [Service] ⚠️ Could not cleanup service
+log.error('Failed to mount component');          // Shows: [Service] ❌ Failed to mount component
+
+// ❌ Bad - redundant emojis create double icons
+log.info('🚀 Page type monitoring started');     // Shows: [Service] ℹ️ 🚀 Page type monitoring started
+log.debug('🔄 URL changed to:', newUrl);         // Shows: [Service] 🔍 🔄 URL changed to: http://...
+log.warn('⚠️ Could not cleanup service');        // Shows: [Service] ⚠️ ⚠️ Could not cleanup service
+log.error('❌ Failed to mount component');       // Shows: [Service] ❌ ❌ Failed to mount component
+```
+
+**Why This Matters:**
+- **Consistency**: All logs have uniform visual indicators
+- **Clean Output**: No duplicate emojis cluttering the console
+- **Maintainability**: Visual indicators are managed in one place (the logger)
+- **Readability**: Clear, consistent formatting across all log messages
+
+### 7. Service Worker Logging (Exception)
+**Service worker scripts should use `console.log` directly, not the logger utility.**
+
+```javascript
+// ✅ Good - Service worker scripts use console.log directly
+console.log('[AtlasXray] Background service worker is running');
+console.log('[AtlasXray] Message received:', message.type);
+console.error('[AtlasXray] Failed to initialize:', error);
+
+// ❌ Bad - Don't use logger utility in service workers
+import { log, setFilePrefix } from '../utils/logger';
+log.info('Background service worker is running'); // May cause initialization issues
+```
+
+**Why Service Workers Are Different:**
+- **Different Console Context**: Service workers log to a separate console
+- **Initialization Issues**: Logger utility may not be available during service worker startup
+- **Simplicity**: Direct console logging is more reliable in service worker context
+- **Performance**: No overhead from logger utility in background scripts
 
 ## Migration Guide
 
@@ -294,6 +373,7 @@ log.warn('No pattern matched, returning UNKNOWN');
 - [src/services/PageTypeDetector.ts](mdc:src/services/PageTypeDetector.ts) - Example implementation with file-level prefix
 - [src/contentScripts/contentScript.js](mdc:src/contentScripts/contentScript.js) - Debug toggle integration with file-level prefix
 - [src/components/ChromeExtension/ChromeExtensionPopup.tsx](mdc:src/components/ChromeExtension/ChromeExtensionPopup.tsx) - Debug toggle UI
+- [src/background/background.js](mdc:src/background/background.js) - Service worker using console.log directly (exception)
 - [package.json](mdc:package.json) - No external logging dependencies
 
 ## Related Rules

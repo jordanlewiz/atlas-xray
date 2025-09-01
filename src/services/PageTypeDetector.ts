@@ -53,7 +53,7 @@ export class PageTypeDetector {
   }
 
   static startMonitoring(): void {
-    log.info('🚀 Page type monitoring started');
+    log.info('Page type monitoring started');
     
     const checkAndLoadButtons = () => {
       log.debug('checkAndLoadButtons() called');
@@ -100,7 +100,7 @@ export class PageTypeDetector {
       checkAndLoadButtons();
     });
     
-    log.info('🚀 Page type monitoring started successfully');
+    log.info('Page type monitoring started successfully');
   }
 
   private static async cleanupButtons(): Promise<void> {
@@ -129,7 +129,7 @@ export class PageTypeDetector {
         TimelineProjectService.cleanupUrlChangeListener();
         TimelineProjectService.clearAllLines();
       } catch (error) {
-        log.warn('⚠️ Could not cleanup TimelineProjectService', String(error));
+        log.warn('Could not cleanup TimelineProjectService', String(error));
       }
       
       log.info('🧹 Cleaned up DependencyButton');
@@ -154,12 +154,12 @@ export class PageTypeDetector {
         // Create and store React root for proper cleanup
         this.floatingButtonRoot = createRoot(container);
         this.floatingButtonRoot.render(React.createElement(FloatingButton));
-        log.info('✅ FloatingButton mounted successfully');
+        log.info('FloatingButton mounted successfully');
       } catch (error) {
-        log.error('❌ Failed to mount FloatingButton', String(error));
+        log.error('Failed to mount FloatingButton', String(error));
       }
     } else {
-      log.info('ℹ️ FloatingButton already exists, skipping mount');
+      log.info('FloatingButton already exists, skipping mount');
     }
   }
 
@@ -174,9 +174,9 @@ export class PageTypeDetector {
         btn.textContent = TimelineProjectService.getDependenciesVisible() ? 'Hide dependencies' : 'Show dependencies';
       });
       document.body.appendChild(btn);
-      log.info('✅ DependencyButton mounted successfully');
+      log.info('DependencyButton mounted successfully');
     } else {
-      log.info('ℹ️ DependencyButton already exists, skipping mount');
+      log.info('DependencyButton already exists, skipping mount');
     }
   }
 }

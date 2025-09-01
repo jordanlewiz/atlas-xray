@@ -1,7 +1,11 @@
 import { extractProjectIdFromUrl } from '../utils/projectUtils';
 import { db } from './DatabaseService';
+import { log, setFilePrefix } from '../utils/logger';
 // Import LeaderLine from leader-line-new using require
 const LeaderLine = require('leader-line-new');
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[TimelineProjectService]');
 
 export class TimelineProjectService {
   private static leaderLines: any[] = [];
@@ -19,7 +23,7 @@ export class TimelineProjectService {
         try {
           line.remove();
         } catch (error) {
-          console.warn('[AtlasXray] ⚠️ Error removing leader line:', error);
+          log.warn('Error removing leader line:', String(error));
         }
       });
       
@@ -36,7 +40,7 @@ export class TimelineProjectService {
       this.dependenciesVisible = false;
       this.notifyButtonStateChange();
     } catch (error) {
-      console.error('[AtlasXray] ❌ Error clearing dependency lines:', error);
+      log.error('Error clearing dependency lines:', String(error));
     }
   }
 
@@ -53,7 +57,7 @@ export class TimelineProjectService {
       this.scrollContainer = document.querySelector('[data-sentry-component="TimelineView"]') as HTMLElement;
       if (!this.scrollContainer) {
         this.scrollContainer = document.querySelector('body') as HTMLElement; // Fallback to body
-        console.warn('[AtlasXray] ⚠️ Could not find TimelineView container, falling back to body');
+        log.warn('Could not find TimelineView container, falling back to body');
       }
 
       // Create scroll listener to reposition lines
@@ -62,7 +66,7 @@ export class TimelineProjectService {
           try {
             line.position();
           } catch (error) {
-            console.warn('[AtlasXray] ⚠️ Error repositioning line:', error);
+            log.warn('Error repositioning line:', String(error));
           }
         });
       };
@@ -78,7 +82,7 @@ export class TimelineProjectService {
           try {
             line.position();
           } catch (error) {
-            console.warn('[AtlasXray] ⚠️ Error repositioning line on resize:', error);
+            log.warn('Error repositioning line on resize:', String(error));
           }
         });
       };
@@ -91,7 +95,7 @@ export class TimelineProjectService {
           try {
             line.position();
           } catch (error) {
-            console.warn('[AtlasXray] ⚠️ Error repositioning line on DOM change:', error);
+            log.warn('Error repositioning line on DOM change:', String(error));
           }
         });
       });
@@ -111,7 +115,7 @@ export class TimelineProjectService {
         const sourceElement = document.getElementById(dep.source);
         
         if (!sourceElement) {
-          console.warn(`[AtlasXray] ⚠️ Could not find source element for ${dep.source}`);
+          log.warn(`⚠️ Could not find source element for ${dep.source}`);
           return;
         }
         
@@ -120,7 +124,7 @@ export class TimelineProjectService {
           const targetElement = document.getElementById(targetId);
           
           if (!targetElement) {
-            console.warn(`[AtlasXray] ⚠️ Could not find target element for ${targetId}`);
+            log.warn(`⚠️ Could not find target element for ${targetId}`);
             return;
           }
           
@@ -146,7 +150,7 @@ export class TimelineProjectService {
             
 
           } catch (error) {
-            console.warn(`[AtlasXray] ⚠️ Could not create line from ${dep.source} to ${targetId}:`, error);
+            log.warn(`⚠️ Could not create line from ${dep.source} to ${targetId}:`, String(error));
           }
         });
       });
@@ -154,7 +158,7 @@ export class TimelineProjectService {
 
       
     } catch (error) {
-      console.error('[AtlasXray] ❌ Error drawing dependency lines:', error);
+      log.error('Error drawing dependency lines:', String(error));
     }
   }
 
@@ -181,7 +185,7 @@ export class TimelineProjectService {
           const linkElement = projectBar.querySelector('a[href]');
           
           if (!linkElement || !linkElement.getAttribute('href')) {
-            console.log(`[AtlasXray] ⚠️ ProjectBar ${index + 1} has no link element or href`);
+            log.warn(`⚠️ ProjectBar ${index + 1} has no link element or href`);
             return;
           }
 
@@ -210,7 +214,7 @@ export class TimelineProjectService {
           processedCount++;
 
         } catch (error) {
-          console.error(`[AtlasXray] ❌ Error processing ProjectBar ${index + 1}:`, error);
+          log.error(`❌ Error processing ProjectBar ${index + 1}:`, String(error));
         }
       });
 
@@ -224,8 +228,8 @@ export class TimelineProjectService {
       return projectIds;
 
     } catch (error) {
-      console.error('[AtlasXray] ❌ Error in findAndProcessTimelineProjects:', error);
-      console.log(`❌ Error processing timeline projects: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      log.error('Error in findAndProcessTimelineProjects:', String(error));
+      log.error(`❌ Error processing timeline projects: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return [];
     }
   }
@@ -251,17 +255,17 @@ export class TimelineProjectService {
           if (dependsOn.length > 0) {
             const dependencyText = `${projectId} depends on ${dependsOn.join(' ')}`;
             dependencyResults.push(dependencyText);
-            console.log(`[AtlasXray] 🔗 ${dependencyText}`);
+            log.debug(`🔗 ${dependencyText}`);
           }
         } catch (error) {
-          console.warn(`[AtlasXray] ⚠️ Could not look up dependencies for ${projectId}:`, error);
+          log.warn(`⚠️ Could not look up dependencies for ${projectId}:`, String(error));
         }
       }
 
       // Display results
       if (dependencyResults.length > 0) {
         const alertMessage = dependencyResults.join('\n');
-        console.log(`🔗 Dependencies found:\n\n${alertMessage}`);
+        log.info(`🔗 Dependencies found:\n\n${alertMessage}`);
         
         // Draw visual dependency lines
         const dependenciesForDrawing = dependencyResults.map(result => {
@@ -279,12 +283,12 @@ export class TimelineProjectService {
           this.drawDependencyLines(dependenciesForDrawing);
         }
       } else {
-        console.log(`🎯 Found ${projectIds.length} projects but no dependencies found in database`);
+        log.info(`🎯 Found ${projectIds.length} projects but no dependencies found in database`);
       }
 
     } catch (error) {
-      console.error('[AtlasXray] ❌ Error looking up dependencies:', error);
-      console.log(`❌ Error looking up dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      log.error('Error looking up dependencies:', String(error));
+      log.error(`❌ Error looking up dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -331,7 +335,7 @@ export class TimelineProjectService {
 
     // Create new listener
     this.urlChangeListener = () => {
-      console.log('[AtlasXray] 🔄 URL change detected (popstate/hashchange), clearing dependencies');
+      log.debug('URL change detected (popstate/hashchange), clearing dependencies');
       this.clearAllLines();
     };
 
@@ -346,7 +350,7 @@ export class TimelineProjectService {
       // Check if we're still on a timeline page
       const currentUrl = window.location.href;
       if (!currentUrl.includes('projects?view=timeline')) {
-        console.log('[AtlasXray] 🔄 Navigation away from timeline detected, clearing dependencies');
+        log.debug('Navigation away from timeline detected, clearing dependencies');
         this.clearAllLines();
       }
     });
@@ -365,7 +369,7 @@ export class TimelineProjectService {
     const urlCheckInterval = setInterval(() => {
       const currentUrl = window.location.href;
       if (currentUrl !== lastUrl) {
-        console.log('[AtlasXray] 🔄 URL changed from', lastUrl, 'to', currentUrl, '- clearing dependencies');
+        log.debug('URL changed from', lastUrl, 'to', currentUrl, '- clearing dependencies');
         lastUrl = currentUrl;
         this.clearAllLines();
       }

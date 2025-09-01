@@ -107,7 +107,7 @@ const ProjectAnalysisModal: React.FC<ProjectAnalysisModalProps> = ({
       await onAnalyze(originalText);
       // The analysis will be updated via props
     } catch (error) {
-      console.error('Analysis failed:', error);
+      log.error('Analysis failed:', String(error));
     } finally {
       setIsAnalyzing(false);
     }

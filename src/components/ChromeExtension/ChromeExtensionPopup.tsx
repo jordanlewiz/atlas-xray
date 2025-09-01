@@ -26,6 +26,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { getLatestVersionInfo } from '../../services/VersionService';
 import "./ChromeExtensionPopup.scss";
+import { log, setFilePrefix } from '../../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[ChromeExtensionPopup]');
 
 // Chrome extension types
 declare const chrome: any;
@@ -59,7 +63,7 @@ const Popup: React.FC = () => {
           });
         }
       } catch (error) {
-        console.warn('[AtlasXray] Failed to get current tab:', error);
+        log.warn('Failed to get current tab:', String(error));
       }
     };
 
@@ -72,7 +76,7 @@ const Popup: React.FC = () => {
           });
         }
       } catch (error) {
-        console.warn('[AtlasXray] Failed to load debug setting:', error);
+        log.warn('Failed to load debug setting:', String(error));
       }
     };
 
@@ -86,7 +90,7 @@ const Popup: React.FC = () => {
       const result = await getLatestVersionInfo();
       setVersionInfo(result);
     } catch (error) {
-      console.warn('[AtlasXray] Version check failed:', error);
+      log.warn('Version check failed:', String(error));
     } finally {
       setIsCheckingVersion(false);
     }
@@ -108,7 +112,7 @@ const Popup: React.FC = () => {
         chrome.storage.local.set({ debugEnabled: newState });
       }
     } catch (error) {
-      console.warn('[AtlasXray] Failed to save debug setting:', error);
+      log.warn('Failed to save debug setting:', String(error));
     }
     
     // Send message to content script
@@ -124,7 +128,7 @@ const Popup: React.FC = () => {
         });
       }
     } catch (error) {
-      console.warn('[AtlasXray] Failed to send debug toggle message:', error);
+      log.warn('Failed to send debug toggle message:', String(error));
     }
   };
 

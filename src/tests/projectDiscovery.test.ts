@@ -46,11 +46,15 @@ jest.mock('../utils/databaseMocks', () => ({
 }));
 
 import { apolloClient } from '../services/apolloClient';
+import { log, setFilePrefix } from '../utils/logger';
 
 // Import the mocked db after mocking
 const { db, upsertProjectUpdates } = require('../utils/databaseMocks');
 
-console.log('Project Discovery test file loaded');
+// Set file-level prefix for all logging in this file
+setFilePrefix('[ProjectDiscoveryTest]');
+
+log.info('Project Discovery test file loaded');
 
 // Mock DOM environment for testing
 const mockDOM = {
@@ -116,9 +120,9 @@ const clearDatabase = async () => {
     await db.projectView.clear();
     await db.projectUpdates.clear();
     await db.projectStatusHistory.clear();
-    console.log('Database cleared successfully');
+    log.info('Database cleared successfully');
   } catch (error) {
-    console.error('Failed to clear database:', error);
+    log.error('Failed to clear database:', String(error));
   }
 };
 

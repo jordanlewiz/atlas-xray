@@ -74,12 +74,12 @@ export class FetchProjectsSummary {
       if (projectsNeedingRefresh.length > 0) {
         log.info(`🔄 ${projectsNeedingRefresh.length} projects need initial summary fetch`);
       } else {
-        log.info('✅ All projects already have summaries stored');
+        log.info('All projects already have summaries stored');
       }
 
       return projectsNeedingRefresh;
     } catch (error) {
-      log.error('❌ Error checking refresh status:', String(error));
+      log.error('Error checking refresh status:', String(error));
       return projectKeys; // Fetch all on error
     }
   }
@@ -95,7 +95,7 @@ export class FetchProjectsSummary {
       const projectsNeedingRefresh = await this.needsRefresh(projectKeys);
       
       if (projectsNeedingRefresh.length === 0) {
-        log.info('✅ All project summaries are fresh, using DB data');
+        log.info('All project summaries are fresh, using DB data');
         return;
       }
 
@@ -103,7 +103,7 @@ export class FetchProjectsSummary {
       await this.fetchFromAPI(projectsNeedingRefresh);
 
     } catch (error) {
-      log.error('❌ Error getting project summaries:', String(error));
+      log.error('Error getting project summaries:', String(error));
       throw error;
     }
   }
@@ -142,7 +142,7 @@ export class FetchProjectsSummary {
           });
 
           if (response.errors && response.errors.length > 0) {
-            log.error(`❌ GraphQL errors for ${projectKey}:`, response.errors);
+            log.error(`❌ GraphQL errors for ${projectKey}:`, JSON.stringify(response.errors));
             continue;
           }
 
@@ -155,11 +155,11 @@ export class FetchProjectsSummary {
 
 
           // Update project summary with summary data
-          log.debug(`📝 Storing summary for ${projectKey}:`, {
+          log.debug(`📝 Storing summary for ${projectKey}:`, JSON.stringify({
             key: projectData.key,
             name: projectData.name,
             status: projectData.state?.value
-          });
+          }));
           
           await db.storeProjectSummary({
             projectKey: projectData.key,
@@ -187,16 +187,16 @@ export class FetchProjectsSummary {
               try {
                 // Bulletproof null checking - if ANYTHING is missing, skip it
                 if (!edge || !edge.node || !edge.node.outgoingProject || !edge.node.outgoingProject.key || !edge.node.id) {
-                  log.warn(`⚠️ Skipping malformed dependency edge for ${projectKey}:`, edge);
+                  log.warn(`⚠️ Skipping malformed dependency edge for ${projectKey}:`, JSON.stringify(edge));
                   continue;
                 }
                 
                 // Log what we're processing
-                log.debug(`🔍 Processing dependency edge:`, {
+                log.debug(`🔍 Processing dependency edge:`, JSON.stringify({
                   edgeId: edge.node.id,
                   outgoingProject: edge.node.outgoingProject,
                   linkType: edge.node.linkType
-                });
+                }));
                 
                 // Create dependency object
                 const dependency = {
@@ -211,7 +211,7 @@ export class FetchProjectsSummary {
                 log.debug(`✅ Successfully processed dependency: ${projectKey} -> ${edge.node.outgoingProject.key}`);
                 
               } catch (error) {
-                log.error(`❌ Error processing dependency edge for ${projectKey}:`, String(error), edge);
+                log.error(`❌ Error processing dependency edge for ${projectKey}:`, String(error), JSON.stringify(edge));
                 continue; // Skip this edge and continue with the next one
               }
             }
@@ -235,7 +235,7 @@ export class FetchProjectsSummary {
       log.info(`✅ Completed fetching summaries for ${projectKeys.length} projects`);
 
     } catch (error) {
-      log.error('❌ Error fetching from API:', String(error));
+      log.error('Error fetching from API:', String(error));
       throw error;
     }
   }

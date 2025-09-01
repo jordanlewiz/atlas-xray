@@ -4,6 +4,11 @@
  * Follows architecture principles: singleton pattern, clear responsibilities
  */
 
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[ProseMirrorService]');
+
 export interface ProseMirrorNode {
   type: string;
   content?: ProseMirrorNode[];
@@ -67,7 +72,7 @@ export class ProseMirrorService {
         const rendered = this.renderProseMirrorManually(parsedSummary);
         return rendered;
       } catch (error) {
-        console.error('Error rendering ProseMirror content:', error);
+        log.error('Error rendering ProseMirror content:', String(error));
         return `Summary rendering error: ${error instanceof Error ? error.message : String(error)}`;
       }
     }
@@ -219,7 +224,7 @@ export class ProseMirrorService {
       default:
         // Log unknown node types for debugging
         if (node.type) {
-          console.warn(`Unknown ProseMirror node type: ${node.type}`, node);
+          log.warn(`Unknown ProseMirror node type: ${node.type}`, JSON.stringify(node));
         }
         // For unknown node types, try to render their content
         if (node.content) {

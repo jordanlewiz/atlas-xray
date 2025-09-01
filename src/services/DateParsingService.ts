@@ -1,5 +1,9 @@
 import * as chrono from "chrono-node";
 import { parse, format } from "date-fns";
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[DateParsingService]');
 
 const formats = [
   "yyyy-MM-dd",     // 2025-12-31
@@ -83,7 +87,7 @@ export class DateParsingService {
       };
       
     } catch (error) {
-      console.warn(`[DateParsingService] Failed to parse date: "${trimmedInput}"`, error);
+      log.warn(`Failed to parse date: "${trimmedInput}"`, String(error));
       return {
         dueDate: trimmedInput,
         dueDateParsed: null
@@ -125,7 +129,7 @@ export class DateParsingService {
         return format(results[0].end.date(), "yyyy-MM-dd");
       }
     } catch (error) {
-      console.warn(`[DateParsingService] Failed to get range end date: "${dateInput}"`, error);
+      log.warn(`Failed to get range end date: "${dateInput}"`, String(error));
     }
 
     return null;

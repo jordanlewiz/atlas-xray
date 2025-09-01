@@ -1,6 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { db, ProjectUpdate } from '../services/DatabaseService';
 import { analyzeProjectUpdate, ProjectUpdateAnalysis } from '../services/AnalysisService';
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[useProjectAnalysis]');
 
 interface UseProjectAnalysisReturn {
   // State
@@ -44,14 +48,14 @@ export function useProjectAnalysis(): UseProjectAnalysisReturn {
       setIsLoading(true);
       setError(null);
 
-      console.log(`[useProjectAnalysis] Analyzing update ${updateId} for project ${projectId}`);
+      log.debug(`Analyzing update ${updateId} for project ${projectId}`);
 
       // Check if analysis already exists
       const existing = await db.getProjectUpdates().then(updates => 
         updates.find(u => u.uuid === updateId && u.analyzed)
       );
       if (existing) {
-        console.log(`[useProjectAnalysis] Analysis already exists for update ${updateId}`);
+        log.debug(`Analysis already exists for update ${updateId}`);
         setCurrentAnalysis(existing);
         return;
       }
@@ -83,11 +87,11 @@ export function useProjectAnalysis(): UseProjectAnalysisReturn {
       setCurrentAnalysis(analyzedUpdate);
       setAnalyses(prev => [analyzedUpdate, ...prev]);
 
-      console.log(`[useProjectAnalysis] Successfully analyzed and stored update ${updateId}`);
+      log.info(`Successfully analyzed and stored update ${updateId}`);
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Analysis failed';
-      console.error(`[useProjectAnalysis] Failed to analyze update ${updateId}:`, err);
+      log.error(`Failed to analyze update ${updateId}:`, String(err));
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -107,7 +111,7 @@ export function useProjectAnalysis(): UseProjectAnalysisReturn {
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to get analysis';
-      console.error(`[useProjectAnalysis] Failed to get analysis for ${updateId}:`, err);
+      log.error(`Failed to get analysis for ${updateId}:`, String(err));
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -125,7 +129,7 @@ export function useProjectAnalysis(): UseProjectAnalysisReturn {
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to get project analyses';
-      console.error(`[useProjectAnalysis] Failed to get analyses for project ${projectId}:`, err);
+      log.error(`Failed to get analyses for project ${projectId}:`, String(err));
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -173,7 +177,7 @@ export function useProjectAnalysisSummaries() {
 
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to load summaries';
-      console.error('[useProjectAnalysisSummaries] Failed to load summaries:', err);
+      log.error('Failed to load summaries:', String(err));
       setError(errorMessage);
     } finally {
       setIsLoading(false);
@@ -219,7 +223,7 @@ export function useAnalysisCache() {
       }));
       return expiredCount;
     } catch (error) {
-      console.error('[useAnalysisCache] Failed to clear expired cache:', error);
+      log.error('Failed to clear expired cache:', String(error));
       throw error;
     }
   }, []);
@@ -234,7 +238,7 @@ export function useAnalysisCache() {
         expiredEntries: 0
       }));
     } catch (error) {
-      console.error('[useAnalysisCache] Failed to get cache stats:', error);
+      log.error('Failed to get cache stats:', String(error));
     }
   }, []);
 

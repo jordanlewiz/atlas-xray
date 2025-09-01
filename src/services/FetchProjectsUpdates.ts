@@ -74,12 +74,12 @@ export class FetchProjectsUpdates {
       if (projectsNeedingRefresh.length > 0) {
         log.info(`🔄 ${projectsNeedingRefresh.length} projects need initial update fetch`);
       } else {
-        log.info('✅ All projects already have updates stored');
+        log.info('All projects already have updates stored');
       }
 
       return projectsNeedingRefresh;
     } catch (error) {
-      log.error('❌ Error checking refresh status:', String(error));
+      log.error('Error checking refresh status:', String(error));
       return projectKeys; // Fetch all on error
     }
   }
@@ -95,7 +95,7 @@ export class FetchProjectsUpdates {
       const projectsNeedingRefresh = await this.needsRefresh(projectKeys);
       
       if (projectsNeedingRefresh.length === 0) {
-        log.info('✅ All project updates are fresh, using DB data');
+        log.info('All project updates are fresh, using DB data');
         return;
       }
 
@@ -103,7 +103,7 @@ export class FetchProjectsUpdates {
       await this.fetchFromAPI(projectsNeedingRefresh);
 
     } catch (error) {
-      log.error('❌ Error getting project updates:', String(error));
+      log.error('Error getting project updates:', String(error));
       throw error;
     }
   }
@@ -212,7 +212,7 @@ export class FetchProjectsUpdates {
       log.info(`✅ Completed fetching updates for ${projectKeys.length} projects`);
 
     } catch (error) {
-      log.error('❌ Error fetching from API:', String(error));
+      log.error('Error fetching from API:', String(error));
       throw error;
     }
   }
