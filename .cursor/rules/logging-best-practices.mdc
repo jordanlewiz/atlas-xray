@@ -2,36 +2,45 @@
 # Logging Best Practices
 
 ## Overview
-This rule establishes logging standards and patterns for the Atlas Xray Chrome extension, ensuring consistent, performant, and maintainable logging across all services and components using the **Loglevel** package.
+This rule establishes logging standards and patterns for the Atlas Xray Chrome extension, ensuring consistent, performant, and maintainable logging using a **single, unified logger utility** with **manual prefix control**.
 
 ## Core Principles
 
-### 1. Use the Loglevel Package
-Always use the [loglevel](https://www.npmjs.com/package/loglevel) package for conditional logging instead of custom console.log implementations.
+### 1. Use the Unified Logger Utility
+Always use the single `log` utility from [src/utils/logger.ts](mdc:src/utils/logger.ts) for all logging purposes. This utility wraps browser console methods and respects the debug toggle.
 
 ```typescript
-import { createLogger } from '../utils/logger';
+import { log } from '../utils/logger';
 
-export class MyService {
-  // Create logger instance for this service
-  private static readonly log = createLogger('MyService');
-}
+// Use the unified logger with manual prefixes
+log.debug('[ServiceName]', 'Debug message');
+log.info('[ServiceName]', 'Info message');
+log.warn('[ServiceName]', 'Warning message');
+log.error('[ServiceName]', 'Error message');
 ```
 
-### 2. Logger Factory Function
-Use the centralized `createLogger` function from [src/utils/logger.ts](mdc:src/utils/logger.ts) for consistent logging across all services.
+### 2. Manual Prefix Control
+**Always include a manual prefix** for service identification. The prefix should be the first parameter to every log call.
 
 ```typescript
-import { createLogger, setGlobalLogLevel } from '../utils/logger';
+// ✅ Good - manual prefix for service identification
+log.info('[PageTypeDetector]', 'Pattern matched:', type);
+log.debug('[TimelineService]', 'Toggling dependencies visibility');
+log.warn('[DatabaseService]', 'Could not cleanup service');
+log.error('[ContentScript]', 'Failed to initialize');
 
-// Create service-specific logger
-const log = createLogger('MyService');
-
-// Set global log level (when needed)
-setGlobalLogLevel('debug'); // 'trace', 'debug', 'info', 'warn', 'error', 'silent'
+// ❌ Bad - no prefix
+log.info('Pattern matched:', type);
+log.debug('Toggling dependencies visibility');
 ```
 
-### 3. Log Level Usage
+### 3. Debug Toggle Integration
+The logger automatically respects the debug toggle state:
+- **Debug ON**: All logs appear (debug, info, warn, error)
+- **Debug OFF**: Only errors appear (critical issues always visible)
+- **Toggle updates immediately** - No caching issues
+
+### 4. Log Level Usage
 
 #### Debug (`log.debug`)
 - Page type changes
@@ -67,21 +76,18 @@ setGlobalLogLevel('debug'); // 'trace', 'debug', 'info', 'warn', 'error', 'silen
 
 ### Service Class Template
 ```typescript
-import { createLogger } from '../utils/logger';
+import { log } from '../utils/logger';
 
 export class ExampleService {
-  // Logger instance
-  private static readonly log = createLogger('ExampleService');
-
   static async performOperation(): Promise<void> {
     try {
-      this.log.debug('Starting operation...');
+      log.debug('[ExampleService]', 'Starting operation...');
       
       // ... operation logic ...
       
-      this.log.info('Operation completed successfully');
+      log.info('[ExampleService]', 'Operation completed successfully');
     } catch (error) {
-      this.log.error('Operation failed', error);
+      log.error('[ExampleService]', 'Operation failed', error);
       throw error;
     }
   }
@@ -90,16 +96,14 @@ export class ExampleService {
 
 ### Component Logging
 ```typescript
-import { createLogger } from '../utils/logger';
-
-const log = createLogger('ComponentName');
+import { log } from '../utils/logger';
 
 function MyComponent() {
   useEffect(() => {
-    log.info('Component mounted');
+    log.info('[MyComponent]', 'Component mounted');
     
     return () => {
-      log.info('Component unmounting');
+      log.info('[MyComponent]', 'Component unmounting');
     };
   }, []);
   
@@ -109,94 +113,92 @@ function MyComponent() {
 
 ## Environment Control
 
-### Runtime Log Level Control
-The Loglevel package provides immediate runtime control over log levels:
-
-```typescript
-import { setGlobalLogLevel, getGlobalLogLevel } from '../utils/logger';
-
-// Enable all logs
-setGlobalLogLevel('debug');
-
-// Only show warnings and errors
-setGlobalLogLevel('warn');
-
-// Disable all logs
-setGlobalLogLevel('silent');
-
-// Check current level
-console.log('Current log level:', getGlobalLogLevel());
-```
-
-### Chrome Extension Popup Control
+### Debug Toggle Control
 Users can toggle debug logging through the extension popup:
-- **Debug ON**: Sets log level to 'debug' - shows all logs
-- **Debug OFF**: Sets log level to 'warn' - shows only warnings and errors
+- **Debug ON**: Sets `localStorage['atlas-xray-debug'] = 'true'` - shows all logs
+- **Debug OFF**: Sets `localStorage['atlas-xray-debug'] = 'false'` - shows only errors
+
+### Runtime Control
+```typescript
+import { forceDebugLogging, getDebugState } from '../utils/logger';
+
+// Force enable/disable debug logging
+forceDebugLogging(true);  // Enable all logs
+forceDebugLogging(false); // Disable all logs except errors
+
+// Check current debug state
+console.log('Debug enabled:', getDebugState());
+```
 
 ## Performance Benefits
 
 ### Zero Overhead When Disabled
-- No function calls when log level is set to 'silent'
+- No function calls when debug toggle is OFF
 - No string concatenation overhead
 - No conditional checks at runtime
 - Production builds are completely clean
 
 ### Immediate Response
-- Log level changes take effect immediately
-- No caching issues (unlike the old debug package)
+- Debug toggle changes take effect immediately
+- No caching issues
 - Dynamic control without restarting
+
+### Lightweight Implementation
+- No external npm packages
+- Native browser console wrapper
+- Minimal memory footprint
 
 ## Best Practices
 
-### 1. Always Use Structured Logging
+### 1. Always Use Manual Prefixes
 ```typescript
-// ✅ Good - structured with context
-this.log.info('Button mounted for page type:', pageType, 'at URL:', url);
+// ✅ Good - manual prefix with context
+log.info('[PageTypeDetector]', 'Button mounted for page type:', pageType, 'at URL:', url);
 
-// ❌ Bad - unstructured
-console.log('Button mounted');
+// ❌ Bad - no prefix
+log.info('Button mounted for page type:', pageType, 'at URL:', url);
 ```
 
 ### 2. Include Relevant Context
 ```typescript
 // ✅ Good - includes relevant data
-this.log.info('Skipping mount - button already exists for:', pageType);
+log.info('[PageTypeDetector]', 'Skipping mount - button already exists for:', pageType);
 
 // ❌ Bad - lacks context
-this.log.info('Skipping mount');
+log.info('[PageTypeDetector]', 'Skipping mount');
 ```
 
 ### 3. Use Appropriate Log Levels
 ```typescript
 // ✅ Good - debug for detailed flow
-this.log.debug('Testing pattern:', type, 'regex:', regex);
+log.debug('[PageTypeDetector]', 'Testing pattern:', type, 'regex:', regex);
 
 // ✅ Good - info for successful operations
-this.log.info('Pattern matched:', type);
+log.info('[PageTypeDetector]', 'Pattern matched:', type);
 
 // ✅ Good - warn for non-critical issues
-this.log.warn('No pattern matched, returning UNKNOWN');
+log.warn('[PageTypeDetector]', 'No pattern matched, returning UNKNOWN');
 
 // ✅ Good - error for failures
-this.log.error('Failed to mount button:', error);
+log.error('[PageTypeDetector]', 'Failed to mount button:', error);
 ```
 
 ### 4. Avoid Sensitive Information
 ```typescript
 // ✅ Good - no sensitive data
-this.log.info('User action performed on project:', projectId);
+log.info('[PageTypeDetector]', 'User action performed on project:', projectId);
 
 // ❌ Bad - includes sensitive data
-this.log.info('User action performed by:', user.email, 'on project:', projectId);
+log.info('[PageTypeDetector]', 'User action performed by:', user.email, 'on project:', projectId);
 ```
 
 ### 5. Use Emojis for Visual Clarity
 ```typescript
-// ✅ Good - visual indicators
-this.log.info('🚀 Page type monitoring started');
-this.log.debug('🔄 URL changed to:', newUrl);
-this.log.warn('⚠️ Could not cleanup service');
-this.log.error('❌ Failed to mount component');
+// ✅ Good - visual indicators with manual prefixes
+log.info('[PageTypeDetector]', '🚀 Page type monitoring started');
+log.debug('[PageTypeDetector]', '🔄 URL changed to:', newUrl);
+log.warn('[PageTypeDetector]', '⚠️ Could not cleanup service');
+log.error('[PageTypeDetector]', '❌ Failed to mount component');
 ```
 
 ## Migration Guide
@@ -207,47 +209,42 @@ this.log.error('❌ Failed to mount component');
 console.log('[Service] Operation started');
 
 // After
-this.log.info('Operation started');
+log.info('[Service]', 'Operation started');
 ```
 
-### From Debug Package
+### From Multiple Logger Instances
 ```typescript
 // Before
-import debug from 'debug';
-const log = debug('atlas-xray:ServiceName');
-log('Debug message');
-
-// After
-import { createLogger } from '../utils/logger';
 const log = createLogger('ServiceName');
-log.debug('Debug message');
-```
-
-### From Multiple Console Methods
-```typescript
-// Before
-console.log('Info message');
-console.warn('Warning message');
-console.error('Error message');
+log.info('Operation started');
 
 // After
-this.log.info('Info message');
-this.log.warn('Warning message');
-this.log.error('Error message');
+import { log } from '../utils/logger';
+log.info('[ServiceName]', 'Operation started');
+```
+
+### From Complex Prefix Systems
+```typescript
+// Before
+// Complex Loglevel with automatic prefixes
+const log = createLogger('ServiceName');
+log.info('Operation started');
+
+// After
+// Simple unified logger with manual prefixes
+import { log } from '../utils/logger';
+log.info('[ServiceName]', 'Operation started');
 ```
 
 ## File References
 
-- [src/utils/logger.ts](mdc:src/utils/logger.ts) - Centralized logger utility
-- [src/services/PageTypeDetector.ts](mdc:src/services/PageTypeDetector.ts) - Example implementation
+- [src/utils/logger.ts](mdc:src/utils/logger.ts) - Unified logger utility with manual prefix control
+- [src/services/PageTypeDetector.ts](mdc:src/services/PageTypeDetector.ts) - Example implementation with manual prefixes
 - [src/contentScripts/contentScript.js](mdc:src/contentScripts/contentScript.js) - Debug toggle integration
 - [src/components/ChromeExtension/ChromeExtensionPopup.tsx](mdc:src/components/ChromeExtension/ChromeExtensionPopup.tsx) - Debug toggle UI
-- [package.json](mdc:package.json) - Loglevel package dependency
+- [package.json](mdc:package.json) - No external logging dependencies
 
 ## Related Rules
-
-- [Chrome Extension General](mdc:chrome-extension-general) - Extension-specific patterns
-- [Chrome Extension Patterns](mdc:chrome-extension-patterns) - Architecture guidelines
 
 - [Chrome Extension General](mdc:chrome-extension-general) - Extension-specific patterns
 - [Chrome Extension Patterns](mdc:chrome-extension-patterns) - Architecture guidelines

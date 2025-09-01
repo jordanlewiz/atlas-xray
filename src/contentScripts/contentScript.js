@@ -10,9 +10,12 @@
 // Import leader-line-new properly using require
 const LeaderLine = require('leader-line-new');
 
+// Import logging utility
+import { log } from '../utils/logger';
+
 // Custom styles will be merged with contentScript.css during build
 
-console.log('[AtlasXray] 🚀 Content script loaded and ready');
+log.info('[ContentScript]', '🚀 Content script loaded and ready');
 
 // Initialize simplified page type detection
 (async () => {
@@ -23,20 +26,20 @@ console.log('[AtlasXray] 🚀 Content script loaded and ready');
     // Start monitoring URL changes and detecting page types
     PageTypeDetector.startMonitoring();
     
-    console.log('[AtlasXray] ✅ Simplified page type detection initialized successfully');
+    log.info('[ContentScript]', '✅ Simplified page type detection initialized successfully');
   } catch (error) {
-    console.error('[AtlasXray] ❌ Failed to initialize page type detection:', error);
+    log.error('[ContentScript]', '❌ Failed to initialize page type detection:', error);
   }
 })();
 
 // Test communication with background script
 setTimeout(async () => {
   if (chrome.runtime && chrome.runtime.sendMessage) {
-    console.log('[AtlasXray] 🧪 Testing background script communication...');
+    log.debug('[ContentScript]', '🧪 Testing background script communication...');
     try {
       const response = await chrome.runtime.sendMessage({ type: 'PING' });
       if (response && response.success) {
-        console.log('[AtlasXray] ✅ Background script communication working:', response);
+        log.info('[ContentScript]', '✅ Background script communication working');
       } else {
         console.error('[AtlasXray] ❌ Background script communication failed:', response);
       }
@@ -54,13 +57,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     try {
       if (message.enabled) {
         // Enable debug logs using new Loglevel logger
-        console.log('[AtlasXray] 🔍 Debug logs enabled');
+        log.info('[ContentScript]', '🔍 Debug logs enabled');
         
-        // Enable debug logging using new Loglevel logger
-        import('../utils/logger').then(({ setGlobalLogLevel }) => {
+        // Enable debug logging
+        import('../utils/logger').then(({ forceDebugLogging }) => {
           try {
-            setGlobalLogLevel('debug');
-            console.log('[AtlasXray] ✅ Debug logs enabled - Loglevel logger active');
+            forceDebugLogging(true);
+            log.info('[ContentScript]', '✅ Debug logs enabled - Logger active');
           } catch (error) {
             console.error('[AtlasXray] ❌ Failed to enable debug logs:', error);
           }
@@ -69,38 +72,38 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
         
         // Test PageTypeDetector logging
-        console.log('[AtlasXray] 🧪 Testing PageTypeDetector logging...');
+        log.debug('[ContentScript]', '🧪 Testing PageTypeDetector logging...');
         import('../services/PageTypeDetector').then(({ PageTypeDetector }) => {
           try {
-            console.log('[AtlasXray] 🧪 PageTypeDetector imported successfully');
-            console.log('[AtlasXray] 🧪 PageTypeDetector.log object:', PageTypeDetector.log);
+            log.debug('[ContentScript]', '🧪 PageTypeDetector imported successfully');
+            log.debug('[ContentScript]', '🔍 PageTypeDetector.log object:', PageTypeDetector.log);
             
             // Test direct logger calls
-            console.log('[AtlasXray] 🧪 About to call PageTypeDetector.log.debug...');
-            PageTypeDetector.log.debug('🧪 PageTypeDetector direct debug test');
-            console.log('[AtlasXray] 🧪 About to call PageTypeDetector.log.info...');
-            PageTypeDetector.log.info('🧪 PageTypeDetector direct info test');
-            console.log('[AtlasXray] 🧪 About to call PageTypeDetector.log.warn...');
-            PageTypeDetector.log.warn('🧪 PageTypeDetector direct warn test');
-            console.log('[AtlasXray] 🧪 About to call PageTypeDetector.log.error...');
-            PageTypeDetector.log.error('🧪 PageTypeDetector direct error test');
+            log.debug('[ContentScript]', '🧪 About to call PageTypeDetector.log.debug...');
+            log.debug('[PageTypeDetector]', '🧪 PageTypeDetector direct debug test');
+            log.debug('[ContentScript]', '🧪 About to call PageTypeDetector.log.info...');
+            log.info('[PageTypeDetector]', '🧪 PageTypeDetector direct info test');
+            log.debug('[ContentScript]', '🧪 About to call PageTypeDetector.log.warn...');
+            log.warn('[PageTypeDetector]', '🧪 PageTypeDetector direct warn test');
+            log.debug('[ContentScript]', '🧪 About to call PageTypeDetector.log.error...');
+            log.error('[PageTypeDetector]', '🧪 PageTypeDetector direct error test');
             
             // Test actual PageTypeDetector methods
-            console.log('[AtlasXray] 🧪 About to call PageTypeDetector.detectPageType()...');
+            log.debug('[ContentScript]', '🧪 About to call PageTypeDetector.detectPageType()...');
             const currentPageType = PageTypeDetector.detectPageType();
-            console.log('[AtlasXray] ✅ PageTypeDetector test completed - Current page type:', currentPageType);
+            log.info('[ContentScript]', '✅ PageTypeDetector test completed - Current page type:', currentPageType);
           } catch (error) {
-            console.error('[AtlasXray] ❌ PageTypeDetector test failed:', error);
+            log.error('[ContentScript]', '❌ PageTypeDetector test failed:', error);
           }
         }).catch(error => {
-          console.error('[AtlasXray] ❌ Failed to import PageTypeDetector:', error);
+          log.error('[ContentScript]', '❌ Failed to import PageTypeDetector:', error);
         });
       } else {
         // Disable debug logs
-        import('../utils/logger').then(({ setGlobalLogLevel }) => {
+        import('../utils/logger').then(({ forceDebugLogging }) => {
           try {
-            setGlobalLogLevel('warn'); // Only show warnings and errors
-            console.log('[AtlasXray] ✅ Debug logs disabled - Loglevel logger set to warn level');
+            forceDebugLogging(false);
+            log.info('[ContentScript]', '✅ Debug logs disabled - Logger set to warn level');
           } catch (error) {
             console.error('[AtlasXray] ❌ Failed to disable debug logs:', error);
           }
@@ -116,5 +119,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
-// ✅ NEW: Clean page load - simplified page type detection starts automatically
-console.log('[AtlasXray] 🚀 Extension loaded - simplified page type detection active');
+// Extension loaded - simplified page type detection starts automatically
+log.info('[ContentScript]', '🚀 Extension loaded - simplified page type detection active');

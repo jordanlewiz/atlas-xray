@@ -1,60 +1,102 @@
-import log from 'loglevel';
+/**
+ * Simple, unified logging utility that wraps browser console methods
+ * with manual prefix control and debug toggle integration
+ */
 
 export interface Logger {
-  debug: (message: string, ...args: any[]) => void;
-  info: (message: string, ...args: any[]) => void;
-  warn: (message: string, ...args: any[]) => void;
-  error: (message: string, ...args: any[]) => void;
+  debug: (prefix: string, message: string, ...args: any[]) => void;
+  info: (prefix: string, message: string, ...args: any[]) => void;
+  warn: (prefix: string, message: string, ...args: any[]) => void;
+  error: (prefix: string, message: string, ...args: any[]) => void;
 }
 
 /**
- * Creates a logger instance for a specific service with consistent log namespaces
- * @param serviceName - The name of the service (e.g., 'PageTypeDetector', 'TimelineProjectService')
- * @returns Logger instance with methods for different log levels
+ * Check if debug logging is enabled
+ * @returns true if debug toggle is ON, false if OFF
  */
-export function createLogger(serviceName: string): Logger {
-  // Create a namespaced logger
-  const logger = log.getLogger(serviceName);
-  
-  // Set default level to info (can be overridden)
-  logger.setLevel(log.levels.INFO);
-  
-  return {
-    debug: (message: string, ...args: any[]) => {
-      logger.debug(`🔍 ${message}`, ...args);
-    },
-    info: (message: string, ...args: any[]) => {
-      logger.info(`ℹ️ ${message}`, ...args);
-    },
-    warn: (message: string, ...args: any[]) => {
-      logger.warn(`⚠️ ${message}`, ...args);
-    },
-    error: (message: string, ...args: any[]) => {
-      logger.error(`❌ ${message}`, ...args);
-    }
-  };
-}
-
-/**
- * Sets the global log level for all loggers
- * @param level - The log level ('trace', 'debug', 'info', 'warn', 'error', 'silent')
- */
-export function setGlobalLogLevel(level: string): void {
-  const logLevel = log.levels[level.toUpperCase() as keyof typeof log.levels];
-  if (logLevel !== undefined) {
-    log.setLevel(logLevel);
-    console.log(`[Logger] 🔧 Global log level set to: ${level}`);
-  } else {
-    console.warn(`[Logger] ⚠️ Invalid log level: ${level}. Valid levels: trace, debug, info, warn, error, silent`);
+function isDebugEnabled(): boolean {
+  try {
+    // Check localStorage for debug toggle state
+    return localStorage.getItem('atlas-xray-debug') === 'true';
+  } catch (error) {
+    // Fallback to false if localStorage is not available
+    return false;
   }
 }
 
 /**
- * Gets the current global log level
- * @returns The current log level name
+ * Unified logger instance with manual prefix control
+ * Only logs when debug toggle is enabled (except errors which always show)
  */
-export function getGlobalLogLevel(): string {
-  const level = log.getLevel();
-  const levelNames = ['trace', 'debug', 'info', 'warn', 'error', 'silent'];
-  return levelNames[level] || 'unknown';
+export const log: Logger = {
+  /**
+   * Debug level logging - only shows when debug toggle is ON
+   * @param prefix - Manual prefix for service identification (e.g., '[PageTypeDetector]')
+   * @param message - Log message
+   * @param args - Additional arguments to log
+   */
+  debug: (prefix: string, message: string, ...args: any[]) => {
+    if (isDebugEnabled()) {
+      console.log(`${prefix} 🔍 ${message}`, ...args);
+    }
+  },
+
+  /**
+   * Info level logging - only shows when debug toggle is ON
+   * @param prefix - Manual prefix for service identification (e.g., '[ContentScript]')
+   * @param message - Log message
+   * @param args - Additional arguments to log
+   */
+  info: (prefix: string, message: string, ...args: any[]) => {
+    if (isDebugEnabled()) {
+      console.log(`${prefix} ℹ️ ${message}`, ...args);
+    }
+  },
+
+  /**
+   * Warning level logging - only shows when debug toggle is ON
+   * @param prefix - Manual prefix for service identification (e.g., '[TimelineService]')
+   * @param message - Log message
+   * @param args - Additional arguments to log
+   */
+  warn: (prefix: string, message: string, ...args: any[]) => {
+    if (isDebugEnabled()) {
+      console.log(`${prefix} ⚠️ ${message}`, ...args);
+    }
+  },
+
+  /**
+   * Error level logging - ALWAYS shows regardless of debug toggle
+   * @param prefix - Manual prefix for service identification (e.g., '[DatabaseService]')
+   * @param message - Log message
+   * @param args - Additional arguments to log
+   */
+  error: (prefix: string, message: string, ...args: any[]) => {
+    // Errors always show - they're critical
+    console.error(`${prefix} ❌ ${message}`, ...args);
+  }
+};
+
+/**
+ * Force enable debug logging (for testing purposes)
+ * @param enabled - Whether to force enable debug logging
+ */
+export function forceDebugLogging(enabled: boolean): void {
+  try {
+    if (enabled) {
+      localStorage.setItem('atlas-xray-debug', 'true');
+    } else {
+      localStorage.removeItem('atlas-xray-debug');
+    }
+  } catch (error) {
+    console.warn('[Logger] Could not set debug state:', error);
+  }
+}
+
+/**
+ * Get current debug state
+ * @returns true if debug is enabled, false otherwise
+ */
+export function getDebugState(): boolean {
+  return isDebugEnabled();
 }
