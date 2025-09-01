@@ -11,11 +11,14 @@
 const LeaderLine = require('leader-line-new');
 
 // Import logging utility
-import { log } from '../utils/logger';
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[ContentScript]');
 
 // Custom styles will be merged with contentScript.css during build
 
-log.info('[ContentScript]', '🚀 Content script loaded and ready');
+log.info('🚀 Content script loaded and ready');
 
 // Initialize simplified page type detection
 (async () => {
@@ -26,20 +29,20 @@ log.info('[ContentScript]', '🚀 Content script loaded and ready');
     // Start monitoring URL changes and detecting page types
     PageTypeDetector.startMonitoring();
     
-    log.info('[ContentScript]', '✅ Simplified page type detection initialized successfully');
+    log.info('✅ Simplified page type detection initialized successfully');
   } catch (error) {
-    log.error('[ContentScript]', '❌ Failed to initialize page type detection:', error);
+    log.error('❌ Failed to initialize page type detection:', error);
   }
 })();
 
 // Test communication with background script
 setTimeout(async () => {
   if (chrome.runtime && chrome.runtime.sendMessage) {
-    log.debug('[ContentScript]', '🧪 Testing background script communication...');
+    log.debug('🧪 Testing background script communication...');
     try {
       const response = await chrome.runtime.sendMessage({ type: 'PING' });
       if (response && response.success) {
-        log.info('[ContentScript]', '✅ Background script communication working');
+        log.info('✅ Background script communication working');
       } else {
         console.error('[AtlasXray] ❌ Background script communication failed:', response);
       }
@@ -57,13 +60,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     try {
       if (message.enabled) {
         // Enable debug logs using new Loglevel logger
-        log.info('[ContentScript]', '🔍 Debug logs enabled');
+        log.info('🔍 Debug logs enabled');
         
         // Enable debug logging
         import('../utils/logger').then(({ forceDebugLogging }) => {
           try {
             forceDebugLogging(true);
-            log.info('[ContentScript]', '✅ Debug logs enabled - Logger active');
+            log.info('✅ Debug logs enabled - Logger active');
           } catch (error) {
             console.error('[AtlasXray] ❌ Failed to enable debug logs:', error);
           }
@@ -72,38 +75,38 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         });
         
         // Test PageTypeDetector logging
-        log.debug('[ContentScript]', '🧪 Testing PageTypeDetector logging...');
+        log.debug('🧪 Testing PageTypeDetector logging...');
         import('../services/PageTypeDetector').then(({ PageTypeDetector }) => {
           try {
-            log.debug('[ContentScript]', '🧪 PageTypeDetector imported successfully');
-            log.debug('[ContentScript]', '🔍 PageTypeDetector.log object:', PageTypeDetector.log);
+            log.debug('🧪 PageTypeDetector imported successfully');
+            log.debug('🔍 PageTypeDetector.log object:', PageTypeDetector.log);
             
             // Test direct logger calls
-            log.debug('[ContentScript]', '🧪 About to call PageTypeDetector.log.debug...');
+            log.debug('🧪 About to call PageTypeDetector.log.debug...');
             log.debug('[PageTypeDetector]', '🧪 PageTypeDetector direct debug test');
-            log.debug('[ContentScript]', '🧪 About to call PageTypeDetector.log.info...');
+            log.debug('🧪 About to call PageTypeDetector.log.info...');
             log.info('[PageTypeDetector]', '🧪 PageTypeDetector direct info test');
-            log.debug('[ContentScript]', '🧪 About to call PageTypeDetector.log.warn...');
+            log.debug('🧪 About to call PageTypeDetector.log.warn...');
             log.warn('[PageTypeDetector]', '🧪 PageTypeDetector direct warn test');
-            log.debug('[ContentScript]', '🧪 About to call PageTypeDetector.log.error...');
+            log.debug('🧪 About to call PageTypeDetector.log.error...');
             log.error('[PageTypeDetector]', '🧪 PageTypeDetector direct error test');
             
             // Test actual PageTypeDetector methods
-            log.debug('[ContentScript]', '🧪 About to call PageTypeDetector.detectPageType()...');
+            log.debug('🧪 About to call PageTypeDetector.detectPageType()...');
             const currentPageType = PageTypeDetector.detectPageType();
-            log.info('[ContentScript]', '✅ PageTypeDetector test completed - Current page type:', currentPageType);
+            log.info('✅ PageTypeDetector test completed - Current page type:', currentPageType);
           } catch (error) {
-            log.error('[ContentScript]', '❌ PageTypeDetector test failed:', error);
+            log.error('❌ PageTypeDetector test failed:', error);
           }
         }).catch(error => {
-          log.error('[ContentScript]', '❌ Failed to import PageTypeDetector:', error);
+          log.error('❌ Failed to import PageTypeDetector:', error);
         });
       } else {
         // Disable debug logs
         import('../utils/logger').then(({ forceDebugLogging }) => {
           try {
             forceDebugLogging(false);
-            log.info('[ContentScript]', '✅ Debug logs disabled - Logger set to warn level');
+            log.info('✅ Debug logs disabled - Logger set to warn level');
           } catch (error) {
             console.error('[AtlasXray] ❌ Failed to disable debug logs:', error);
           }
@@ -120,4 +123,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // Extension loaded - simplified page type detection starts automatically
-log.info('[ContentScript]', '🚀 Extension loaded - simplified page type detection active');
+log.info('🚀 Extension loaded - simplified page type detection active');

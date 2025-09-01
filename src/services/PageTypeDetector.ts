@@ -1,5 +1,8 @@
 import detectUrlChange from 'detect-url-change';
-import { log } from '../utils/logger';
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[PageTypeDetector]');
 
 export enum PageType {
   PROJECT_LIST = 'Project List',
@@ -38,30 +41,30 @@ export class PageTypeDetector {
 
     
     for (const { type, regex } of this.patterns) {
-      log.debug('[PageTypeDetector]', 'Testing pattern:', type, 'regex:', regex);
+      log.debug('Testing pattern:', type, 'regex:', regex);
               if (regex.test(url)) {
-          log.info('[PageTypeDetector]', 'Pattern matched:', type);
+          log.info('Pattern matched:', type);
           return type;
         }
     }
     
-    log.warn('[PageTypeDetector]', 'No pattern matched, returning UNKNOWN');
+    log.warn('No pattern matched, returning UNKNOWN');
     return PageType.UNKNOWN;
   }
 
   static startMonitoring(): void {
-    log.info('[PageTypeDetector]', '🚀 Page type monitoring started');
+    log.info('🚀 Page type monitoring started');
     
     const checkAndLoadButtons = () => {
-      log.debug('[PageTypeDetector]', 'checkAndLoadButtons() called');
+      log.debug('checkAndLoadButtons() called');
       const newPageType = this.detectPageType();
-      log.debug('[PageTypeDetector]', `Detected page type: ${newPageType}`);
-      log.info('[PageTypeDetector]', `📍 Current URL: ${window.location.href}`);
+      log.debug(`Detected page type: ${newPageType}`);
+      log.info(`📍 Current URL: ${window.location.href}`);
       
       // Only cleanup and remount if page type actually changed
       if (this.currentPageType !== newPageType) {
 
-        log.debug('[PageTypeDetector]', `🔄 Page type changed from ${this.currentPageType} to ${newPageType}`);
+        log.debug(`🔄 Page type changed from ${this.currentPageType} to ${newPageType}`);
         
         // Clean up existing buttons
         this.cleanupButtons();
@@ -71,19 +74,19 @@ export class PageTypeDetector {
         
         // Mount appropriate buttons for new page type
         if (newPageType === PageType.PROJECT_TIMELINE) {
-          log.debug('[PageTypeDetector]', `🚀 Mounting buttons for ${newPageType}: FloatingButton + DependencyButton`);
+          log.debug(`🚀 Mounting buttons for ${newPageType}: FloatingButton + DependencyButton`);
           this.mountFloatingButton();
           this.mountDependencyButton();
         } else if (newPageType === PageType.PROJECT_LIST) {
-          log.debug('[PageTypeDetector]', `🚀 Mounting buttons for ${newPageType}: FloatingButton only`);
+          log.debug(`🚀 Mounting buttons for ${newPageType}: FloatingButton only`);
           this.mountFloatingButton();
         } else {
-          log.debug('[PageTypeDetector]', `🚫 No buttons mounted for ${newPageType} - clean state`);
+          log.debug(`🚫 No buttons mounted for ${newPageType} - clean state`);
         }
         
-        log.info('[PageTypeDetector]', `✨ Button management complete for ${newPageType}`);
+        log.info(`✨ Button management complete for ${newPageType}`);
       } else {
-        log.info('[PageTypeDetector]', `ℹ️ Same page type (${newPageType}), no button changes needed`);
+        log.info(`ℹ️ Same page type (${newPageType}), no button changes needed`);
       }
     };
     
@@ -93,11 +96,11 @@ export class PageTypeDetector {
     
     // Simple, reliable SPA navigation detection using detect-url-change package
     detectUrlChange.on('change', (newUrl) => {
-      log.debug('[PageTypeDetector]', `🔄 URL changed to: ${newUrl}`);
+      log.debug(`🔄 URL changed to: ${newUrl}`);
       checkAndLoadButtons();
     });
     
-    log.info('[PageTypeDetector]', '🚀 Page type monitoring started successfully');
+    log.info('🚀 Page type monitoring started successfully');
   }
 
   private static async cleanupButtons(): Promise<void> {
@@ -108,11 +111,11 @@ export class PageTypeDetector {
       if (this.floatingButtonRoot) {
         this.floatingButtonRoot.unmount();
         this.floatingButtonRoot = null;
-        log.info('[PageTypeDetector]', '🧹 Unmounted React FloatingButton');
+        log.info('🧹 Unmounted React FloatingButton');
       }
       
       floatingBtn.remove();
-      log.info('[PageTypeDetector]', '🧹 Cleaned up FloatingButton');
+      log.info('🧹 Cleaned up FloatingButton');
     }
 
     // Remove dependency button and cleanup service
@@ -126,10 +129,10 @@ export class PageTypeDetector {
         TimelineProjectService.cleanupUrlChangeListener();
         TimelineProjectService.clearAllLines();
       } catch (error) {
-        log.warn('[PageTypeDetector]', '⚠️ Could not cleanup TimelineProjectService', error);
+        log.warn('⚠️ Could not cleanup TimelineProjectService', String(error));
       }
       
-      log.info('[PageTypeDetector]', '🧹 Cleaned up DependencyButton');
+      log.info('🧹 Cleaned up DependencyButton');
     }
   }
 
@@ -151,12 +154,12 @@ export class PageTypeDetector {
         // Create and store React root for proper cleanup
         this.floatingButtonRoot = createRoot(container);
         this.floatingButtonRoot.render(React.createElement(FloatingButton));
-        log.info('[PageTypeDetector]', '✅ FloatingButton mounted successfully');
+        log.info('✅ FloatingButton mounted successfully');
       } catch (error) {
-        log.error('[PageTypeDetector]', '❌ Failed to mount FloatingButton', error);
+        log.error('❌ Failed to mount FloatingButton', String(error));
       }
     } else {
-      log.info('[PageTypeDetector]', 'ℹ️ FloatingButton already exists, skipping mount');
+      log.info('ℹ️ FloatingButton already exists, skipping mount');
     }
   }
 
@@ -171,9 +174,9 @@ export class PageTypeDetector {
         btn.textContent = TimelineProjectService.getDependenciesVisible() ? 'Hide dependencies' : 'Show dependencies';
       });
       document.body.appendChild(btn);
-      this.log.info('✅ DependencyButton mounted successfully');
+      log.info('✅ DependencyButton mounted successfully');
     } else {
-      this.log.info('ℹ️ DependencyButton already exists, skipping mount');
+      log.info('ℹ️ DependencyButton already exists, skipping mount');
     }
   }
 }

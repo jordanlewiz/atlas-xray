@@ -2,7 +2,7 @@
 # Logging Best Practices
 
 ## Overview
-This rule establishes logging standards and patterns for the Atlas Xray Chrome extension, ensuring consistent, performant, and maintainable logging using a **single, unified logger utility** with **manual prefix control**.
+This rule establishes logging standards and patterns for the Atlas Xray Chrome extension, ensuring consistent, performant, and maintainable logging using a **single, unified logger utility** with **file-level prefix control** and **override capability**.
 
 ## Core Principles
 
@@ -10,37 +10,56 @@ This rule establishes logging standards and patterns for the Atlas Xray Chrome e
 Always use the single `log` utility from [src/utils/logger.ts](mdc:src/utils/logger.ts) for all logging purposes. This utility wraps browser console methods and respects the debug toggle.
 
 ```typescript
-import { log } from '../utils/logger';
+import { log, setFilePrefix } from '../utils/logger';
 
-// Use the unified logger with manual prefixes
-log.debug('[ServiceName]', 'Debug message');
-log.info('[ServiceName]', 'Info message');
-log.warn('[ServiceName]', 'Warning message');
-log.error('[ServiceName]', 'Error message');
+// Set file-level prefix for all logging in this file
+setFilePrefix('[ServiceName]');
+
+// Use the unified logger with automatic file prefix
+log.debug('Debug message');
+log.info('Info message');
+log.warn('Warning message');
+log.error('Error message');
 ```
 
-### 2. Manual Prefix Control
-**Always include a manual prefix** for service identification. The prefix should be the first parameter to every log call.
+### 2. File-Level Prefix Control
+**Set the prefix once per file** using `setFilePrefix()`. This eliminates repetition and ensures consistent service identification.
 
 ```typescript
-// ✅ Good - manual prefix for service identification
-log.info('[PageTypeDetector]', 'Pattern matched:', type);
-log.debug('[TimelineService]', 'Toggling dependencies visibility');
-log.warn('[DatabaseService]', 'Could not cleanup service');
-log.error('[ContentScript]', 'Failed to initialize');
+// At the top of each file, after imports
+import { log, setFilePrefix } from '../utils/logger';
 
-// ❌ Bad - no prefix
+// Set prefix for this entire file
+setFilePrefix('[PageTypeDetector]');
+
+// Now all log calls automatically use this prefix
 log.info('Pattern matched:', type);
-log.debug('Toggling dependencies visibility');
+log.debug('Testing pattern:', type, 'regex:', regex);
+log.warn('No pattern matched, returning UNKNOWN');
 ```
 
-### 3. Debug Toggle Integration
+### 3. Prefix Override Capability
+**Override the file prefix when needed** by passing a custom prefix as the first parameter.
+
+```typescript
+// Use default file prefix
+log.info('Button mounted successfully');
+
+// Override with custom prefix for special context
+log.info('[Validation]', 'Invalid URL format');
+log.warn('[Cleanup]', 'Could not cleanup service');
+
+// Override with no prefix for generic messages
+log.info('', 'Generic system message');
+```
+
+### 4. Debug Toggle Integration
 The logger automatically respects the debug toggle state:
 - **Debug ON**: All logs appear (debug, info, warn, error)
 - **Debug OFF**: Only errors appear (critical issues always visible)
 - **Toggle updates immediately** - No caching issues
 
-### 4. Log Level Usage
+### 5. Log Level Usage
 
 #### Debug (`log.debug`)
 - Page type changes
@@ -76,19 +95,36 @@ The logger automatically respects the debug toggle state:
 
 ### Service Class Template
 ```typescript
-import { log } from '../utils/logger';
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix once
+setFilePrefix('[ExampleService]');
 
 export class ExampleService {
   static async performOperation(): Promise<void> {
     try {
-      log.debug('[ExampleService]', 'Starting operation...');
+      log.debug('Starting operation...'); // Uses [ExampleService] prefix
       
       // ... operation logic ...
       
-      log.info('[ExampleService]', 'Operation completed successfully');
+      log.info('Operation completed successfully'); // Uses [ExampleService] prefix
     } catch (error) {
-      log.error('[ExampleService]', 'Operation failed', error);
+      log.error('Operation failed', String(error)); // Uses [ExampleService] prefix
       throw error;
+    }
+  }
+  
+  static async specialOperation(): Promise<void> {
+    try {
+      // Override prefix for special context
+      log.info('[SpecialContext]', 'Special operation started');
+      
+      // ... special logic ...
+      
+      log.info('[SpecialContext]', 'Special operation completed');
+    } catch (error) {
+      // Use default file prefix
+      log.error('Special operation failed', String(error));
     }
   }
 }
@@ -96,14 +132,17 @@ export class ExampleService {
 
 ### Component Logging
 ```typescript
-import { log } from '../utils/logger';
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix once
+setFilePrefix('[MyComponent]');
 
 function MyComponent() {
   useEffect(() => {
-    log.info('[MyComponent]', 'Component mounted');
+    log.info('Component mounted'); // Uses [MyComponent] prefix
     
     return () => {
-      log.info('[MyComponent]', 'Component unmounting');
+      log.info('Component unmounting'); // Uses [MyComponent] prefix
     };
   }, []);
   
@@ -150,55 +189,62 @@ console.log('Debug enabled:', getDebugState());
 
 ## Best Practices
 
-### 1. Always Use Manual Prefixes
+### 1. Always Set File-Level Prefix
 ```typescript
-// ✅ Good - manual prefix with context
-log.info('[PageTypeDetector]', 'Button mounted for page type:', pageType, 'at URL:', url);
+// ✅ Good - set prefix once at file top
+import { log, setFilePrefix } from '../utils/logger';
+setFilePrefix('[PageTypeDetector]');
 
-// ❌ Bad - no prefix
+// Now use simple logging calls
+log.info('Button mounted for page type:', pageType, 'at URL:', url);
+
+// ❌ Bad - no file prefix set
+import { log } from '../utils/logger';
 log.info('Button mounted for page type:', pageType, 'at URL:', url);
 ```
 
-### 2. Include Relevant Context
+### 2. Use Override Prefixes for Special Context
+```typescript
+// ✅ Good - override prefix for special operations
+log.info('[Validation]', 'URL validation failed:', url);
+log.warn('[Cleanup]', 'Could not cleanup service:', serviceName);
+
+// ✅ Good - use default file prefix for normal operations
+log.info('Pattern matched:', type);
+log.debug('Testing pattern:', type, 'regex:', regex);
+```
+
+### 3. Include Relevant Context
 ```typescript
 // ✅ Good - includes relevant data
-log.info('[PageTypeDetector]', 'Skipping mount - button already exists for:', pageType);
+log.info('Skipping mount - button already exists for:', pageType);
 
 // ❌ Bad - lacks context
-log.info('[PageTypeDetector]', 'Skipping mount');
+log.info('Skipping mount');
 ```
 
-### 3. Use Appropriate Log Levels
+### 4. Use Appropriate Log Levels
 ```typescript
 // ✅ Good - debug for detailed flow
-log.debug('[PageTypeDetector]', 'Testing pattern:', type, 'regex:', regex);
+log.debug('Testing pattern:', type, 'regex:', regex);
 
 // ✅ Good - info for successful operations
-log.info('[PageTypeDetector]', 'Pattern matched:', type);
+log.info('Pattern matched:', type);
 
 // ✅ Good - warn for non-critical issues
-log.warn('[PageTypeDetector]', 'No pattern matched, returning UNKNOWN');
+log.warn('No pattern matched, returning UNKNOWN');
 
 // ✅ Good - error for failures
-log.error('[PageTypeDetector]', 'Failed to mount button:', error);
-```
-
-### 4. Avoid Sensitive Information
-```typescript
-// ✅ Good - no sensitive data
-log.info('[PageTypeDetector]', 'User action performed on project:', projectId);
-
-// ❌ Bad - includes sensitive data
-log.info('[PageTypeDetector]', 'User action performed by:', user.email, 'on project:', projectId);
+log.error('Failed to mount button:', String(error));
 ```
 
 ### 5. Use Emojis for Visual Clarity
 ```typescript
-// ✅ Good - visual indicators with manual prefixes
-log.info('[PageTypeDetector]', '🚀 Page type monitoring started');
-log.debug('[PageTypeDetector]', '🔄 URL changed to:', newUrl);
-log.warn('[PageTypeDetector]', '⚠️ Could not cleanup service');
-log.error('[PageTypeDetector]', '❌ Failed to mount component');
+// ✅ Good - visual indicators with automatic file prefix
+log.info('🚀 Page type monitoring started');
+log.debug('🔄 URL changed to:', newUrl);
+log.warn('⚠️ Could not cleanup service');
+log.error('❌ Failed to mount component');
 ```
 
 ## Migration Guide
@@ -209,7 +255,9 @@ log.error('[PageTypeDetector]', '❌ Failed to mount component');
 console.log('[Service] Operation started');
 
 // After
-log.info('[Service]', 'Operation started');
+import { log, setFilePrefix } from '../utils/logger';
+setFilePrefix('[Service]');
+log.info('Operation started');
 ```
 
 ### From Multiple Logger Instances
@@ -219,28 +267,32 @@ const log = createLogger('ServiceName');
 log.info('Operation started');
 
 // After
-import { log } from '../utils/logger';
-log.info('[ServiceName]', 'Operation started');
+import { log, setFilePrefix } from '../utils/logger';
+setFilePrefix('[ServiceName]');
+log.info('Operation started');
 ```
 
-### From Complex Prefix Systems
+### From Manual Prefixes Everywhere
 ```typescript
 // Before
-// Complex Loglevel with automatic prefixes
-const log = createLogger('ServiceName');
-log.info('Operation started');
+log.info('[PageTypeDetector]', 'Pattern matched:', type);
+log.debug('[PageTypeDetector]', 'Testing pattern:', type, 'regex:', regex);
+log.warn('[PageTypeDetector]', 'No pattern matched, returning UNKNOWN');
 
 // After
-// Simple unified logger with manual prefixes
-import { log } from '../utils/logger';
-log.info('[ServiceName]', 'Operation started');
+import { log, setFilePrefix } from '../utils/logger';
+setFilePrefix('[PageTypeDetector]');
+
+log.info('Pattern matched:', type);
+log.debug('Testing pattern:', type, 'regex:', regex);
+log.warn('No pattern matched, returning UNKNOWN');
 ```
 
 ## File References
 
-- [src/utils/logger.ts](mdc:src/utils/logger.ts) - Unified logger utility with manual prefix control
-- [src/services/PageTypeDetector.ts](mdc:src/services/PageTypeDetector.ts) - Example implementation with manual prefixes
-- [src/contentScripts/contentScript.js](mdc:src/contentScripts/contentScript.js) - Debug toggle integration
+- [src/utils/logger.ts](mdc:src/utils/logger.ts) - Unified logger utility with file-level prefix control
+- [src/services/PageTypeDetector.ts](mdc:src/services/PageTypeDetector.ts) - Example implementation with file-level prefix
+- [src/contentScripts/contentScript.js](mdc:src/contentScripts/contentScript.js) - Debug toggle integration with file-level prefix
 - [src/components/ChromeExtension/ChromeExtensionPopup.tsx](mdc:src/components/ChromeExtension/ChromeExtensionPopup.tsx) - Debug toggle UI
 - [package.json](mdc:package.json) - No external logging dependencies
 

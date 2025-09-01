@@ -1,13 +1,13 @@
 /**
  * Simple, unified logging utility that wraps browser console methods
- * with manual prefix control and debug toggle integration
+ * with file-level prefix control and debug toggle integration
  */
 
 export interface Logger {
-  debug: (prefix: string, message: string, ...args: any[]) => void;
-  info: (prefix: string, message: string, ...args: any[]) => void;
-  warn: (prefix: string, message: string, ...args: any[]) => void;
-  error: (prefix: string, message: string, ...args: any[]) => void;
+  debug: (prefixOrMessage: string, messageOrArgs?: string, ...args: any[]) => void;
+  info: (prefixOrMessage: string, messageOrArgs?: string, ...args: any[]) => void;
+  warn: (prefixOrMessage: string, messageOrArgs?: string, ...args: any[]) => void;
+  error: (prefixOrMessage: string, messageOrArgs?: string, ...args: any[]) => void;
 }
 
 /**
@@ -24,56 +24,128 @@ function isDebugEnabled(): boolean {
   }
 }
 
+// File-level prefix management
+let currentFilePrefix = '[Default]';
+
 /**
- * Unified logger instance with manual prefix control
+ * Set the default prefix for the current file
+ * @param prefix - The prefix to use for all log calls in this file (e.g., '[PageTypeDetector]')
+ */
+export function setFilePrefix(prefix: string): void {
+  currentFilePrefix = prefix;
+}
+
+/**
+ * Get the current file prefix
+ * @returns The current file prefix
+ */
+function getFilePrefix(): string {
+  return currentFilePrefix;
+}
+
+/**
+ * Determine if a string is a prefix (starts with '[' and ends with ']')
+ * @param str - The string to check
+ * @returns true if it's a prefix, false otherwise
+ */
+function isPrefix(str: string): boolean {
+  return str.startsWith('[') && str.endsWith(']');
+}
+
+/**
+ * Unified logger instance with file-level prefix control
  * Only logs when debug toggle is enabled (except errors which always show)
  */
 export const log: Logger = {
   /**
    * Debug level logging - only shows when debug toggle is ON
-   * @param prefix - Manual prefix for service identification (e.g., '[PageTypeDetector]')
-   * @param message - Log message
+   * @param prefixOrMessage - Either a prefix (e.g., '[ServiceName]') or the message
+   * @param messageOrArgs - The message if first param was prefix, or first argument
    * @param args - Additional arguments to log
    */
-  debug: (prefix: string, message: string, ...args: any[]) => {
+  debug: (prefixOrMessage: string, messageOrArgs?: string, ...args: any[]) => {
     if (isDebugEnabled()) {
-      console.log(`${prefix} 🔍 ${message}`, ...args);
+      if (isPrefix(prefixOrMessage)) {
+        // First param is a prefix override
+        const prefix = prefixOrMessage;
+        const message = messageOrArgs || '';
+        console.log(`${prefix} 🔍 ${message}`, ...args);
+      } else {
+        // First param is the message, use file prefix
+        const prefix = getFilePrefix();
+        const message = prefixOrMessage;
+        const allArgs = messageOrArgs ? [messageOrArgs, ...args] : args;
+        console.log(`${prefix} 🔍 ${message}`, ...allArgs);
+      }
     }
   },
 
   /**
    * Info level logging - only shows when debug toggle is ON
-   * @param prefix - Manual prefix for service identification (e.g., '[ContentScript]')
-   * @param message - Log message
+   * @param prefixOrMessage - Either a prefix (e.g., '[ServiceName]') or the message
+   * @param messageOrArgs - The message if first param was prefix, or first argument
    * @param args - Additional arguments to log
    */
-  info: (prefix: string, message: string, ...args: any[]) => {
+  info: (prefixOrMessage: string, messageOrArgs?: string, ...args: any[]) => {
     if (isDebugEnabled()) {
-      console.log(`${prefix} ℹ️ ${message}`, ...args);
+      if (isPrefix(prefixOrMessage)) {
+        // First param is a prefix override
+        const prefix = prefixOrMessage;
+        const message = messageOrArgs || '';
+        console.log(`${prefix} ℹ️ ${message}`, ...args);
+      } else {
+        // First param is the message, use file prefix
+        const prefix = getFilePrefix();
+        const message = prefixOrMessage;
+        const allArgs = messageOrArgs ? [messageOrArgs, ...args] : args;
+        console.log(`${prefix} ℹ️ ${message}`, ...allArgs);
+      }
     }
   },
 
   /**
    * Warning level logging - only shows when debug toggle is ON
-   * @param prefix - Manual prefix for service identification (e.g., '[TimelineService]')
-   * @param message - Log message
+   * @param prefixOrMessage - Either a prefix (e.g., '[ServiceName]') or the message
+   * @param messageOrArgs - The message if first param was prefix, or first argument
    * @param args - Additional arguments to log
    */
-  warn: (prefix: string, message: string, ...args: any[]) => {
+  warn: (prefixOrMessage: string, messageOrArgs?: string, ...args: any[]) => {
     if (isDebugEnabled()) {
-      console.log(`${prefix} ⚠️ ${message}`, ...args);
+      if (isPrefix(prefixOrMessage)) {
+        // First param is a prefix override
+        const prefix = prefixOrMessage;
+        const message = messageOrArgs || '';
+        console.log(`${prefix} ⚠️ ${message}`, ...args);
+      } else {
+        // First param is the message, use file prefix
+        const prefix = getFilePrefix();
+        const message = prefixOrMessage;
+        const allArgs = messageOrArgs ? [messageOrArgs, ...args] : args;
+        console.log(`${prefix} ⚠️ ${message}`, ...allArgs);
+      }
     }
   },
 
   /**
    * Error level logging - ALWAYS shows regardless of debug toggle
-   * @param prefix - Manual prefix for service identification (e.g., '[DatabaseService]')
-   * @param message - Log message
+   * @param prefixOrMessage - Either a prefix (e.g., '[ServiceName]') or the message
+   * @param messageOrArgs - The message if first param was prefix, or first argument
    * @param args - Additional arguments to log
    */
-  error: (prefix: string, message: string, ...args: any[]) => {
+  error: (prefixOrMessage: string, messageOrArgs?: string, ...args: any[]) => {
     // Errors always show - they're critical
-    console.error(`${prefix} ❌ ${message}`, ...args);
+    if (isPrefix(prefixOrMessage)) {
+      // First param is a prefix override
+      const prefix = prefixOrMessage;
+      const message = messageOrArgs || '';
+      console.error(`${prefix} ❌ ${message}`, ...args);
+    } else {
+      // First param is the message, use file prefix
+      const prefix = getFilePrefix();
+      const message = prefixOrMessage;
+      const allArgs = messageOrArgs ? [messageOrArgs, ...args] : args;
+      console.error(`${prefix} ❌ ${message}`, ...allArgs);
+    }
   }
 };
 
