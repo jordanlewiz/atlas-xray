@@ -1,6 +1,9 @@
 // Main SCSS bundle - imports all component styles
 // This will be compiled into a single CSS file
 
+// Global styles
+//@use '../assets/styles/global.scss';
+
 // Component styles
 @use '../components/FloatingButton/FloatingButton.scss';
 @use '../components/ChromeExtension/ChromeExtensionPopup.scss';
