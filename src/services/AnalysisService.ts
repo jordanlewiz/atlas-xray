@@ -4,6 +4,11 @@
  * into a single, configurable service with AI-only strategies
  */
 
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[AnalysisService]');
+
 // Conditional imports for AI functionality
 let pipeline: any = null;
 let isContentScript: boolean = false;
@@ -20,27 +25,27 @@ if (typeof window !== 'undefined') {
 
 // Lazy loading function for AI libraries
 async function loadAILibraries(): Promise<boolean> {
-  console.log('[AnalysisService] Checking AI availability...');
-  console.log('[AnalysisService] Current context:', typeof window !== 'undefined' ? window.location.href : 'no window');
-  console.log('[AnalysisService] isContentScript:', isContentScript);
+  log.debug('Checking AI availability...');
+  log.debug('Current context:', typeof window !== 'undefined' ? window.location.href : 'no window');
+  log.debug('isContentScript:', String(isContentScript));
   
   // Since we bundle AI libraries, they're available in all contexts
   // No need to block content scripts anymore
   
   if (pipeline) {
-    console.log('[AnalysisService] AI pipeline already loaded');
+    log.debug('AI pipeline already loaded');
     return true; // Already loaded
   }
   
   try {
-    console.log('[AnalysisService] Loading AI libraries...');
+    log.debug('Loading AI libraries...');
     // @ts-ignore
     const transformers = await import('@xenova/transformers');
     pipeline = transformers.pipeline;
-    console.log('[AnalysisService] AI libraries loaded successfully');
+    log.info('AI libraries loaded successfully');
     return true;
   } catch (error) {
-    console.error('[AnalysisService] AI libraries not available in this context:', error);
+    log.error('AI libraries not available in this context:', String(error));
     return false;
   }
 }
@@ -221,7 +226,7 @@ class AnalysisCache {
     for (let i = 0; i < removeCount; i++) {
       this.cache.delete(entries[i][0]);
     }
-    console.log(`[AnalysisCache] Cleaned up cache, removed ${removeCount} entries`);
+    log.info(`Cleaned up cache, removed ${removeCount} entries`);
   }
 
   clear(): void {
@@ -292,7 +297,7 @@ export class AnalysisService {
       // Limit text length
       if (text.length > this.config.maxTextLength) {
         text = text.substring(0, this.config.maxTextLength) + '...';
-        console.log(`[AnalysisService] Text truncated to ${this.config.maxTextLength} characters`);
+        log.debug(`Text truncated to ${this.config.maxTextLength} characters`);
       }
 
       // Check cache first
@@ -300,7 +305,7 @@ export class AnalysisService {
         const cacheKey = `project_${text.substring(0, 100)}`;
         const cached = this.cache.get(cacheKey);
         if (cached) {
-          console.log('[AnalysisService] Using cached analysis result');
+          log.debug('Using cached analysis result');
           return cached;
         }
       }
@@ -329,7 +334,7 @@ export class AnalysisService {
       return result;
 
     } catch (error) {
-      console.error('[AnalysisService] Analysis failed:', error);
+      log.error('Analysis failed:', String(error));
       throw error; // No fallback - let the error propagate
     }
   }
@@ -351,7 +356,7 @@ export class AnalysisService {
         const cacheKey = `quality_${text.substring(0, 100)}_${updateType || 'unknown'}`;
         const cached = this.cache.get(cacheKey);
         if (cached) {
-          console.log('[AnalysisService] Using cached quality analysis result');
+          log.debug('Using cached quality analysis result');
           return cached;
         }
       }
@@ -380,7 +385,7 @@ export class AnalysisService {
       return result;
 
     } catch (error) {
-      console.error('[AnalysisService] Quality analysis failed:', error);
+      log.error('Quality analysis failed:', String(error));
       throw error; // No fallback - let the error propagate
     }
   }
@@ -394,7 +399,7 @@ export class AnalysisService {
       throw new Error('AI analysis not available in this context');
     }
 
-    console.log('[AnalysisService] Performing AI analysis...');
+    log.info('Performing AI analysis...');
     
     // Initialize AI models
     await this.initializeAIModels();
@@ -419,13 +424,13 @@ export class AnalysisService {
 
 
   private async performHybridAnalysis(text: string): Promise<ProjectUpdateAnalysis> {
-    console.log('[AnalysisService] Performing hybrid analysis...');
+    log.info('Performing hybrid analysis...');
     
     try {
       // Try AI first
       return await this.performAIAnalysis(text);
     } catch (error) {
-      console.log('[AnalysisService] AI failed, no fallback - analysis incomplete');
+      log.warn('AI failed, no fallback - analysis incomplete');
       throw new Error('AI analysis failed and no fallback is allowed');
     }
   }
@@ -436,7 +441,7 @@ export class AnalysisService {
       try {
         return await this.performAIAnalysis(text);
       } catch (error) {
-        console.log('[AnalysisService] AI failed, no fallback - analysis incomplete');
+        log.warn('AI failed, no fallback - analysis incomplete');
         throw new Error('AI analysis failed and no fallback is allowed');
       }
     }
@@ -450,21 +455,21 @@ export class AnalysisService {
     updateType?: string, 
     state?: string
   ): Promise<UpdateQualityResult> {
-    console.log('[AnalysisService] Starting AI quality analysis...');
+    log.info('Starting AI quality analysis...');
     
     if (!(await this.isAIAvailable())) {
-      console.error('[AnalysisService] AI not available for quality analysis');
+      log.error('AI not available for quality analysis');
       throw new Error('AI quality analysis not available in this context');
     }
 
-    console.log('[AnalysisService] Performing AI quality analysis...');
+    log.info('Performing AI quality analysis...');
     
     // Initialize AI models
     await this.initializeAIModels();
     
     // Determine applicable criteria
     const applicableCriteria = this.determineApplicableCriteria(updateType, state, text);
-    console.log('[AnalysisService] Applicable criteria:', applicableCriteria.length);
+    log.debug('Applicable criteria:', String(applicableCriteria.length));
     
     // Analyze each criterion using AI
     const analysisPromises = applicableCriteria.map(async (criteria) => {
@@ -472,7 +477,7 @@ export class AnalysisService {
     });
     
     const analysis = await Promise.all(analysisPromises);
-    console.log('[AnalysisService] Analysis complete, calculating result...');
+    log.debug('Analysis complete, calculating result...');
     
     // Calculate overall score and generate result
     return this.calculateQualityResult(analysis, text);
@@ -488,7 +493,7 @@ export class AnalysisService {
     try {
       return await this.performAIQualityAnalysis(text, updateType, state);
     } catch (error) {
-      console.log('[AnalysisService] AI quality analysis failed, no fallback - analysis incomplete');
+      log.warn('AI quality analysis failed, no fallback - analysis incomplete');
       throw new Error('AI quality analysis failed and no fallback is allowed');
     }
   }
@@ -502,7 +507,7 @@ export class AnalysisService {
       try {
         return await this.performAIQualityAnalysis(text, updateType, state);
       } catch (error) {
-        console.log('[AnalysisService] AI quality analysis failed, no fallback - analysis incomplete');
+        log.warn('AI quality analysis failed, no fallback - analysis incomplete');
         throw new Error('AI quality analysis failed and no fallback is allowed');
       }
     }
@@ -518,23 +523,23 @@ export class AnalysisService {
   private async initializeAIModels(): Promise<void> {
     try {
       if (!this.aiModels.sentimentModel) {
-        console.log('[AnalysisService] Loading sentiment model...');
+        log.debug('Loading sentiment model...');
         this.aiModels.sentimentModel = await pipeline('sentiment-analysis', 'Xenova/distilbert-base-uncased-finetuned-sst-2-english');
       }
       
       if (!this.aiModels.qaModel) {
-        console.log('[AnalysisService] Loading QA model...');
+        log.debug('Loading QA model...');
         this.aiModels.qaModel = await pipeline('question-answering', 'Xenova/distilbert-base-cased-distilled-squad');
       }
       
       if (!this.aiModels.summarizer) {
-        console.log('[AnalysisService] Loading summarizer...');
+        log.debug('Loading summarizer...');
         this.aiModels.summarizer = await pipeline('summarization', 'Xenova/sshleifer-tiny-cnn');
       }
       
-      console.log('[AnalysisService] All AI models loaded successfully');
+      log.info('All AI models loaded successfully');
     } catch (error) {
-      console.error('[AnalysisService] Failed to load AI models:', error);
+      log.error('Failed to load AI models:', String(error));
       throw error;
     }
   }
@@ -551,7 +556,7 @@ export class AnalysisService {
       
       return { score, label };
     } catch (error) {
-      console.error('[AnalysisService] AI sentiment analysis failed:', error);
+      log.error('AI sentiment analysis failed:', String(error));
       throw new Error('AI sentiment analysis failed - no fallback available');
     }
   }
@@ -575,7 +580,7 @@ export class AnalysisService {
         // Add small delay between questions
         await new Promise(resolve => setTimeout(resolve, 100));
       } catch (error) {
-        console.warn(`[AnalysisService] AI QA analysis failed for question ${questionData.id}:`, error);
+        log.warn(`AI QA analysis failed for question ${questionData.id}:`, String(error));
         analysis.push({
           id: questionData.id,
           question: questionData.q,
@@ -598,7 +603,7 @@ export class AnalysisService {
       });
       return result[0].summary_text || 'AI summary generation failed';
     } catch (error) {
-      console.error('[AnalysisService] AI summary generation failed:', error);
+      log.error('AI summary generation failed:', String(error));
       throw new Error('AI summary generation failed - no fallback available');
     }
   }
@@ -804,7 +809,7 @@ export class AnalysisService {
     this.aiModels.sentimentModel = null;
     this.aiModels.qaModel = null;
     this.aiModels.summarizer = null;
-    console.log('[AnalysisService] AI models cleaned up');
+    log.info('AI models cleaned up');
   }
 
   /**

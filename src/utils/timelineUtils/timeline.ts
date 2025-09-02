@@ -1,6 +1,10 @@
 import * as chrono from "chrono-node";
 import { parse, differenceInCalendarDays, isValid, parseISO, isAfter, isBefore, startOfWeek, addWeeks, format, isSameWeek, subWeeks, subDays, lastDayOfMonth } from "date-fns";
 import type { ProjectViewModel, WeekRange, ProjectUpdate } from "../../types";
+import { log, setFilePrefix } from "../logger";
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[TimelineUtils]');
 
 const MONTHS = [
   'jan', 'feb', 'mar', 'apr', 'may', 'jun',
@@ -26,7 +30,7 @@ export function safeParseDate(dateStr: string | null | undefined): Date {
   }
   
   // If all else fails, return invalid date
-  console.warn('[AtlasXray] Failed to parse date:', dateStr);
+  log.warn('Failed to parse date:', dateStr);
   return new Date('Invalid Date');
 }
 

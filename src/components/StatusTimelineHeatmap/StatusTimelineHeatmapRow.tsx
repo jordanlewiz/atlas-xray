@@ -18,6 +18,10 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../services/DatabaseService';
 // Quality analysis data is now stored directly in update objects by ProjectPipeline
 import type { StatusTimelineHeatmapRowProps } from "../../types";
+import { log, setFilePrefix } from '../../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[StatusTimelineHeatmapRow]');
 
 /**
  * Component to display project dependencies in the timeline row
@@ -119,7 +123,7 @@ function StatusTimelineHeatmapRow({
   // No need for external hooks or triggers
   
   if (!project) {
-    console.warn('ProjectTimelineRow received undefined project');
+    log.warn('ProjectTimelineRow received undefined project');
     return null;
   }
 

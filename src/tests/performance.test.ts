@@ -1,5 +1,9 @@
 import { apolloClient } from '../services/apolloClient';
 import { db } from '../utils/databaseMocks';
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[PerformanceTest]');
 
 // Test utilities
 const clearDatabase = async () => {
@@ -7,9 +11,9 @@ const clearDatabase = async () => {
     await db.projectView.clear();
     await db.projectUpdate.clear();
     await db.projectDependency.clear();
-    console.log('Database cleared successfully');
+    log.info('Database cleared successfully');
   } catch (error) {
-    console.error('Failed to clear database:', error);
+    log.error('Failed to clear database:', String(error));
   }
 };
 

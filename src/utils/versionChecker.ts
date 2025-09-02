@@ -3,6 +3,11 @@
  * Provides version checking and update functionality
  */
 
+import { log, setFilePrefix } from './logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[VersionChecker]');
+
 export class VersionChecker {
   /**
    * Get latest version information
@@ -45,7 +50,7 @@ export class VersionChecker {
    */
   static showUpdateNotification(): void {
     // Mock implementation
-    console.log('Update notification would be shown here');
+    log.info('Update notification would be shown here');
   }
 }
 

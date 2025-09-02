@@ -3,6 +3,10 @@ import { PROJECT_VIEW_QUERY } from '../graphql/projectViewQuery';
 import { db } from './DatabaseService';
 import { bootstrapService } from './bootstrapService';
 import { gql } from '@apollo/client';
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[FetchProjectsFullDetails]');
 
 interface ProjectFullDetails {
   key: string;
@@ -89,14 +93,14 @@ export class FetchProjectsFullDetails {
       }
 
       if (projectsNeedingRefresh.length > 0) {
-        console.log(`[FetchProjectsFullDetails] 🔄 ${projectsNeedingRefresh.length} projects need full details refresh`);
+        log.info(`🔄 ${projectsNeedingRefresh.length} projects need full details refresh`);
       } else {
-        console.log('[FetchProjectsFullDetails] ✅ All project full details are fresh');
+        log.info('All project full details are fresh');
       }
 
       return projectsNeedingRefresh;
     } catch (error) {
-      console.error('[FetchProjectsFullDetails] ❌ Error checking refresh status:', error);
+      log.error('Error checking refresh status:', String(error));
       return projectKeys; // Refresh all on error
     }
   }
@@ -106,21 +110,21 @@ export class FetchProjectsFullDetails {
    */
   async getProjectFullDetails(projectKeys: string[]): Promise<void> {
     try {
-      console.log(`[FetchProjectsFullDetails] 🔍 Getting full details for ${projectKeys.length} projects...`);
+      log.info(`🔍 Getting full details for ${projectKeys.length} projects...`);
 
       // Check which projects need refresh
       const projectsNeedingRefresh = await this.needsRefresh(projectKeys);
       
       if (projectsNeedingRefresh.length === 0) {
-        console.log('[FetchProjectsFullDetails] ✅ All project full details are fresh, using DB data');
+        log.info('All project full details are fresh, using DB data');
         return;
       }
 
-      console.log(`[FetchProjectsFullDetails] 🔄 Fetching full details for ${projectsNeedingRefresh.length} projects from API...`);
+      log.info(`🔄 Fetching full details for ${projectsNeedingRefresh.length} projects from API...`);
       await this.fetchFromAPI(projectsNeedingRefresh);
 
     } catch (error) {
-      console.error('[FetchProjectsFullDetails] ❌ Error getting project full details:', error);
+      log.error('Error getting project full details:', String(error));
       throw error;
     }
   }
@@ -130,7 +134,7 @@ export class FetchProjectsFullDetails {
    */
   private async fetchFromAPI(projectKeys: string[]): Promise<void> {
     try {
-      console.log(`[FetchProjectsFullDetails] 🚀 Fetching full details for ${projectKeys.length} projects...`);
+      log.info(`🚀 Fetching full details for ${projectKeys.length} projects...`);
 
       // Get workspace context
       const workspaces = bootstrapService.getWorkspaces();
@@ -143,7 +147,7 @@ export class FetchProjectsFullDetails {
       // Fetch full details for each project individually
       for (const projectKey of projectKeys) {
         try {
-          console.log(`[FetchProjectsFullDetails] 📥 Fetching full details for ${projectKey}...`);
+          log.debug(`📥 Fetching full details for ${projectKey}...`);
           
           const response = await apolloClient.query({
             query: gql`${PROJECT_VIEW_QUERY}`,
@@ -155,13 +159,13 @@ export class FetchProjectsFullDetails {
           });
 
           if (response.errors && response.errors.length > 0) {
-            console.error(`[FetchProjectsFullDetails] ❌ GraphQL errors for ${projectKey}:`, response.errors);
+            log.error(`❌ GraphQL errors for ${projectKey}:`, JSON.stringify(response.errors));
             continue;
           }
 
           const projectData = response.data?.project;
           if (!projectData) {
-            console.warn(`[FetchProjectsFullDetails] ⚠️ No data for project ${projectKey}`);
+            log.warn(`⚠️ No data for project ${projectKey}`);
             continue;
           }
 
@@ -187,18 +191,18 @@ export class FetchProjectsFullDetails {
             }
           });
 
-          console.log(`[FetchProjectsFullDetails] ✅ Stored full details for ${projectKey}`);
+          log.info(`✅ Stored full details for ${projectKey}`);
 
         } catch (error) {
-          console.error(`[FetchProjectsFullDetails] ❌ Error fetching full details for ${projectKey}:`, error);
+          log.error(`❌ Error fetching full details for ${projectKey}:`, String(error));
           // Continue with other projects
         }
       }
 
-      console.log(`[FetchProjectsFullDetails] ✅ Completed fetching full details for ${projectKeys.length} projects`);
+      log.info(`✅ Completed fetching full details for ${projectKeys.length} projects`);
 
     } catch (error) {
-      console.error('[FetchProjectsFullDetails] ❌ Error fetching from API:', error);
+      log.error('Error fetching from API:', String(error));
       throw error;
     }
   }

@@ -1,3 +1,8 @@
+import { log, setFilePrefix } from './logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[TimelineCellUpdates]');
+
 export interface UpdateCellAnalysis {
   hasDateChange: boolean;
   hasMissedUpdate: boolean;
@@ -16,7 +21,7 @@ export interface UpdateCellAnalysis {
  */
 export function analyzeUpdateCell(update: any): UpdateCellAnalysis {
   // Add comprehensive logging for debugging
-  console.log('🔍 [analyzeUpdateCell] Analyzing update:', {
+  log.debug('Analyzing update:', JSON.stringify({
     updateId: update.uuid || update.id || 'unknown',
     newTargetDate: update.newTargetDate,
     newTargetDateParsed: update.newTargetDateParsed,
@@ -24,7 +29,7 @@ export function analyzeUpdateCell(update: any): UpdateCellAnalysis {
     oldTargetDateParsed: update.oldTargetDateParsed,
     rawMissedUpdate: update.raw?.missedUpdate,
     missedUpdate: update.missedUpdate
-  });
+  }));
 
   const hasMissedUpdate = Boolean(update.raw?.missedUpdate || update.missedUpdate);
   
@@ -35,20 +40,20 @@ export function analyzeUpdateCell(update: any): UpdateCellAnalysis {
     update.oldTargetDateParsed !== update.newTargetDateParsed
   );
   
-  console.log('🔍 [analyzeUpdateCell] Date change analysis:', {
+  log.debug('Date change analysis:', JSON.stringify({
     hasDateChange,
     oldTargetDate: update.oldTargetDate,
     newTargetDate: update.newTargetDate,
     datesAreDifferent: update.oldTargetDate !== update.newTargetDate
-  });
+  }));
 
-  console.log('🔍 [analyzeUpdateCell] Final decision:', {
+  log.debug('Final decision:', JSON.stringify({
     hasDateChange,
     hasMissedUpdate,
     shouldShowDateDifference: !hasMissedUpdate && hasDateChange,
     shouldShowIndicator: !hasMissedUpdate && !hasDateChange,
     cssClasses: `timeline-cell-content ${hasDateChange ? 'has-old-due-date' : ''}`
-  });
+  }));
 
   return {
     hasDateChange,

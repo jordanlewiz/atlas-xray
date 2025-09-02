@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './PerformanceMonitor.scss';
+import { log, setFilePrefix } from '../../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[PerformanceMonitor]');
 
 interface MemoryStats {
   used: number;
@@ -47,7 +51,7 @@ const PerformanceMonitor: React.FC = () => {
         }));
       }
     } catch (error) {
-      console.warn('Failed to get performance data:', error);
+      log.warn('Failed to get performance data:', String(error));
     }
   };
 
@@ -73,7 +77,7 @@ const PerformanceMonitor: React.FC = () => {
         setTimeout(refreshPerformanceData, 2000);
       }
     } catch (error) {
-      console.error('Failed to force cleanup:', error);
+      log.error('Failed to force cleanup:', String(error));
     }
   };
 

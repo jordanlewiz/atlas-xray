@@ -10,6 +10,10 @@
  */
 
 import Dexie, { Table } from 'dexie';
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[DatabaseService]');
 
 // ============================================================================
 // INTERFACES & TYPES
@@ -102,7 +106,7 @@ export class DatabaseService extends Dexie {
       projectDependencies: 'id, sourceProjectKey, targetProjectKey',
     });
     
-    console.log(`[DatabaseService] 🗄️ Using database: ${dbName} (Extension: ${extensionVersion})`);
+    log.info(`🗄️ Using database: ${dbName} (Extension: ${extensionVersion})`);
   }
 
   /**
@@ -125,7 +129,7 @@ export class DatabaseService extends Dexie {
       // Fallback for non-Chrome environments (testing, development)
       return 'dev';
     } catch (error) {
-      console.warn('[DatabaseService] Could not get extension version, using "dev":', error);
+      log.warn('Could not get extension version, using "dev":', String(error));
       return 'dev';
     }
   }
@@ -141,7 +145,7 @@ export class DatabaseService extends Dexie {
     try {
       await this.projectList.put(projectList);
     } catch (error) {
-      console.error(`[DatabaseService] ❌ Failed to store project list entry for ${projectList.projectKey}:`, error);
+      log.error(`❌ Failed to store project list entry for ${projectList.projectKey}:`, String(error));
       throw error;
     }
   }
@@ -153,7 +157,7 @@ export class DatabaseService extends Dexie {
     try {
       return await this.projectList.toArray();
     } catch (error) {
-      console.error('[DatabaseService] Failed to get project list:', error);
+      log.error('Failed to get project list:', String(error));
       return [];
     }
   }
@@ -165,7 +169,7 @@ export class DatabaseService extends Dexie {
     try {
       return await this.projectList.get(projectKey);
     } catch (error) {
-      console.error(`[DatabaseService] Failed to get project list entry for ${projectKey}:`, error);
+      log.error(`Failed to get project list entry for ${projectKey}:`, String(error));
       return undefined;
     }
   }
@@ -177,7 +181,7 @@ export class DatabaseService extends Dexie {
     try {
       return await this.projectList.count();
     } catch (error) {
-      console.error('[DatabaseService] Failed to count project list entries:', error);
+      log.error('Failed to count project list entries:', String(error));
       return 0;
     }
   }
@@ -197,7 +201,7 @@ export class DatabaseService extends Dexie {
         const newCount = await this.projectList.count();
       }
     } catch (error) {
-      console.error('[DatabaseService] Failed to clear project list entries:', error);
+      log.error('Failed to clear project list entries:', String(error));
       throw error;
     }
   }
@@ -213,7 +217,7 @@ export class DatabaseService extends Dexie {
     try {
       await this.projectSummaries.put(projectSummary);
     } catch (error) {
-      console.error(`[DatabaseService] ❌ Failed to store project summary for ${projectSummary.projectKey}:`, error);
+      log.error(`❌ Failed to store project summary for ${projectSummary.projectKey}:`, String(error));
       throw error;
     }
   }
@@ -225,7 +229,7 @@ export class DatabaseService extends Dexie {
     try {
       return await this.projectSummaries.toArray();
     } catch (error) {
-      console.error('[DatabaseService] Failed to get project summaries:', error);
+      log.error('Failed to get project summaries:', String(error));
       return [];
     }
   }
@@ -237,7 +241,7 @@ export class DatabaseService extends Dexie {
     try {
       return await this.projectSummaries.get(projectKey);
     } catch (error) {
-      console.error(`[DatabaseService] Failed to get project summary for ${projectKey}:`, error);
+      log.error(`Failed to get project summary for ${projectKey}:`, String(error));
       return undefined;
     }
   }
@@ -249,7 +253,7 @@ export class DatabaseService extends Dexie {
     try {
       return await this.projectSummaries.count();
     } catch (error) {
-      console.error('[DatabaseService] Failed to count project summaries:', error);
+      log.error('Failed to count project summaries:', String(error));
       return 0;
     }
   }
@@ -265,7 +269,7 @@ export class DatabaseService extends Dexie {
     try {
       await this.projectUpdates.put(update);
     } catch (error) {
-      console.error(`[DatabaseService] ❌ Failed to store update ${update.uuid}:`, error);
+      log.error(`❌ Failed to store update ${update.uuid}:`, String(error));
       throw error;
     }
   }
@@ -277,7 +281,7 @@ export class DatabaseService extends Dexie {
     try {
       return await this.projectUpdates.toArray();
     } catch (error) {
-      console.error('[DatabaseService] Failed to get project updates:', error);
+      log.error('Failed to get project updates:', String(error));
       return [];
     }
   }
@@ -289,7 +293,7 @@ export class DatabaseService extends Dexie {
     try {
       return await this.projectUpdates.where('projectKey').equals(projectKey).toArray();
     } catch (error) {
-      console.error(`[DatabaseService] Failed to get updates for ${projectKey}:`, error);
+      log.error(`Failed to get updates for ${projectKey}:`, String(error));
       return [];
     }
   }
@@ -301,7 +305,7 @@ export class DatabaseService extends Dexie {
     try {
       return await this.projectUpdates.count();
     } catch (error) {
-      console.error('[DatabaseService] Failed to count project updates:', error);
+      log.error('Failed to count project updates:', String(error));
       return 0;
     }
   }
@@ -320,7 +324,7 @@ export class DatabaseService extends Dexie {
     try {
       await this.projectDependencies.bulkPut(dependencies);
     } catch (error) {
-      console.error(`[DatabaseService] ❌ Failed to store dependencies for project ${sourceProjectKey}:`, error);
+      log.error(`❌ Failed to store dependencies for project ${sourceProjectKey}:`, String(error));
       throw error;
     }
   }
@@ -335,7 +339,7 @@ export class DatabaseService extends Dexie {
         .equals(projectKey)
         .toArray();
     } catch (error) {
-      console.error(`[DatabaseService] Failed to get dependencies for ${projectKey}:`, error);
+      log.error(`Failed to get dependencies for ${projectKey}:`, String(error));
       return [];
     }
   }
@@ -350,7 +354,7 @@ export class DatabaseService extends Dexie {
         .equals(projectKey)
         .toArray();
     } catch (error) {
-      console.error(`[DatabaseService] Failed to get projects depending on ${projectKey}:`, error);
+      log.error(`Failed to get projects depending on ${projectKey}:`, String(error));
       return [];
     }
   }
@@ -362,7 +366,7 @@ export class DatabaseService extends Dexie {
     try {
       return await this.projectDependencies.toArray();
     } catch (error) {
-      console.error('[DatabaseService] Failed to get all project dependencies:', error);
+      log.error('Failed to get all project dependencies:', String(error));
       return [];
     }
   }
@@ -384,7 +388,7 @@ export class DatabaseService extends Dexie {
       
 
     } catch (error) {
-      console.error(`[DatabaseService] ❌ Failed to clear dependencies for ${projectKey}:`, error);
+      log.error(`❌ Failed to clear dependencies for ${projectKey}:`, String(error));
       throw error;
     }
   }
@@ -395,9 +399,9 @@ export class DatabaseService extends Dexie {
   async clearProjectUpdates(): Promise<void> {
     try {
       await this.projectUpdates.clear();
-      console.log('[DatabaseService] ✅ Cleared all project updates');
+      log.info('Cleared all project updates');
     } catch (error) {
-      console.error('[DatabaseService] ❌ Failed to clear project updates:', error);
+      log.error('Failed to clear project updates:', String(error));
       throw error;
     }
   }
@@ -428,7 +432,7 @@ export class DatabaseService extends Dexie {
       const allDatabases = await Dexie.getDatabaseNames();
       return allDatabases.filter(name => name.startsWith('AtlasXrayDB_'));
     } catch (error) {
-      console.error('[DatabaseService] Failed to list databases:', error);
+      log.error('Failed to list databases:', String(error));
       return [];
     }
   }
@@ -449,11 +453,11 @@ export class DatabaseService extends Dexie {
         .map(dbName =>
           Dexie.delete(dbName)
             .then(() => {
-              console.log(`[DatabaseService] 🧹 Cleaned up old database: ${dbName}`);
+              log.info(`🧹 Cleaned up old database: ${dbName}`);
               return { dbName, status: 'fulfilled' as const };
             })
             .catch(error => {
-              console.warn(`[DatabaseService] Failed to clean up database ${dbName}:`, error);
+              log.warn(`Failed to clean up database ${dbName}:`, String(error));
               return { dbName, status: 'rejected' as const, reason: error };
             })
         );
@@ -466,16 +470,16 @@ export class DatabaseService extends Dexie {
       const failedCount = results.filter(r => r.status === 'rejected').length;
       
       if (cleanedCount > 0) {
-        console.log(`[DatabaseService] 🧹 Cleaned up ${cleanedCount} old database(s)`);
+        log.info(`🧹 Cleaned up ${cleanedCount} old database(s)`);
       }
       if (failedCount > 0) {
-        console.warn(`[DatabaseService] ⚠️ Failed to clean up ${failedCount} database(s)`);
+        log.warn(`⚠️ Failed to clean up ${failedCount} database(s)`);
       }
       if (cleanedCount === 0 && failedCount === 0) {
-        console.log(`[DatabaseService] ✨ No old databases to clean up`);
+        log.info(`✨ No old databases to clean up`);
       }
     } catch (error) {
-      console.error('[DatabaseService] Failed to clean up old databases:', error);
+      log.error('Failed to clean up old databases:', String(error));
     }
   }
 }
@@ -526,7 +530,7 @@ export async function initializeDatabase(cleanupOldDatabases: boolean = false): 
     }
     
   } catch (error) {
-    console.error('[DatabaseService] ❌ Failed to initialize database:', error);
+    log.error('Failed to initialize database:', String(error));
     throw error;
   }
 }

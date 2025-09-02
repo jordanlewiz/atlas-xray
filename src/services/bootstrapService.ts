@@ -1,4 +1,8 @@
 import { BOOTSTRAP_QUERY } from '../graphql/bootstrapQuery';
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[BootstrapService]');
 
 interface WorkspaceSummary {
   id: string;
@@ -50,7 +54,7 @@ export class BootstrapService {
       const orgId = orgMatch ? orgMatch[1] : null;
 
       if (!orgId) {
-        console.warn('[AtlasXray] ⚠️ Could not extract org ID from URL');
+        log.warn('Could not extract org ID from URL');
         return null;
       }
 
@@ -84,20 +88,20 @@ export class BootstrapService {
 
         return this.bootstrapData;
       } else {
-        console.warn('[AtlasXray] ⚠️ No bootstrap data returned from GraphQL API');
+        log.warn('No bootstrap data returned from GraphQL API');
         return null;
       }
 
     } catch (error) {
-      console.error('[AtlasXray] ❌ Error loading bootstrap data:', error);
+      log.error('Error loading bootstrap data:', String(error));
       
       // Log additional details for debugging
       if (error && typeof error === 'object') {
-        console.error('[AtlasXray] 🔍 Bootstrap error details:', {
+        log.error('Bootstrap error details:', JSON.stringify({
           message: (error as any).message,
           graphQLErrors: (error as any).graphQLErrors,
           networkError: (error as any).networkError
-        });
+        }));
       }
       
       return null;

@@ -3,6 +3,10 @@ import { PROJECT_VIEW_ASIDE_QUERY } from '../graphql/projectViewAsideQuery';
 import { db } from './DatabaseService';
 import { bootstrapService } from './bootstrapService';
 import { gql } from '@apollo/client';
+import { log, setFilePrefix } from '../utils/logger';
+
+// Set file-level prefix for all logging in this file
+setFilePrefix('[FetchProjectsSummary]');
 
 interface ProjectSummary {
   key: string;
@@ -68,14 +72,14 @@ export class FetchProjectsSummary {
       }
 
       if (projectsNeedingRefresh.length > 0) {
-        console.log(`[FetchProjectsSummary] 🔄 ${projectsNeedingRefresh.length} projects need initial summary fetch`);
+        log.info(`🔄 ${projectsNeedingRefresh.length} projects need initial summary fetch`);
       } else {
-        console.log('[FetchProjectsSummary] ✅ All projects already have summaries stored');
+        log.info('All projects already have summaries stored');
       }
 
       return projectsNeedingRefresh;
     } catch (error) {
-      console.error('[FetchProjectsSummary] ❌ Error checking refresh status:', error);
+      log.error('Error checking refresh status:', String(error));
       return projectKeys; // Fetch all on error
     }
   }
@@ -85,21 +89,21 @@ export class FetchProjectsSummary {
    */
   async getProjectSummaries(projectKeys: string[]): Promise<void> {
     try {
-      console.log(`[FetchProjectsSummary] 🔍 Getting summaries for ${projectKeys.length} projects...`);
+      log.info(`🔍 Getting summaries for ${projectKeys.length} projects...`);
 
       // Check which projects need refresh
       const projectsNeedingRefresh = await this.needsRefresh(projectKeys);
       
       if (projectsNeedingRefresh.length === 0) {
-        console.log('[FetchProjectsSummary] ✅ All project summaries are fresh, using DB data');
+        log.info('All project summaries are fresh, using DB data');
         return;
       }
 
-      console.log(`[FetchProjectsSummary] 🔄 Fetching summaries for ${projectsNeedingRefresh.length} projects from API...`);
+      log.info(`🔄 Fetching summaries for ${projectsNeedingRefresh.length} projects from API...`);
       await this.fetchFromAPI(projectsNeedingRefresh);
 
     } catch (error) {
-      console.error('[FetchProjectsSummary] ❌ Error getting project summaries:', error);
+      log.error('Error getting project summaries:', String(error));
       throw error;
     }
   }
@@ -109,7 +113,7 @@ export class FetchProjectsSummary {
    */
   private async fetchFromAPI(projectKeys: string[]): Promise<void> {
     try {
-      console.log(`[FetchProjectsSummary] 🚀 Fetching summaries for ${projectKeys.length} projects...`);
+      log.info(`🚀 Fetching summaries for ${projectKeys.length} projects...`);
 
       // Get workspace context
       const workspaces = bootstrapService.getWorkspaces();
@@ -122,7 +126,7 @@ export class FetchProjectsSummary {
       // Fetch each project summary individually (GraphQL limitation)
       for (const projectKey of projectKeys) {
         try {
-          console.log(`[FetchProjectsSummary] 📥 Fetching summary for ${projectKey}...`);
+          log.debug(`📥 Fetching summary for ${projectKey}...`);
           
           const response = await apolloClient.query({
             query: gql`${PROJECT_VIEW_ASIDE_QUERY}`,
@@ -138,24 +142,24 @@ export class FetchProjectsSummary {
           });
 
           if (response.errors && response.errors.length > 0) {
-            console.error(`[FetchProjectsSummary] ❌ GraphQL errors for ${projectKey}:`, response.errors);
+            log.error(`❌ GraphQL errors for ${projectKey}:`, JSON.stringify(response.errors));
             continue;
           }
 
           const projectData = response.data?.project;
           if (!projectData) {
-            console.warn(`[FetchProjectsSummary] ⚠️ No data for project ${projectKey}`);
+            log.warn(`⚠️ No data for project ${projectKey}`);
             continue;
           }
           
 
 
           // Update project summary with summary data
-          console.log(`[FetchProjectsSummary] 📝 Storing summary for ${projectKey}:`, {
+          log.debug(`📝 Storing summary for ${projectKey}:`, JSON.stringify({
             key: projectData.key,
             name: projectData.name,
             status: projectData.state?.value
-          });
+          }));
           
           await db.storeProjectSummary({
             projectKey: projectData.key,
@@ -168,11 +172,11 @@ export class FetchProjectsSummary {
             raw: projectData
           });
           
-          console.log(`[FetchProjectsSummary] ✅ Stored summary for ${projectKey}`);
+          log.info(`✅ Stored summary for ${projectKey}`);
 
                     // Store dependencies if they exist
           if (projectData.dependencies?.edges && projectData.dependencies.edges.length > 0) {
-            console.log(`[FetchProjectsSummary] 🔗 Processing ${projectData.dependencies.edges.length} dependencies for ${projectKey}`);
+            log.debug(`🔗 Processing ${projectData.dependencies.edges.length} dependencies for ${projectKey}`);
             
 
             
@@ -183,16 +187,16 @@ export class FetchProjectsSummary {
               try {
                 // Bulletproof null checking - if ANYTHING is missing, skip it
                 if (!edge || !edge.node || !edge.node.outgoingProject || !edge.node.outgoingProject.key || !edge.node.id) {
-                  console.warn(`[FetchProjectsSummary] ⚠️ Skipping malformed dependency edge for ${projectKey}:`, edge);
+                  log.warn(`⚠️ Skipping malformed dependency edge for ${projectKey}:`, JSON.stringify(edge));
                   continue;
                 }
                 
                 // Log what we're processing
-                console.log(`[FetchProjectsSummary] 🔍 Processing dependency edge:`, {
+                log.debug(`🔍 Processing dependency edge:`, JSON.stringify({
                   edgeId: edge.node.id,
                   outgoingProject: edge.node.outgoingProject,
                   linkType: edge.node.linkType
-                });
+                }));
                 
                 // Create dependency object
                 const dependency = {
@@ -204,34 +208,34 @@ export class FetchProjectsSummary {
                 };
                 
                 dependencies.push(dependency);
-                console.log(`[FetchProjectsSummary] ✅ Successfully processed dependency: ${projectKey} -> ${edge.node.outgoingProject.key}`);
+                log.debug(`✅ Successfully processed dependency: ${projectKey} -> ${edge.node.outgoingProject.key}`);
                 
               } catch (error) {
-                console.error(`[FetchProjectsSummary] ❌ Error processing dependency edge for ${projectKey}:`, error, edge);
+                log.error(`❌ Error processing dependency edge for ${projectKey}:`, String(error), JSON.stringify(edge));
                 continue; // Skip this edge and continue with the next one
               }
             }
 
             if (dependencies.length > 0) {
               await db.storeProjectDependencies(projectKey, dependencies);
-              console.log(`[FetchProjectsSummary] ✅ Stored ${dependencies.length} dependencies for ${projectKey}`);
+                            log.info(`✅ Stored ${dependencies.length} dependencies for ${projectKey}`);
             } else {
-              console.log(`[FetchProjectsSummary] ℹ️ No valid dependencies found for ${projectKey} after filtering`);
-            }
-          } else {
-            console.log(`[FetchProjectsSummary] ℹ️ No dependencies for ${projectKey}`);
+              log.info(`ℹ️ No valid dependencies found for ${projectKey} after filtering`);
           }
+        } else {
+          log.info(`ℹ️ No dependencies for ${projectKey}`);
+        }
 
         } catch (error) {
-          console.error(`[FetchProjectsSummary] ❌ Error fetching summary for ${projectKey}:`, error);
+          log.error(`❌ Error fetching summary for ${projectKey}:`, String(error));
           // Continue with other projects
         }
       }
 
-      console.log(`[FetchProjectsSummary] ✅ Completed fetching summaries for ${projectKeys.length} projects`);
+      log.info(`✅ Completed fetching summaries for ${projectKeys.length} projects`);
 
     } catch (error) {
-      console.error('[FetchProjectsSummary] ❌ Error fetching from API:', error);
+      log.error('Error fetching from API:', String(error));
       throw error;
     }
   }
