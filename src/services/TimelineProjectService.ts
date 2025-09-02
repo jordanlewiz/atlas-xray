@@ -115,7 +115,7 @@ export class TimelineProjectService {
         const sourceElement = document.getElementById(dep.source);
         
         if (!sourceElement) {
-          log.warn(`⚠️ Could not find source element for ${dep.source}`);
+          log.warn(`Could not find source element for ${dep.source}`);
           return;
         }
         
@@ -124,7 +124,7 @@ export class TimelineProjectService {
           const targetElement = document.getElementById(targetId);
           
           if (!targetElement) {
-            log.warn(`⚠️ Could not find target element for ${targetId}`);
+            log.warn(`Could not find target element for ${targetId}`);
             return;
           }
           
@@ -150,7 +150,7 @@ export class TimelineProjectService {
             
 
           } catch (error) {
-            log.warn(`⚠️ Could not create line from ${dep.source} to ${targetId}:`, String(error));
+            log.warn(`Could not create line from ${dep.source} to ${targetId}:`, String(error));
           }
         });
       });
@@ -185,7 +185,7 @@ export class TimelineProjectService {
           const linkElement = projectBar.querySelector('a[href]');
           
           if (!linkElement || !linkElement.getAttribute('href')) {
-            log.warn(`⚠️ ProjectBar ${index + 1} has no link element or href`);
+            log.warn(`ProjectBar ${index + 1} has no link element or href`);
             return;
           }
 
@@ -214,7 +214,7 @@ export class TimelineProjectService {
           processedCount++;
 
         } catch (error) {
-          log.error(`❌ Error processing ProjectBar ${index + 1}:`, String(error));
+          log.error(`Error processing ProjectBar ${index + 1}:`, String(error));
         }
       });
 
@@ -229,7 +229,7 @@ export class TimelineProjectService {
 
     } catch (error) {
       log.error('Error in findAndProcessTimelineProjects:', String(error));
-      log.error(`❌ Error processing timeline projects: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      log.error(`Error processing timeline projects: ${error instanceof Error ? error.message : 'Unknown error'}`);
       return [];
     }
   }
@@ -255,17 +255,17 @@ export class TimelineProjectService {
           if (dependsOn.length > 0) {
             const dependencyText = `${projectId} depends on ${dependsOn.join(' ')}`;
             dependencyResults.push(dependencyText);
-            log.debug(`🔗 ${dependencyText}`);
+            log.debug(`${dependencyText}`);
           }
         } catch (error) {
-          log.warn(`⚠️ Could not look up dependencies for ${projectId}:`, String(error));
+          log.warn(`Could not look up dependencies for ${projectId}:`, String(error));
         }
       }
 
       // Display results
       if (dependencyResults.length > 0) {
         const alertMessage = dependencyResults.join('\n');
-        log.info(`🔗 Dependencies found:\n\n${alertMessage}`);
+        log.info(`Dependencies found:\n\n${alertMessage}`);
         
         // Draw visual dependency lines
         const dependenciesForDrawing = dependencyResults.map(result => {
@@ -283,12 +283,12 @@ export class TimelineProjectService {
           this.drawDependencyLines(dependenciesForDrawing);
         }
       } else {
-        log.info(`🎯 Found ${projectIds.length} projects but no dependencies found in database`);
+        log.info(`Found ${projectIds.length} projects but no dependencies found in database`);
       }
 
     } catch (error) {
       log.error('Error looking up dependencies:', String(error));
-      log.error(`❌ Error looking up dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      log.error(`Error looking up dependencies: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 

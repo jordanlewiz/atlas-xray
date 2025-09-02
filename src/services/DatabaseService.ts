@@ -182,7 +182,7 @@ export class DatabaseService extends Dexie {
       return await this.projectList.count();
     } catch (error) {
       log.error('Failed to count project list entries:', String(error));
-      throw error;
+      return 0;
     }
   }
 
